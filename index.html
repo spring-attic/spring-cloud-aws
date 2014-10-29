@@ -26,34 +26,55 @@ badges:
 
 {% capture billboard_description %}
 
-**PROJECT DESCRIPTION** Corpus callosum,
-[the carbon](#) in our apple pies a mote of dust suspended in a
-sunbeam. Muse about! Venture galaxies a billion trillion extraordinary
-claims require extraordinary evidence, consciousness a mote of dust
-suspended in a sunbeam Apollonius of [Perga Euclid](#) inconspicuous
-motes of rock and gas made in the interiors of collapsing stars.
+Spring Cloud AWS, part of the [Spring Cloud]({{ site.projects_site_url }}/spring-cloud) family, eases the integration
+with Amazon Web Services. It offers a convenient way to interact with AWS services using the well-known Spring idioms
+and APIs, such as the messaging or caching API.
 
 {% endcapture %}
 
 {% capture main_content %}
 
-**INTRODUCTORY PARAGRAPHS** Birth, a very small stage in a vast cosmic
-arena extraordinary claims require extraordinary evidence! Flatland
-Apollonius of Perga culture inconspicuous motes of rock and gas realm
-of the galaxies quasar, corpus callosum, galaxies Drake Equation ship
-of the imagination [Jean-François Champollion](#). Galaxies Hypatia!
-Trillion tingling of the spine the only home we've ever known
-extraordinary claims require extraordinary evidence stirred by
-starlight, culture? Flatland Tunguska event finite but unbounded
-corpus callosum!
+Some text...
 
 ## Features
 
-* Feature 1
-* [Feature 2](#)
-* Feature 3
-* Feature 4
-* ...
+* Spring Messaging API implementation for [SQS](http://aws.amazon.com/sqs/).
+* Spring Cache API implementation for [ElastiCache](http://aws.amazon.com/elasticache/).
+* Annotation-based mapping of [SNS](http://aws.amazon.com/sns/) endpoints (HTTP).
+* Access the resources by their logical name defined in a [CloudFormation](http://aws.amazon.com/cloudformation/) stack.
+* Automatic JDBC `DataSource` creation based on the logical name of an [RDS](http://aws.amazon.com/rds/) instance.
+* Ant-style path matching ResourceLoader for [S3](http://aws.amazon.com/s3/) buckets.
+
+### Annotation-based SQS queue listener
+```java
+@MessageMapping("logicalQueueName")
+private void receiveMessage(Person person, @Header("SenderId") String senderId) {
+    // ...
+}
+```
+
+### Annotation-based SNS listener
+```java
+@Controller
+@RequestMapping("/sns/receive")
+public class SnsEndpointController {
+
+@NotificationMessageMapping
+public void receiveNotification(@NotificationMessage String message, @NotificationSubject String subject) {
+    // ...
+}
+
+@NotificationSubscriptionMapping
+public void confirmSubscription(NotificationStatus notificationStatus) {
+    notificationStatus.confirmSubscription();
+}
+```
+
+### Messaging templates
+```java
+snsTemplate.sendNotification("SnsTopic", "message", "subject");
+sqsTemplate.convertAndSend("Queue", new Person("John", "Doe"));
+```
 
 <span id="quick-start"></span>
 ## Quick Start
@@ -61,22 +82,19 @@ corpus callosum!
 {% include download_widget.md %}
 
 
-```java
-package foo;
+```xml
+<!-- Define global credentials for all the AWS clients -->
+<aws-context:context-credentials>
+    <aws-context:instance-profile-credentials/>
+    <aws-context:simple-credentials access-key="${accessKey:}"
+                                    secret-key="${secretKey:}"/>
+</aws-context:context-credentials>
 
-import foo;
+<!-- Define global region -->
+<aws-context:context-region region="EU_WEST_1"/>
 
-public class SearchController {
-
-    @Foo
-    public SearchController(SearchService searchService) {
-        this.searchService = searchService;
-    }
-
-    public static void main(String[] args) {
-        // This is just a test to see how a very long line works with our project css
-    }
-}
+<!-- Cloud Formation Stack -->
+<aws-context:stack-configuration stack-name="StackName"/>
 ```
 
 {% endcapture %}
@@ -85,21 +103,7 @@ public class SearchController {
 
 ### Sample Projects
 
-* [Project Name 1](#)
-* [Project name 2](#)
-* [Project name nth](#)
-
-### Getting Started Guides
-
-* [GSG 1]({{site.main_site_url}}/guides/gs/rest-service)
-* [GSG 2]({{site.main_site_url}}/guides/gs/other-guide-2)
-* [GSG n]({{site.main_site_url}}/guides/gs/other-guide-3)
-
-### Tutorials
-
-* [Tutorial 1]({{site.main_site_url}}/guides/tutorials/rest)
-* [Tutorial 2]({{site.main_site_url}}/guides/tutorials/other-2)
-* [Tutorial n]({{site.main_site_url}}/guides/tutorials/other-3)
+* [Reference Application](https://github.com/spring-cloud-samples/aws-refapp)
 
 {% endcapture %}
 
