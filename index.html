@@ -10,6 +10,10 @@ badges:
       url:  https://github.com/spring-cloud/spring-cloud-aws
       icon: github
 
+    - name: Issues (GitHub)
+      url:  https://github.com/spring-cloud/spring-cloud-aws/issues
+      icon: tracking
+
     - name: StackOverflow
       url:  http://stackoverflow.com/questions/tagged/spring-cloud
       icon: stackoverflow
@@ -26,9 +30,10 @@ badges:
 
 {% capture billboard_description %}
 
-Spring Cloud AWS, part of the [Spring Cloud]({{ site.projects_site_url }}/spring-cloud) family, eases the integration
-with Amazon Web Services. It offers a convenient way to interact with AWS services using the well-known Spring idioms
-and APIs, such as the messaging or caching API.
+Spring Cloud AWS, part of the [Spring Cloud]({{ site.projects_site_url }}/spring-cloud) umbrella project, eases the
+integration with hosted Amazon Web Services. It offers a convenient way to interact with AWS provided services using
+well-known Spring idioms and APIs, such as the messaging or caching API. Developers can build their application around
+the hosted services without having to care about infrastructure or maintenance.
 
 {% endcapture %}
 
@@ -41,9 +46,9 @@ and APIs, such as the messaging or caching API.
 * Annotation-based mapping of [SNS](http://aws.amazon.com/sns/) endpoints (HTTP).
 * Access the resources by their logical name defined in a [CloudFormation](http://aws.amazon.com/cloudformation/) stack.
 * Automatic JDBC `DataSource` creation based on the logical name of an [RDS](http://aws.amazon.com/rds/) instance.
-* Ant-style path matching ResourceLoader for [S3](http://aws.amazon.com/s3/) buckets.
+* Ant-style path matching `ResourceLoader` for [S3](http://aws.amazon.com/s3/) buckets.
 
-### Annotation-based SQS queue listener
+### Annotation-based SQS Queue Listener
 ```java
 @MessageMapping("logicalQueueName")
 private void receiveMessage(Person person, @Header("SenderId") String senderId) {
@@ -51,7 +56,7 @@ private void receiveMessage(Person person, @Header("SenderId") String senderId) 
 }
 ```
 
-### Annotation-based SNS listener
+### Annotation-based SNS Listener
 ```java
 @Controller
 @RequestMapping("/sns/receive")
@@ -68,7 +73,7 @@ public void confirmSubscription(NotificationStatus notificationStatus) {
 }
 ```
 
-### Messaging templates
+### Messaging Templates
 ```java
 snsTemplate.sendNotification("SnsTopic", "message", "subject");
 sqsTemplate.convertAndSend("Queue", new Person("John", "Doe"));
