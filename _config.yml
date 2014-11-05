@@ -13,7 +13,7 @@ redcarpet:
 baseurl: /spring-cloud-aws
 
 # Name of the project for display in places like page titles
-name: Spring Cloud AWS
+name: Spring Cloud for Amazon Web Services
 
 # ID of the project in the metadata API at spring.io (if this is not a
 # valid project ID the javascript widgets in the home page will not work)
