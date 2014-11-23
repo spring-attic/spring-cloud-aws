@@ -760,6 +760,113 @@ are hosted only inside one region and split the application if it is hosted in d
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_spring_boot_auto_configuration">Spring Boot auto-configuration</h4>
+<div class="paragraph">
+<p>Following the Spring Cloud umbrella project, Spring Cloud AWS provides also dedicated Spring Boot support. Spring Cloud
+AWS can be configured using Spring Boot properties and will also automatically guess any sensible configuration based on
+the general setup.</p>
+</div>
+<div class="sect4">
+<h5 id="_maven_dependencies">Maven dependencies</h5>
+<div class="paragraph">
+<p>Spring Cloud AWS provides a dedicated module to enable the Spring Boot support. That module must be added to the general
+maven dependency inside the application. The typical configuration will look like this</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependencies&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-aws-autoconfigure&lt;/artifactId&gt;
+    &lt;version&gt;{spring-cloud-version}&lt;/version&gt;
+  &lt;/dependency&gt;&gt;
+&lt;/dependencies&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Additional dependencies to enable particular features like messaging and jdbc have to been added. Spring Cloud AWS will
+only configure classes that are available in the Spring Boot applications classpath.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_configuring_credentials">Configuring credentials</h5>
+<div class="paragraph">
+<p>Spring Boot provides a standard way to define properties with property file or yaml configuration files. Spring Cloud
+AWS provides support to configure the credential information with the Spring Boot application configuration files.
+Spring Cloud AWS provides the following properties to configure the credentials setup for the whole application.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 33%;">
+<col style="width: 33%;">
+<col style="width: 33%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">property</th>
+<th class="tableblock halign-left valign-top">example</th>
+<th class="tableblock halign-left valign-top">description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.credentials.accessKey</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">AKIAIOSFODNN7EXAMPLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The access key to be used with a static provider</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.credentials.secretKey</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The secret key to be used with a static provider</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.credentials.instanceProfile</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Configures an instance profile credentials provider with no further configuration</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_configuring_region">Configuring region</h5>
+<div class="paragraph">
+<p>Like for the credentials, the Spring Cloud AWS module supports also the configuration of the region inside the Spring
+Boot configuration files. The region can be automatically detected or explicitly configured (e.g. in case of local tests
+against the AWS cloud).</p>
+</div>
+<div class="paragraph">
+<p>The properties to configure the region are shown below</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 33%;">
+<col style="width: 33%;">
+<col style="width: 33%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">property</th>
+<th class="tableblock halign-left valign-top">example</th>
+<th class="tableblock halign-left valign-top">description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.region.auto</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enables automatic region detection based on the EC2 meta data service</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.region.static</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">EU_WEST_1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Configures a static region for the application. Possible regions are (currently) US_EAST_1, US_WEST_1, US_WEST_2,
+EU_WEST_1, EU_CENTRAL_1, AP_SOUTHEAST_1, AP_SOUTHEAST_2, AP_NORTHEAST_1, SA_EAST_1, CN_NORTH_1</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -780,7 +887,7 @@ AWS enables application to access this metadata directly in expression or proper
 an external HTTP service.</p>
 </div>
 <div class="sect3">
-<h4 id="_enabling_instance_metadata_support">Enabling instance metadata support</h4>
+<h4 id="_enabling_instance_metadata_support_with_xml">Enabling instance metadata support with XML</h4>
 <div class="paragraph">
 <p>The instance metadata retrieval support is enabled through an XML element like the standard property placeholder in Spring.
 The following code sample demonstrates the activation of the instance metadata support inside an application context.</p>
@@ -806,6 +913,29 @@ any region or security specific configuration.</p>
 </td>
 </tr>
 </table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_enabling_instance_metadata_support_with_java">Enabling instance metadata support with Java</h4>
+<div class="paragraph">
+<p>The instance meta-data can also be configured within a Java configuration class without the need for an XML configuration.
+The next example shows a typical Spring <code>@Configuration</code> class that enables the instance metadata with the
+org.springframework.cloud.aws.context.config.annotation.EnableInstanceData`</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+@EnableInstanceData
+public static class ApplicationConfiguration {
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_enabling_instance_metadata_support_in_spring_boot">Enabling instance metadata support in Spring Boot</h4>
+<div class="paragraph">
+<p>The instance meta-data is automatically available in a Spring Boot application as a property source if the application
+is running on a EC2 instance.</p>
 </div>
 </div>
 <div class="sect3">
@@ -1187,6 +1317,71 @@ respective stack configuration information at runtime.</p>
 &lt;/beans&gt;</code></pre>
 </div>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_cloudformation_configuration_with_java_config_classes">CloudFormation configuration with Java config classes</h3>
+<div class="paragraph">
+<p>Spring Cloud AWS also supports the configuration of the CloudFormation support within Java classes avoiding the use of
+ XML inside the application configuration. Spring Cloud AWS provides the annotation
+ <code>og.springframework.cloud.aws.context.config.annotation.EnableStackConfiguration</code> that allows the automatic and manual
+ stack configuration. The next example shows a configuration class that configures the CloudFormation support with an
+ explicit stack name (here <code>anualStackName</code>).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+@EnableStackConfiguration(stackName = "manualStackName")
+class ApplicationConfiguration {
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Do not define the <code>tackName</code> attribute if an automatic stack name should be enabled.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cloudformation_configuration_in_spring_boot">CloudFormation configuration in Spring Boot</h3>
+<div class="paragraph">
+<p>Spring Cloud AWS support also the configuration of the CloudFormation support within the Spring Boot configuration. The
+manual and automatic stack configuration can be defined with properties that are described in the table below.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 33%;">
+<col style="width: 33%;">
+<col style="width: 33%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">property</th>
+<th class="tableblock halign-left valign-top">example</th>
+<th class="tableblock halign-left valign-top">description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.stack.name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">myStackName</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The name of the manually configured stack name that will be used to retrieve the resources.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.stack.auto</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enables the automatic stack name detection for the application.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect2">
 <h3 id="_manual_name_resolution">Manual name resolution</h3>
@@ -1795,7 +1990,7 @@ caching abstraction providing a cache manager based on the memcached protocol.</
 </table>
 </div>
 <div class="sect2">
-<h3 id="_configuring_caching">Configuring caching</h3>
+<h3 id="_configuring_caching_with_xml">Configuring caching with XML</h3>
 <div class="paragraph">
 <p>The cache support for Spring Cloud AWS resides in the context module and can therefore be used if the context module
 is already imported in the project. The cache integration provides an own namespace to configure cache clusters that are
@@ -1828,28 +2023,8 @@ configuration to enable declarative, annotation-based caching.</p>
 <p>The configuration above configures a <code>cache-manager</code> with one cache with the name <code>CacheCluster</code> that represents an
 <a href="http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ManagingCacheClusters.html">ElasticCache cluster</a>.</p>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_using_caching">Using caching</h3>
-<div class="paragraph">
-<p>Based on the configuration of the cache, developers can annotate their methods to use the caching for method return values.
-The next example contains a caching declaration for a service for which the return values should be cached</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Service
-public class ExpensiveService {
-
-    @Cacheable("CacheCluster")
-    public String calculateExpensiveValue(String key){
-		...
-    }
-}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_mixing_caches">Mixing caches</h3>
+<div class="sect3">
+<h4 id="_mixing_caches">Mixing caches</h4>
 <div class="paragraph">
 <p>Applications may have the need for multiple caches that are maintained by one central cache cluster. The Spring Cloud
 AWS caching support allows to define multiple caches inside one cache-manager and also to use externally defined caches
@@ -1872,8 +2047,8 @@ a <code>cache-cluster</code> configuration.</p>
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_defining_expiration">Defining expiration</h3>
+<div class="sect3">
+<h4 id="_defining_expiration">Defining expiration</h4>
 <div class="paragraph">
 <p>The Spring cache demarcation does not support expiry time configuration and leaves it up to the cache implementation
 to support an expiry time. The Spring Cloud AWS cache configuration supports the expiry time setting per cache. The
@@ -1891,6 +2066,61 @@ No configured values implies that there is an infinite expiration time.</p>
 		&lt;aws-cache:cache-cluster expiration="10000" name="CacheCluster" /&gt;
 	&lt;/aws-cache:cache-manager&gt;
 &lt;/beans&gt;</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuring_caching_using_java_configuration">Configuring caching using Java configuration</h3>
+<div class="paragraph">
+<p>Spring Cloud AWS also support the cache configuration with Java configuration classes. On any <code>Configuration</code> class,
+the caching can be configured using the <code>org.springframework.cloud.aws.cache.config.annotation.EnableElastiCache</code>
+annotation provided by Spring Cloud AWS. The next example shows a configuration of two cache clusters using the <code>lusters</code>
+attribute.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@EnableElastiCache(clusters = {"firstCache", "secondCache"})
+public class ApplicationConfiguration {
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+If you leave the <code>clusters</code> attribute empty, then all the caches inside your CloudFormation stack (if available)
+will be configured automatically.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuring_caching_in_spring_boot">Configuring caching in Spring Boot</h3>
+<div class="paragraph">
+<p>The caches will automatically be configured in Spring Boot without any explicit configuration property.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_using_caching">Using caching</h3>
+<div class="paragraph">
+<p>Based on the configuration of the cache, developers can annotate their methods to use the caching for method return values.
+The next example contains a caching declaration for a service for which the return values should be cached</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Service
+public class ExpensiveService {
+
+    @Cacheable("CacheCluster")
+    public String calculateExpensiveValue(String key){
+		...
+    }
+}</code></pre>
 </div>
 </div>
 </div>
@@ -2081,6 +2311,87 @@ with custom pool properties.</p>
 <p>A full list of all configuration attributes with their value is available <a href="http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html">here</a>.</p>
 </div>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_configuring_data_source_with_java_config">Configuring data source with Java config</h3>
+<div class="paragraph">
+<p>Spring Cloud AWS also supports the configuration of the data source within an <code>@Configuration</code> class. The
+<code>rg.springframework.cloud.aws.jdbc.config.annotation.EnableRdsInstance</code> annotation can be used to configure one data
+source. Multiple ones can be used to configure more then one data source. Each annotation will generate exactly one
+data source bean.</p>
+</div>
+<div class="paragraph">
+<p>The class below shows a data source configuration inside a configuration class</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+@EnableRdsInstance(dbInstanceIdentifier = "test",password = "secret",readReplicaSupport = true)
+public class ApplicationConfiguration {
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+The configuration attributes are the same like in the XML element. The required attributes are also the same like
+for the XML configuration (the <code>dbInstanceIdentifier</code> and <code>password</code> attribute)
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuring_data_source_in_spring_boot">Configuring data source in Spring Boot</h3>
+<div class="paragraph">
+<p>The data sources can also be configured using the Spring Boot configuration files. Because of the dynamic number of
+data sources inside one application, the Spring Boot properties must be configured for each data source.</p>
+</div>
+<div class="paragraph">
+<p>A data source configuration consists of the general property name <code>cloud.aws.rds.&lt;instanceName&gt;</code>  for the data source identifier
+following the sub properties for the particular data source where <code>instanceName</code> is the name of the concrete instance. The table below
+outlines all properties for a data source using <code>test</code> as the instance identifier.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 33%;">
+<col style="width: 33%;">
+<col style="width: 33%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">property</th>
+<th class="tableblock halign-left valign-top">example</th>
+<th class="tableblock halign-left valign-top">description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.rds.test</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The configuration property the configures a data source with the name test</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.rds.test.password</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">verySecret</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The password for the db instance test</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.rds.test.username</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">admin</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The username for the db instance test (optional)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.rds.test.readReplicaSupport</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If read-replicas should be used for the data source (see below)</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect2">
 <h3 id="_read_replica_configuration">Read-replica configuration</h3>
@@ -2764,7 +3075,7 @@ like <em>integrationteststack-sampleBucket-23qysofs62tc2</em></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-11-23 18:08:15 UTC
+Last updated 2014-11-23 20:18:11 UTC
 </div>
 </div>
 </body>
