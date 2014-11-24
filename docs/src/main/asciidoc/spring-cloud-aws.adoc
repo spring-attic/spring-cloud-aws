@@ -1,5 +1,5 @@
 = Spring Cloud AWS
-Agim Emruli; Alain Sahli
+Agim Emruli; Alain Sahli; Christian Stettler
 :source-highlighter: prettify
 
 include::intro.adoc[]
