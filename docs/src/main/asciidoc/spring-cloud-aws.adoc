@@ -111,6 +111,8 @@ use of the modules. A typical XML configuration to use Spring Cloud AWS is outli
 </beans>
 ----
 
+// - why do xml elements repeat "context" in element name? could just be "aws-context:region name=''" instead
+
 ==== SDK credentials configuration
 In order to make calls to the Amazon Web Service the credentials must be configured for the the Amazon SDK. Spring Cloud AWS
 provides support to configure an application context specific credentials that are used for _each_ service call for requests done
@@ -151,6 +153,9 @@ The access-key and secret-key should be externalized into property files (e.g. S
 and not be checked in into the source management system.
 ====
 
+// - use access key and secret key (without dash) if used in paragraphs (not directly referring to xml attribute),
+//   otherwise if used as reference to attribute name, use monospaced font
+
 ===== Instance profile configuration
 An http://docs.aws.amazon.com/IAM/latest/UserGuide/instance-profiles.html[instance profile configuration] allows to assign
 a profile that is authorized by a role while starting an EC2 instance. All calls made from the EC2 instance are then authenticated
@@ -166,6 +171,8 @@ The configuration for the instance profile in Spring Cloud AWS looks like this:
 </beans>
 ----
 
+// - explicitly mention that this approach is only supported if application is running on ec2 instance
+
 ===== Mixing both security configurations
 In some cases it is useful to combine both authentication strategies to allow the application to use the instance profile
 with a fallback for an explicit access-key and secret-key configuration. This is useful if the application is tested inside
@@ -180,6 +187,8 @@ EC2 (e.g. on a test server) and locally for testing. The next snippet shows a co
     </aws-context:context-credentials>
  </beans>
 ----
+
+// - is fallback configuration based on order of xml elements, or is instance-based approach always given preference?
 
 [TIP]
 ====
