@@ -4,6 +4,12 @@ Agim Emruli; Alain Sahli; Christian Stettler
 
 include::intro.adoc[]
 
+// general
+// - add numbers to chapters (structure based on title font size is difficult to track)
+// - add table of contents (gives immediate overview)
+// - add reference for all xml elements and attributes (appendix)
+// - use consistent naming (case) for terms like "Maven", "Java", "Amazon Web Services", "CloudFormation"
+
 == Using Amazon Web Services
 
 Amazon provides a http://aws.amazon.com/sdk-for-java/[Java SDK] to issue requests for the all services provided by the
