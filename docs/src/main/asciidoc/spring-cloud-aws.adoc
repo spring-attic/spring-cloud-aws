@@ -243,11 +243,17 @@ The configuration might look like this for a database service (described later)
  </beans>
 ----
 
+// - is global configuration always needed, even if all services use specific region configuration?
+// - is there also support for fallback region settings (e.g. use automatic region configuration, if available,
+     otherwise fallback to explicit configuration), as for credentials configuration
+
 [NOTE]
 ====
 While it is theoretically possible to use multiple regions per application, we strongly recommend to write applications that
 are hosted only inside one region and split the application if it is hosted in different regions at the same time.
 ====
+
+// - recommendation not to mix regions: explain why
 
 ==== Spring Boot auto-configuration
 Following the Spring Cloud umbrella project, Spring Cloud AWS provides also dedicated Spring Boot support. Spring Cloud
