@@ -744,6 +744,11 @@ The configuration might look like this for a database service (described later)<
 &lt;/beans&gt;</code></pre>
 </div>
 </div>
+<div class="literalblock">
+<div class="content">
+<pre>otherwise fallback to explicit configuration), as for credentials configuration</pre>
+</div>
+</div>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -2643,8 +2648,10 @@ database is configured using CloudFormation.</p>
 </table>
 </div>
 <div class="paragraph">
-<p>==Sending mails
-Spring has a built-in support to send e-mails based on the <a href="http://www.oracle.com/technetwork/java/javamail/index.html">Java Mail API</a>
+<p>==Sending mails</p>
+</div>
+<div class="paragraph">
+<p>Spring has a built-in support to send e-mails based on the <a href="http://www.oracle.com/technetwork/java/javamail/index.html">Java Mail API</a>
 to avoid any static method calls while using the Java Mail API and thus supporting the testability of application.
 Spring Cloud AWS supports the <a href="http://aws.amazon.com/de/ses/">Amazon SES</a> as an implementation of the Spring Mail abstraction.</p>
 </div>
@@ -3076,7 +3083,7 @@ like <em>integrationteststack-sampleBucket-23qysofs62tc2</em></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-11-24 20:06:48 UTC
+Last updated 2014-11-24 21:13:28 UTC
 </div>
 </div>
 </body>
