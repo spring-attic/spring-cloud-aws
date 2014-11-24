@@ -1950,6 +1950,8 @@ Since Spring Framework 3.1 the resource loader can also be used to upload files 
 interface which is a specialization of the `rg.springframework.core.io.ResourceLoader` interface. Clients can upload files
 with the use of the `WritableResource` interface. The next example demonstrates an upload of a resource using the resource loader.
 
+// - should be Resource instead of ResourceLoader as based interface for WritableResource?
+
 [source,java,indent=0]
 ----
 public class SimpleResourceLoadingBean {
