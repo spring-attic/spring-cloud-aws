@@ -22,6 +22,10 @@ with the service support for the respective Spring Cloud AWS services.
 
 image::overview.png[Overview]
 
+// - is Spring Cloud AWS Messaging only directly dependent on Spring Cloud AWS Context, while Spring Cloud AWS JDBC is
+//   only directly dependent on Spring Cloud AWS Core as image implies?
+// - is Spring Cloud Context based on Spring Cloud AWS Core or are they really independent of each other?
+
 * *Spring Cloud AWS Core* is the core module of Spring Cloud AWS providing basic services for security and configuration
 setup. Developers will not use this module directly but rather through other modules. The core module provides support for
 cloud based environment configurations providing direct access to the instance based http://aws.amazon.com/ec2/[EC2]
