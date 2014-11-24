@@ -374,6 +374,8 @@ is running on a EC2 instance.
 Instance metadata can be used in XML, Java placeholders and expressions. The example below demonstrates the usage of
 instance metadata inside an XML file using placeholders and also the expression referring to the special variable `environment`
 
+// - where is special environment variable coming from? from spring cloud aws? from spring environment abstraction?
+
 [source,xml,indent=0]
 ----
 <beans ...>
@@ -385,6 +387,9 @@ instance metadata inside an XML file using placeholders and also the expression 
  </bean>
 </beans>
 ----
+
+// - SimpleConfigurationBean gives impression of being part of Spring Cloud AWS, but is only example bean, so maybe
+//   better use different package name (and shorter one)
 
 Instance metadata can also be injected with the Spring `org.springframework.beans.factory.annotation.Value` annotation
 directly into Java fields. The next example demonstrates the use of instance metadata inside a Spring bean.
@@ -415,10 +420,16 @@ Every instance metadata can be accessed by the key available in the http://docs.
 Nested properties can be accessed by separating the properties with a slash ('/').
 ====
 
+// - paths to nested instance metadata properties: when to use "/", when "."?
+
 ==== Using instance user data
 Besides the default instance metadata it is also possible to configure user data on each instance. This user data is retrieved and
 parsed by Spring Cloud AWS. The user data can be defined while starting an EC2 instance with the application. Spring Cloud AWS
 expects the format `<key>:<value>;<key>:<value>` inside the user data so that it can parse the string and extract the key value pairs.
+
+// - is format if user data defined by Amazon or Spring Cloud AWS?
+// - how to escape special characters ":" and ";"?
+// - precedence in case of name conflicts (e.g. user data with same name as instance data)?
 
 The user data can be configured either using the management console shown below or a http://aws.amazon.com/cloudformation/aws-cloudformation-templates/[CloudFormation template].
 
@@ -471,6 +482,8 @@ User configured properties can also be configured with tags instead of user data
 of Amazon Web services and used in different services. Spring Cloud AWS supports instance tags also across different
 services. Compared to user data, user tags can be updated during runtime, there is no need to stop and restart
 the instance.
+
+// - how will changes to instance tags be visible to application? upon next read? how? or via callback?
 
 [TIP]
 ====
