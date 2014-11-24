@@ -1432,6 +1432,9 @@ to configure the datasource with the minimum attributes as shown in the example:
 </beans>
 ----
 
+// - why is element for jdbc namespace is called "jdbc" and not "aws-jdbc"
+// - why is element for data source written in camel case ("dataSource")
+
 The minimum configuration parameters are a unique `id` for the datasource, a valid `db-instance-identifier` attribute
 that points to a valid Amazon RDS database instance. The master user password for the master user. If there is another
 user to be used (which is recommended) then the `username` attribute can be set.
@@ -1454,6 +1457,8 @@ public class SimpleDatabaseService implements DatabaseService {
  }
 }
 ----
+
+// - code example for SimpleDatabaseService: interface not really relevant for example ...
 
 It is possible to qualify the datasource injection point with an `@Qualifier` annotation to allow multiple datasource
 configurations inside one application context and still use auto-wiring.
@@ -1485,6 +1490,9 @@ with custom pool properties.
 ----
 
 A full list of all configuration attributes with their value is available http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html[here].
+
+// - is "pool-attributes" element provided by spring cloud aws jdbc module? or by spring already?
+// - why is pool element named with "-", but attributes in camel case?
 
 === Configuring data source with Java config
 Spring Cloud AWS also supports the configuration of the data source within an `@Configuration` class. The
@@ -1542,6 +1550,8 @@ outlines all properties for a data source using `test` as the instance identifie
 Amazon RDS allows to use http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html[MySQL read-replica]
 instances to increase the overall throughput of the database by offloading read data access to a one or many read-replica
 slaves while maintaining the data in one master database.
+
+// - behaviour if multiple read replicas are configured? round-robin?
 
 Spring Cloud AWS supports the use of read-replicas in combination with Spring read-only transactions. If the read-replica
 support is enabled, any read-only transaction will be routed to a read-replica instance while using the master database
@@ -1719,6 +1729,8 @@ public class SampleService {
 	private String stackName;
 }
 ----
+
+// - example repeats "aws:cloudformation" in db tag name: correct?
 
 [NOTE]
 ====
