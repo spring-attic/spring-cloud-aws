@@ -584,6 +584,8 @@ example shows the use of a custom EC2 client that might have a special configura
 </beans>
 ----
 
+// - attributes for ec2 clients: use "-client" suffix in attribute name
+
 ==== Injecting the default EC2 client
 By default Spring Cloud AWS configures an EC2 client with the specified region and security credentials. Application
 developers can inject the EC2 client directly into their code using the `@Autowired` annotation.
@@ -779,6 +781,9 @@ with a special setup. The client itself can be configured using the `amazon-clou
 	</bean>
 </beans>
 ----
+
+// - should custom client not be nested bean of stack-configuration element? or referred to via id?
+//   "amazon-cloud-formation" attribute has empty value ...
 
 == Messaging
 Spring Cloud AWS provides a http://aws.amazon.com/sqs/[Amazon SQS] and http://aws.amazon.com/sqs/[Amazon SNS] integration
