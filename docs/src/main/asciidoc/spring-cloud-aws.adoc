@@ -1217,11 +1217,15 @@ caching abstraction providing a cache manager based on the memcached protocol.
 Support for the Redis cache protocol is planned in a future release.
 ====
 
+// not really a tip ...
+
 === Configuring caching with XML
 The cache support for Spring Cloud AWS resides in the context module and can therefore be used if the context module
 is already imported in the project. The cache integration provides an own namespace to configure cache clusters that are
 hosted in the Amazon ElastiCache service. The next example contains a configuration for the cache cluster and the Spring
 configuration to enable declarative, annotation-based caching.
+
+// - why is caching not in a separate module (instead of having multiple namespaces in same module)?
 
 [source,xml,indent=0]
 ----
@@ -1267,6 +1271,9 @@ a `cache-cluster` configuration.
 	</aws-cache:cache-manager>
 </beans>
 ----
+
+// - why element "cache-ref" is used, and not element "cache" with attribute "ref"?
+// - do all caches have to be of type memcached?
 
 ==== Defining expiration
 The Spring cache demarcation does not support expiry time configuration and leaves it up to the cache implementation
@@ -1322,6 +1329,8 @@ public class ExpensiveService {
 }
 ----
 
+// - is name of @Cacheable annotation optional, if only one cache is defined?
+
 === Memcached client implementation
 There are different memcached client implementations available for Java, the most prominent ones are
 https://github.com/couchbase/spymemcached[Spymemcached] and https://github.com/killme2008/xmemcached[XMemcached].
@@ -1330,6 +1339,9 @@ http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/AutoDiscovery.html
 a central configuration endpoint.
 
 Spring Cloud AWS relies on the Amazon Elasticache Client implementation and therefore has a dependency on that.
+
+// - what if other memcached cache is used with different driver (not one from aws) in addition in a mixed-caching
+//   scenario? does spring cloud aws put any constraints on that scenario?
 
 === Using CloudFormation
 Amazon ElastiCache clusters can also be configured within a stack and then be used by applications. Spring Cloud AWS
