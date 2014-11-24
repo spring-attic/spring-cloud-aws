@@ -1082,6 +1082,10 @@ public class SnsNotificationSender {
 }
 ----
 
+// - different order of message and subject in example code snippet
+// - NotificationMessagingTemplate.sendNotification() should use subject as first parameter, and message as second
+//   parameter (not vice-versa)
+
 This example constructs a new `NotificationMessagingTemplate` by passing an `AmazonSNS` client as argument. In the `send`
 method the convenience `sendNotification` method is used to send a `message` with `subject` to an SNS topic. The
 destination in the `sendNotification` method is a string value that must match the topic name defined on AWS. This value
@@ -1100,6 +1104,8 @@ configure the SNS client as setup the default converter.
 ==== Annotation-driven HTTP notification endpoint
 SNS supports multiple endpoint types (SQS, Email, HTTP, HTTPS), Spring Cloud AWS provides support for HTTP(S) endpoints.
 SNS sends three type of requests to an HTTP topic listener endpoint, for each of them annotations are provided:
+
+// - does spring cloud aws _only_ support http/https (unlike aws with sqs, email, ...)?
 
 * Subscription request -> `@NotificationSubscriptionMapping`
 * Notification request -> `@NotificationMessageMapping`
