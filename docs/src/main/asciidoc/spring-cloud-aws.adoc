@@ -1739,6 +1739,9 @@ database is configured using CloudFormation.
 ====
 
 ==Sending mails
+
+// - why is mail support not in separate module instead of having multiple xml namespaces in context module?
+
 Spring has a built-in support to send e-mails based on the http://www.oracle.com/technetwork/java/javamail/index.html[Java Mail API]
 to avoid any static method calls while using the Java Mail API and thus supporting the testability of application.
 Spring Cloud AWS supports the http://aws.amazon.com/de/ses/[Amazon SES] as an implementation of the Spring Mail abstraction.
