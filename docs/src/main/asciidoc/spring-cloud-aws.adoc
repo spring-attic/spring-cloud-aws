@@ -854,6 +854,8 @@ a `ResourceIdResolver` implementation can be passed to the `QueueMessagingTempla
 logical name when running inside a CloudFormation stack (see <<Managing cloud environments>> for more information about
 resource name resolution).
 
+// - what if logical queue name is used in send api, but no resource id resolver is configured?
+
 With the messaging namespace a `QueueMessagingTemplate` can be defined in an XML configuration file.
 
 [source,xml,indent=0]
@@ -883,6 +885,9 @@ is automatically created and passed to the template's constructor based on the p
 application runs inside a configured CloudFormation stack a `ResourceIdResolver` is passed to the constructor (see
 <<Managing cloud environments>> for more information about resource name resolution).
 
+// - why not configure a queue messaging template bean with default name in case no one is defined explicitly? or is
+//   this part of spring boot support?
+
 ===== Using message converters
 In order to facilitate the sending of domain model objects, the `QueueMessagingTemplate` has various send methods that
 take a Java object as an argument for a message’s data content. The overloaded methods `convertAndSend()` and
@@ -891,6 +896,9 @@ interface. This interface defines a simple contract to convert between Java obje
 implementation `SimpleMessageConverter` simply unwraps the message payload as long as it matches the target type. By
 using the converter, you and your application code can focus on the business object that is being sent or received via
 SQS and not be concerned with the details of how it is represented as an SQS message.
+
+// - representation of domain object in message is nevertheless relevant, as it needs to be understood by consumer, so
+//   "not concerned about details of how message is represented" is a bit misleading ...
 
 [NOTE]
 ====
@@ -972,6 +980,8 @@ converts the payload `Person` using the configured `MessageConverter` and sends 
 Only the link:http://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_Message.html[standard
 message attributes] sent with an SQS message are supported. Custom attributes are currently not supported.
 
+// - paragraph is a duplication (with more details) of paragraph under message converters: merge issue?
+
 In addition to the provided argument resolvers, custom ones can be registered on the
 `aws-messaging:annotation-driven-queue-listener` element using the `aws-messaging:argument-resolvers` attribute (see example below).
 
@@ -989,6 +999,9 @@ max pool sizes. The core pool size is set to twice the number of queues and the 
 the number of queues by the value of the `maxNumberOfMessages` field. If these default values do not meet the need of
 the application, a custom task executor can be set with the `task-executor` attribute (see example below).
 
+// - explain in introduction that queue listener container is using thread pool in order to understand why task executor
+//   can be configured
+
 [source,xml,indent=0]
 ----
 <aws-messaging:annotation-driven-queue-listener task-executor="simpleTaskExecutor" />
@@ -1004,6 +1017,10 @@ the `DestinationResolvingMessageSendingOperations` interface.
 ----
 <aws-messaging:annotation-driven-queue-listener annotation-driven-queue-listener="queueMessagingTemplate"/>
 ----
+
+// - why element "annotation-driven-queue-listener" has attribute with same name? should it rather read
+//   "queue-messaging-template"?
+// - what if no queue messaging template bean is defined? is one created automatically? exception?
 
 [source,java,indent=0]
 ----
