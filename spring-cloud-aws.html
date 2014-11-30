@@ -895,7 +895,7 @@ The following code sample demonstrates the activation of the instance metadata s
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;beans ...&gt;
-      &lt;aws-context:context-instance-placeholder /&gt;
+      &lt;aws-context:context-instance-data /&gt;
 &lt;/beans&gt;</code></pre>
 </div>
 </div>
@@ -925,7 +925,7 @@ org.springframework.cloud.aws.context.config.annotation.EnableInstanceData`</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-java" data-lang="java">@Configuration
-@EnableInstanceData
+@EnableContextInstanceData
 public static class ApplicationConfiguration {
 }</code></pre>
 </div>
@@ -1133,14 +1133,14 @@ like user data also with a CloudFormation template shown afterwards.</p>
 <div class="paragraph">
 <p>To retrieve the instance tags, Spring Cloud AWS has to make authenticated requests and therefore it will need the region
 and security configuration before actually resolving the placeholders. Also because the instance tags are not available while starting
-the application context, they can only be referenced as expressions and not with placeholders. The <code>context-instance-placeholder</code>
+the application context, they can only be referenced as expressions and not with placeholders. The <code>context-instance-data</code>
 element defines an attribute <code>user-tags-map</code> that will create a map in the application context for the name. This map
 can then be queried using expression for other bean definitions.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;beans ...&gt;
- &lt;aws-context:context-instance-placeholder user-tags-map="instanceData" /&gt;
+ &lt;aws-context:context-instance-data user-tags-map="instanceData" /&gt;
 &lt;/beans&gt;</code></pre>
 </div>
 </div>
@@ -1170,7 +1170,7 @@ can then be queried using expression for other bean definitions.</p>
 <h4 id="_configuring_custom_ec2_client">Configuring custom EC2 client</h4>
 <div class="paragraph">
 <p>In some circumstances it is necessary to have a custom EC2 client to retrieve the instance information. The
-<code>context-instance-placeholder</code> element supports a custom EC2 client with the <code>amazon-ec2</code> attribute. The next
+<code>context-instance-data</code> element supports a custom EC2 client with the <code>amazon-ec2</code> attribute. The next
 example shows the use of a custom EC2 client that might have a special configuration in place.</p>
 </div>
 <div class="listingblock">
@@ -1179,7 +1179,7 @@ example shows the use of a custom EC2 client that might have a special configura
 
   &lt;aws-context:context-credentials&gt;....&lt;/aws-context:context-credentials&gt;
   &lt;aws-context:context-region ... /&gt;
-  &lt;aws-context:context-instance-placeholder  amazon-ec2="myCustomClient"/&gt;
+  &lt;aws-context:context-instance-data  amazon-ec2="myCustomClient"/&gt;
 
   &lt;bean id="myCustomClient" class="com.amazonaws.services.ec2.AmazonEC2Client"&gt;
 	...
@@ -3075,7 +3075,7 @@ like <em>integrationteststack-sampleBucket-23qysofs62tc2</em></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-11-30 10:34:31 UTC
+Last updated 2014-11-30 11:25:11 UTC
 </div>
 </div>
 </body>
