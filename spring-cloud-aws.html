@@ -739,7 +739,7 @@ The configuration might look like this for a database service (described later)<
 <div class="content">
 <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;beans ...&gt;
  &lt;aws-context:context-region region="EU_CENTRAL_1" /&gt;
- &lt;jdbc:dataSource ... region="EU_WEST_1" /&gt;
+ &lt;jdbc:data-source ... region="EU_WEST_1" /&gt;
 &lt;/beans&gt;</code></pre>
 </div>
 </div>
@@ -1262,7 +1262,7 @@ resource is configured using a CloudFormation template, defining a logical name 
 <p>The datasource is then created and will receive a physical name (e.g. ir142c39k6o5irj) as the database service name. Application
 developers can still use the logical name (in this case <code>applicationDatabase</code>) to interact with the database. The example
 below shows the stack configuration which is defined by the element <code>aws-context:stack-configuration</code> and resolves automatically
-the particular stack. The <code>dataSource</code> element uses the logical name for the <code>db-instance-identifier</code> attribute to work with
+the particular stack. The <code>data-source</code> element uses the logical name for the <code>db-instance-identifier</code> attribute to work with
 the database.</p>
 </div>
 <div class="listingblock">
@@ -1281,7 +1281,7 @@ the database.</p>
 
   &lt;aws-context:stack-configuration/&gt;
 
-  &lt;jdbc:dataSource id="dataSource" db-instance-identifier="applicationDatabase" ... /&gt;
+  &lt;jdbc:data-source db-instance-identifier="applicationDatabase" ... /&gt;
 &lt;/beans&gt;</code></pre>
 </div>
 </div>
@@ -2243,10 +2243,10 @@ to configure the datasource with the minimum attributes as shown in the example:
 
  &lt;aws-context:context-region region="..."/&gt;
 
-&lt;jdbc:dataSource id="dataSource"
+&lt;jdbc:data-source
 		 db-instance-identifier="myRdsDatabase"
 		 password="${rdsPassword}"&gt;
-&lt;/jdbc:dataSource&gt;
+&lt;/jdbc:data-source&gt;
 &lt;/beans&gt;</code></pre>
 </div>
 </div>
@@ -2297,12 +2297,12 @@ with custom pool properties.</p>
 
  &lt;aws-context:context-region region="..."/&gt;
 
- &lt;jdbc:dataSource id="dataSource"
+ &lt;jdbc:data-source
 		 db-instance-identifier="myRdsDatabase"
 		 password="${rdsPassword}"&gt;
 		 &lt;jdbc:pool-attributes initialSize="1" " maxActive="200" minIdle="10"
          		testOnBorrow="true" validationQuery="SELECT 1" /&gt;
- &lt;/jdbc:dataSource&gt;
+ &lt;/jdbc:data-source&gt;
 
 &lt;/beans&gt;</code></pre>
 </div>
@@ -2428,10 +2428,10 @@ data which is not changed very often and where outdated data can be handled by t
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;beans ..&gt;
- &lt;jdbc:dataSource id="dataSource" db-instance-identifier="RdsSingleMicroInstance"
+ &lt;jdbc:data-source db-instance-identifier="RdsSingleMicroInstance"
 	password="${rdsPassword}" read-replica-support="true"&gt;
 
- &lt;/jdbc:dataSource&gt;
+ &lt;/jdbc:data-source&gt;
 &lt;/beans&gt;</code></pre>
 </div>
 </div>
@@ -2595,7 +2595,7 @@ database is outlined below:</p>
 <div class="content">
 <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;beans&gt;
  &lt;aws-context:stack-configuration/&gt;
- &lt;jdbc:dataSource id="dataSource" db-instance-identifier="myRdsDatabase" password="${rdsPassword}" read-replica-support="true"/&gt;
+ &lt;jdbc:data-source db-instance-identifier="myRdsDatabase" password="${rdsPassword}" read-replica-support="true"/&gt;
 &lt;/beans&gt;</code></pre>
 </div>
 </div>
@@ -2605,11 +2605,11 @@ database is outlined below:</p>
 <div class="paragraph">
 <p>Amazon RDS instances can also be configured using RDS database specific tags, allowing users to configure database specific
 configuration metadata with the database. Database instance specific tags can be configured using the <code>user-tags-map</code> attribute
-on the <code>dataSource</code> element. Configuring the tags support like in the example below:</p>
+on the <code>data-source</code> element. Configuring the tags support like in the example below:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;jdbc:dataSource id="dataSource"
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;jdbc:data-source
     db-instance-identifier="myRdsDatabase"
     password="${rdsPassword}" user-tags-map="dbTags" /&gt;</code></pre>
 </div>
@@ -3075,7 +3075,7 @@ like <em>integrationteststack-sampleBucket-23qysofs62tc2</em></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-12-14 13:23:39 UTC
+Last updated 2014-12-14 14:31:23 UTC
 </div>
 </div>
 </body>
