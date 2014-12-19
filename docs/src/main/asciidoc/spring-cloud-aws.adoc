@@ -336,7 +336,7 @@ org.springframework.cloud.aws.context.config.annotation.EnableInstanceData`
 [source,java,indent=0]
 ----
   @Configuration
-  @EnableContextInstanceData
+  @EnableInstanceData
   public static class ApplicationConfiguration {
   }
 ----
