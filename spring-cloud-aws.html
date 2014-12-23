@@ -2344,6 +2344,49 @@ for the XML configuration (the <code>dbInstanceIdentifier</code> and <code>passw
 </tr>
 </table>
 </div>
+<div class="sect3">
+<h4 id="_java_based_data_source_pool_configuration">Java based data source pool configuration</h4>
+<div class="paragraph">
+<p>It is also possible to override the pool configuration with custom values. Spring Cloud AWS provides a
+<code>org.springframework.cloud.aws.jdbc.config.annotation.RdsInstanceConfigurer</code> that creates a
+<code>org.springframework.cloud.aws.jdbc.datasource.DataSourceFactory</code> which might contain custom pool attributes. The next
+examples shows the implementation of on configurer that overrides the validation query and the initial size.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+@EnableRdsInstance(dbInstanceIdentifier = "test",password = "secret")
+public class ApplicationConfiguration {
+
+    @Bean
+    public RdsInstanceConfigurer instanceConfigurer(){
+        return new RdsInstanceConfigurer() {
+            @Override
+        	public DataSourceFactory getDataSourceFactory() {
+        		TomcatJdbcDataSourceFactory dataSourceFactory = new TomcatJdbcDataSourceFactory();
+        		dataSourceFactory.setInitialSize(10);
+        		dataSourceFactory.setValidationQuery("SELECT 1 FROM DUAL");
+        		return dataSourceFactory;
+        	}
+        };
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+This class returns an anonymous class of type <code>org.springframework.cloud.aws.jdbc.config.annotation.RdsInstanceConfigurer</code>,
+ that class might be of course also a standalone class.
+</td>
+</tr>
+</table>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_configuring_data_source_in_spring_boot">Configuring data source in Spring Boot</h3>
@@ -3080,7 +3123,7 @@ like <em>integrationteststack-sampleBucket-23qysofs62tc2</em></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-12-23 13:40:46 UTC
+Last updated 2014-12-23 18:28:47 UTC
 </div>
 </div>
 </body>
