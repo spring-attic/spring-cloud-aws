@@ -693,7 +693,7 @@ derived because the application is not hosted on a EC2 instance (e.g. local test
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;beans ...&gt;
-  	&lt;aws-context:context-region region="EU_WEST_1"/&gt;
+  	&lt;aws-context:context-region region="eu-west-1"/&gt;
 &lt;/beans&gt;</code></pre>
 </div>
 </div>
@@ -738,8 +738,8 @@ The configuration might look like this for a database service (described later)<
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;beans ...&gt;
- &lt;aws-context:context-region region="EU_CENTRAL_1" /&gt;
- &lt;jdbc:data-source ... region="EU_WEST_1" /&gt;
+ &lt;aws-context:context-region region="eu-central-1" /&gt;
+ &lt;jdbc:data-source ... region="eu-west-1" /&gt;
 &lt;/beans&gt;</code></pre>
 </div>
 </div>
@@ -859,9 +859,10 @@ against the AWS cloud).</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.region.static</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">EU_WEST_1</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Configures a static region for the application. Possible regions are (currently) US_EAST_1, US_WEST_1, US_WEST_2,
-EU_WEST_1, EU_CENTRAL_1, AP_SOUTHEAST_1, AP_SOUTHEAST_2, AP_NORTHEAST_1, SA_EAST_1, CN_NORTH_1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">eu-west-1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Configures a static region for the application. Possible regions are (currently) us-east-1, us-west-1, us-west-2,
+eu-west-1, eu-central-1, ap-southeast-1, ap-southeast-1, ap-northeast-1, sa-east-1, cn-north-1 and any custom region
+configured with own region meta data</p></td>
 </tr>
 </tbody>
 </table>
@@ -2733,7 +2734,7 @@ attachment as simple mail messages. A configuration with the necessary elements 
 	  ..
 	&lt;/aws-context:context-credentials&gt;
 
-	&lt;aws-context:context-region region="EU_WEST_1" /&gt;
+	&lt;aws-context:context-region region="eu-west-1" /&gt;
 
 	&lt;aws-mail:mail-sender id="testSender" /&gt;
 
@@ -2858,8 +2859,8 @@ an SES service, the client is overridden to us a valid region EU-WEST-1.</p>
 <div class="content">
 <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;beans ...&gt;
 
- &lt;aws-context:context-region region="EU_CENTRAL_1" /&gt;
- &lt;aws-mail:mail-sender id="testSender" region="EU_WEST_1"/&gt;
+ &lt;aws-context:context-region region="eu-central-1" /&gt;
+ &lt;aws-mail:mail-sender id="testSender" region="eu-west-1"/&gt;
 
 &lt;/beans&gt;</code></pre>
 </div>
@@ -3123,7 +3124,7 @@ like <em>integrationteststack-sampleBucket-23qysofs62tc2</em></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-01-13 20:12:01 UTC
+Last updated 2015-01-13 21:09:32 UTC
 </div>
 </div>
 </body>
