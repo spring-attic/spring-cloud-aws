@@ -512,17 +512,22 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#_caching">6. Caching</a>
 <ul class="sectlevel2">
-<li><a href="#_configuring_caching_with_xml">6.1. Configuring caching with XML</a>
+<li><a href="#_configuring_dependencies_for_redis_caches">6.1. Configuring dependencies for Redis caches</a></li>
+<li><a href="#_configuring_caching_with_xml">6.2. Configuring caching with XML</a>
 <ul class="sectlevel3">
-<li><a href="#_mixing_caches">6.1.1. Mixing caches</a></li>
-<li><a href="#_defining_expiration">6.1.2. Defining expiration</a></li>
+<li><a href="#_mixing_caches">6.2.1. Mixing caches</a></li>
+<li><a href="#_defining_expiration">6.2.2. Defining expiration</a></li>
 </ul>
 </li>
-<li><a href="#_configuring_caching_using_java_configuration">6.2. Configuring caching using Java configuration</a></li>
-<li><a href="#_configuring_caching_in_spring_boot">6.3. Configuring caching in Spring Boot</a></li>
-<li><a href="#_using_caching">6.4. Using caching</a></li>
-<li><a href="#_memcached_client_implementation">6.5. Memcached client implementation</a></li>
-<li><a href="#_using_cloudformation_2">6.6. Using CloudFormation</a></li>
+<li><a href="#_configuring_caching_using_java_configuration">6.3. Configuring caching using Java configuration</a>
+<ul class="sectlevel3">
+<li><a href="#_configuring_expiry_time_for_caches">6.3.1. Configuring expiry time for caches</a></li>
+</ul>
+</li>
+<li><a href="#_configuring_caching_in_spring_boot">6.4. Configuring caching in Spring Boot</a></li>
+<li><a href="#_using_caching">6.5. Using caching</a></li>
+<li><a href="#_memcached_client_implementation">6.6. Memcached client implementation</a></li>
+<li><a href="#_using_cloudformation_2">6.7. Using CloudFormation</a></li>
 </ul>
 </li>
 <li><a href="#_data_access_with_jdbc">7. Data Access with JDBC</a>
@@ -2124,24 +2129,40 @@ declarative transactions.</p>
 </div>
 <div class="paragraph">
 <p>Spring Cloud AWS integrates the <a href="http://aws.amazon.com/elasticache/">Amazon ElastiCache</a> service into the Spring unified
-caching abstraction providing a cache manager based on the memcached protocol.</p>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>Support for the Redis cache protocol is planned in a future release.</p>
-</div>
-</td>
-</tr>
-</table>
+caching abstraction providing a cache manager based on the memcached and the redis protocol. The caching support for Spring
+Cloud AWS provides an own memcached implementation for Elasitcache and uses
+<a href="http://projects.spring.io/spring-data-redis/">Spring Data Redis</a> for Redis caches.</p>
 </div>
 <div class="sect2">
-<h3 id="_configuring_caching_with_xml">6.1. Configuring caching with XML</h3>
+<h3 id="_configuring_dependencies_for_redis_caches">6.1. Configuring dependencies for Redis caches</h3>
+<div class="paragraph">
+<p>Spring Cloud AWS delivers an own implementation of a memcached cache, therefore no other dependencies are needed. For redis
+Spring Cloud AWS relies on Spring Data Redis to support caching and also to allow multiple Redis drivers to be used. Spring
+Cloud AWS supports all Redis drivers that Spring Data Redis supports (currently Jedis, JRedis, SRP and Lettuce) with Jedis
+ being used internally for testing against Elasticache. A dependency definition for Redis with Jedis is shown in the example</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.data&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-data-redis&lt;/artifactId&gt;
+        &lt;version&gt;${spring-data-redis.version}&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+    	&lt;groupId&gt;redis.clients&lt;/groupId&gt;
+    	&lt;artifactId&gt;jedis&lt;/artifactId&gt;
+    	&lt;version&gt;2.6.1&lt;/version&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Spring Cloud AWS will automatically detect the Redis driver and will use one of them automatically.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuring_caching_with_xml">6.2. Configuring caching with XML</h3>
 <div class="paragraph">
 <p>The cache support for Spring Cloud AWS resides in the context module and can therefore be used if the context module
 is already imported in the project. The cache integration provides an own namespace to configure cache clusters that are
@@ -2175,7 +2196,7 @@ configuration to enable declarative, annotation-based caching.</p>
 <a href="http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ManagingCacheClusters.html">ElasticCache cluster</a>.</p>
 </div>
 <div class="sect3">
-<h4 id="_mixing_caches">6.1.1. Mixing caches</h4>
+<h4 id="_mixing_caches">6.2.1. Mixing caches</h4>
 <div class="paragraph">
 <p>Applications may have the need for multiple caches that are maintained by one central cache cluster. The Spring Cloud
 AWS caching support allows to define multiple caches inside one cache-manager and also to use externally defined caches
@@ -2183,15 +2204,13 @@ inside the cache manager.</p>
 </div>
 <div class="paragraph">
 <p>The example below demonstrates a configuration example that contains a pre-configured cache with an <code>cache-ref</code> element
-(which might be a local cache), a <code>cache</code> with an explicit address (that is probably hosted outside ElastiCache) and
-a <code>cache-cluster</code> configuration.</p>
+(which might be a local cache) and a <code>cache-cluster</code> configuration for Elasticache cache clusters.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;beans ...&gt;
 	&lt;aws-cache:cache-manager id="cacheManager"&gt;
 		&lt;aws-cache:cache-ref ref="memcached" /&gt;
-		&lt;aws-cache:cache address="someLocalServer:4321" name="memc" /&gt;
 		&lt;aws-cache:cache-cluster name="SimpleCache"/&gt;
 	&lt;/aws-cache:cache-manager&gt;
 &lt;/beans&gt;</code></pre>
@@ -2199,21 +2218,20 @@ a <code>cache-cluster</code> configuration.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_defining_expiration">6.1.2. Defining expiration</h4>
+<h4 id="_defining_expiration">6.2.2. Defining expiration</h4>
 <div class="paragraph">
 <p>The Spring cache demarcation does not support expiry time configuration and leaves it up to the cache implementation
 to support an expiry time. The Spring Cloud AWS cache configuration supports the expiry time setting per cache. The
 expiry time will be passed to the memcached service.</p>
 </div>
 <div class="paragraph">
-<p>The <code>cache</code> and <code>cache-cluster</code> elements accept an expiration attribute that defines the expiration time in seconds.
+<p>The <code>cache-cluster</code> element accepts an expiration attribute that defines the expiration time in seconds.
 No configured values implies that there is an infinite expiration time.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;beans&gt;
 	&lt;aws-cache:cache-manager&gt;
-		&lt;aws-cache:cache address="someLocalServer:4321" name="memc" expiration="423"/&gt;
 		&lt;aws-cache:cache-cluster expiration="10000" name="CacheCluster" /&gt;
 	&lt;/aws-cache:cache-manager&gt;
 &lt;/beans&gt;</code></pre>
@@ -2222,16 +2240,15 @@ No configured values implies that there is an infinite expiration time.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_configuring_caching_using_java_configuration">6.2. Configuring caching using Java configuration</h3>
+<h3 id="_configuring_caching_using_java_configuration">6.3. Configuring caching using Java configuration</h3>
 <div class="paragraph">
 <p>Spring Cloud AWS also support the cache configuration with Java configuration classes. On any <code>Configuration</code> class,
 the caching can be configured using the <code>org.springframework.cloud.aws.cache.config.annotation.EnableElastiCache</code>
-annotation provided by Spring Cloud AWS. The next example shows a configuration of two cache clusters using the <code>lusters</code>
-attribute.</p>
+annotation provided by Spring Cloud AWS. The next example shows a configuration of two cache clusters.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@EnableElastiCache(clusters = {"firstCache", "secondCache"})
+<pre class="highlight"><code class="language-java" data-lang="java">@EnableElastiCache({@CacheClusterConfig(name = "firstCache"), @CacheClusterConfig(name = "secondCache")})
 public class ApplicationConfiguration {
 }</code></pre>
 </div>
@@ -2243,21 +2260,46 @@ public class ApplicationConfiguration {
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-If you leave the <code>clusters</code> attribute empty, then all the caches inside your CloudFormation stack (if available)
+If you leave the <code>value</code> attribute empty, then all the caches inside your CloudFormation stack (if available)
 will be configured automatically.
 </td>
 </tr>
 </table>
 </div>
+<div class="sect3">
+<h4 id="_configuring_expiry_time_for_caches">6.3.1. Configuring expiry time for caches</h4>
+<div class="paragraph">
+<p>The java configuration also allows to configure the expiry time for the caches. This can be done for all
+caches using the <code>defaultExpiration</code> attribute as shown in the example below.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@EnableElastiCache(defaultExpiration = 23)
+public class ApplicationConfiguration {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The expiration can be defined on a cache level using the <code>@CacheClusterConfig</code> annotations expiration attribute as shown below (using seconds as
+the value).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@EnableElastiCache({@CacheClusterConfig(name = "firstCache", expiration = 23), @CacheClusterConfig(name = "secondCache", expiration = 42)})
+public class ApplicationConfiguration {
+}</code></pre>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
-<h3 id="_configuring_caching_in_spring_boot">6.3. Configuring caching in Spring Boot</h3>
+<h3 id="_configuring_caching_in_spring_boot">6.4. Configuring caching in Spring Boot</h3>
 <div class="paragraph">
 <p>The caches will automatically be configured in Spring Boot without any explicit configuration property.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_using_caching">6.4. Using caching</h3>
+<h3 id="_using_caching">6.5. Using caching</h3>
 <div class="paragraph">
 <p>Based on the configuration of the cache, developers can annotate their methods to use the caching for method return values.
 The next example contains a caching declaration for a service for which the return values should be cached</p>
@@ -2276,7 +2318,7 @@ public class ExpensiveService {
 </div>
 </div>
 <div class="sect2">
-<h3 id="_memcached_client_implementation">6.5. Memcached client implementation</h3>
+<h3 id="_memcached_client_implementation">6.6. Memcached client implementation</h3>
 <div class="paragraph">
 <p>There are different memcached client implementations available for Java, the most prominent ones are
 <a href="https://github.com/couchbase/spymemcached">Spymemcached</a> and <a href="https://github.com/killme2008/xmemcached">XMemcached</a>.
@@ -2289,7 +2331,7 @@ a central configuration endpoint.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_using_cloudformation_2">6.6. Using CloudFormation</h3>
+<h3 id="_using_cloudformation_2">6.7. Using CloudFormation</h3>
 <div class="paragraph">
 <p>Amazon ElastiCache clusters can also be configured within a stack and then be used by applications. Spring Cloud AWS
 also supports the lookup of stack-configured cache clusters by their logical name with the resolution to the physical
@@ -3274,7 +3316,7 @@ like <em>integrationteststack-sampleBucket-23qysofs62tc2</em></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-01-25 10:12:52 UTC
+Last updated 2015-01-25 13:27:50 UTC
 </div>
 </div>
 </body>
