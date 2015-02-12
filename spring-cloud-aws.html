@@ -1178,7 +1178,7 @@ expects the format <code>&lt;key&gt;:&lt;value&gt;;&lt;key&gt;:&lt;value&gt;</co
      "Properties": {
       "ImageId": "ami-6a56b81d",
       "UserData": {
-         "Fn::Base64": "data1=value1;data2=value2"
+         "Fn::Base64": "data1:value1;data2:value2"
        },
       "InstanceType": "t1.micro",
      }
@@ -1202,20 +1202,6 @@ public class SecondConfigurationBean {
 	private String secondDataOption;
 }</code></pre>
 </div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>User data stored in a base 64 encoded representation is automatically decoded by Spring Cloud AWS</p>
-</div>
-</td>
-</tr>
-</table>
 </div>
 </div>
 <div class="sect3">
@@ -3316,7 +3302,7 @@ like <em>integrationteststack-sampleBucket-23qysofs62tc2</em></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-02-12 21:19:24 UTC
+Last updated 2015-02-12 21:49:42 UTC
 </div>
 </div>
 </body>
