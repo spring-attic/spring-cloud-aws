@@ -597,10 +597,10 @@ public class SimpleMessageListenerContainerTest {
 	
 	@Test
 	public void testMessagePrePostProcessorGoodCase() throws Exception {
-		final CountDownLatch before =new CountDownLatch(1);
+		final CountDownLatch before = new CountDownLatch(1);
 		final CountDownLatch success = new CountDownLatch(1);
 		final CountDownLatch always = new CountDownLatch(1);
-		
+
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 		container.setMessagePrePostProcessor(new MessagePrePostProcessor() {
 			@Override
@@ -608,13 +608,13 @@ public class SimpleMessageListenerContainerTest {
 					org.springframework.messaging.Message<String> message) {
 				before.countDown();
 			}
-			
+
 			@Override
 			public void afterSuccessfulMessageProcessing(
 					org.springframework.messaging.Message<String> message) {
 				success.countDown();
 			}
-			
+
 			@Override
 			public void afterEveryMessageProcessing(
 					org.springframework.messaging.Message<String> message) {
@@ -625,35 +625,40 @@ public class SimpleMessageListenerContainerTest {
 		AmazonSQSAsync sqs = mock(AmazonSQSAsync.class);
 		container.setAmazonSqs(sqs);
 
-
 		final CountDownLatch countDownLatch = new CountDownLatch(1);
 		QueueMessageHandler messageHandler = new QueueMessageHandler() {
 
 			@Override
-			public void handleMessage(org.springframework.messaging.Message<?> message) throws MessagingException {
+			public void handleMessage(org.springframework.messaging.Message<?> message)
+					throws MessagingException {
 				countDownLatch.countDown();
 				assertEquals("messageContent", message.getPayload());
 			}
 		};
 		container.setMessageHandler(messageHandler);
 		StaticApplicationContext applicationContext = new StaticApplicationContext();
-		applicationContext.registerSingleton("testMessageListener", TestMessageListener.class);
+		applicationContext.registerSingleton("testMessageListener",
+				TestMessageListener.class);
 		messageHandler.setApplicationContext(applicationContext);
 		container.setBeanName("testContainerName");
 		messageHandler.afterPropertiesSet();
 
-		when(sqs.getQueueUrl(new GetQueueUrlRequest("testQueue"))).thenReturn(new GetQueueUrlResult().
-				withQueueUrl("http://testQueue.amazonaws.com"));
+		when(sqs.getQueueUrl(new GetQueueUrlRequest("testQueue"))).thenReturn(
+				new GetQueueUrlResult().withQueueUrl("http://testQueue.amazonaws.com"));
 
 		container.afterPropertiesSet();
 
-		when(sqs.receiveMessage(new ReceiveMessageRequest("http://testQueue.amazonaws.com").withAttributeNames("All")
-				.withMessageAttributeNames("All")
-				.withMaxNumberOfMessages(10)))
-				.thenReturn(new ReceiveMessageResult().withMessages(new Message().withBody("messageContent"),
-						new Message().withBody("messageContent")))
-				.thenReturn(new ReceiveMessageResult());
-		when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(new GetQueueAttributesResult());
+		when(
+				sqs.receiveMessage(new ReceiveMessageRequest(
+						"http://testQueue.amazonaws.com").withAttributeNames("All")
+						.withMessageAttributeNames("All").withMaxNumberOfMessages(10)))
+				.thenReturn(
+						new ReceiveMessageResult().withMessages(
+								new Message().withBody("messageContent"),
+								new Message().withBody("messageContent"))).thenReturn(
+						new ReceiveMessageResult());
+		when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(
+				new GetQueueAttributesResult());
 
 		container.start();
 
@@ -661,16 +666,16 @@ public class SimpleMessageListenerContainerTest {
 		assertTrue(before.await(1, TimeUnit.SECONDS));
 		assertTrue(success.await(1, TimeUnit.SECONDS));
 		assertTrue(always.await(1, TimeUnit.SECONDS));
-		
+
 		container.stop();
 	}
-	
+
 	@Test
 	public void testMessagePrePostProcessorBadCase_BeforeFails() throws Exception {
-		final CountDownLatch before =new CountDownLatch(1);
+		final CountDownLatch before = new CountDownLatch(1);
 		final CountDownLatch success = new CountDownLatch(1);
 		final CountDownLatch always = new CountDownLatch(1);
-		
+
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 		container.setMessagePrePostProcessor(new MessagePrePostProcessor() {
 			@Override
@@ -679,13 +684,13 @@ public class SimpleMessageListenerContainerTest {
 				before.countDown();
 				throw new MessagingException("test");
 			}
-			
+
 			@Override
 			public void afterSuccessfulMessageProcessing(
 					org.springframework.messaging.Message<String> message) {
 				success.countDown();
 			}
-			
+
 			@Override
 			public void afterEveryMessageProcessing(
 					org.springframework.messaging.Message<String> message) {
@@ -696,35 +701,40 @@ public class SimpleMessageListenerContainerTest {
 		AmazonSQSAsync sqs = mock(AmazonSQSAsync.class);
 		container.setAmazonSqs(sqs);
 
-
 		final CountDownLatch countDownLatch = new CountDownLatch(1);
 		QueueMessageHandler messageHandler = new QueueMessageHandler() {
 
 			@Override
-			public void handleMessage(org.springframework.messaging.Message<?> message) throws MessagingException {
+			public void handleMessage(org.springframework.messaging.Message<?> message)
+					throws MessagingException {
 				countDownLatch.countDown();
 				assertEquals("messageContent", message.getPayload());
 			}
 		};
 		container.setMessageHandler(messageHandler);
 		StaticApplicationContext applicationContext = new StaticApplicationContext();
-		applicationContext.registerSingleton("testMessageListener", TestMessageListener.class);
+		applicationContext.registerSingleton("testMessageListener",
+				TestMessageListener.class);
 		messageHandler.setApplicationContext(applicationContext);
 		container.setBeanName("testContainerName");
 		messageHandler.afterPropertiesSet();
 
-		when(sqs.getQueueUrl(new GetQueueUrlRequest("testQueue"))).thenReturn(new GetQueueUrlResult().
-				withQueueUrl("http://testQueue.amazonaws.com"));
+		when(sqs.getQueueUrl(new GetQueueUrlRequest("testQueue"))).thenReturn(
+				new GetQueueUrlResult().withQueueUrl("http://testQueue.amazonaws.com"));
 
 		container.afterPropertiesSet();
 
-		when(sqs.receiveMessage(new ReceiveMessageRequest("http://testQueue.amazonaws.com").withAttributeNames("All")
-				.withMessageAttributeNames("All")
-				.withMaxNumberOfMessages(10)))
-				.thenReturn(new ReceiveMessageResult().withMessages(new Message().withBody("messageContent"),
-						new Message().withBody("messageContent")))
-				.thenReturn(new ReceiveMessageResult());
-		when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(new GetQueueAttributesResult());
+		when(
+				sqs.receiveMessage(new ReceiveMessageRequest(
+						"http://testQueue.amazonaws.com").withAttributeNames("All")
+						.withMessageAttributeNames("All").withMaxNumberOfMessages(10)))
+				.thenReturn(
+						new ReceiveMessageResult().withMessages(
+								new Message().withBody("messageContent"),
+								new Message().withBody("messageContent"))).thenReturn(
+						new ReceiveMessageResult());
+		when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(
+				new GetQueueAttributesResult());
 
 		container.start();
 
@@ -732,17 +742,17 @@ public class SimpleMessageListenerContainerTest {
 		assertTrue(before.await(1, TimeUnit.SECONDS));
 		assertFalse(success.await(1, TimeUnit.SECONDS));
 		assertTrue(always.await(1, TimeUnit.SECONDS));
-		
+
 		container.stop();
 	}
-	
+
 	@Test
 	public void testMessagePrePostProcessorBadCase_SuccessFails() throws Exception {
-		final CountDownLatch before =new CountDownLatch(1);
+		final CountDownLatch before = new CountDownLatch(1);
 		final CountDownLatch success = new CountDownLatch(1);
 		final CountDownLatch always = new CountDownLatch(1);
 		final CountDownLatch askForDeletion = new CountDownLatch(1);
-		
+
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer() {
 			public boolean isDeleteMessageOnException() {
 				askForDeletion.countDown();
@@ -755,14 +765,14 @@ public class SimpleMessageListenerContainerTest {
 					org.springframework.messaging.Message<String> message) {
 				before.countDown();
 			}
-			
+
 			@Override
 			public void afterSuccessfulMessageProcessing(
 					org.springframework.messaging.Message<String> message) {
 				success.countDown();
 				throw new MessagingException("test");
 			}
-			
+
 			@Override
 			public void afterEveryMessageProcessing(
 					org.springframework.messaging.Message<String> message) {
@@ -773,35 +783,40 @@ public class SimpleMessageListenerContainerTest {
 		AmazonSQSAsync sqs = mock(AmazonSQSAsync.class);
 		container.setAmazonSqs(sqs);
 
-
 		final CountDownLatch countDownLatch = new CountDownLatch(1);
 		QueueMessageHandler messageHandler = new QueueMessageHandler() {
 
 			@Override
-			public void handleMessage(org.springframework.messaging.Message<?> message) throws MessagingException {
+			public void handleMessage(org.springframework.messaging.Message<?> message)
+					throws MessagingException {
 				countDownLatch.countDown();
 				assertEquals("messageContent", message.getPayload());
 			}
 		};
 		container.setMessageHandler(messageHandler);
 		StaticApplicationContext applicationContext = new StaticApplicationContext();
-		applicationContext.registerSingleton("testMessageListener", TestMessageListener.class);
+		applicationContext.registerSingleton("testMessageListener",
+				TestMessageListener.class);
 		messageHandler.setApplicationContext(applicationContext);
 		container.setBeanName("testContainerName");
 		messageHandler.afterPropertiesSet();
 
-		when(sqs.getQueueUrl(new GetQueueUrlRequest("testQueue"))).thenReturn(new GetQueueUrlResult().
-				withQueueUrl("http://testQueue.amazonaws.com"));
+		when(sqs.getQueueUrl(new GetQueueUrlRequest("testQueue"))).thenReturn(
+				new GetQueueUrlResult().withQueueUrl("http://testQueue.amazonaws.com"));
 
 		container.afterPropertiesSet();
 
-		when(sqs.receiveMessage(new ReceiveMessageRequest("http://testQueue.amazonaws.com").withAttributeNames("All")
-				.withMessageAttributeNames("All")
-				.withMaxNumberOfMessages(10)))
-				.thenReturn(new ReceiveMessageResult().withMessages(new Message().withBody("messageContent"),
-						new Message().withBody("messageContent")))
-				.thenReturn(new ReceiveMessageResult());
-		when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(new GetQueueAttributesResult());
+		when(
+				sqs.receiveMessage(new ReceiveMessageRequest(
+						"http://testQueue.amazonaws.com").withAttributeNames("All")
+						.withMessageAttributeNames("All").withMaxNumberOfMessages(10)))
+				.thenReturn(
+						new ReceiveMessageResult().withMessages(
+								new Message().withBody("messageContent"),
+								new Message().withBody("messageContent"))).thenReturn(
+						new ReceiveMessageResult());
+		when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(
+				new GetQueueAttributesResult());
 
 		container.start();
 
@@ -812,14 +827,14 @@ public class SimpleMessageListenerContainerTest {
 		assertTrue(askForDeletion.await(1, TimeUnit.SECONDS));
 		container.stop();
 	}
-	
+
 	@Test
 	public void testMessagePrePostProcessorBadCase_AlwaysFails() throws Exception {
-		final CountDownLatch before =new CountDownLatch(1);
+		final CountDownLatch before = new CountDownLatch(1);
 		final CountDownLatch success = new CountDownLatch(1);
 		final CountDownLatch always = new CountDownLatch(1);
 		final CountDownLatch askForDeletion = new CountDownLatch(1);
-		
+
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer() {
 			public boolean isDeleteMessageOnException() {
 				askForDeletion.countDown();
@@ -832,13 +847,13 @@ public class SimpleMessageListenerContainerTest {
 					org.springframework.messaging.Message<String> message) {
 				before.countDown();
 			}
-			
+
 			@Override
 			public void afterSuccessfulMessageProcessing(
 					org.springframework.messaging.Message<String> message) {
 				success.countDown();
 			}
-			
+
 			@Override
 			public void afterEveryMessageProcessing(
 					org.springframework.messaging.Message<String> message) {
@@ -850,35 +865,40 @@ public class SimpleMessageListenerContainerTest {
 		AmazonSQSAsync sqs = mock(AmazonSQSAsync.class);
 		container.setAmazonSqs(sqs);
 
-
 		final CountDownLatch countDownLatch = new CountDownLatch(1);
 		QueueMessageHandler messageHandler = new QueueMessageHandler() {
 
 			@Override
-			public void handleMessage(org.springframework.messaging.Message<?> message) throws MessagingException {
+			public void handleMessage(org.springframework.messaging.Message<?> message)
+					throws MessagingException {
 				countDownLatch.countDown();
 				assertEquals("messageContent", message.getPayload());
 			}
 		};
 		container.setMessageHandler(messageHandler);
 		StaticApplicationContext applicationContext = new StaticApplicationContext();
-		applicationContext.registerSingleton("testMessageListener", TestMessageListener.class);
+		applicationContext.registerSingleton("testMessageListener",
+				TestMessageListener.class);
 		messageHandler.setApplicationContext(applicationContext);
 		container.setBeanName("testContainerName");
 		messageHandler.afterPropertiesSet();
 
-		when(sqs.getQueueUrl(new GetQueueUrlRequest("testQueue"))).thenReturn(new GetQueueUrlResult().
-				withQueueUrl("http://testQueue.amazonaws.com"));
+		when(sqs.getQueueUrl(new GetQueueUrlRequest("testQueue"))).thenReturn(
+				new GetQueueUrlResult().withQueueUrl("http://testQueue.amazonaws.com"));
 
 		container.afterPropertiesSet();
 
-		when(sqs.receiveMessage(new ReceiveMessageRequest("http://testQueue.amazonaws.com").withAttributeNames("All")
-				.withMessageAttributeNames("All")
-				.withMaxNumberOfMessages(10)))
-				.thenReturn(new ReceiveMessageResult().withMessages(new Message().withBody("messageContent"),
-						new Message().withBody("messageContent")))
-				.thenReturn(new ReceiveMessageResult());
-		when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(new GetQueueAttributesResult());
+		when(
+				sqs.receiveMessage(new ReceiveMessageRequest(
+						"http://testQueue.amazonaws.com").withAttributeNames("All")
+						.withMessageAttributeNames("All").withMaxNumberOfMessages(10)))
+				.thenReturn(
+						new ReceiveMessageResult().withMessages(
+								new Message().withBody("messageContent"),
+								new Message().withBody("messageContent"))).thenReturn(
+						new ReceiveMessageResult());
+		when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(
+				new GetQueueAttributesResult());
 
 		container.start();
 
