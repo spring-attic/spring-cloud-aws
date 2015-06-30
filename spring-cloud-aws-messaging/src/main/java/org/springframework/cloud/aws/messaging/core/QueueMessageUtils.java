@@ -34,7 +34,14 @@ import java.util.Map;
  */
 public final class QueueMessageUtils {
 
-	private static final String RECEIPT_HANDLE_MESSAGE_ATTRIBUTE_NAME = "ReceiptHandle";
+	/**
+	 * This constants holds the name of the header which contains the ReceiptHandle.
+	 */
+	public static final String RECEIPT_HANDLE_MESSAGE_ATTRIBUTE_NAME = "ReceiptHandle";
+	
+	/**
+	 * This constants holds the name of the header which contains the MessageId.
+	 */
 	private static final String MESSAGE_ID_MESSAGE_ATTRIBUTE_NAME = "MessageId";
 
 	private QueueMessageUtils() {
