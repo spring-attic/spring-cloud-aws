@@ -32,6 +32,7 @@ import com.amazonaws.services.s3.model.UploadPartRequest;
 import com.amazonaws.services.s3.model.UploadPartResult;
 import com.amazonaws.util.BinaryUtils;
 import org.springframework.core.io.AbstractResource;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.core.task.support.ExecutorServiceAdapter;
@@ -120,6 +121,12 @@ class SimpleStorageResource extends AbstractResource implements WritableResource
 	@Override
 	public long lastModified() throws IOException {
 		return getRequiredObjectMetadata().getLastModified().getTime();
+	}
+
+	@Override
+	public Resource createRelative(String relativePath) throws IOException {
+		String pathToUse = this.objectName + "/" + relativePath;
+		return new SimpleStorageResource(this.amazonS3, this.bucketName, pathToUse, this.taskExecutor);
 	}
 
 	@Override
