@@ -19,6 +19,7 @@ package org.springframework.cloud.aws.messaging.listener;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.task.TaskExecutor;
@@ -48,6 +49,7 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 	private boolean defaultTaskExecutor;
 	private boolean deleteMessageOnException = true;
 	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleMessageListenerContainer.class);
+	private MessagePrePostProcessor messagePrePostProcessor = new DefaultMessagePrePostProcessor();
 
 	protected TaskExecutor getTaskExecutor() {
 		return this.taskExecutor;
@@ -137,7 +139,13 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 	}
 
 	protected void executeMessage(org.springframework.messaging.Message<String> stringMessage) {
-		getMessageHandler().handleMessage(stringMessage);
+		try {
+			messagePrePostProcessor.beforeMessageProcessing(stringMessage);
+			getMessageHandler().handleMessage(stringMessage);
+			messagePrePostProcessor.afterSuccessfulMessageProcessing(stringMessage);
+		} finally {
+			messagePrePostProcessor.afterEveryMessageProcessing(stringMessage);
+		}
 	}
 
 	private class AsynchronousMessageListener implements Runnable {
@@ -222,5 +230,9 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 				this.countDownLatch.countDown();
 			}
 		}
+	}
+	
+	public void setMessagePrePostProcessor(MessagePrePostProcessor messagePrePostProcessor) {
+		this.messagePrePostProcessor = messagePrePostProcessor;
 	}
 }

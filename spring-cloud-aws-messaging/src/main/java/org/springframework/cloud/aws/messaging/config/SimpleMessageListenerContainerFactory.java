@@ -18,7 +18,9 @@ package org.springframework.cloud.aws.messaging.config;
 
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
+
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
+import org.springframework.cloud.aws.messaging.listener.MessagePrePostProcessor;
 import org.springframework.cloud.aws.messaging.listener.QueueMessageHandler;
 import org.springframework.cloud.aws.messaging.listener.SimpleMessageListenerContainer;
 import org.springframework.core.task.TaskExecutor;
@@ -50,6 +52,8 @@ public class SimpleMessageListenerContainerFactory {
 	private DestinationResolver<String> destinationResolver;
 
 	private Boolean deleteMessageOnException;
+	
+	private MessagePrePostProcessor messagePrePostProcessor;
 
 	/**
 	 * Configures the {@link org.springframework.core.task.TaskExecutor} which is used to poll messages and execute them
@@ -220,5 +224,13 @@ public class SimpleMessageListenerContainerFactory {
 		}
 
 		return simpleMessageListenerContainer;
+	}
+	
+	/**
+	 * Configures a custom MessagePrePostProcessor. This will be used when a message is processed.
+	 * @param messagePrePostProcessor - the MessagePrePostProcessor to use, never null.
+	 */
+	public void setMessagePrePostProcessor(MessagePrePostProcessor messagePrePostProcessor) {
+		this.messagePrePostProcessor = messagePrePostProcessor;
 	}
 }

@@ -16,17 +16,26 @@
 
 package org.springframework.cloud.aws.messaging.listener;
 
-import com.amazonaws.services.sqs.AmazonSQSAsync;
-import com.amazonaws.services.sqs.model.DeleteMessageRequest;
-import com.amazonaws.services.sqs.model.GetQueueAttributesRequest;
-import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
-import com.amazonaws.services.sqs.model.GetQueueUrlRequest;
-import com.amazonaws.services.sqs.model.GetQueueUrlResult;
-import com.amazonaws.services.sqs.model.Message;
-import com.amazonaws.services.sqs.model.MessageAttributeValue;
-import com.amazonaws.services.sqs.model.QueueAttributeName;
-import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
-import com.amazonaws.services.sqs.model.ReceiveMessageResult;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -47,25 +56,17 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.MimeType;
 
-import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
+import com.amazonaws.services.sqs.AmazonSQSAsync;
+import com.amazonaws.services.sqs.model.DeleteMessageRequest;
+import com.amazonaws.services.sqs.model.GetQueueAttributesRequest;
+import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
+import com.amazonaws.services.sqs.model.GetQueueUrlRequest;
+import com.amazonaws.services.sqs.model.GetQueueUrlResult;
+import com.amazonaws.services.sqs.model.Message;
+import com.amazonaws.services.sqs.model.MessageAttributeValue;
+import com.amazonaws.services.sqs.model.QueueAttributeName;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
+import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 
 /**
  * @author Agim Emruli
@@ -593,6 +594,322 @@ public class SimpleMessageListenerContainerTest {
 		// Act & Assert
 		container.stop();
 	}
+	
+	@Test
+	public void testMessagePrePostProcessorGoodCase() throws Exception {
+		final CountDownLatch before = new CountDownLatch(1);
+		final CountDownLatch success = new CountDownLatch(1);
+		final CountDownLatch always = new CountDownLatch(1);
+
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		container.setMessagePrePostProcessor(new MessagePrePostProcessor() {
+			@Override
+			public void beforeMessageProcessing(
+					org.springframework.messaging.Message<String> message) {
+				before.countDown();
+			}
+
+			@Override
+			public void afterSuccessfulMessageProcessing(
+					org.springframework.messaging.Message<String> message) {
+				success.countDown();
+			}
+
+			@Override
+			public void afterEveryMessageProcessing(
+					org.springframework.messaging.Message<String> message) {
+				always.countDown();
+			}
+		});
+
+		AmazonSQSAsync sqs = mock(AmazonSQSAsync.class);
+		container.setAmazonSqs(sqs);
+
+		final CountDownLatch countDownLatch = new CountDownLatch(1);
+		QueueMessageHandler messageHandler = new QueueMessageHandler() {
+
+			@Override
+			public void handleMessage(org.springframework.messaging.Message<?> message)
+					throws MessagingException {
+				countDownLatch.countDown();
+				assertEquals("messageContent", message.getPayload());
+			}
+		};
+		container.setMessageHandler(messageHandler);
+		StaticApplicationContext applicationContext = new StaticApplicationContext();
+		applicationContext.registerSingleton("testMessageListener",
+				TestMessageListener.class);
+		messageHandler.setApplicationContext(applicationContext);
+		container.setBeanName("testContainerName");
+		messageHandler.afterPropertiesSet();
+
+		when(sqs.getQueueUrl(new GetQueueUrlRequest("testQueue"))).thenReturn(
+				new GetQueueUrlResult().withQueueUrl("http://testQueue.amazonaws.com"));
+
+		container.afterPropertiesSet();
+
+		when(
+				sqs.receiveMessage(new ReceiveMessageRequest(
+						"http://testQueue.amazonaws.com").withAttributeNames("All")
+						.withMessageAttributeNames("All").withMaxNumberOfMessages(10)))
+				.thenReturn(
+						new ReceiveMessageResult().withMessages(
+								new Message().withBody("messageContent"),
+								new Message().withBody("messageContent"))).thenReturn(
+						new ReceiveMessageResult());
+		when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(
+				new GetQueueAttributesResult());
+
+		container.start();
+
+		assertTrue(countDownLatch.await(1, TimeUnit.SECONDS));
+		assertTrue(before.await(1, TimeUnit.SECONDS));
+		assertTrue(success.await(1, TimeUnit.SECONDS));
+		assertTrue(always.await(1, TimeUnit.SECONDS));
+
+		container.stop();
+	}
+
+	@Test
+	public void testMessagePrePostProcessorBadCase_BeforeFails() throws Exception {
+		final CountDownLatch before = new CountDownLatch(1);
+		final CountDownLatch success = new CountDownLatch(1);
+		final CountDownLatch always = new CountDownLatch(1);
+
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		container.setMessagePrePostProcessor(new MessagePrePostProcessor() {
+			@Override
+			public void beforeMessageProcessing(
+					org.springframework.messaging.Message<String> message) {
+				before.countDown();
+				throw new MessagingException("test");
+			}
+
+			@Override
+			public void afterSuccessfulMessageProcessing(
+					org.springframework.messaging.Message<String> message) {
+				success.countDown();
+			}
+
+			@Override
+			public void afterEveryMessageProcessing(
+					org.springframework.messaging.Message<String> message) {
+				always.countDown();
+			}
+		});
+
+		AmazonSQSAsync sqs = mock(AmazonSQSAsync.class);
+		container.setAmazonSqs(sqs);
+
+		final CountDownLatch countDownLatch = new CountDownLatch(1);
+		QueueMessageHandler messageHandler = new QueueMessageHandler() {
+
+			@Override
+			public void handleMessage(org.springframework.messaging.Message<?> message)
+					throws MessagingException {
+				countDownLatch.countDown();
+				assertEquals("messageContent", message.getPayload());
+			}
+		};
+		container.setMessageHandler(messageHandler);
+		StaticApplicationContext applicationContext = new StaticApplicationContext();
+		applicationContext.registerSingleton("testMessageListener",
+				TestMessageListener.class);
+		messageHandler.setApplicationContext(applicationContext);
+		container.setBeanName("testContainerName");
+		messageHandler.afterPropertiesSet();
+
+		when(sqs.getQueueUrl(new GetQueueUrlRequest("testQueue"))).thenReturn(
+				new GetQueueUrlResult().withQueueUrl("http://testQueue.amazonaws.com"));
+
+		container.afterPropertiesSet();
+
+		when(
+				sqs.receiveMessage(new ReceiveMessageRequest(
+						"http://testQueue.amazonaws.com").withAttributeNames("All")
+						.withMessageAttributeNames("All").withMaxNumberOfMessages(10)))
+				.thenReturn(
+						new ReceiveMessageResult().withMessages(
+								new Message().withBody("messageContent"),
+								new Message().withBody("messageContent"))).thenReturn(
+						new ReceiveMessageResult());
+		when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(
+				new GetQueueAttributesResult());
+
+		container.start();
+
+		assertFalse(countDownLatch.await(1, TimeUnit.SECONDS));
+		assertTrue(before.await(1, TimeUnit.SECONDS));
+		assertFalse(success.await(1, TimeUnit.SECONDS));
+		assertTrue(always.await(1, TimeUnit.SECONDS));
+
+		container.stop();
+	}
+
+	@Test
+	public void testMessagePrePostProcessorBadCase_SuccessFails() throws Exception {
+		final CountDownLatch before = new CountDownLatch(1);
+		final CountDownLatch success = new CountDownLatch(1);
+		final CountDownLatch always = new CountDownLatch(1);
+		final CountDownLatch askForDeletion = new CountDownLatch(1);
+
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer() {
+			public boolean isDeleteMessageOnException() {
+				askForDeletion.countDown();
+				return true;
+			};
+		};
+		container.setMessagePrePostProcessor(new MessagePrePostProcessor() {
+			@Override
+			public void beforeMessageProcessing(
+					org.springframework.messaging.Message<String> message) {
+				before.countDown();
+			}
+
+			@Override
+			public void afterSuccessfulMessageProcessing(
+					org.springframework.messaging.Message<String> message) {
+				success.countDown();
+				throw new MessagingException("test");
+			}
+
+			@Override
+			public void afterEveryMessageProcessing(
+					org.springframework.messaging.Message<String> message) {
+				always.countDown();
+			}
+		});
+
+		AmazonSQSAsync sqs = mock(AmazonSQSAsync.class);
+		container.setAmazonSqs(sqs);
+
+		final CountDownLatch countDownLatch = new CountDownLatch(1);
+		QueueMessageHandler messageHandler = new QueueMessageHandler() {
+
+			@Override
+			public void handleMessage(org.springframework.messaging.Message<?> message)
+					throws MessagingException {
+				countDownLatch.countDown();
+				assertEquals("messageContent", message.getPayload());
+			}
+		};
+		container.setMessageHandler(messageHandler);
+		StaticApplicationContext applicationContext = new StaticApplicationContext();
+		applicationContext.registerSingleton("testMessageListener",
+				TestMessageListener.class);
+		messageHandler.setApplicationContext(applicationContext);
+		container.setBeanName("testContainerName");
+		messageHandler.afterPropertiesSet();
+
+		when(sqs.getQueueUrl(new GetQueueUrlRequest("testQueue"))).thenReturn(
+				new GetQueueUrlResult().withQueueUrl("http://testQueue.amazonaws.com"));
+
+		container.afterPropertiesSet();
+
+		when(
+				sqs.receiveMessage(new ReceiveMessageRequest(
+						"http://testQueue.amazonaws.com").withAttributeNames("All")
+						.withMessageAttributeNames("All").withMaxNumberOfMessages(10)))
+				.thenReturn(
+						new ReceiveMessageResult().withMessages(
+								new Message().withBody("messageContent"),
+								new Message().withBody("messageContent"))).thenReturn(
+						new ReceiveMessageResult());
+		when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(
+				new GetQueueAttributesResult());
+
+		container.start();
+
+		assertTrue(countDownLatch.await(1, TimeUnit.SECONDS));
+		assertTrue(before.await(1, TimeUnit.SECONDS));
+		assertTrue(success.await(1, TimeUnit.SECONDS));
+		assertTrue(always.await(1, TimeUnit.SECONDS));
+		assertTrue(askForDeletion.await(1, TimeUnit.SECONDS));
+		container.stop();
+	}
+
+	@Test
+	public void testMessagePrePostProcessorBadCase_AlwaysFails() throws Exception {
+		final CountDownLatch before = new CountDownLatch(1);
+		final CountDownLatch success = new CountDownLatch(1);
+		final CountDownLatch always = new CountDownLatch(1);
+		final CountDownLatch askForDeletion = new CountDownLatch(1);
+
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer() {
+			public boolean isDeleteMessageOnException() {
+				askForDeletion.countDown();
+				return true;
+			};
+		};
+		container.setMessagePrePostProcessor(new MessagePrePostProcessor() {
+			@Override
+			public void beforeMessageProcessing(
+					org.springframework.messaging.Message<String> message) {
+				before.countDown();
+			}
+
+			@Override
+			public void afterSuccessfulMessageProcessing(
+					org.springframework.messaging.Message<String> message) {
+				success.countDown();
+			}
+
+			@Override
+			public void afterEveryMessageProcessing(
+					org.springframework.messaging.Message<String> message) {
+				always.countDown();
+				throw new MessagingException("test");
+			}
+		});
+
+		AmazonSQSAsync sqs = mock(AmazonSQSAsync.class);
+		container.setAmazonSqs(sqs);
+
+		final CountDownLatch countDownLatch = new CountDownLatch(1);
+		QueueMessageHandler messageHandler = new QueueMessageHandler() {
+
+			@Override
+			public void handleMessage(org.springframework.messaging.Message<?> message)
+					throws MessagingException {
+				countDownLatch.countDown();
+				assertEquals("messageContent", message.getPayload());
+			}
+		};
+		container.setMessageHandler(messageHandler);
+		StaticApplicationContext applicationContext = new StaticApplicationContext();
+		applicationContext.registerSingleton("testMessageListener",
+				TestMessageListener.class);
+		messageHandler.setApplicationContext(applicationContext);
+		container.setBeanName("testContainerName");
+		messageHandler.afterPropertiesSet();
+
+		when(sqs.getQueueUrl(new GetQueueUrlRequest("testQueue"))).thenReturn(
+				new GetQueueUrlResult().withQueueUrl("http://testQueue.amazonaws.com"));
+
+		container.afterPropertiesSet();
+
+		when(
+				sqs.receiveMessage(new ReceiveMessageRequest(
+						"http://testQueue.amazonaws.com").withAttributeNames("All")
+						.withMessageAttributeNames("All").withMaxNumberOfMessages(10)))
+				.thenReturn(
+						new ReceiveMessageResult().withMessages(
+								new Message().withBody("messageContent"),
+								new Message().withBody("messageContent"))).thenReturn(
+						new ReceiveMessageResult());
+		when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(
+				new GetQueueAttributesResult());
+
+		container.start();
+
+		assertTrue(countDownLatch.await(1, TimeUnit.SECONDS));
+		assertTrue(before.await(1, TimeUnit.SECONDS));
+		assertTrue(success.await(1, TimeUnit.SECONDS));
+		assertTrue(always.await(1, TimeUnit.SECONDS));
+		assertTrue(askForDeletion.await(1, TimeUnit.SECONDS));
+		container.stop();
+	}
+
 
 	private static class TestMessageListener {
 
