@@ -48,6 +48,7 @@ public class ContextCredentialsAutoConfiguration {
 		public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 			registerCredentialsProvider(registry, this.environment.getProperty("cloud.aws.credentials.accessKey"),
 					this.environment.getProperty("cloud.aws.credentials.secretKey"),
+					this.environment.getProperty("cloud.aws.credentials.sessionToken", String.class, ""),
 					this.environment.getProperty("cloud.aws.credentials.instanceProfile", Boolean.class, true) &&
 							!this.environment.containsProperty("cloud.aws.credentials.accessKey"),
 					this.environment.getProperty("cloud.aws.credentials.profileName", ProfilesConfigFile.DEFAULT_PROFILE_NAME),

@@ -49,6 +49,13 @@ public @interface EnableContextCredentials {
 	String secretKey() default "";
 
 	/**
+	 * Configures the session token that will be used by the credentials provider.  Only temporary credentials require
+	 * a session token to authenticate
+	 * @return secretKey that should be used for all web service requests
+	 */
+	String sessionToken() default "";
+
+	/**
 	 * Enables a instance profile specific credentials provider
 	 * @return true if the instance profile credentials provider should be configured
 	 */

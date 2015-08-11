@@ -17,6 +17,7 @@
 package org.springframework.cloud.aws.context.config.support;
 
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.internal.StaticCredentialsProvider;
@@ -68,15 +69,18 @@ public final class ContextConfigurationUtils {
 		AmazonWebserviceClientConfigurationUtils.replaceDefaultRegionProvider(registry, REGION_PROVIDER_BEAN_NAME);
 	}
 
-	public static void registerCredentialsProvider(BeanDefinitionRegistry registry, String accessKey, String secretKey, boolean instanceProfile, String profileName, String profilePath) {
+	public static void registerCredentialsProvider(BeanDefinitionRegistry registry, String accessKey, String secretKey, String sessionToken, boolean instanceProfile, String profileName, String profilePath) {
 		BeanDefinitionBuilder factoryBeanBuilder = BeanDefinitionBuilder.genericBeanDefinition(CredentialsProviderFactoryBean.class);
 
 		ManagedList<BeanDefinition> awsCredentialsProviders = new ManagedList<>();
 
 		if (StringUtils.hasText(accessKey)) {
-			BeanDefinitionBuilder credentials = BeanDefinitionBuilder.rootBeanDefinition(BasicAWSCredentials.class);
+			BeanDefinitionBuilder credentials = BeanDefinitionBuilder.rootBeanDefinition(sessionToken.isEmpty() ? BasicAWSCredentials.class : BasicSessionCredentials.class);
 			credentials.addConstructorArgValue(accessKey);
 			credentials.addConstructorArgValue(secretKey);
+			if(!sessionToken.isEmpty()) {
+				credentials.addConstructorArgValue(sessionToken);
+			}
 
 			BeanDefinitionBuilder provider = BeanDefinitionBuilder.rootBeanDefinition(StaticCredentialsProvider.class);
 			provider.addConstructorArgValue(credentials.getBeanDefinition());

@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.aws.context.config.xml;
 
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.BasicSessionCredentials;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -48,7 +50,7 @@ class ContextCredentialsBeanDefinitionParser extends AbstractSingleBeanDefinitio
 
 	private static final String ACCESS_KEY_ATTRIBUTE_NAME = "access-key";
 	private static final String SECRET_KEY_ATTRIBUTE_NAME = "secret-key";
-
+	private static final String SESSION_TOKEN_ATTRIBUTE_NAME = "session-token";
 
 	@Override
 	protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) throws BeanDefinitionStoreException {
@@ -111,9 +113,17 @@ class ContextCredentialsBeanDefinitionParser extends AbstractSingleBeanDefinitio
 	 * @return - the bean definition with an {@link com.amazonaws.auth.BasicAWSCredentials} class
 	 */
 	private static BeanDefinition getCredentials(Element credentialsProviderElement, ParserContext parserContext) {
-		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition("com.amazonaws.auth.BasicAWSCredentials");
+		boolean hasSessionToken = credentialsProviderElement.hasAttribute(SESSION_TOKEN_ATTRIBUTE_NAME);
+
+		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(hasSessionToken ? BasicSessionCredentials.class :
+				BasicAWSCredentials.class);
 		builder.addConstructorArgValue(getAttributeValue(ACCESS_KEY_ATTRIBUTE_NAME, credentialsProviderElement, parserContext));
 		builder.addConstructorArgValue(getAttributeValue(SECRET_KEY_ATTRIBUTE_NAME, credentialsProviderElement, parserContext));
+
+		if(hasSessionToken) {
+			builder.addConstructorArgValue(getAttributeValue(SESSION_TOKEN_ATTRIBUTE_NAME, credentialsProviderElement, parserContext));
+		}
+
 		return builder.getBeanDefinition();
 	}
 

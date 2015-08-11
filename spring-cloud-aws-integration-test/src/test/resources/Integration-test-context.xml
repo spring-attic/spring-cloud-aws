@@ -24,7 +24,8 @@
                            http://www.springframework.org/schema/cloud/aws/context http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context-1.0.xsd">
 
 	<aws-context:context-credentials>
-		<aws-context:simple-credentials access-key="${cloud.aws.credentials.accessKey}" secret-key="${cloud.aws.credentials.secretKey}" />
+		<aws-context:simple-credentials access-key="${cloud.aws.credentials.accessKey}" secret-key="${cloud.aws.credentials.secretKey}"
+				session-token="${cloud.aws.credentials.sessionToken:#{null}}"/>
 	</aws-context:context-credentials>
 
 	<aws-context:context-region region="eu-west-1" />

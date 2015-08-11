@@ -37,7 +37,10 @@ public class ContextCredentialsConfigurationRegistrar implements ImportBeanDefin
 				importingClassMetadata.getAnnotationAttributes(EnableContextCredentials.class.getName(), false));
 		Assert.notNull(annotationAttributes,
 				"@EnableContextCredentials is not present on importing class " + importingClassMetadata.getClassName());
-		registerCredentialsProvider(registry, annotationAttributes.getString("accessKey"), annotationAttributes.getString("secretKey"),
+		registerCredentialsProvider(registry,
+				annotationAttributes.getString("accessKey"),
+				annotationAttributes.getString("secretKey"),
+				annotationAttributes.getString("sessionToken"),
 				annotationAttributes.getBoolean("instanceProfile"),
 				annotationAttributes.getString("profileName"),
 				annotationAttributes.getString("profilePath"));

@@ -19,6 +19,8 @@ package org.springframework.cloud.aws.context.config.xml;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSCredentialsProviderChain;
+import com.amazonaws.auth.AWSSessionCredentials;
+import com.amazonaws.auth.AWSSessionCredentialsProvider;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.internal.StaticCredentialsProvider;
@@ -105,6 +107,17 @@ public class ContextCredentialsBeanDefinitionParserTest {
 		this.expectedException.expectMessage("The 'secret-key' attribute must not be empty");
 		//noinspection ResultOfObjectAllocationIgnored
 		new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-testWithEmptySecretKey.xml", getClass());
+	}
+
+	@Test
+	public void testWithSessionToken() throws Exception {
+		ApplicationContext applicationContext = new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-testWithSessionToken.xml", getClass());
+
+		AWSCredentialsProvider awsCredentialsProvider = applicationContext.getBean(AWSCredentialsProvider.class);
+		AWSSessionCredentials credentials = (AWSSessionCredentials) awsCredentialsProvider.getCredentials();
+		assertEquals("staticAccessKey", credentials.getAWSAccessKeyId());
+		assertEquals("staticSecretKey", credentials.getAWSSecretKey());
+		assertEquals("staticSessionToken", credentials.getSessionToken());
 	}
 
 	@Test

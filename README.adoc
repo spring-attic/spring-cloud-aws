@@ -71,8 +71,9 @@ configuration files that configure the necessary parameters to build the
 environment.
 
 Please create a new file named access.properties. This file must contain
-three properties named accessKey,secretKey and rdsPassword. These two
-properties accessKey and secretKey are account/user specific and should
+three properties named accessKey,secretKey and rdsPassword.  If you are
+using temporary credentials, it must also contain sessionToken.  The
+accessKey and secretKey properties are account/user specific and should
 never be shared to anyone. To retrieve these settings you have to open
 your account inside the AWS console and retrieve them through the
 https://portal.aws.amazon.com/gp/aws/securityCredentials[Security
@@ -87,6 +88,7 @@ An example file will look like this
 -------------------------------------------
 cloud.aws.credentials.accessKey=ilaugsjdlkahgsdlaksdhg
 cloud.aws.credentials.secretKey=aöksjdhöadjs,höalsdhjköalsdjhasd+
+cloud.aws.credentials.sessionToken=abcdefg    # only if using temporary credentials!
 rdsPassword=someVerySecretPassword
 -------------------------------------------
 
