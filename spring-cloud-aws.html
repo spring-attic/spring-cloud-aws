@@ -499,6 +499,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_message_reply">Message reply</a></li>
 </ul>
 </li>
+<li><a href="#_the_simplemessagelistenercontainerfactory">5.2.4. The SimpleMessageListenerContainerFactory</a></li>
 </ul>
 </li>
 <li><a href="#_sns_support">5.3. SNS support</a>
@@ -1877,7 +1878,7 @@ the <code>DestinationResolvingMessageSendingOperations</code> interface.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;aws-messaging:annotation-driven-queue-listener annotation-driven-queue-listener="queueMessagingTemplate"/&gt;</code></pre>
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;aws-messaging:annotation-driven-queue-listener send-to-message-template="queueMessagingTemplate"/&gt;</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -1892,9 +1893,29 @@ public List&lt;Leaf&gt; extractLeafs(Tree tree) {
 <div class="paragraph">
 <p>In this example the <code>extractLeafs</code> method will receive messages coming from the <code>treeQueue</code> and then return a
 <code>List</code> of <code>Leaf</code>s which is going to be sent to the <code>leafsQueue</code>. Note that on the
-<code>aws-messaging:annotation-driven-queue-listener</code> XML element there is an attribute <code>annotation-driven-queue-listener</code>
+<code>aws-messaging:annotation-driven-queue-listener</code> XML element there is an attribute <code>send-to-message-template</code>
 that specifies <code>QueueMessagingTemplate</code> as the messaging template to be used to send the return value of the message
 listener method.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_the_simplemessagelistenercontainerfactory">5.2.4. The SimpleMessageListenerContainerFactory</h4>
+<div class="paragraph">
+<p>The <code>SimpleMessageListenerContainer</code> can also be configured with Java by creating a bean of type <code>SimpleMessageListenerContainerFactory</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Bean
+public SimpleMessageListenerContainerFactory simpleMessageListenerContainerFactory(AmazonSQSAsync amazonSqs) {
+	SimpleMessageListenerContainerFactory factory = new SimpleMessageListenerContainerFactory();
+	factory.setAmazonSqs(amazonSqs);
+	factory.setAutoStartup(false);
+	factory.setMaxNumberOfMessages(5);
+	// ...
+
+	return factory;
+}</code></pre>
 </div>
 </div>
 </div>
@@ -3316,7 +3337,7 @@ like <em>integrationteststack-sampleBucket-23qysofs62tc2</em></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-08-08 11:15:35 UTC
+Last updated 2015-08-13 12:11:19 UTC
 </div>
 </div>
 </body>
