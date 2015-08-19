@@ -71,7 +71,7 @@ configuration files that configure the necessary parameters to build the
 environment.
 
 Please create a new file named access.properties. This file must contain
-three properties named accessKey,secretKey and rdsPassword.  If you are
+three properties named accessKey, secretKey and rdsPassword.  If you are
 using temporary credentials, it must also contain sessionToken.  The
 accessKey and secretKey properties are account/user specific and should
 never be shared to anyone. To retrieve these settings you have to open
