@@ -23,11 +23,14 @@ import com.amazonaws.services.cloudformation.model.ListStackResourcesRequest;
 import com.amazonaws.services.cloudformation.model.ListStackResourcesResult;
 import com.amazonaws.services.cloudformation.model.StackResource;
 import com.amazonaws.services.cloudformation.model.StackResourceSummary;
+import com.amazonaws.services.ec2.AmazonEC2;
+import com.amazonaws.services.ec2.model.DescribeTagsRequest;
+import com.amazonaws.services.ec2.model.DescribeTagsResult;
+import com.amazonaws.services.ec2.model.TagDescription;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.After;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.springframework.cloud.aws.context.MetaDataServer;
 import org.springframework.cloud.aws.core.env.stack.StackResourceRegistry;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -38,6 +41,9 @@ import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ContextStackConfigurationTest {
 
@@ -93,12 +99,22 @@ public class ContextStackConfigurationTest {
 
 		@Bean
 		public AmazonCloudFormation amazonCloudFormation() {
-			AmazonCloudFormation amazonCloudFormation = Mockito.mock(AmazonCloudFormation.class);
-			Mockito.when(amazonCloudFormation.describeStackResources(new DescribeStackResourcesRequest().withPhysicalResourceId("test"))).
+			AmazonCloudFormation amazonCloudFormation = mock(AmazonCloudFormation.class);
+			when(amazonCloudFormation.describeStackResources(new DescribeStackResourcesRequest().withPhysicalResourceId("test"))).
 					thenReturn(new DescribeStackResourcesResult().withStackResources(new StackResource().withStackName("testStack")));
-			Mockito.when(amazonCloudFormation.listStackResources(new ListStackResourcesRequest().withStackName("testStack"))).
+			when(amazonCloudFormation.listStackResources(new ListStackResourcesRequest().withStackName("testStack"))).
 					thenReturn(new ListStackResourcesResult().withStackResourceSummaries(Collections.<StackResourceSummary>emptyList()));
 			return amazonCloudFormation;
+		}
+
+		@Bean
+		public AmazonEC2 amazonEC2() {
+			AmazonEC2 mockAmazonEC2 = mock(AmazonEC2.class);
+			DescribeTagsResult mockDescribeTagResult = mock(DescribeTagsResult.class);
+			when(mockAmazonEC2.describeTags(any(DescribeTagsRequest.class))).thenReturn(mockDescribeTagResult);
+			when(mockDescribeTagResult.getTags()).thenReturn(Collections.singletonList(
+					new TagDescription().withKey("aws:cloudformation:stack-name").withValue("testStack")));
+			return mockAmazonEC2;
 		}
 	}
 
@@ -108,8 +124,8 @@ public class ContextStackConfigurationTest {
 
 		@Bean
 		public AmazonCloudFormation amazonCloudFormation() {
-			AmazonCloudFormation amazonCloudFormation = Mockito.mock(AmazonCloudFormation.class);
-			Mockito.when(amazonCloudFormation.listStackResources(new ListStackResourcesRequest().withStackName("manualStackName"))).
+			AmazonCloudFormation amazonCloudFormation = mock(AmazonCloudFormation.class);
+			when(amazonCloudFormation.listStackResources(new ListStackResourcesRequest().withStackName("manualStackName"))).
 					thenReturn(new ListStackResourcesResult().withStackResourceSummaries(Collections.<StackResourceSummary>emptyList()));
 			return amazonCloudFormation;
 		}

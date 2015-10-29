@@ -43,6 +43,7 @@ class StackConfigurationBeanDefinitionParser extends AbstractSimpleBeanDefinitio
 	private static final String AUTO_DETECTING_STACK_NAME_PROVIDER_CLASS_NAME = "org.springframework.cloud.aws.core.env.stack.config.AutoDetectingStackNameProvider";
 	private static final String INSTANCE_ID_PROVIDER_CLASS_NAME = "org.springframework.cloud.aws.core.env.ec2.AmazonEc2InstanceIdProvider";
 	private static final String CLOUD_FORMATION_CLIENT_CLASS_NAME = "com.amazonaws.services.cloudformation.AmazonCloudFormationClient";
+	private static final String AMAZON_EC2_CLASS_NAME = " com.amazonaws.services.ec2.AmazonEC2Client";
 
 	private static final String STACK_NAME_ATTRIBUTE_NAME = "stack-name";
 
@@ -51,10 +52,11 @@ class StackConfigurationBeanDefinitionParser extends AbstractSimpleBeanDefinitio
 		registerResourceIdResolverBeanIfNeeded(parserContext.getRegistry());
 
 		String amazonCloudFormationClientBeanName = getCustomClientOrDefaultClientBeanName(element, parserContext, "amazon-cloud-formation", CLOUD_FORMATION_CLIENT_CLASS_NAME);
+		String amazonEC2BeanName = getCustomClientOrDefaultClientBeanName(element, parserContext, "amazon-ec2", AMAZON_EC2_CLASS_NAME);
 		String stackName = element.getAttribute(STACK_NAME_ATTRIBUTE_NAME);
 
 		builder.addConstructorArgReference(amazonCloudFormationClientBeanName);
-		AbstractBeanDefinition stackNameProviderBeanDefinition = StringUtils.isEmpty(stackName) ? buildAutoDetectingStackNameProviderBeanDefinition(amazonCloudFormationClientBeanName) : buildStaticStackNameProviderBeanDefinition(stackName);
+		AbstractBeanDefinition stackNameProviderBeanDefinition = StringUtils.isEmpty(stackName) ? buildAutoDetectingStackNameProviderBeanDefinition(amazonEC2BeanName) : buildStaticStackNameProviderBeanDefinition(stackName);
 		builder.addConstructorArgValue(stackNameProviderBeanDefinition);
 
 		buildAndRegisterStackUserTagsIfNeeded(element, parserContext, amazonCloudFormationClientBeanName, stackNameProviderBeanDefinition);
@@ -77,9 +79,9 @@ class StackConfigurationBeanDefinitionParser extends AbstractSimpleBeanDefinitio
 		return staticStackNameProviderBeanDefinitionBuilder.getBeanDefinition();
 	}
 
-	private static AbstractBeanDefinition buildAutoDetectingStackNameProviderBeanDefinition(String amazonCloudFormationClientBeanName) {
+	private static AbstractBeanDefinition buildAutoDetectingStackNameProviderBeanDefinition(String amazonEC2BeanName) {
 		BeanDefinitionBuilder autoDetectingStackNameProviderBeanDefinitionBuilder = genericBeanDefinition(AUTO_DETECTING_STACK_NAME_PROVIDER_CLASS_NAME);
-		autoDetectingStackNameProviderBeanDefinitionBuilder.addConstructorArgReference(amazonCloudFormationClientBeanName);
+		autoDetectingStackNameProviderBeanDefinitionBuilder.addConstructorArgReference(amazonEC2BeanName);
 		autoDetectingStackNameProviderBeanDefinitionBuilder.addConstructorArgValue(buildInstanceIdProviderBeanDefinition());
 
 		return autoDetectingStackNameProviderBeanDefinitionBuilder.getBeanDefinition();

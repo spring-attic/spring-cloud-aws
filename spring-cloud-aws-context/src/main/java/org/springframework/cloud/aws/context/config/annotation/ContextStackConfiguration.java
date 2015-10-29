@@ -19,6 +19,8 @@ package org.springframework.cloud.aws.context.config.annotation;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClient;
+import com.amazonaws.services.ec2.AmazonEC2;
+import com.amazonaws.services.ec2.AmazonEC2Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.aws.context.annotation.ConditionalOnMissingAmazonClient;
 import org.springframework.cloud.aws.core.env.stack.config.StackResourceRegistryFactoryBean;
@@ -60,7 +62,7 @@ public class ContextStackConfiguration implements ImportAware {
 		if (StringUtils.hasText(this.annotationAttributes.getString("stackName"))) {
 			return new StackResourceRegistryFactoryBean(amazonCloudFormation, this.annotationAttributes.getString("stackName"));
 		}else{
-			return new StackResourceRegistryFactoryBean(amazonCloudFormation);
+			return new StackResourceRegistryFactoryBean(amazonCloudFormation, amazonEC2());
 		}
 	}
 
@@ -79,5 +81,22 @@ public class ContextStackConfiguration implements ImportAware {
 			formationClient.setRegion(this.regionProvider.getRegion());
 		}
 		return formationClient;
+	}
+
+	@Bean
+	@ConditionalOnMissingAmazonClient(AmazonEC2.class)
+	public AmazonEC2 amazonEC2() {
+
+		AmazonEC2 amazonEC2;
+		if (this.credentialsProvider != null) {
+			amazonEC2 = new AmazonEC2Client(this.credentialsProvider);
+		} else {
+			amazonEC2 = new AmazonEC2Client();
+		}
+
+		if (this.regionProvider != null) {
+			amazonEC2.setRegion(this.regionProvider.getRegion());
+		}
+		return amazonEC2;
 	}
 }

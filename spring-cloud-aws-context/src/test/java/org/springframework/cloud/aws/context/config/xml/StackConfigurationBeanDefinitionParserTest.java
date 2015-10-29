@@ -20,15 +20,17 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClient;
-import com.amazonaws.services.cloudformation.model.DescribeStackResourcesRequest;
-import com.amazonaws.services.cloudformation.model.DescribeStackResourcesResult;
 import com.amazonaws.services.cloudformation.model.DescribeStacksRequest;
 import com.amazonaws.services.cloudformation.model.DescribeStacksResult;
 import com.amazonaws.services.cloudformation.model.ListStackResourcesRequest;
 import com.amazonaws.services.cloudformation.model.ListStackResourcesResult;
 import com.amazonaws.services.cloudformation.model.Stack;
-import com.amazonaws.services.cloudformation.model.StackResource;
 import com.amazonaws.services.cloudformation.model.StackResourceSummary;
+import com.amazonaws.services.ec2.AmazonEC2;
+import com.amazonaws.services.ec2.model.DescribeTagsRequest;
+import com.amazonaws.services.ec2.model.DescribeTagsResult;
+import com.amazonaws.services.ec2.model.Filter;
+import com.amazonaws.services.ec2.model.TagDescription;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.After;
@@ -42,6 +44,8 @@ import org.springframework.cloud.aws.core.env.stack.StackResourceRegistry;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.util.Collections;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -89,6 +93,41 @@ public class StackConfigurationBeanDefinitionParserTest {
 	}
 
 	@Test
+	public void parseInternal_stackConfigurationWithExternallyConfiguredAmazonEC2_returnsConfiguredStackWithExternallyConfiguredClient() throws Exception {
+		//Arrange
+		HttpServer server = MetaDataServer.setupHttpServer();
+		HttpContext httpContext = server.createContext("/latest/meta-data/instance-id", new MetaDataServer.HttpResponseWriterHandler("foo"));
+		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
+
+		reader.loadBeanDefinitions(new ClassPathResource(getClass().getSimpleName() + "-withCustomAmazonEC2.xml", getClass()));
+
+		AmazonEC2 amazonEC2 = beanFactory.getBean("customAmazonEC2", AmazonEC2.class);
+		DescribeTagsResult mockDescribeTagResult = Mockito.mock(DescribeTagsResult.class);
+		when(amazonEC2.describeTags(Mockito.any(DescribeTagsRequest.class))).thenReturn(mockDescribeTagResult);
+		when(mockDescribeTagResult.getTags()).thenReturn(Collections.singletonList(
+				new TagDescription().withKey("aws:cloudformation:stack-name").withValue("test")));
+
+		AmazonCloudFormation amazonCloudFormation = Mockito.mock(AmazonCloudFormation.class);
+		when(amazonCloudFormation.listStackResources(new ListStackResourcesRequest().withStackName("test"))).
+				thenReturn(new ListStackResourcesResult().withStackResourceSummaries(new StackResourceSummary()));
+
+		beanFactory.registerSingleton(getBeanName(AmazonCloudFormation.class.getName()), amazonCloudFormation);
+
+		//Act
+		StackResourceRegistry stackResourceRegistry = beanFactory.getBean(StackResourceRegistry.class);
+
+		//Assert
+		assertNotNull(stackResourceRegistry);
+		assertFalse(beanFactory.containsBeanDefinition(getBeanName(AmazonEC2.class.getName())));
+		verify(amazonEC2, times(1)).describeTags(new DescribeTagsRequest().withFilters(
+				new Filter("resource-id", Collections.singletonList("foo")),
+				new Filter("resource-type", Collections.singletonList("instance"))));
+		verify(amazonCloudFormation, times(1)).listStackResources(new ListStackResourcesRequest().withStackName("test"));
+		server.removeContext(httpContext);
+	}
+
+	@Test
 	public void parseInternal_withCustomRegion_shouldConfigureDefaultClientWithCustomRegion() throws Exception {
 		//Arrange
 		DefaultListableBeanFactory registry = new DefaultListableBeanFactory();
@@ -121,12 +160,14 @@ public class StackConfigurationBeanDefinitionParserTest {
 		// Arrange
 		GenericXmlApplicationContext applicationContext = new GenericXmlApplicationContext();
 		AmazonCloudFormation amazonCloudFormation = Mockito.mock(AmazonCloudFormation.class);
+		AmazonEC2 amazonEC2 = Mockito.mock(AmazonEC2.class);
 
 		when(amazonCloudFormation.listStackResources(new ListStackResourcesRequest().withStackName("IntegrationTestStack"))).
 				thenReturn(new ListStackResourcesResult().withStackResourceSummaries(new StackResourceSummary()));
 
 		applicationContext.load(new ClassPathResource(getClass().getSimpleName() + "-staticStackName.xml", getClass()));
 		applicationContext.getBeanFactory().registerSingleton(getBeanName(AmazonCloudFormation.class.getName()), amazonCloudFormation);
+		applicationContext.getBeanFactory().registerSingleton(getBeanName(AmazonEC2.class.getName()), amazonEC2);
 
 		applicationContext.refresh();
 
@@ -142,12 +183,14 @@ public class StackConfigurationBeanDefinitionParserTest {
 		// Arrange
 		GenericXmlApplicationContext applicationContext = new GenericXmlApplicationContext();
 		AmazonCloudFormation amazonCloudFormation = Mockito.mock(AmazonCloudFormation.class);
+		AmazonEC2 amazonEC2 = Mockito.mock(AmazonEC2.class);
 
 		when(amazonCloudFormation.listStackResources(new ListStackResourcesRequest().withStackName("IntegrationTestStack"))).
 				thenReturn(new ListStackResourcesResult().withStackResourceSummaries(new StackResourceSummary()));
 
 		applicationContext.load(new ClassPathResource(getClass().getSimpleName() + "-staticStackName.xml", getClass()));
 		applicationContext.getBeanFactory().registerSingleton(getBeanName(AmazonCloudFormation.class.getName()), amazonCloudFormation);
+		applicationContext.getBeanFactory().registerSingleton(getBeanName(AmazonEC2.class.getName()), amazonEC2);
 
 		applicationContext.refresh();
 
@@ -167,14 +210,19 @@ public class StackConfigurationBeanDefinitionParserTest {
 		GenericXmlApplicationContext applicationContext = new GenericXmlApplicationContext();
 		AmazonCloudFormation amazonCloudFormation = Mockito.mock(AmazonCloudFormation.class);
 
-		when(amazonCloudFormation.describeStackResources(new DescribeStackResourcesRequest().withPhysicalResourceId("foo"))).
-				thenReturn(new DescribeStackResourcesResult().withStackResources(new StackResource().withStackName("test")));
-
 		when(amazonCloudFormation.listStackResources(new ListStackResourcesRequest().withStackName("test"))).
 				thenReturn(new ListStackResourcesResult().withStackResourceSummaries(new StackResourceSummary()));
 
+		AmazonEC2 amazonEC2 = Mockito.mock(AmazonEC2.class);
+		DescribeTagsResult mockDescribeTagResult = Mockito.mock(DescribeTagsResult.class);
+		when(amazonEC2.describeTags(Mockito.any(DescribeTagsRequest.class))).thenReturn(mockDescribeTagResult);
+		when(mockDescribeTagResult.getTags()).thenReturn(Collections.singletonList(
+				new TagDescription().withKey("aws:cloudformation:stack-name").withValue("test")));
+
+
 		applicationContext.load(new ClassPathResource(getClass().getSimpleName() + "-autoDetectStackName.xml", getClass()));
 		applicationContext.getBeanFactory().registerSingleton(getBeanName(AmazonCloudFormation.class.getName()), amazonCloudFormation);
+		applicationContext.getBeanFactory().registerSingleton(getBeanName(AmazonEC2.class.getName()), amazonEC2);
 
 		applicationContext.refresh();
 
@@ -192,6 +240,7 @@ public class StackConfigurationBeanDefinitionParserTest {
 		// Arrange
 		GenericXmlApplicationContext applicationContext = new GenericXmlApplicationContext();
 		AmazonCloudFormation amazonCloudFormation = Mockito.mock(AmazonCloudFormation.class);
+		AmazonEC2 amazonEC2 = Mockito.mock(AmazonEC2.class);
 
 		when(amazonCloudFormation.listStackResources(new ListStackResourcesRequest().withStackName("IntegrationTestStack"))).
 				thenReturn(new ListStackResourcesResult().withStackResourceSummaries(
@@ -199,6 +248,7 @@ public class StackConfigurationBeanDefinitionParserTest {
 
 		applicationContext.load(new ClassPathResource(getClass().getSimpleName() + "-staticStackName.xml", getClass()));
 		applicationContext.getBeanFactory().registerSingleton(getBeanName(AmazonCloudFormation.class.getName()), amazonCloudFormation);
+		applicationContext.getBeanFactory().registerSingleton(getBeanName(AmazonEC2.class.getName()), amazonEC2);
 
 		applicationContext.refresh();
 
@@ -218,16 +268,20 @@ public class StackConfigurationBeanDefinitionParserTest {
 		HttpContext httpContext = server.createContext("/latest/meta-data/instance-id", new MetaDataServer.HttpResponseWriterHandler("foo"));
 
 		GenericXmlApplicationContext applicationContext = new GenericXmlApplicationContext();
-		AmazonCloudFormation amazonCloudFormation = Mockito.mock(AmazonCloudFormation.class);
-		when(amazonCloudFormation.describeStackResources(new DescribeStackResourcesRequest().withPhysicalResourceId("foo"))).
-				thenReturn(new DescribeStackResourcesResult().withStackResources(new StackResource().withStackName("test")));
+		AmazonEC2 amazonEC2 = Mockito.mock(AmazonEC2.class);
+		DescribeTagsResult mockDescribeTagResult = Mockito.mock(DescribeTagsResult.class);
+		when(amazonEC2.describeTags(Mockito.any(DescribeTagsRequest.class))).thenReturn(mockDescribeTagResult);
+		when(mockDescribeTagResult.getTags()).thenReturn(Collections.singletonList(
+				new TagDescription().withKey("aws:cloudformation:stack-name").withValue("test")));
 
+		AmazonCloudFormation amazonCloudFormation = Mockito.mock(AmazonCloudFormation.class);
 		when(amazonCloudFormation.listStackResources(new ListStackResourcesRequest().withStackName("test"))).
 				thenReturn(new ListStackResourcesResult().withStackResourceSummaries(
 						new StackResourceSummary().withLogicalResourceId("EmptyBucket").withPhysicalResourceId("integrationteststack-emptybucket-foo")));
 
 
 		applicationContext.load(new ClassPathResource(getClass().getSimpleName() + "-autoDetectStackName.xml", getClass()));
+		applicationContext.getBeanFactory().registerSingleton(getBeanName(AmazonEC2.class.getName()), amazonEC2);
 		applicationContext.getBeanFactory().registerSingleton(getBeanName(AmazonCloudFormation.class.getName()), amazonCloudFormation);
 
 		applicationContext.refresh();
@@ -248,12 +302,14 @@ public class StackConfigurationBeanDefinitionParserTest {
 		// Arrange
 		GenericXmlApplicationContext applicationContext = new GenericXmlApplicationContext();
 		AmazonCloudFormation amazonCloudFormation = Mockito.mock(AmazonCloudFormation.class);
+		AmazonEC2 amazonEC2 = Mockito.mock(AmazonEC2.class);
 
 		when(amazonCloudFormation.listStackResources(new ListStackResourcesRequest().withStackName("IntegrationTestStack"))).
 				thenReturn(new ListStackResourcesResult().withStackResourceSummaries(new StackResourceSummary()));
 
 		applicationContext.load(new ClassPathResource(getClass().getSimpleName() + "-staticStackName.xml", getClass()));
 		applicationContext.getBeanFactory().registerSingleton(getBeanName(AmazonCloudFormation.class.getName()), amazonCloudFormation);
+		applicationContext.getBeanFactory().registerSingleton(getBeanName(AmazonEC2.class.getName()), amazonEC2);
 
 		applicationContext.refresh();
 		ResourceIdResolver resourceIdResolver = applicationContext.getBean(ResourceIdResolver.class);
