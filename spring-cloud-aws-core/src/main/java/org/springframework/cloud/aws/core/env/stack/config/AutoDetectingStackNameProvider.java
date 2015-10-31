@@ -16,13 +16,17 @@
 
 package org.springframework.cloud.aws.core.env.stack.config;
 
-import com.amazonaws.services.cloudformation.AmazonCloudFormation;
-import com.amazonaws.services.cloudformation.model.DescribeStackResourcesRequest;
-import com.amazonaws.services.cloudformation.model.DescribeStackResourcesResult;
+import com.amazonaws.services.ec2.AmazonEC2;
+import com.amazonaws.services.ec2.model.DescribeTagsRequest;
+import com.amazonaws.services.ec2.model.DescribeTagsResult;
+import com.amazonaws.services.ec2.model.Filter;
+import com.amazonaws.services.ec2.model.TagDescription;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cloud.aws.core.env.ec2.AmazonEc2InstanceIdProvider;
 import org.springframework.cloud.aws.core.env.ec2.InstanceIdProvider;
 import org.springframework.util.Assert;
+
+import java.util.Collections;
 
 /**
  * Represents a stack name provider that automatically detects the current stack name based on the amazon elastic cloud
@@ -33,24 +37,27 @@ import org.springframework.util.Assert;
  */
 class AutoDetectingStackNameProvider implements StackNameProvider, InitializingBean {
 
-	private final AmazonCloudFormation amazonCloudFormationClient;
+	private static final String AWS_CLOUDFORMATION_STACK_NAME_TAG_KEY = "aws:cloudformation:stack-name";
 	private final InstanceIdProvider instanceIdProvider;
+	private final AmazonEC2 amazonEC2;
 
 	private String stackName;
 
-	AutoDetectingStackNameProvider(AmazonCloudFormation amazonCloudFormationClient, InstanceIdProvider instanceIdProvider) {
-		this.amazonCloudFormationClient = amazonCloudFormationClient;
+	AutoDetectingStackNameProvider(AmazonEC2 amazonEC2, InstanceIdProvider instanceIdProvider) {
+		this.amazonEC2 = amazonEC2;
 		this.instanceIdProvider = instanceIdProvider;
 		afterPropertiesSet();
 	}
 
-	AutoDetectingStackNameProvider(AmazonCloudFormation amazonCloudFormationClient) {
-		this(amazonCloudFormationClient, new AmazonEc2InstanceIdProvider());
+	AutoDetectingStackNameProvider(AmazonEC2 amazonEC2) {
+		this(amazonEC2, new AmazonEc2InstanceIdProvider());
 	}
 
 	@Override
 	public void afterPropertiesSet() {
-		this.stackName = autoDetectStackName(this.amazonCloudFormationClient, this.instanceIdProvider.getCurrentInstanceId());
+		if (this.stackName == null) {
+			this.stackName = autoDetectStackName(this.amazonEC2, this.instanceIdProvider.getCurrentInstanceId());
+		}
 	}
 
 	@Override
@@ -58,15 +65,22 @@ class AutoDetectingStackNameProvider implements StackNameProvider, InitializingB
 		return this.stackName;
 	}
 
-	private static String autoDetectStackName(AmazonCloudFormation amazonCloudFormationClient, String instanceId) {
+	private static String autoDetectStackName(AmazonEC2 amazonEC2, String instanceId) {
+		Assert.notNull(amazonEC2, "No valid amazon EC2 client defined");
 		Assert.notNull(instanceId, "No valid instance id defined");
-		DescribeStackResourcesResult describeStackResourcesResult = amazonCloudFormationClient.describeStackResources(new DescribeStackResourcesRequest().withPhysicalResourceId(instanceId));
 
-		if (describeStackResourcesResult == null || describeStackResourcesResult.getStackResources() == null ||
-				describeStackResourcesResult.getStackResources().isEmpty()) {
-			throw new IllegalStateException("No stack resources found in stack for EC2 instance '" + instanceId + "'");
+		DescribeTagsResult describeTagsResult = amazonEC2.describeTags(new DescribeTagsRequest().withFilters(
+				new Filter("resource-id", Collections.singletonList(instanceId)),
+				new Filter("resource-type", Collections.singletonList("instance"))));
+
+		if (describeTagsResult != null && describeTagsResult.getTags() != null) {
+			for (TagDescription tag : describeTagsResult.getTags()) {
+				if (AWS_CLOUDFORMATION_STACK_NAME_TAG_KEY.equals(tag.getKey())) {
+					return tag.getValue();
+				}
+			}
 		}
 
-		return describeStackResourcesResult.getStackResources().get(0).getStackName();
+		throw new IllegalStateException("No tag with stack name found in EC2 instance '" + instanceId + "'");
 	}
 }

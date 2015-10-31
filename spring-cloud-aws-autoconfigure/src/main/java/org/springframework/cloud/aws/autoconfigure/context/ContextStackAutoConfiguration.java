@@ -60,7 +60,7 @@ public class ContextStackAutoConfiguration {
 		@Override
 		@Bean
 		public StackResourceRegistryFactoryBean stackResourceRegistryFactoryBean(AmazonCloudFormation amazonCloudFormation) {
-			return new StackResourceRegistryFactoryBean(amazonCloudFormation);
+			return new StackResourceRegistryFactoryBean(amazonCloudFormation, amazonEC2());
 		}
 	}
 }
