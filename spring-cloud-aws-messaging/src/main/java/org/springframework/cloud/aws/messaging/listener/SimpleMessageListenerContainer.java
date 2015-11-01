@@ -189,9 +189,11 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 	 * 		the name as defined on the listener method
 	 */
 	public void stop(String logicalQueueName) {
-		Future<?> future = stopQueue(logicalQueueName);
+		stopQueue(logicalQueueName);
+
 		try {
-			if (!future.isDone() && !future.isCancelled()) {
+			if (isRunning(logicalQueueName)) {
+				Future<?> future = this.scheduledFutureByQueue.remove(logicalQueueName);
 				future.get(this.queueStopTimeout, TimeUnit.MILLISECONDS);
 			}
 		} catch (InterruptedException e) {
@@ -201,10 +203,9 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 		}
 	}
 
-	protected Future<?> stopQueue(String logicalQueueName) {
+	protected void stopQueue(String logicalQueueName) {
 		Assert.isTrue(this.runningStateByQueue.containsKey(logicalQueueName), "Queue with name '" + logicalQueueName + "' does not exist");
 		this.runningStateByQueue.put(logicalQueueName, false);
-		return this.scheduledFutureByQueue.get(logicalQueueName);
 	}
 
 	public void start(String logicalQueueName) {
@@ -212,6 +213,11 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 
 		QueueAttributes queueAttributes = this.getRegisteredQueues().get(logicalQueueName);
 		startQueue(logicalQueueName, queueAttributes);
+	}
+
+	public boolean isRunning(String logicalQueueName) {
+		Future<?> future = this.scheduledFutureByQueue.get(logicalQueueName);
+		return future != null && !future.isCancelled() && !future.isDone();
 	}
 
 	protected void startQueue(String queueName, QueueAttributes queueAttributes) {

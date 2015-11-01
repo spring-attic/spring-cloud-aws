@@ -55,9 +55,7 @@ import org.springframework.util.MimeType;
 
 import java.nio.charset.Charset;
 import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
@@ -737,15 +735,22 @@ public class SimpleMessageListenerContainerTest {
 		messageHandler.afterPropertiesSet();
 		container.afterPropertiesSet();
 		container.start();
-		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) container.getTaskExecutor();
-		assertEquals(2, taskExecutor.getActiveCount());
+
+		assertTrue(container.isRunning("testQueue"));
+		assertTrue(container.isRunning("anotherTestQueue"));
 
 		// Act
 		container.stop("testQueue");
 
+
 		// Assert
-		assertEquals(1, taskExecutor.getActiveCount());
+		assertFalse(container.isRunning("testQueue"));
+		assertTrue(container.isRunning("anotherTestQueue"));
+
 		container.stop();
+
+		assertFalse(container.isRunning("testQueue"));
+		assertFalse(container.isRunning("anotherTestQueue"));
 	}
 
 	@Test
@@ -769,19 +774,27 @@ public class SimpleMessageListenerContainerTest {
 		container.afterPropertiesSet();
 		container.start();
 		container.stop("testQueue");
-		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) container.getTaskExecutor();
-		assertEquals(1, taskExecutor.getActiveCount());
+
+		assertFalse(container.isRunning("testQueue"));
+		assertTrue(container.isRunning("anotherTestQueue"));
+
 		sqs.setReceiveMessageEnabled(true);
 
 		// Act
 		container.start("testQueue");
 
 		// Assert
+		assertTrue(container.isRunning("testQueue"));
+		assertTrue(container.isRunning("anotherTestQueue"));
+
 		TestMessageListener testMessageListener = applicationContext.getBean(TestMessageListener.class);
 		boolean await = testMessageListener.getCountDownLatch().await(1, TimeUnit.SECONDS);
 		assertTrue(await);
 		assertEquals("Hello", testMessageListener.getMessage());
 		container.stop();
+
+		assertFalse(container.isRunning("testQueue"));
+		assertFalse(container.isRunning("anotherTestQueue"));
 	}
 
 	@Test
@@ -837,14 +850,16 @@ public class SimpleMessageListenerContainerTest {
 		messageHandler.afterPropertiesSet();
 		container.afterPropertiesSet();
 		container.start();
-		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) container.getTaskExecutor();
-		assertEquals(1, taskExecutor.getActiveCount());
+
+		assertTrue(container.isRunning("testQueue"));
 
 		// Act
 		container.start("testQueue");
 
 		// Assert
-		assertEquals(1, taskExecutor.getActiveCount());
+		assertTrue(container.isRunning("testQueue"));
+
+		container.stop();
 	}
 
 	@Test
@@ -868,18 +883,15 @@ public class SimpleMessageListenerContainerTest {
 		messageHandler.afterPropertiesSet();
 		container.afterPropertiesSet();
 		container.start();
+
 		container.stop("testQueue");
-		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) container.getTaskExecutor();
-		assertEquals(0, taskExecutor.getActiveCount());
+		assertFalse(container.isRunning("testQueue"));
 
 		// Act
 		container.stop("testQueue");
 
 		// Assert
-		@SuppressWarnings("unchecked")
-		ConcurrentHashMap<String, Future<?>> scheduledFutureByQueue = (ConcurrentHashMap<String, Future<?>>) ReflectionTestUtils.getField(container, "scheduledFutureByQueue");
-		Future<?> future = scheduledFutureByQueue.get("testQueue");
-		assertTrue(future.isDone());
+		assertFalse(container.isRunning("testQueue"));
 	}
 
 
