@@ -929,7 +929,8 @@ public class SimpleMessageListenerContainerTest {
 
 		// Assert
 		assertEquals(100, container.getQueueStopTimeout());
-		assertTrue(stopWatch.getTotalTimeMillis() > container.getQueueStopTimeout() && stopWatch.getTotalTimeMillis() < LongRunningListenerMethod.LISTENER_METHOD_WAIT_TIME);
+		assertTrue("stop must last at least the defined queue stop timeout (> 100ms)", stopWatch.getTotalTimeMillis() >= container.getQueueStopTimeout());
+		assertTrue("stop must last less than the listener method (< 10000ms)", stopWatch.getTotalTimeMillis() < LongRunningListenerMethod.LISTENER_METHOD_WAIT_TIME);
 		container.stop();
 	}
 
