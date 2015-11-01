@@ -16,7 +16,9 @@
 
 package org.springframework.cloud.aws.messaging.listener;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
+import com.amazonaws.services.sqs.buffered.AmazonSQSBufferedAsyncClient;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.GetQueueAttributesRequest;
 import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
@@ -28,7 +30,9 @@ import com.amazonaws.services.sqs.model.QueueAttributeName;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.invocation.InvocationOnMock;
@@ -49,6 +53,7 @@ import org.springframework.util.MimeType;
 
 import java.nio.charset.Charset;
 import java.util.Collections;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -73,6 +78,9 @@ import static org.mockito.MockitoAnnotations.initMocks;
  * @since 1.0
  */
 public class SimpleMessageListenerContainerTest {
+
+	@Rule
+	public final ExpectedException expectedException = ExpectedException.none();
 
 	@Captor
 	private ArgumentCaptor<org.springframework.messaging.Message<String>> stringMessageCaptor;
@@ -321,17 +329,18 @@ public class SimpleMessageListenerContainerTest {
 	@Test
 	public void afterPropertiesSet_whenCalled_taskExecutorIsActive() throws Exception {
 		// Arrange
-		SimpleMessageListenerContainer simpleMessageListenerContainer = new SimpleMessageListenerContainer();
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 		AmazonSQSAsync sqs = mock(AmazonSQSAsync.class);
-		simpleMessageListenerContainer.setAmazonSqs(sqs);
+		container.setAmazonSqs(sqs);
 		QueueMessageHandler messageHandler = mock(QueueMessageHandler.class);
-		simpleMessageListenerContainer.setMessageHandler(messageHandler);
+		container.setMessageHandler(messageHandler);
 
 		// Act
-		simpleMessageListenerContainer.afterPropertiesSet();
+		container.afterPropertiesSet();
 
 		// Assert
-		assertFalse(((ThreadPoolTaskExecutor) simpleMessageListenerContainer.getTaskExecutor()).getThreadPoolExecutor().isTerminated());
+		assertFalse(((ThreadPoolTaskExecutor) container.getTaskExecutor()).getThreadPoolExecutor().isTerminated());
+		container.stop();
 	}
 
 	@Test
@@ -575,6 +584,7 @@ public class SimpleMessageListenerContainerTest {
 
 		// Assert
 		assertTrue(countDownLatch.await(1, TimeUnit.SECONDS));
+		container.stop();
 	}
 
 	@Test
@@ -618,19 +628,13 @@ public class SimpleMessageListenerContainerTest {
 		testMessageListenerWithManualDeletionPolicy.getCountDownLatch().await(1L, TimeUnit.SECONDS);
 		testMessageListenerWithManualDeletionPolicy.acknowledge();
 		verify(sqs, times(1)).deleteMessageAsync(eq(new DeleteMessageRequest("http://testQueue.amazonaws.com", "ReceiptHandle")));
+		container.stop();
 	}
 
 	@Test
 	public void executeMessage_withDifferentDeletionPolicies_shouldActAccordingly() throws Exception {
 		// Arrange
-		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer() {
-
-			@Override
-			protected void executeMessage(org.springframework.messaging.Message<String> stringMessage) {
-				super.executeMessage(stringMessage);
-			}
-		};
-
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 		AmazonSQSAsync sqs = mock(AmazonSQSAsync.class);
 		container.setAmazonSqs(sqs);
 
@@ -687,7 +691,208 @@ public class SimpleMessageListenerContainerTest {
 		verify(sqs, never()).deleteMessageAsync(eq(new DeleteMessageRequest("http://neverError.amazonaws.com", "neverError")));
 	}
 
-	private void mockReceiveMessage(AmazonSQSAsync sqs, String queueUrl, String messageContent, String receiptHandle) {
+	@Test
+	public void stop_withALogicalQueueName_mustStopOnlyTheSpecifiedQueue() throws Exception {
+		// Arrange
+		StaticApplicationContext applicationContext = new StaticApplicationContext();
+		applicationContext.registerSingleton("testMessageListener", TestMessageListener.class);
+		applicationContext.registerSingleton("anotherTestMessageListener", AnotherTestMessageListener.class);
+
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		AmazonSQSAsync sqs = mock(AmazonSQSAsync.class);
+		container.setAmazonSqs(sqs);
+		container.setBackOffTime(0);
+
+		QueueMessageHandler messageHandler = new QueueMessageHandler();
+		messageHandler.setApplicationContext(applicationContext);
+		container.setMessageHandler(messageHandler);
+
+		mockGetQueueUrl(sqs, "testQueue", "http://testQueue.amazonaws.com");
+		mockGetQueueAttributesWithEmptyResult(sqs, "http://testQueue.amazonaws.com");
+		mockGetQueueUrl(sqs, "anotherTestQueue", "http://anotherTestQueue.amazonaws.com");
+		mockGetQueueAttributesWithEmptyResult(sqs, "http://anotherTestQueue.amazonaws.com");
+
+		messageHandler.afterPropertiesSet();
+		container.afterPropertiesSet();
+		container.start();
+		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) container.getTaskExecutor();
+		assertEquals(2, taskExecutor.getActiveCount());
+
+		// Act
+		container.stop("testQueue");
+
+		// Assert
+		assertEquals(1, taskExecutor.getActiveCount());
+		container.stop();
+	}
+
+	@Test
+	public void stopAndStart_withContainerHavingARunningQueue_shouldRestartTheSpecifiedQueue() throws Exception {
+		// Arrange
+		StaticApplicationContext applicationContext = new StaticApplicationContext();
+		applicationContext.registerSingleton("testMessageListener", TestMessageListener.class);
+		applicationContext.registerSingleton("anotherTestMessageListener", AnotherTestMessageListener.class);
+
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		MockAmazonSqsAsyncClient sqs = new MockAmazonSqsAsyncClient();
+
+		container.setAmazonSqs(sqs);
+		container.setBackOffTime(0);
+
+		QueueMessageHandler messageHandler = new QueueMessageHandler();
+		messageHandler.setApplicationContext(applicationContext);
+		container.setMessageHandler(messageHandler);
+
+		messageHandler.afterPropertiesSet();
+		container.afterPropertiesSet();
+		container.start();
+		container.stop("testQueue");
+		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) container.getTaskExecutor();
+		assertEquals(1, taskExecutor.getActiveCount());
+		sqs.setReceiveMessageEnabled(true);
+
+		// Act
+		container.start("testQueue");
+
+		// Assert
+		TestMessageListener testMessageListener = applicationContext.getBean(TestMessageListener.class);
+		boolean await = testMessageListener.getCountDownLatch().await(1, TimeUnit.SECONDS);
+		assertTrue(await);
+		assertEquals("Hello", testMessageListener.getMessage());
+		container.stop();
+	}
+
+	@Test
+	public void stop_withQueueNameThatDoesNotExist_throwsAnException() throws Exception {
+		// Arrange
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		container.setAmazonSqs(mock(AmazonSQSAsync.class));
+		container.setMessageHandler(new QueueMessageHandler());
+		container.afterPropertiesSet();
+		this.expectedException.expect(IllegalArgumentException.class);
+		this.expectedException.expectMessage("foo");
+
+		// Act
+		container.stop("foo");
+	}
+
+	@Test
+	public void start_withQueueNameThatDoesNotExist_throwAnException() throws Exception {
+		// Arrange
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		container.setAmazonSqs(mock(AmazonSQSAsync.class));
+		container.setMessageHandler(new QueueMessageHandler());
+
+		container.afterPropertiesSet();
+		this.expectedException.expect(IllegalArgumentException.class);
+		this.expectedException.expectMessage("bar");
+
+		// Act
+		container.start("bar");
+	}
+
+	@Test
+	public void start_withAQueueNameThatIsAlreadyRunning_shouldNotStartTheQueueAgainAndIgnoreTheCall() throws Exception {
+		// Arrange
+		// Arrange
+		StaticApplicationContext applicationContext = new StaticApplicationContext();
+		applicationContext.registerSingleton("testMessageListener", TestMessageListener.class);
+
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		AmazonSQSAsync sqs = mock(AmazonSQSAsync.class);
+		container.setAmazonSqs(sqs);
+		container.setBackOffTime(0);
+
+		QueueMessageHandler messageHandler = new QueueMessageHandler();
+		messageHandler.setApplicationContext(applicationContext);
+		container.setMessageHandler(messageHandler);
+
+		mockGetQueueUrl(sqs, "testQueue", "http://testQueue.amazonaws.com");
+		mockGetQueueAttributesWithEmptyResult(sqs, "http://testQueue.amazonaws.com");
+
+		messageHandler.afterPropertiesSet();
+		container.afterPropertiesSet();
+		container.start();
+		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) container.getTaskExecutor();
+		assertEquals(1, taskExecutor.getActiveCount());
+
+		// Act
+		container.start("testQueue");
+
+		// Assert
+		assertEquals(1, taskExecutor.getActiveCount());
+	}
+
+	@Test
+	public void stop_withAQueueNameThatIsNotRunning_shouldNotStopTheQueueAgainAndIgnoreTheCall() throws Exception {
+		// Arrange
+		StaticApplicationContext applicationContext = new StaticApplicationContext();
+		applicationContext.registerSingleton("testMessageListener", TestMessageListener.class);
+
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		AmazonSQSAsync sqs = mock(AmazonSQSAsync.class);
+		container.setAmazonSqs(sqs);
+		container.setBackOffTime(0);
+
+		QueueMessageHandler messageHandler = new QueueMessageHandler();
+		messageHandler.setApplicationContext(applicationContext);
+		container.setMessageHandler(messageHandler);
+
+		mockGetQueueUrl(sqs, "testQueue", "http://testQueue.amazonaws.com");
+		mockGetQueueAttributesWithEmptyResult(sqs, "http://testQueue.amazonaws.com");
+
+		messageHandler.afterPropertiesSet();
+		container.afterPropertiesSet();
+		container.start();
+		container.stop("testQueue");
+		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) container.getTaskExecutor();
+		assertEquals(0, taskExecutor.getActiveCount());
+
+		// Act
+		container.stop("testQueue");
+
+		// Assert
+		ConcurrentHashMap queueStopLatches = (ConcurrentHashMap) ReflectionTestUtils.getField(container, "queueStopLatches");
+		CountDownLatch testQueueStopLatch = (CountDownLatch) queueStopLatches.get("testQueue");
+		assertEquals(0, testQueueStopLatch.getCount());
+	}
+
+
+	// This class is needed because it does not seem to work when using mockito to mock those requests
+	private static class MockAmazonSqsAsyncClient extends AmazonSQSBufferedAsyncClient {
+
+		private boolean receiveMessageEnabled;
+
+		private MockAmazonSqsAsyncClient() {
+			super(null);
+		}
+
+		@Override
+		public GetQueueUrlResult getQueueUrl(GetQueueUrlRequest getQueueUrlRequest) throws AmazonClientException {
+			return new GetQueueUrlResult().withQueueUrl("http://" + getQueueUrlRequest.getQueueName() + ".amazonaws.com");
+		}
+
+		@Override
+		public GetQueueAttributesResult getQueueAttributes(GetQueueAttributesRequest getQueueAttributesRequest) throws AmazonClientException {
+			return new GetQueueAttributesResult();
+		}
+
+		@Override
+		public ReceiveMessageResult receiveMessage(ReceiveMessageRequest receiveMessageRequest) throws AmazonClientException {
+			if ("http://testQueue.amazonaws.com".equals(receiveMessageRequest.getQueueUrl()) && this.receiveMessageEnabled) {
+				return new ReceiveMessageResult().withMessages(new Message().withBody("Hello").withReceiptHandle("ReceiptHandle"));
+			} else {
+				return new ReceiveMessageResult();
+			}
+		}
+
+		public void setReceiveMessageEnabled(boolean receiveMessageEnabled) {
+			this.receiveMessageEnabled = receiveMessageEnabled;
+		}
+
+	}
+
+	private static void mockReceiveMessage(AmazonSQSAsync sqs, String queueUrl, String messageContent, String receiptHandle) {
 		when(sqs.receiveMessage(new ReceiveMessageRequest(queueUrl).withAttributeNames("All")
 				.withMessageAttributeNames("All")
 				.withMaxNumberOfMessages(10)))
@@ -713,15 +918,21 @@ public class SimpleMessageListenerContainerTest {
 	private static class TestMessageListener {
 
 		private String message;
+		private final CountDownLatch countDownLatch = new CountDownLatch(1);
 
 		@SuppressWarnings("UnusedDeclaration")
 		@SqsListener("testQueue")
 		private void handleMessage(String message) {
 			this.message = message;
+			this.countDownLatch.countDown();
 		}
 
 		public String getMessage() {
 			return this.message;
+		}
+
+		public CountDownLatch getCountDownLatch() {
+			return this.countDownLatch;
 		}
 	}
 

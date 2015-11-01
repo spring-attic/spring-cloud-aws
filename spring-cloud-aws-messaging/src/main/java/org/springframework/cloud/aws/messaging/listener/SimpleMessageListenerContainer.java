@@ -24,11 +24,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.MessagingException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.springframework.cloud.aws.messaging.core.QueueMessageUtils.createMessage;
 
@@ -44,10 +47,12 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 			ClassUtils.getShortName(SimpleMessageListenerContainer.class) + "-";
 	private TaskExecutor taskExecutor;
 
-	private volatile CountDownLatch stopLatch;
+	private final ConcurrentHashMap<String, CountDownLatch> queueStopLatches = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, Boolean> runningStateByQueue;
 	private boolean defaultTaskExecutor;
 	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleMessageListenerContainer.class);
 	private long backOffTime = 10000;
+	private long queueStopTimeout = 10000;
 
 	protected TaskExecutor getTaskExecutor() {
 		return this.taskExecutor;
@@ -76,14 +81,40 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 		this.backOffTime = backOffTime;
 	}
 
+	/**
+	 * @return The number of milliseconds the {@link SimpleMessageListenerContainer#stop(String)} method waits for a queue
+	 * to stop before interrupting the current thread. Default value is 10000 milliseconds (10 seconds).
+	 */
+	public long getQueueStopTimeout() {
+		return this.queueStopTimeout;
+	}
+
+	/**
+	 * The number of milliseconds the {@link SimpleMessageListenerContainer#stop(String)} method waits for a queue
+	 * to stop before interupting the current thread. Default value is 10000 milliseconds (10 seconds).
+	 *
+	 * @param queueStopTimeout
+	 * 		in milliseconds
+	 */
+	public void setQueueStopTimeout(long queueStopTimeout) {
+		this.queueStopTimeout = queueStopTimeout;
+	}
+
 	@Override
 	protected void initialize() {
 		if (this.taskExecutor == null) {
 			this.defaultTaskExecutor = true;
 			this.taskExecutor = createDefaultTaskExecutor();
 		}
-
 		super.initialize();
+		initializeRunningStateByQueue();
+	}
+
+	private void initializeRunningStateByQueue() {
+		this.runningStateByQueue = new ConcurrentHashMap<>(getRegisteredQueues().size());
+		for (String queueName : getRegisteredQueues().keySet()) {
+			this.runningStateByQueue.put(queueName, false);
+		}
 	}
 
 	@Override
@@ -95,12 +126,10 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 
 	@Override
 	protected void doStop() {
-		try {
-			if (this.stopLatch != null) {
-				this.stopLatch.await();
+		for (Map.Entry<String, Boolean> runningStateByQueue : this.runningStateByQueue.entrySet()) {
+			if (runningStateByQueue.getValue()) {
+				stop(runningStateByQueue.getKey());
 			}
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
 		}
 	}
 
@@ -141,14 +170,58 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 	}
 
 	private void scheduleMessageListeners() {
-		this.stopLatch = new CountDownLatch(getRegisteredQueues().size());
-		for (Map.Entry<String, QueueAttributes> messageRequest : getRegisteredQueues().entrySet()) {
-			getTaskExecutor().execute(new SignalExecutingRunnable(this.stopLatch, new AsynchronousMessageListener(messageRequest.getKey(), messageRequest.getValue())));
+		for (Map.Entry<String, QueueAttributes> registeredQueue : getRegisteredQueues().entrySet()) {
+			startInternal(registeredQueue.getKey(), registeredQueue.getValue());
 		}
 	}
 
 	protected void executeMessage(org.springframework.messaging.Message<String> stringMessage) {
 		getMessageHandler().handleMessage(stringMessage);
+	}
+
+	/**
+	 * Stops and waits until the specified queue has stopped. If the wait timeout specified by {@link SimpleMessageListenerContainer#getQueueStopTimeout()}
+	 * is reached, the current thread is interrupted.
+	 *
+	 * @param logicalQueueName
+	 * 		the name as defined on the listener method
+	 */
+	public void stop(String logicalQueueName) {
+		CountDownLatch queueStopLatch = stopInternal(logicalQueueName);
+		try {
+			queueStopLatch.await(this.queueStopTimeout, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+	}
+
+	protected CountDownLatch stopInternal(String logicalQueueName) {
+		Assert.isTrue(this.runningStateByQueue.containsKey(logicalQueueName), "Queue with name '" + logicalQueueName + "' does not exist");
+
+		if (this.runningStateByQueue.containsKey(logicalQueueName) && !this.runningStateByQueue.get(logicalQueueName)) {
+			return new CountDownLatch(0);
+		}
+
+		CountDownLatch queueStopLatch = new CountDownLatch(1);
+		this.queueStopLatches.put(logicalQueueName, queueStopLatch);
+		this.runningStateByQueue.put(logicalQueueName, false);
+		return queueStopLatch;
+	}
+
+	public void start(String logicalQueueName) {
+		Assert.isTrue(this.runningStateByQueue.containsKey(logicalQueueName), "Queue with name '" + logicalQueueName + "' does not exist");
+
+		QueueAttributes queueAttributes = this.getRegisteredQueues().get(logicalQueueName);
+		startInternal(logicalQueueName, queueAttributes);
+	}
+
+	protected void startInternal(String queueName, QueueAttributes queueAttributes) {
+		if (this.runningStateByQueue.containsKey(queueName) && this.runningStateByQueue.get(queueName)) {
+			return;
+		}
+
+		this.runningStateByQueue.put(queueName, true);
+		getTaskExecutor().execute(new AsynchronousMessageListener(queueName, queueAttributes));
 	}
 
 	private class AsynchronousMessageListener implements Runnable {
@@ -163,12 +236,12 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 
 		@Override
 		public void run() {
-			while (isRunning()) {
+			while (isQueueRunning()) {
 				try {
 					ReceiveMessageResult receiveMessageResult = getAmazonSqs().receiveMessage(this.queueAttributes.getReceiveMessageRequest());
 					CountDownLatch messageBatchLatch = new CountDownLatch(receiveMessageResult.getMessages().size());
 					for (Message message : receiveMessageResult.getMessages()) {
-						if (isRunning()) {
+						if (isQueueRunning()) {
 							MessageExecutor messageExecutor = new MessageExecutor(this.logicalQueueName, message, this.queueAttributes);
 							getTaskExecutor().execute(new SignalExecutingRunnable(messageBatchLatch, messageExecutor));
 						} else {
@@ -190,6 +263,20 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 						Thread.currentThread().interrupt();
 					}
 				}
+			}
+
+			CountDownLatch queueStopLatch = SimpleMessageListenerContainer.this.queueStopLatches.get(this.logicalQueueName);
+			if (queueStopLatch != null) {
+				queueStopLatch.countDown();
+			}
+		}
+
+		private boolean isQueueRunning() {
+			if (SimpleMessageListenerContainer.this.runningStateByQueue.containsKey(this.logicalQueueName)) {
+				return SimpleMessageListenerContainer.this.runningStateByQueue.get(this.logicalQueueName);
+			} else {
+				getLogger().warn("Stopped queue '" + this.logicalQueueName + "' because it was not listed as running queue.");
+				return false;
 			}
 		}
 	}
