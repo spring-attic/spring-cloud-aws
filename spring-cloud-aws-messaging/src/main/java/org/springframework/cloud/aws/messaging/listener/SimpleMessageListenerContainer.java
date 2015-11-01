@@ -19,9 +19,7 @@ package org.springframework.cloud.aws.messaging.listener;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.task.TaskExecutor;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.messaging.MessagingException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.Assert;
@@ -31,7 +29,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static org.springframework.cloud.aws.messaging.core.QueueMessageUtils.createMessage;
 
@@ -45,20 +46,20 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 	private static final int DEFAULT_WORKER_THREADS = 2;
 	private static final String DEFAULT_THREAD_NAME_PREFIX =
 			ClassUtils.getShortName(SimpleMessageListenerContainer.class) + "-";
-	private TaskExecutor taskExecutor;
 
-	private final ConcurrentHashMap<String, CountDownLatch> queueStopLatches = new ConcurrentHashMap<>();
-	private ConcurrentHashMap<String, Boolean> runningStateByQueue;
 	private boolean defaultTaskExecutor;
-	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleMessageListenerContainer.class);
 	private long backOffTime = 10000;
 	private long queueStopTimeout = 10000;
 
-	protected TaskExecutor getTaskExecutor() {
+	private AsyncTaskExecutor taskExecutor;
+	private ConcurrentHashMap<String, Future<?>> scheduledFutureByQueue;
+	private ConcurrentHashMap<String, Boolean> runningStateByQueue;
+
+	protected AsyncTaskExecutor getTaskExecutor() {
 		return this.taskExecutor;
 	}
 
-	public void setTaskExecutor(TaskExecutor taskExecutor) {
+	public void setTaskExecutor(AsyncTaskExecutor taskExecutor) {
 		this.taskExecutor = taskExecutor;
 	}
 
@@ -108,6 +109,7 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 		}
 		super.initialize();
 		initializeRunningStateByQueue();
+		this.scheduledFutureByQueue = new ConcurrentHashMap<>(getRegisteredQueues().size());
 	}
 
 	private void initializeRunningStateByQueue() {
@@ -148,7 +150,7 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 	 * @return a {@link org.springframework.core.task.SimpleAsyncTaskExecutor} configured with the thread name prefix
 	 * @see org.springframework.core.task.SimpleAsyncTaskExecutor#SimpleAsyncTaskExecutor(String)
 	 */
-	protected TaskExecutor createDefaultTaskExecutor() {
+	protected AsyncTaskExecutor createDefaultTaskExecutor() {
 		String beanName = getBeanName();
 		ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
 		threadPoolTaskExecutor.setThreadNamePrefix(beanName != null ? beanName + "-" : DEFAULT_THREAD_NAME_PREFIX);
@@ -171,7 +173,7 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 
 	private void scheduleMessageListeners() {
 		for (Map.Entry<String, QueueAttributes> registeredQueue : getRegisteredQueues().entrySet()) {
-			startInternal(registeredQueue.getKey(), registeredQueue.getValue());
+			startQueue(registeredQueue.getKey(), registeredQueue.getValue());
 		}
 	}
 
@@ -187,41 +189,39 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 	 * 		the name as defined on the listener method
 	 */
 	public void stop(String logicalQueueName) {
-		CountDownLatch queueStopLatch = stopInternal(logicalQueueName);
+		Future<?> future = stopQueue(logicalQueueName);
 		try {
-			queueStopLatch.await(this.queueStopTimeout, TimeUnit.MILLISECONDS);
+			if (!future.isDone() && !future.isCancelled()) {
+				future.get(this.queueStopTimeout, TimeUnit.MILLISECONDS);
+			}
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
+		} catch (ExecutionException | TimeoutException e) {
+			getLogger().warn("Error stopping queue with name: '" + logicalQueueName + "'", e);
 		}
 	}
 
-	protected CountDownLatch stopInternal(String logicalQueueName) {
+	protected Future<?> stopQueue(String logicalQueueName) {
 		Assert.isTrue(this.runningStateByQueue.containsKey(logicalQueueName), "Queue with name '" + logicalQueueName + "' does not exist");
-
-		if (this.runningStateByQueue.containsKey(logicalQueueName) && !this.runningStateByQueue.get(logicalQueueName)) {
-			return new CountDownLatch(0);
-		}
-
-		CountDownLatch queueStopLatch = new CountDownLatch(1);
-		this.queueStopLatches.put(logicalQueueName, queueStopLatch);
 		this.runningStateByQueue.put(logicalQueueName, false);
-		return queueStopLatch;
+		return this.scheduledFutureByQueue.get(logicalQueueName);
 	}
 
 	public void start(String logicalQueueName) {
 		Assert.isTrue(this.runningStateByQueue.containsKey(logicalQueueName), "Queue with name '" + logicalQueueName + "' does not exist");
 
 		QueueAttributes queueAttributes = this.getRegisteredQueues().get(logicalQueueName);
-		startInternal(logicalQueueName, queueAttributes);
+		startQueue(logicalQueueName, queueAttributes);
 	}
 
-	protected void startInternal(String queueName, QueueAttributes queueAttributes) {
+	protected void startQueue(String queueName, QueueAttributes queueAttributes) {
 		if (this.runningStateByQueue.containsKey(queueName) && this.runningStateByQueue.get(queueName)) {
 			return;
 		}
 
 		this.runningStateByQueue.put(queueName, true);
-		getTaskExecutor().execute(new AsynchronousMessageListener(queueName, queueAttributes));
+		Future<?> future = getTaskExecutor().submit(new AsynchronousMessageListener(queueName, queueAttributes));
+		this.scheduledFutureByQueue.put(queueName, future);
 	}
 
 	private class AsynchronousMessageListener implements Runnable {
@@ -263,11 +263,6 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 						Thread.currentThread().interrupt();
 					}
 				}
-			}
-
-			CountDownLatch queueStopLatch = SimpleMessageListenerContainer.this.queueStopLatches.get(this.logicalQueueName);
-			if (queueStopLatch != null) {
-				queueStopLatch.countDown();
 			}
 		}
 
@@ -322,7 +317,7 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 					(this.deletionPolicy == SqsMessageDeletionPolicy.NO_REDRIVE && !this.hasRedrivePolicy)) {
 				deleteMessage(receiptHandle);
 			} else if (this.deletionPolicy == SqsMessageDeletionPolicy.ON_SUCCESS) {
-				LOGGER.error("Exception encountered while processing message.", messagingException);
+				getLogger().error("Exception encountered while processing message.", messagingException);
 			}
 		}
 
