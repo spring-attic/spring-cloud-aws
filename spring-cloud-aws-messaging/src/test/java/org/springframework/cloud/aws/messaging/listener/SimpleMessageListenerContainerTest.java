@@ -919,9 +919,10 @@ public class SimpleMessageListenerContainerTest {
 		messageHandler.afterPropertiesSet();
 		container.afterPropertiesSet();
 		container.start();
+		applicationContext.getBean(LongRunningListenerMethod.class).getCountDownLatch().await(1, TimeUnit.SECONDS);
+		StopWatch stopWatch = new StopWatch();
 
 		// Act
-		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 		container.stop("longRunningQueueMessage");
 		stopWatch.stop();
@@ -1163,14 +1164,20 @@ public class SimpleMessageListenerContainerTest {
 
 	private static class LongRunningListenerMethod {
 
+		private final CountDownLatch countDownLatch = new CountDownLatch(1);
+
 		private static final int LISTENER_METHOD_WAIT_TIME = 10000;
 
 		@RuntimeUse
 		@SqsListener("longRunningQueueMessage")
 		private void handleMessage(String message) throws InterruptedException {
+			this.countDownLatch.countDown();
 			Thread.sleep(LISTENER_METHOD_WAIT_TIME);
 		}
 
+		public CountDownLatch getCountDownLatch() {
+			return this.countDownLatch;
+		}
 	}
 
 }
