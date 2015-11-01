@@ -92,7 +92,7 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 
 	/**
 	 * The number of milliseconds the {@link SimpleMessageListenerContainer#stop(String)} method waits for a queue
-	 * to stop before interupting the current thread. Default value is 10000 milliseconds (10 seconds).
+	 * to stop before interrupting the current thread. Default value is 10000 milliseconds (10 seconds).
 	 *
 	 * @param queueStopTimeout
 	 * 		in milliseconds
@@ -215,6 +215,14 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 		startQueue(logicalQueueName, queueAttributes);
 	}
 
+	/**
+	 * Checks if the spinning thread for the specified queue {@code logicalQueueName} is still running (polling for new
+	 * messages) or not.
+	 *
+	 * @param logicalQueueName
+	 * 		the name as defined on the listener method
+	 * @return {@code true} if the spinning thread for the specified queue is running otherwise {@code false}.
+	 */
 	public boolean isRunning(String logicalQueueName) {
 		Future<?> future = this.scheduledFutureByQueue.get(logicalQueueName);
 		return future != null && !future.isCancelled() && !future.isDone();

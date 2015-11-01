@@ -39,6 +39,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.springframework.cloud.aws.core.support.documentation.RuntimeUse;
 import org.springframework.cloud.aws.messaging.config.annotation.EnableSqs;
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -52,6 +53,7 @@ import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.MimeType;
+import org.springframework.util.StopWatch;
 
 import java.nio.charset.Charset;
 import java.util.Collections;
@@ -894,6 +896,41 @@ public class SimpleMessageListenerContainerTest {
 		assertFalse(container.isRunning("testQueue"));
 	}
 
+	@Test
+	public void setQueueStopTimeout_withNotDefaultTimeout_mustBeUsedWhenStoppingAQueue() throws Exception {
+		// Arrange
+		StaticApplicationContext applicationContext = new StaticApplicationContext();
+		applicationContext.registerSingleton("longRunningListenerMethod", LongRunningListenerMethod.class);
+
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		AmazonSQSAsync sqs = mock(AmazonSQSAsync.class);
+		container.setAmazonSqs(sqs);
+		container.setBackOffTime(0);
+		container.setQueueStopTimeout(100);
+
+		QueueMessageHandler messageHandler = new QueueMessageHandler();
+		messageHandler.setApplicationContext(applicationContext);
+		container.setMessageHandler(messageHandler);
+
+		mockGetQueueUrl(sqs, "longRunningQueueMessage", "http://setQueueStopTimeout_withNotDefaultTimeout_mustBeUsedWhenStoppingAQueue.amazonaws.com");
+		mockGetQueueAttributesWithEmptyResult(sqs, "http://setQueueStopTimeout_withNotDefaultTimeout_mustBeUsedWhenStoppingAQueue.amazonaws.com");
+		mockReceiveMessage(sqs, "http://setQueueStopTimeout_withNotDefaultTimeout_mustBeUsedWhenStoppingAQueue.amazonaws.com", "Hello", "ReceiptHandle");
+
+		messageHandler.afterPropertiesSet();
+		container.afterPropertiesSet();
+		container.start();
+
+		// Act
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
+		container.stop("longRunningQueueMessage");
+		stopWatch.stop();
+
+		// Assert
+		assertEquals(100, container.getQueueStopTimeout());
+		assertTrue(stopWatch.getTotalTimeMillis() > container.getQueueStopTimeout() && stopWatch.getTotalTimeMillis() < LongRunningListenerMethod.LISTENER_METHOD_WAIT_TIME);
+		container.stop();
+	}
 
 	// This class is needed because it does not seem to work when using mockito to mock those requests
 	private static class MockAmazonSqsAsyncClient extends AmazonSQSBufferedAsyncClient {
@@ -957,7 +994,7 @@ public class SimpleMessageListenerContainerTest {
 		private String message;
 		private final CountDownLatch countDownLatch = new CountDownLatch(1);
 
-		@SuppressWarnings("UnusedDeclaration")
+		@RuntimeUse
 		@SqsListener("testQueue")
 		private void handleMessage(String message) {
 			this.message = message;
@@ -977,7 +1014,7 @@ public class SimpleMessageListenerContainerTest {
 
 		private String message;
 
-		@SuppressWarnings("UnusedDeclaration")
+		@RuntimeUse
 		@SqsListener("anotherTestQueue")
 		private void handleMessage(String message) {
 			this.message = message;
@@ -997,6 +1034,7 @@ public class SimpleMessageListenerContainerTest {
 			throw new RuntimeException();
 		}
 
+		@RuntimeUse
 		@MessageExceptionHandler(RuntimeException.class)
 		public void handle() {
 			// Empty body just to avoid unnecessary log output because no exception handler was found.
@@ -1013,6 +1051,7 @@ public class SimpleMessageListenerContainerTest {
 			throw new RuntimeException();
 		}
 
+		@RuntimeUse
 		@MessageExceptionHandler(RuntimeException.class)
 		public void handle() {
 			// Empty body just to avoid unnecessary log output because no exception handler was found.
@@ -1040,6 +1079,7 @@ public class SimpleMessageListenerContainerTest {
 		private Acknowledgment acknowledgment;
 		private final CountDownLatch countDownLatch = new CountDownLatch(1);
 
+		@RuntimeUse
 		@SqsListener(value = "testQueue", deletionPolicy = SqsMessageDeletionPolicy.NEVER)
 		private void manualSuccess(String message, Acknowledgment acknowledgment) {
 			this.acknowledgment = acknowledgment;
@@ -1059,44 +1099,52 @@ public class SimpleMessageListenerContainerTest {
 
 		private final CountDownLatch countdownLatch = new CountDownLatch(8);
 
+		@RuntimeUse
 		@SqsListener(value = "alwaysSuccess", deletionPolicy = SqsMessageDeletionPolicy.ALWAYS)
 		private void alwaysSuccess(String message) {
 			this.countdownLatch.countDown();
 		}
 
+		@RuntimeUse
 		@SqsListener(value = "alwaysError", deletionPolicy = SqsMessageDeletionPolicy.ALWAYS)
 		private void alwaysError(String message) {
 			this.countdownLatch.countDown();
 			throw new RuntimeException("BOOM!");
 		}
 
+		@RuntimeUse
 		@SqsListener(value = "onSuccessSuccess", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
 		private void onSuccessSuccess(String message) {
 			this.countdownLatch.countDown();
 		}
 
+		@RuntimeUse
 		@SqsListener(value = "onSuccessError", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
 		private void onSuccessError(String message) {
 			this.countdownLatch.countDown();
 			throw new RuntimeException("BOOM!");
 		}
 
+		@RuntimeUse
 		@SqsListener(value = "noRedriveSuccess", deletionPolicy = SqsMessageDeletionPolicy.NO_REDRIVE)
 		private void noRedriveSuccess(String message) {
 			this.countdownLatch.countDown();
 		}
 
+		@RuntimeUse
 		@SqsListener(value = "noRedriveError", deletionPolicy = SqsMessageDeletionPolicy.NO_REDRIVE)
 		private void noRedriveError(String message) {
 			this.countdownLatch.countDown();
 			throw new RuntimeException("BOOM!");
 		}
 
+		@RuntimeUse
 		@SqsListener(value = "neverSuccess", deletionPolicy = SqsMessageDeletionPolicy.NEVER)
 		private void neverSuccess(String message, Acknowledgment acknowledgment) {
 			this.countdownLatch.countDown();
 		}
 
+		@RuntimeUse
 		@SqsListener(value = "neverError", deletionPolicy = SqsMessageDeletionPolicy.NEVER)
 		private void neverError(String message, Acknowledgment acknowledgment) {
 			this.countdownLatch.countDown();
@@ -1107,9 +1155,22 @@ public class SimpleMessageListenerContainerTest {
 			return this.countdownLatch;
 		}
 
+		@RuntimeUse
 		@MessageExceptionHandler(RuntimeException.class)
 		private void swallowExceptions() {
 		}
+	}
+
+	private static class LongRunningListenerMethod {
+
+		private static final int LISTENER_METHOD_WAIT_TIME = 10000;
+
+		@RuntimeUse
+		@SqsListener("longRunningQueueMessage")
+		private void handleMessage(String message) throws InterruptedException {
+			Thread.sleep(LISTENER_METHOD_WAIT_TIME);
+		}
+
 	}
 
 }
