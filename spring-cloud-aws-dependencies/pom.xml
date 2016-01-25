@@ -20,13 +20,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
-		<artifactId>spring-cloud-build</artifactId>
+		<artifactId>spring-cloud-dependencies-parent</artifactId>
 		<version>1.0.4.BUILD-SNAPSHOT</version>
 		<relativePath />
 		<!-- lookup parent from repository -->
 	</parent>
 
-	<artifactId>spring-cloud-aws</artifactId>
+	<artifactId>spring-cloud-aws-depednencies</artifactId>
 	<version>1.0.4.BUILD-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Spring Cloud AWS</name>
@@ -38,16 +38,6 @@
 		<developerConnection>scm:git:ssh://git@github.com/spring-cloud/spring-cloud-aws.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
-
-	<modules>
-		<module>spring-cloud-aws-dependencies</module>
-		<module>spring-cloud-aws-core</module>
-		<module>spring-cloud-aws-context</module>
-		<module>spring-cloud-aws-jdbc</module>
-		<module>spring-cloud-aws-messaging</module>
-		<module>spring-cloud-aws-autoconfigure</module>
-		<module>docs</module>
-	</modules>
 
 	<dependencyManagement>
 		<dependencies>
@@ -219,92 +209,6 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>hamcrest-core</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<configuration>
-						<compilerArgs>
-							<!-- Enable all warnings -->
-							<compilerArg>-Xlint:all</compilerArg>
-							<!-- Disable options warning because we will have differences between the compiler and source code level-->
-							<compilerArg>-Xlint:-options</compilerArg>
-							<!-- Disable serialversionuid warnings -->
-							<compilerArg>-Xlint:-serial</compilerArg>
-							<compilerArg>-Werror</compilerArg>
-						</compilerArgs>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
-
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<configuration>
-					<links>
-						<link>http://docs.oracle.com/javase/7/docs/api/</link>
-						<link>http://docs.oracle.com/javaee/7/api/</link>
-						<link>http://fasterxml.github.com/jackson-core/javadoc/2.0.0/</link>
-						<link>http://docs.spring.io/spring/docs/4.1.x/javadoc-api/</link>
-					</links>
-					<author>true</author>
-					<header>${project.name}</header>
-				</configuration>
-			</plugin>
-		</plugins>
-	</reporting>
-
-	<profiles>
-		<profile>
-			<id>integration-test</id>
-			<activation>
-				<property>
-					<name>els.config.dir</name>
-				</property>
-			</activation>
-			<modules>
-				<module>spring-cloud-aws-integration-test</module>
-			</modules>
-		</profile>
-	</profiles>
 
 	<properties>
         <bintray.package>aws</bintray.package>
