@@ -26,7 +26,7 @@
 		<!-- lookup parent from repository -->
 	</parent>
 
-	<artifactId>spring-cloud-aws-depednencies</artifactId>
+	<artifactId>spring-cloud-aws-dependencies</artifactId>
 	<version>1.0.4.RELEASE</version>
 	<packaging>pom</packaging>
 	<name>Spring Cloud AWS</name>
