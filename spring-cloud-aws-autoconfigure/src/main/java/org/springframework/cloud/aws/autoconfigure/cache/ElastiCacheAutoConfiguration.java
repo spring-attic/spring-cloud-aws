@@ -29,8 +29,8 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration
 @ConditionalOnAwsCloudEnvironment
+@ConditionalOnClass(MemcachedClient.class)
 @Import(ContextCredentialsAutoConfiguration.class)
 @EnableElastiCache
-@ConditionalOnClass(MemcachedClient.class)
 public class ElastiCacheAutoConfiguration {
 }

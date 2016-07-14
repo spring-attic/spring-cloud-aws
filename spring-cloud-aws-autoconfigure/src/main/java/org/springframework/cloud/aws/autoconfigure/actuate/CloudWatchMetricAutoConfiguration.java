@@ -44,9 +44,9 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration
 @ConditionalOnAwsCloudEnvironment
+@ConditionalOnProperty(prefix = "cloud.aws.cloudwatch", name = "namespace")
 @Import(ContextCredentialsAutoConfiguration.class)
 @EnableConfigurationProperties(CloudWatchMetricProperties.class)
-@ConditionalOnProperty(prefix = "cloud.aws.cloudwatch", name = "namespace")
 public class CloudWatchMetricAutoConfiguration {
 
     @Autowired(required = false)

@@ -43,11 +43,11 @@ import java.util.Map;
  */
 @Configuration
 @ConditionalOnAwsCloudEnvironment
-@AutoConfigureBefore(DataSourceAutoConfiguration.class)
-@Import(AmazonRdsDatabaseAutoConfiguration.Registrar.class)
 @ConditionalOnClass(name = {"com.amazonaws.services.rds.AmazonRDSClient",
 		"org.springframework.cloud.aws.jdbc.config.annotation.AmazonRdsInstanceConfiguration"})
 @ConditionalOnMissingBean(AmazonRdsInstanceConfiguration.class)
+@AutoConfigureBefore(DataSourceAutoConfiguration.class)
+@Import(AmazonRdsDatabaseAutoConfiguration.Registrar.class)
 public class AmazonRdsDatabaseAutoConfiguration {
 
 	public static class Registrar extends AmazonRdsInstanceConfiguration.AbstractRegistrar implements EnvironmentAware {

@@ -27,9 +27,9 @@ import org.springframework.context.annotation.Configuration;
  * @author Alain Sahli
  * @author Agim Emruli
  */
+@Configuration
 @ConditionalOnAwsCloudEnvironment
 @ConditionalOnClass(name = "org.springframework.cloud.aws.messaging.listener.SimpleMessageListenerContainer")
-@Configuration
 public class MessagingAutoConfiguration {
 
 	@ConditionalOnMissingBean(type = "org.springframework.cloud.aws.messaging.listener.SimpleMessageListenerContainer")
