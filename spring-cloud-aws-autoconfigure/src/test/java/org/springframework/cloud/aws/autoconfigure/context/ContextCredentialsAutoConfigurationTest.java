@@ -23,8 +23,10 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.internal.StaticCredentialsProvider;
 import org.apache.http.client.CredentialsProvider;
 import org.junit.After;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.springframework.boot.test.EnvironmentTestUtils;
+import org.springframework.cloud.aws.autoconfigure.context.MetaData.Context;
 import org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.io.ClassPathResource;
@@ -40,7 +42,10 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Agim Emruli
  */
+@MetaData(@Context(path = "/latest/meta-data/instance-id", value = "testInstanceId"))
 public class ContextCredentialsAutoConfigurationTest {
+	@ClassRule
+	public static MetaDataServer metaDataServer = new MetaDataServer();
 
 	private AnnotationConfigApplicationContext context;
 

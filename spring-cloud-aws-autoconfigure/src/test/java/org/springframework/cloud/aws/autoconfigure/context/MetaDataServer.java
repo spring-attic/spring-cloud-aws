@@ -18,30 +18,47 @@ package org.springframework.cloud.aws.autoconfigure.context;
 
 import com.amazonaws.SDKGlobalConfiguration;
 import com.amazonaws.util.EC2MetadataUtils;
+import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
+import org.springframework.cloud.aws.context.support.env.AwsCloudEnvironmentCheckUtils;
+import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 
 /**
  * @author Agim Emruli
+ * @author Matt Benson
  */
-public final class MetaDataServer {
+public final class MetaDataServer implements TestRule {
 
 	private static final int HTTP_SERVER_TEST_PORT = SocketUtils.findAvailableTcpPort();
 
+	private static final Field CACHED_CLOUD_ENVIRONMENT_FLAG;
+	static {
+		CACHED_CLOUD_ENVIRONMENT_FLAG = ReflectionUtils
+				.findField(AwsCloudEnvironmentCheckUtils.class, "isCloudEnvironment");
+		Assert.notNull(CACHED_CLOUD_ENVIRONMENT_FLAG,
+				"Cannot find " + AwsCloudEnvironmentCheckUtils.class.getSimpleName()
+						+ "#isCloudEnvironment field");
+		ReflectionUtils.makeAccessible(CACHED_CLOUD_ENVIRONMENT_FLAG);
+	}
+
 	@SuppressWarnings("StaticNonFinalField")
 	private static HttpServer httpServer;
-
-	private MetaDataServer(){
-		// Avoid instantiation
-	}
 
 	@SuppressWarnings("NonThreadSafeLazyInitialization")
 	public static HttpServer setupHttpServer() throws Exception {
@@ -62,6 +79,7 @@ public final class MetaDataServer {
 			httpServer.stop(10);
 			httpServer = null;
 		}
+		resetMetaDataCache();
 		resetMetadataEndpointUrlOverwrite();
 	}
 
@@ -83,6 +101,15 @@ public final class MetaDataServer {
 		System.clearProperty(SDKGlobalConfiguration.EC2_METADATA_SERVICE_OVERRIDE_SYSTEM_PROPERTY);
 	}
 
+	@Override
+	public Statement apply(Statement base, Description description) {
+		MetaData config = description.getAnnotation(MetaData.class);
+		if (config == null) {
+			return base;
+		}
+		return new Stmt(base, config);
+	}
+
 	public static class HttpResponseWriterHandler implements HttpHandler {
 
 		private final String content;
@@ -101,4 +128,46 @@ public final class MetaDataServer {
 			responseBody.close();
 		}
 	}
+
+	private static class Stmt extends Statement {
+		private final Statement base;
+		private final MetaData config;
+
+		Stmt(Statement base, MetaData config) {
+			super();
+			this.base = base;
+			this.config = config;
+		}
+
+		@Override
+		public void evaluate() throws Throwable {
+			final boolean stopServer = httpServer == null;
+			HttpServer server = MetaDataServer.setupHttpServer();
+			Deque<HttpContext> contexts = new ArrayDeque<>();
+			for (MetaData.Context context : config.value()) {
+				contexts.push(server.createContext(context.path(),
+						new HttpResponseWriterHandler(
+								context.nullValue() ? null : context.value())));
+			}
+			try {
+				base.evaluate();
+			}
+			finally {
+				for (HttpContext context : contexts) {
+					server.removeContext(context);
+					if ("/latest/meta-data/instance-id".equals(context.getPath())) {
+						ReflectionUtils.setField(CACHED_CLOUD_ENVIRONMENT_FLAG, null,
+								null);
+					}
+				}
+				if (stopServer) {
+					shutdownHttpServer();
+				}
+				else {
+					resetMetaDataCache();
+				}
+			}
+		}
+	}
+
 }

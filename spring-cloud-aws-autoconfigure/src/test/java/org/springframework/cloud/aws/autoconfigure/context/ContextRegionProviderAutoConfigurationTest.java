@@ -19,8 +19,10 @@ package org.springframework.cloud.aws.autoconfigure.context;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import org.junit.After;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.springframework.boot.test.EnvironmentTestUtils;
+import org.springframework.cloud.aws.autoconfigure.context.MetaData.Context;
 import org.springframework.cloud.aws.core.region.Ec2MetadataRegionProvider;
 import org.springframework.cloud.aws.core.region.StaticRegionProvider;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -31,7 +33,10 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Agim Emruli
  */
+@MetaData(@Context(path = "/latest/meta-data/instance-id", value = "testInstanceId"))
 public class ContextRegionProviderAutoConfigurationTest {
+	@ClassRule
+	public static MetaDataServer metaDataServer = new MetaDataServer();
 
 	private AnnotationConfigApplicationContext context;
 

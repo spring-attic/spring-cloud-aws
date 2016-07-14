@@ -23,9 +23,13 @@ import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
 import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
 import com.amazonaws.services.rds.model.Endpoint;
 import org.junit.After;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.EnvironmentTestUtils;
+import org.springframework.cloud.aws.autoconfigure.context.MetaData;
+import org.springframework.cloud.aws.autoconfigure.context.MetaData.Context;
+import org.springframework.cloud.aws.autoconfigure.context.MetaDataServer;
 import org.springframework.cloud.aws.jdbc.rds.AmazonRdsDataSourceFactoryBean;
 import org.springframework.cloud.aws.jdbc.rds.AmazonRdsReadReplicaAwareDataSourceFactoryBean;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -37,7 +41,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
+@MetaData(@Context(path = "/latest/meta-data/instance-id", value = "testInstanceId"))
 public class AmazonRdsDatabaseAutoConfigurationTest {
+	@ClassRule
+	public static MetaDataServer metaDataServer = new MetaDataServer();
 
 	private AnnotationConfigApplicationContext context;
 

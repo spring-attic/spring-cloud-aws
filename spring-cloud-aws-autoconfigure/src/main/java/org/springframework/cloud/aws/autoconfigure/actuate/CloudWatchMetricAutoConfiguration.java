@@ -28,6 +28,7 @@ import org.springframework.cloud.aws.actuate.metrics.BufferingCloudWatchMetricSe
 import org.springframework.cloud.aws.actuate.metrics.CloudWatchMetricSender;
 import org.springframework.cloud.aws.actuate.metrics.CloudWatchMetricWriter;
 import org.springframework.cloud.aws.autoconfigure.context.ContextCredentialsAutoConfiguration;
+import org.springframework.cloud.aws.context.annotation.ConditionalOnAwsCloudEnvironment;
 import org.springframework.cloud.aws.context.annotation.ConditionalOnMissingAmazonClient;
 import org.springframework.cloud.aws.core.region.RegionProvider;
 import org.springframework.context.annotation.Bean;
@@ -42,6 +43,7 @@ import org.springframework.context.annotation.Import;
  * @author Agim Emruli
  */
 @Configuration
+@ConditionalOnAwsCloudEnvironment
 @Import(ContextCredentialsAutoConfiguration.class)
 @EnableConfigurationProperties(CloudWatchMetricProperties.class)
 @ConditionalOnProperty(prefix = "cloud.aws.cloudwatch", name = "namespace")

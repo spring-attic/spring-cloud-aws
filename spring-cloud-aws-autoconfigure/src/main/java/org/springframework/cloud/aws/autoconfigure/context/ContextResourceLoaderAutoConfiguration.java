@@ -18,6 +18,7 @@ package org.springframework.cloud.aws.autoconfigure.context;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.cloud.aws.context.annotation.ConditionalOnAwsCloudEnvironment;
 import org.springframework.cloud.aws.context.config.annotation.ContextResourceLoaderConfiguration;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +30,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  * @author Agim Emruli
  */
 @Configuration
+@ConditionalOnAwsCloudEnvironment
 @Import(ContextResourceLoaderAutoConfiguration.Registrar.class)
 public class ContextResourceLoaderAutoConfiguration {
 

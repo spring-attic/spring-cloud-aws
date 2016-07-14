@@ -18,6 +18,7 @@ package org.springframework.cloud.aws.autoconfigure.context;
 
 import com.amazonaws.auth.profile.ProfilesConfigFile;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.cloud.aws.context.annotation.ConditionalOnAwsCloudEnvironment;
 import org.springframework.cloud.aws.context.config.annotation.ContextDefaultConfigurationRegistrar;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +33,7 @@ import static org.springframework.cloud.aws.context.config.support.ContextConfig
  * @author Agim Emruli
  */
 @Configuration
+@ConditionalOnAwsCloudEnvironment
 @Import({ContextDefaultConfigurationRegistrar.class, ContextCredentialsAutoConfiguration.Registrar.class})
 public class ContextCredentialsAutoConfiguration {
 

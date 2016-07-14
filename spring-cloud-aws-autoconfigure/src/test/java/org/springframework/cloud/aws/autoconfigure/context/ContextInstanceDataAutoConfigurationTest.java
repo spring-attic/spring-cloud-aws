@@ -16,12 +16,12 @@
 
 package org.springframework.cloud.aws.autoconfigure.context;
 
-import com.sun.net.httpserver.HttpContext;
-import com.sun.net.httpserver.HttpServer;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.boot.test.EnvironmentTestUtils;
+import org.springframework.cloud.aws.autoconfigure.context.MetaData.Context;
 import org.springframework.cloud.aws.context.support.env.AwsCloudEnvironmentCheckUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.ReflectionUtils;
@@ -37,6 +37,9 @@ import static org.junit.Assert.assertTrue;
  * @author Agim Emruli
  */
 public class ContextInstanceDataAutoConfigurationTest {
+
+	@Rule
+	public MetaDataServer metaDataServer = new MetaDataServer();
 
 	private AnnotationConfigApplicationContext context;
 
@@ -56,11 +59,9 @@ public class ContextInstanceDataAutoConfigurationTest {
 	}
 
 	@Test
+	@MetaData(@Context(path = "/latest/meta-data/instance-id", value = "testInstanceId"))
 	public void placeHolder_noExplicitConfiguration_createInstanceDataResolverForAwsEnvironment() throws Exception {
 		// Arrange
-		HttpServer httpServer = MetaDataServer.setupHttpServer();
-		HttpContext instanceIdHttpContext = httpServer.createContext("/latest/meta-data/instance-id", new MetaDataServer.HttpResponseWriterHandler("testInstanceId"));
-
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextInstanceDataAutoConfiguration.class);
 
@@ -69,16 +70,12 @@ public class ContextInstanceDataAutoConfigurationTest {
 
 		// Assert
 		assertTrue(this.context.containsBean("AmazonEc2InstanceDataPropertySourcePostProcessor"));
-
-		httpServer.removeContext(instanceIdHttpContext);
 	}
 
 	@Test
+	@MetaData(@Context(path = "/latest/meta-data/instance-id", nullValue = true))
 	public void placeHolder_noExplicitConfiguration_missingInstanceDataResolverForNotAwsEnvironment() throws Exception {
 		// Arrange
-		HttpServer httpServer = MetaDataServer.setupHttpServer();
-		HttpContext instanceIdHttpContext = httpServer.createContext("/latest/meta-data/instance-id", new MetaDataServer.HttpResponseWriterHandler(null));
-
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextInstanceDataAutoConfiguration.class);
 
@@ -87,17 +84,14 @@ public class ContextInstanceDataAutoConfigurationTest {
 
 		// Assert
 		assertFalse(this.context.containsBean("AmazonEc2InstanceDataPropertySourcePostProcessor"));
-
-		httpServer.removeContext(instanceIdHttpContext);
 	}
 
 	@Test
+	@MetaData({
+			@Context(path = "/latest/meta-data/instance-id", value = "testInstanceId"),
+			@Context(path = "/latest/user-data", value = "a:b;c:d") })
 	public void placeHolder_noExplicitConfiguration_createInstanceDataResolverThatResolvesWithDefaultAttributes() throws Exception {
 		// Arrange
-		HttpServer httpServer = MetaDataServer.setupHttpServer();
-		HttpContext instanceIdHttpContext = httpServer.createContext("/latest/meta-data/instance-id", new MetaDataServer.HttpResponseWriterHandler("testInstanceId"));
-		HttpContext userDataHttpContext = httpServer.createContext("/latest/user-data", new MetaDataServer.HttpResponseWriterHandler("a:b;c:d"));
-
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextInstanceDataAutoConfiguration.class);
 
@@ -107,18 +101,14 @@ public class ContextInstanceDataAutoConfigurationTest {
 		// Assert
 		assertEquals("b", this.context.getEnvironment().getProperty("a"));
 		assertEquals("d", this.context.getEnvironment().getProperty("c"));
-
-		httpServer.removeContext(instanceIdHttpContext);
-		httpServer.removeContext(userDataHttpContext);
 	}
 
 	@Test
+	@MetaData({
+		@Context(path = "/latest/meta-data/instance-id", value = "testInstanceId"),
+		@Context(path = "/latest/user-data", value = "a=b;c=d") })
 	public void placeHolder_customValueSeparator_createInstanceDataResolverThatResolvesWithCustomValueSeparator() throws Exception {
 		// Arrange
-		HttpServer httpServer = MetaDataServer.setupHttpServer();
-		HttpContext instanceIdHttpContext = httpServer.createContext("/latest/meta-data/instance-id", new MetaDataServer.HttpResponseWriterHandler("testInstanceId"));
-		HttpContext userDataHttpContext = httpServer.createContext("/latest/user-data", new MetaDataServer.HttpResponseWriterHandler("a=b;c=d"));
-
 		this.context = new AnnotationConfigApplicationContext();
 
 		EnvironmentTestUtils.addEnvironment(this.context, "cloud.aws.instance.data.valueSeparator:=");
@@ -131,18 +121,14 @@ public class ContextInstanceDataAutoConfigurationTest {
 		// Assert
 		assertEquals("b", this.context.getEnvironment().getProperty("a"));
 		assertEquals("d", this.context.getEnvironment().getProperty("c"));
-
-		httpServer.removeContext(instanceIdHttpContext);
-		httpServer.removeContext(userDataHttpContext);
 	}
 
 	@Test
+	@MetaData({
+		@Context(path = "/latest/meta-data/instance-id", value = "testInstanceId"),
+		@Context(path = "/latest/user-data", value = "a:b/c:d") })
 	public void placeHolder_customAttributeSeparator_createInstanceDataResolverThatResolvesWithCustomAttribute() throws Exception {
 		// Arrange
-		HttpServer httpServer = MetaDataServer.setupHttpServer();
-		HttpContext instanceIdHttpContext = httpServer.createContext("/latest/meta-data/instance-id", new MetaDataServer.HttpResponseWriterHandler("testInstanceId"));
-		HttpContext userDataHttpContext = httpServer.createContext("/latest/user-data", new MetaDataServer.HttpResponseWriterHandler("a:b/c:d"));
-
 		this.context = new AnnotationConfigApplicationContext();
 
 		EnvironmentTestUtils.addEnvironment(this.context, "cloud.aws.instance.data.attributeSeparator:/");
@@ -155,8 +141,5 @@ public class ContextInstanceDataAutoConfigurationTest {
 		// Assert
 		assertEquals("b", this.context.getEnvironment().getProperty("a"));
 		assertEquals("d", this.context.getEnvironment().getProperty("c"));
-
-		httpServer.removeContext(instanceIdHttpContext);
-		httpServer.removeContext(userDataHttpContext);
 	}
 }

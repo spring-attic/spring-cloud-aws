@@ -33,6 +33,7 @@ import org.springframework.core.env.Environment;
  * @author Agim Emruli
  */
 @Configuration
+@ConditionalOnAwsCloudEnvironment
 @Import({ContextCredentialsAutoConfiguration.class, ContextDefaultConfigurationRegistrar.class})
 public class ContextStackAutoConfiguration {
 

@@ -22,6 +22,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.bind.PropertySourceUtils;
+import org.springframework.cloud.aws.context.annotation.ConditionalOnAwsCloudEnvironment;
 import org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils;
 import org.springframework.cloud.aws.jdbc.config.annotation.AmazonRdsInstanceConfiguration;
 import org.springframework.context.EnvironmentAware;
@@ -41,6 +42,7 @@ import java.util.Map;
  * @author Alain Sahli
  */
 @Configuration
+@ConditionalOnAwsCloudEnvironment
 @AutoConfigureBefore(DataSourceAutoConfiguration.class)
 @Import(AmazonRdsDatabaseAutoConfiguration.Registrar.class)
 @ConditionalOnClass(name = {"com.amazonaws.services.rds.AmazonRDSClient",

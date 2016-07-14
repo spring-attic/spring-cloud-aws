@@ -23,10 +23,14 @@ import com.amazonaws.services.elasticache.model.DescribeCacheClustersResult;
 import com.amazonaws.services.elasticache.model.Endpoint;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurer;
+import org.springframework.cloud.aws.autoconfigure.context.MetaData;
+import org.springframework.cloud.aws.autoconfigure.context.MetaData.Context;
+import org.springframework.cloud.aws.autoconfigure.context.MetaDataServer;
 import org.springframework.cloud.aws.core.env.stack.ListableStackResourceFactory;
 import org.springframework.cloud.aws.core.env.stack.StackResource;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -38,7 +42,10 @@ import java.util.Arrays;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+@MetaData(@Context(path = "/latest/meta-data/instance-id", value = "testInstanceId"))
 public class ElastiCacheAutoConfigurationTest {
+	@ClassRule
+	public static MetaDataServer metaDataServer = new MetaDataServer();
 
 	private AnnotationConfigApplicationContext context;
 

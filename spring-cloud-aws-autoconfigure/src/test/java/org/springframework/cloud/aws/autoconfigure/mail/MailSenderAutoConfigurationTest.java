@@ -17,6 +17,9 @@
 package org.springframework.cloud.aws.autoconfigure.mail;
 
 import org.junit.Test;
+import org.springframework.cloud.aws.autoconfigure.context.MetaData;
+import org.springframework.cloud.aws.autoconfigure.context.MetaData.Context;
+import org.springframework.cloud.aws.autoconfigure.context.MetaDataServer;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -24,7 +27,12 @@ import org.springframework.mail.javamail.JavaMailSender;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
+import org.junit.ClassRule;
+
+@MetaData(@Context(path = "/latest/meta-data/instance-id", value = "testInstanceId"))
 public class MailSenderAutoConfigurationTest {
+	@ClassRule
+	public static MetaDataServer metaDataServer = new MetaDataServer();
 
 	@Test
 	public void mailSender_MailSenderWithJava_configuresJavaMailSender() throws Exception {
@@ -32,12 +40,18 @@ public class MailSenderAutoConfigurationTest {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 		context.register(MailSenderAutoConfiguration.class);
 
-		//Act
-		context.refresh();
+		try {
+			// Act
+			context.refresh();
 
-		//Assert
-		assertNotNull(context.getBean(MailSender.class));
-		assertNotNull(context.getBean(JavaMailSender.class));
-		assertSame(context.getBean(MailSender.class), context.getBean(JavaMailSender.class));
+			// Assert
+			assertNotNull(context.getBean(MailSender.class));
+			assertNotNull(context.getBean(JavaMailSender.class));
+			assertSame(context.getBean(MailSender.class),
+					context.getBean(JavaMailSender.class));
+		}
+		finally {
+			context.close();
+		}
 	}
 }

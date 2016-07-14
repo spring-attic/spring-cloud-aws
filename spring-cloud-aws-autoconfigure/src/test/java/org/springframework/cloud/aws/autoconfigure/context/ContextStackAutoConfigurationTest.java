@@ -23,38 +23,29 @@ import com.amazonaws.services.cloudformation.model.ListStackResourcesRequest;
 import com.amazonaws.services.cloudformation.model.ListStackResourcesResult;
 import com.amazonaws.services.cloudformation.model.StackResource;
 import com.amazonaws.services.cloudformation.model.StackResourceSummary;
-import com.sun.net.httpserver.HttpContext;
-import com.sun.net.httpserver.HttpServer;
 import org.junit.After;
-import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.EnvironmentTestUtils;
-import org.springframework.cloud.aws.context.support.env.AwsCloudEnvironmentCheckUtils;
+import org.springframework.cloud.aws.autoconfigure.context.MetaData.Context;
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.cloud.aws.core.env.stack.StackResourceRegistry;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Field;
 import java.util.Collections;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+@MetaData(@Context(path = "/latest/meta-data/instance-id", value = "test"))
 public class ContextStackAutoConfigurationTest {
+	@ClassRule
+	public static MetaDataServer metaDataServer = new MetaDataServer();
 
 	private AnnotationConfigApplicationContext context;
-
-	@Before
-	public void restContextInstanceDataCondition() throws IllegalAccessException {
-		Field field = ReflectionUtils.findField(AwsCloudEnvironmentCheckUtils.class, "isCloudEnvironment");
-		assertNotNull(field);
-		ReflectionUtils.makeAccessible(field);
-		field.set(null, null);
-	}
 
 	@After
 	public void tearDown() throws Exception {
@@ -69,17 +60,12 @@ public class ContextStackAutoConfigurationTest {
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(AutoConfigurationStackRegistryTestConfiguration.class);
 		this.context.register(ContextStackAutoConfiguration.class);
-		HttpServer httpServer = MetaDataServer.setupHttpServer();
-		HttpContext httpContext = httpServer.createContext("/latest/meta-data/instance-id", new MetaDataServer.HttpResponseWriterHandler("test"));
 
 		//Act
 		this.context.refresh();
 
 		//Assert
 		assertNotNull(this.context.getBean(StackResourceRegistry.class));
-
-		httpServer.removeContext(httpContext);
-		MetaDataServer.shutdownHttpServer();
 	}
 
 	@Test

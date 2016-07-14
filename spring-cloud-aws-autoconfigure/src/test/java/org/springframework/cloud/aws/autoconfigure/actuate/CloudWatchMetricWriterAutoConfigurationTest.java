@@ -17,9 +17,13 @@
 package org.springframework.cloud.aws.autoconfigure.actuate;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.springframework.cloud.aws.actuate.metrics.BufferingCloudWatchMetricSender;
 import org.springframework.cloud.aws.actuate.metrics.CloudWatchMetricWriter;
+import org.springframework.cloud.aws.autoconfigure.context.MetaData;
+import org.springframework.cloud.aws.autoconfigure.context.MetaData.Context;
+import org.springframework.cloud.aws.autoconfigure.context.MetaDataServer;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.mock.env.MockEnvironment;
 
@@ -32,7 +36,10 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Simon Buettner
  */
+@MetaData(@Context(path = "/latest/meta-data/instance-id", value = "testInstanceId"))
 public class CloudWatchMetricWriterAutoConfigurationTest {
+	@ClassRule
+	public static MetaDataServer metaDataServer = new MetaDataServer();
 
 	private MockEnvironment env;
 

@@ -17,9 +17,11 @@
 package org.springframework.cloud.aws.autoconfigure.context;
 
 import org.junit.After;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.EnvironmentTestUtils;
+import org.springframework.cloud.aws.autoconfigure.context.MetaData.Context;
 import org.springframework.cloud.aws.core.io.s3.PathMatchingSimpleStorageResourcePatternResolver;
 import org.springframework.cloud.aws.core.io.s3.SimpleStorageResourceLoader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -31,7 +33,10 @@ import org.springframework.test.util.ReflectionTestUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+@MetaData(@Context(path = "/latest/meta-data/instance-id", value = "testInstanceId"))
 public class ContextResourceLoaderAutoConfigurationTest {
+	@ClassRule
+	public static MetaDataServer metaDataServer = new MetaDataServer();
 
 	private AnnotationConfigApplicationContext context;
 
