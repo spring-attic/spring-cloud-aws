@@ -508,6 +508,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </li>
 <li><a href="#_the_simplemessagelistenercontainerfactory">5.2.4. The SimpleMessageListenerContainerFactory</a></li>
+<li><a href="#_consuming_aws_event_messages_with_amazon_sqs">5.2.5. Consuming AWS Event messages with Amazon SQS</a></li>
 </ul>
 </li>
 <li><a href="#_sns_support">5.3. SNS support</a>
@@ -1936,6 +1937,44 @@ public SimpleMessageListenerContainerFactory simpleMessageListenerContainerFacto
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_consuming_aws_event_messages_with_amazon_sqs">5.2.5. Consuming AWS Event messages with Amazon SQS</h4>
+<div class="paragraph">
+<p>It is also possible to receive AWS generated event messages with the SQS message listeners. Because
+AWS messages does not contain the mime-type header, the Jackson message converter has to be configured
+with the <code>strictContentTypeMatch</code> property false to also parse message without the proper mime type.</p>
+</div>
+<div class="paragraph">
+<p>The next code shows the configuration of the message converter using the <code>QueueMessageHandlerFactory</code>
+and re-configuring the <code>MappingJackson2MessageConverter</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Bean
+public QueueMessageHandlerFactory queueMessageHandlerFactory() {
+	QueueMessageHandlerFactory factory = new QueueMessageHandlerFactory();
+	MappingJackson2MessageConverter messageConverter = new MappingJackson2MessageConverter();
+
+	//set strict content type match to false
+	messageConverter.setStrictContentTypeMatch(false);
+	factory.setArgumentResolvers(Collections.&lt;HandlerMethodArgumentResolver&gt;singletonList(new PayloadArgumentResolver(messageConverter)));
+	return factory;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With the configuration above, it is possible to receive event notification for S3 buckets (and also other
+ event notifications like elastic transcoder messages) inside <code>@SqsListener</code> annotated methods s shown below.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@SqsListener("testQueue")
+public void receive(S3EventNotification s3EventNotificationRecord) {
+	S3EventNotification.S3Entity s3Entity = s3EventNotificationRecord.getRecords().get(0).getS3();
+}</code></pre>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_sns_support">5.3. SNS support</h3>
@@ -3354,7 +3393,7 @@ like <em>integrationteststack-sampleBucket-23qysofs62tc2</em></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-07-17 10:37:15 UTC
+Last updated 2016-07-17 13:49:51 UTC
 </div>
 </div>
 </body>
