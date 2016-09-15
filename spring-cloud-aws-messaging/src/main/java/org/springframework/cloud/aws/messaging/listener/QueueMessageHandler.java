@@ -115,7 +115,7 @@ public class QueueMessageHandler extends AbstractMethodMessageHandler<QueueMessa
 		MessageMapping messageMappingAnnotation = AnnotationUtils.findAnnotation(method, MessageMapping.class);
 
 		//Do not look for MessageMappings in MVC Controllers as these are likely WebSocket configuration
-		boolean isMvcController = AnnotationUtils.findAnnotation(handlerType, Controller.class) != null;
+		boolean isMvcController = handlerType != null && AnnotationUtils.findAnnotation(handlerType, Controller.class) != null;
 		if (!isMvcController && messageMappingAnnotation != null && messageMappingAnnotation.value().length > 0) {
 			return new MappingInformation(resolveDestinationNames(messageMappingAnnotation.value()), SqsMessageDeletionPolicy.ALWAYS);
 		}
