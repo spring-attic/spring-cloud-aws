@@ -1,0 +1,12 @@
+org.springframework.cloud.aws.core.config
+org.springframework.cloud.aws.core.config.xml
+org.springframework.cloud.aws.core.credentials
+org.springframework.cloud.aws.core.env
+org.springframework.cloud.aws.core.env.ec2
+org.springframework.cloud.aws.core.env.stack
+org.springframework.cloud.aws.core.env.stack.config
+org.springframework.cloud.aws.core.io.s3
+org.springframework.cloud.aws.core.naming
+org.springframework.cloud.aws.core.region
+org.springframework.cloud.aws.core.support.documentation
+org.springframework.cloud.aws.core.task

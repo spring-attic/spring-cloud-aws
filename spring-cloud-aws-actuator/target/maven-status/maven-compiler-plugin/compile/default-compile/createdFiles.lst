@@ -1,0 +1,6 @@
+org/springframework/cloud/aws/actuate/metrics/CloudWatchMetricWriter.class
+org/springframework/cloud/aws/actuate/metrics/BufferingCloudWatchMetricSender$CloudWatchMetricSenderRunnable$1.class
+org/springframework/cloud/aws/actuate/metrics/BufferingCloudWatchMetricSender.class
+org/springframework/cloud/aws/actuate/metrics/BufferingCloudWatchMetricSender$1.class
+org/springframework/cloud/aws/actuate/metrics/BufferingCloudWatchMetricSender$CloudWatchMetricSenderRunnable.class
+org/springframework/cloud/aws/actuate/metrics/CloudWatchMetricSender.class

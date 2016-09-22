@@ -1,0 +1,16 @@
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-core/src/test/java/org/springframework/cloud/aws/core/env/stack/config/StackResourceRegistryFactoryBeanTest.java
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-core/src/test/java/org/springframework/cloud/aws/core/io/s3/PathMatchingSimpleStorageResourcePatternResolverTest.java
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-core/src/test/java/org/springframework/cloud/aws/core/naming/AmazonResourceNameTest.java
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-core/src/test/java/org/springframework/cloud/aws/core/io/s3/SimpleStorageResourceTest.java
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-core/src/test/java/org/springframework/cloud/aws/core/env/ec2/AmazonEc2InstanceUserTagsFactoryBeanTest.java
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-core/src/test/java/org/springframework/cloud/aws/core/env/stack/config/StackResourceUserTagsFactoryBeanTest.java
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-core/src/test/java/org/springframework/cloud/aws/core/io/s3/SimpleStorageResourceLoaderTest.java
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-core/src/test/java/org/springframework/cloud/aws/core/io/s3/SimpleStorageNameUtilsTest.java
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-core/src/test/java/org/springframework/cloud/aws/core/region/Ec2MetadataRegionProviderTest.java
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-core/src/test/java/org/springframework/cloud/aws/core/credentials/CredentialsProviderFactoryBeanTest.java
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-core/src/test/java/org/springframework/cloud/aws/core/region/StaticRegionProviderTest.java
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-core/src/test/java/org/springframework/cloud/aws/core/config/AmazonWebserviceClientFactoryBeanTest.java
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-core/src/test/java/org/springframework/cloud/aws/core/config/AmazonTestWebserviceClient.java
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-core/src/test/java/org/springframework/cloud/aws/core/env/ec2/AmazonEc2InstanceDataPropertySourceTest.java
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-core/src/test/java/org/springframework/cloud/aws/core/env/StackResourceRegistryDetectingResourceIdResolverTest.java
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-core/src/test/java/org/springframework/cloud/aws/core/config/AmazonWebserviceClientConfigurationUtilsTest.java
