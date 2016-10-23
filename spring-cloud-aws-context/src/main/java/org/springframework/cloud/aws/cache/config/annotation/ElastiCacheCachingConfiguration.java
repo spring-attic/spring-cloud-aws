@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.elasticache.AmazonElastiCache;
 import com.amazonaws.services.elasticache.AmazonElastiCacheClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cloud.aws.cache.CacheFactory;
 import org.springframework.cloud.aws.cache.memcached.MemcachedCacheFactory;
@@ -47,6 +48,7 @@ import java.util.Map;
 
 /**
  * @author Agim Emruli
+ * @author Venil Noronha
  */
 @Configuration
 @Import(ContextDefaultConfigurationRegistrar.class)
@@ -91,6 +93,7 @@ public class ElastiCacheCachingConfiguration implements ImportAware {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean(CachingConfigurer.class)
 	public CachingConfigurer cachingConfigurer(AmazonElastiCache amazonElastiCache, ResourceIdResolver resourceIdResolver,
 											   List<CacheFactory> cacheFactories) {
 		if (this.annotationAttributes != null && this.annotationAttributes.getAnnotationArray("value").length > 0) {
