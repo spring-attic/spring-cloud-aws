@@ -17,6 +17,7 @@
 package org.springframework.cloud.aws.messaging.core;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.MessageAttributeValue;
@@ -24,6 +25,8 @@ import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.messaging.MessageHeaders;
@@ -50,12 +53,13 @@ import static org.springframework.cloud.aws.messaging.core.QueueMessageUtils.cre
  */
 public class QueueMessageChannel extends AbstractMessageChannel implements PollableChannel {
 
+	static final Logger LOGGER = LoggerFactory.getLogger(QueueMessageChannel.class);
 	static final String ATTRIBUTE_NAMES = "All";
 	private static final String MESSAGE_ATTRIBUTE_NAMES = "All";
-	private final AmazonSQSAsync amazonSqs;
+	private final AmazonSQS amazonSqs;
 	private final String queueUrl;
 
-	public QueueMessageChannel(AmazonSQSAsync amazonSqs, String queueUrl) {
+	public QueueMessageChannel(AmazonSQS amazonSqs, String queueUrl) {
 		this.amazonSqs = amazonSqs;
 		this.queueUrl = queueUrl;
 	}
@@ -92,12 +96,18 @@ public class QueueMessageChannel extends AbstractMessageChannel implements Polla
 
 	private void sendMessageAndWaitForResult(SendMessageRequest sendMessageRequest, long timeout) throws ExecutionException, TimeoutException {
 		if (timeout > 0) {
-			Future<SendMessageResult> sendMessageFuture = this.amazonSqs.sendMessageAsync(sendMessageRequest);
+			if (this.amazonSqs instanceof AmazonSQSAsync) {
+				Future<SendMessageResult> sendMessageFuture = ((AmazonSQSAsync) this.amazonSqs).sendMessageAsync(sendMessageRequest);
 
-			try {
-				sendMessageFuture.get(timeout, TimeUnit.MILLISECONDS);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
+				try {
+					sendMessageFuture.get(timeout, TimeUnit.MILLISECONDS);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
+			} else {
+				LOGGER.warn("Ignoring timeout because only synchronous AmazonSQS client is available, use " +
+						"AmazonSQSAsync to support timeout parameter!");
+				this.amazonSqs.sendMessage(sendMessageRequest);
 			}
 		} else {
 			this.amazonSqs.sendMessage(sendMessageRequest);
