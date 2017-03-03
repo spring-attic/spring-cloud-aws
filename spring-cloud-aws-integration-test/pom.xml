@@ -124,5 +124,10 @@
 			<artifactId>jedis</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>elasticache-java-cluster-client</artifactId>
+			<optional>true</optional>
+		</dependency>
 	</dependencies>
 </project>
