@@ -347,7 +347,7 @@ The next example shows a typical Spring `@Configuration` class that enables the 
 [source,java,indent=0]
 ----
   @Configuration
-  @EnableContextInstanceData
+  @EnableInstanceData
   public static class ApplicationConfiguration {
   }
 ----
