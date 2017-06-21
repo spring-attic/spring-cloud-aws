@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,11 +34,13 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
  * @author Agim Emruli
+ * @author Anwar Chirakkattil
  */
 public class ContextCredentialsAutoConfigurationTest {
 
@@ -149,5 +151,15 @@ public class ContextCredentialsAutoConfigurationTest {
         ProfileCredentialsProvider provider = (ProfileCredentialsProvider) credentialsProviders.get(1);
         assertEquals("testAccessKey", provider.getCredentials().getAWSAccessKeyId());
         assertEquals("testSecretKey", provider.getCredentials().getAWSSecretKey());
+    }
+
+    @Test
+    public void credentialsProvider_autoConfiguration_disabled() {
+        this.context = new AnnotationConfigApplicationContext();
+        this.context.register(ContextCredentialsAutoConfiguration.class);
+        EnvironmentTestUtils.addEnvironment(this.context,
+                "spring.cloud.aws.enabled:false");
+        this.context.refresh();
+        assertFalse(context.containsBean(AmazonWebserviceClientConfigurationUtils.CREDENTIALS_PROVIDER_BEAN_NAME));
     }
 }

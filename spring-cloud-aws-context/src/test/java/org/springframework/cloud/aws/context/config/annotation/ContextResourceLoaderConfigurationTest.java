@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,20 @@ package org.springframework.cloud.aws.context.config.annotation;
 
 import org.junit.After;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.util.EnvironmentTestUtils;
+import org.springframework.cloud.aws.context.annotation.ConditionalOnAwsEnabled;
 import org.springframework.cloud.aws.core.io.s3.PathMatchingSimpleStorageResourcePatternResolver;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ResourceLoader;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * @author Anwar Chirakkattil
+ */
 public class ContextResourceLoaderConfigurationTest {
 
     private AnnotationConfigApplicationContext context;
@@ -53,20 +58,40 @@ public class ContextResourceLoaderConfigurationTest {
         assertTrue(PathMatchingSimpleStorageResourcePatternResolver.class.isInstance(bean.getResourceLoader()));
     }
 
+    @Test
+    public void regionProvider_withConfiguredRegion_AwsDisabled() throws Exception {
+        //Arrange
+        this.context = new AnnotationConfigApplicationContext();
+
+        this.context = new AnnotationConfigApplicationContext();
+        this.context.register(ApplicationConfigurationWithResourceLoader.class);
+        EnvironmentTestUtils.addEnvironment(this.context,
+                "spring.cloud.aws.enabled:false");
+        //Act
+        this.context.refresh();
+
+        //Assert
+        assertFalse(this.context.containsBean("appBean"));
+    }
+
     @EnableContextResourceLoader
+    @ConditionalOnAwsEnabled
     static class ApplicationConfigurationWithResourceLoader {
 
         @Bean
-        public ApplicationBean appBean() {
-            return new ApplicationBean();
+        public ApplicationBean appBean(ResourceLoader resourceLoader) {
+            return new ApplicationBean(resourceLoader);
         }
 
     }
 
     static class ApplicationBean {
 
-        @Autowired
         private ResourceLoader resourceLoader;
+
+        public ApplicationBean(ResourceLoader resourceLoader) {
+            this.resourceLoader = resourceLoader;
+        }
 
         private ResourceLoader getResourceLoader() {
             return this.resourceLoader;

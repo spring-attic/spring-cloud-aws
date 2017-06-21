@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,11 @@ package org.springframework.cloud.aws.autoconfigure.context;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import org.springframework.beans.BeansException;
 import org.springframework.boot.test.util.EnvironmentTestUtils;
 import org.springframework.cloud.aws.core.region.Ec2MetadataRegionProvider;
 import org.springframework.cloud.aws.core.region.StaticRegionProvider;
@@ -30,45 +34,65 @@ import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Agim Emruli
+ * @author Anwar Chirakkattil
  */
 public class ContextRegionProviderAutoConfigurationTest {
 
-    private AnnotationConfigApplicationContext context;
+	private AnnotationConfigApplicationContext context;
 
-    @After
-    public void tearDown() throws Exception {
-        if (this.context != null) {
-            this.context.close();
-        }
+	@Rule
+	public ExpectedException expectedException = ExpectedException.none();
 
-    }
+	@After
+	public void tearDown() throws Exception {
+		if (this.context != null) {
+			this.context.close();
+		}
+	}
 
-    @Test
-    public void regionProvider_autoDetectionConfigured_Ec2metaDataRegionProviderConfigured() throws Exception {
-        //Arrange
-        this.context = new AnnotationConfigApplicationContext();
-        this.context.register(ContextRegionProviderAutoConfiguration.class);
-        EnvironmentTestUtils.addEnvironment(this.context, "cloud.aws.region.auto");
+	@Test
+	public void regionProvider_autoDetectionConfigured_Ec2metaDataRegionProviderConfigured() throws Exception {
+		//Arrange
+		this.context = new AnnotationConfigApplicationContext();
+		this.context.register(ContextRegionProviderAutoConfiguration.class);
+		EnvironmentTestUtils.addEnvironment(this.context, "cloud.aws.region.auto");
 
-        //Act
-        this.context.refresh();
+		//Act
+		this.context.refresh();
 
-        //Assert
-        assertNotNull(this.context.getBean(Ec2MetadataRegionProvider.class));
-    }
+		//Assert
+		assertNotNull(this.context.getBean(Ec2MetadataRegionProvider.class));
+	}
 
-    @Test
-    public void regionProvider_staticRegionConfigured_staticRegionProviderWithConfiguredRegionConfigured() throws Exception {
-        //Arrange
-        this.context = new AnnotationConfigApplicationContext();
-        this.context.register(ContextRegionProviderAutoConfiguration.class);
-        EnvironmentTestUtils.addEnvironment(this.context, "cloud.aws.region.static:eu-west-1");
+	@Test
+	public void regionProvider_staticRegionConfigured_staticRegionProviderWithConfiguredRegionConfigured() throws Exception {
+		//Arrange
+		this.context = new AnnotationConfigApplicationContext();
+		this.context.register(ContextRegionProviderAutoConfiguration.class);
+		EnvironmentTestUtils.addEnvironment(this.context, "cloud.aws.region.static:eu-west-1");
 
-        //Act
-        this.context.refresh();
-        StaticRegionProvider regionProvider = this.context.getBean(StaticRegionProvider.class);
+		//Act
+		this.context.refresh();
+		StaticRegionProvider regionProvider = this.context.getBean(StaticRegionProvider.class);
 
-        //Assert
-        assertEquals(Region.getRegion(Regions.EU_WEST_1), regionProvider.getRegion());
-    }
+		//Assert
+		assertEquals(Region.getRegion(Regions.EU_WEST_1), regionProvider.getRegion());
+	}
+
+	@Test
+	public void autoConfigurationDisabled_RegionProviderNotRegistered() throws Exception {
+		//Arrange
+		this.context = new AnnotationConfigApplicationContext();
+		this.context.register(ContextRegionProviderAutoConfiguration.class);
+		this.expectedException.expect(BeansException.class);
+		this.expectedException.expectMessage("No qualifying bean of type 'org.springframework.cloud.aws.core.region.Ec2MetadataRegionProvider' available");
+
+		EnvironmentTestUtils.addEnvironment(this.context, "spring.cloud.aws.enabled:false");
+
+		//Act
+		this.context.refresh();
+
+		//Assert
+		this.context.getBean(Ec2MetadataRegionProvider.class);
+	}
 }

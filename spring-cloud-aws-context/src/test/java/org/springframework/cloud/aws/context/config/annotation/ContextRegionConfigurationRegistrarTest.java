@@ -22,8 +22,13 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.boot.test.util.EnvironmentTestUtils;
+import org.springframework.cloud.aws.context.annotation.ConditionalOnAwsEnabled;
 import org.springframework.cloud.aws.core.region.Ec2MetadataRegionProvider;
+import org.springframework.cloud.aws.core.region.RegionProvider;
 import org.springframework.cloud.aws.core.region.StaticRegionProvider;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -154,6 +159,24 @@ public class ContextRegionConfigurationRegistrarTest {
         //Assert
     }
 
+    @Test
+    public void regionProvider_withAwsDisabled() throws Exception {
+
+        this.context = new AnnotationConfigApplicationContext();
+        this.context.register(ApplicationConfigurationWithAwsDisabled.class);
+        this.expectedException.expect(BeansException.class);
+        this.expectedException.expectMessage("No qualifying bean of type 'org.springframework.cloud.aws.core.region.RegionProvider' available");
+
+        EnvironmentTestUtils.addEnvironment(this.context, "spring.cloud.aws.enabled:false");
+
+        //Act
+        this.context.refresh();
+
+        //Assert
+        this.context.getBean(RegionProvider.class);
+    }
+
+
     @Configuration
     @EnableContextRegion(region = "eu-west-1")
     static class ApplicationConfigurationWithStaticRegionProvider {
@@ -197,6 +220,13 @@ public class ContextRegionConfigurationRegistrarTest {
     @Configuration
     @EnableContextRegion(region = "eu-wast-1")
     static class ApplicationConfigurationWithWrongRegion {
+
+    }
+
+    @Configuration
+    @EnableContextRegion
+    @ConditionalOnAwsEnabled
+    static class ApplicationConfigurationWithAwsDisabled {
 
     }
 }
