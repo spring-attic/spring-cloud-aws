@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.cloud.aws.context.config.annotation;
 
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.cloud.aws.context.annotation.ConditionalOnAwsEnabled;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.AnnotationAttributes;
@@ -27,8 +28,10 @@ import static org.springframework.cloud.aws.context.config.support.ContextConfig
 
 /**
  * @author Agim Emruli
+ * @author Anwar Chirakkattil
  */
 @Configuration
+@ConditionalOnAwsEnabled
 public class ContextRegionConfigurationRegistrar implements ImportBeanDefinitionRegistrar {
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.cloud.aws.autoconfigure.context;
 
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.cloud.aws.context.annotation.ConditionalOnAwsEnabled;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -28,25 +29,27 @@ import static org.springframework.cloud.aws.context.config.support.ContextConfig
 
 /**
  * @author Agim Emruli
+ * @author Anwar Chirakkattil
  */
 @Configuration
 @Import(ContextRegionProviderAutoConfiguration.Registrar.class)
+@ConditionalOnAwsEnabled
 public class ContextRegionProviderAutoConfiguration {
 
-    static class Registrar implements EnvironmentAware, ImportBeanDefinitionRegistrar {
+	static class Registrar implements EnvironmentAware, ImportBeanDefinitionRegistrar {
 
-        private Environment environment;
+		private Environment environment;
 
-        @Override
-        public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-            registerRegionProvider(registry, this.environment.getProperty("cloud.aws.region.auto", Boolean.class, true) &&
-                            !(this.environment.containsProperty("cloud.aws.region.static")),
-                    this.environment.getProperty("cloud.aws.region.static"));
-        }
+		@Override
+		public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+			registerRegionProvider(registry, this.environment.getProperty("cloud.aws.region.auto", Boolean.class, true) &&
+							!(this.environment.containsProperty("cloud.aws.region.static")),
+					this.environment.getProperty("cloud.aws.region.static"));
+		}
 
-        @Override
-        public void setEnvironment(Environment environment) {
-            this.environment = environment;
-        }
-    }
+		@Override
+		public void setEnvironment(Environment environment) {
+			this.environment = environment;
+		}
+	}
 }

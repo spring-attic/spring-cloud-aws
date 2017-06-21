@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.cloud.aws.autoconfigure.context;
 
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.cloud.aws.context.annotation.ConditionalOnAwsEnabled;
 import org.springframework.cloud.aws.context.config.annotation.ContextDefaultConfigurationRegistrar;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Configuration;
@@ -31,10 +32,12 @@ import static org.springframework.cloud.aws.context.config.support.ContextConfig
 
 /**
  * @author Agim Emruli
+ * @author Anwar Chirakkattil
  */
 @Configuration
 @Import({ContextDefaultConfigurationRegistrar.class, ContextCredentialsAutoConfiguration.Registrar.class})
 @ConditionalOnClass(name = "com.amazonaws.auth.AWSCredentialsProvider")
+@ConditionalOnAwsEnabled
 public class ContextCredentialsAutoConfiguration {
 
     public static class Registrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {

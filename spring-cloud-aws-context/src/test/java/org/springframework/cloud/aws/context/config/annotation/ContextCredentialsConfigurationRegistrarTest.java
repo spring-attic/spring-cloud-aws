@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,13 @@ import com.amazonaws.auth.EC2ContainerCredentialsProviderWrapper;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import org.apache.http.client.CredentialsProvider;
 import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import org.springframework.beans.BeansException;
+import org.springframework.boot.test.util.EnvironmentTestUtils;
+import org.springframework.cloud.aws.context.annotation.ConditionalOnAwsEnabled;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.MapPropertySource;
@@ -38,9 +44,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * @author Anwar Chirakkattil
+ */
 public class ContextCredentialsConfigurationRegistrarTest {
 
     private AnnotationConfigApplicationContext context;
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @After
     public void tearDown() throws Exception {
@@ -248,6 +260,22 @@ public class ContextCredentialsConfigurationRegistrarTest {
         assertTrue(ProfileCredentialsProvider.class.isInstance(credentialsProviders.get(2)));
     }
 
+    @Test
+    public void credentialsProvider_defaultCredentialsProvider_AwsConfigurationDisabled() throws Exception {
+        //Arrange
+        this.context = new AnnotationConfigApplicationContext();
+        EnvironmentTestUtils.addEnvironment(this.context, "spring.cloud.aws.enabled:false");
+        this.context.register(ApplicationConfigurationWithDefaultCredentialsProvider_AwsConfigDisabled.class);
+
+        this.expectedException.expect(BeansException.class);
+        this.expectedException.expectMessage("No qualifying bean of type 'com.amazonaws.auth.AWSCredentialsProvider' available");
+
+        //Act
+        this.context.refresh();
+
+        //Assert
+        this.context.getBean(AWSCredentialsProvider.class);
+    }
 
     @EnableContextCredentials
     public static class ApplicationConfigurationWithDefaultCredentialsProvider {
@@ -292,6 +320,12 @@ public class ContextCredentialsConfigurationRegistrarTest {
     @EnableContextCredentials(accessKey = "accessTest", secretKey = "testSecret", instanceProfile = true,
             profileName = "customProfile")
     public static class ApplicationConfigurationWithAllProviders {
+
+    }
+
+    @EnableContextCredentials
+    @ConditionalOnAwsEnabled
+    public static class ApplicationConfigurationWithDefaultCredentialsProvider_AwsConfigDisabled {
 
     }
 }
