@@ -45,16 +45,6 @@ variable `GEM_HOME`to the ruby gem folder. For example:
 
 -------------------------------------------------------------
 
-= Using IntelliJ IDEA
-Spring Cloud AWS development is done with
-http://www.jetbrains.com/idea/[IntelliJ IDEA]. In order to create all
-http://www.jetbrains.com/idea/[IntelliJ IDEA] project files, you have to
-import the file within idea as a maven project.
-
-_Note:_ Please make sure to revert all changes in the .idea config file
-directory, as the maven plugin overwrites the configuration files kept
-in the scm.
-
 = Running integration tests
 
 Spring Cloud AWS contains a test-suite which runs integration tests to
