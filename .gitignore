@@ -2,7 +2,7 @@
 target/
 bin/
 /config
-/.idea
+.idea
 /out
 
 # Do not ignore them
