@@ -20,11 +20,11 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-dependencies-parent</artifactId>
-		<version>1.1.2.RELEASE</version>
+		<version>1.1.4.BUILD-SNAPSHOT</version>
 		<relativePath />
 	</parent>
 	<artifactId>spring-cloud-aws-dependencies</artifactId>
-	<version>1.1.4.RELEASE</version>
+	<version>1.1.5.BUILD-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>spring-cloud-aws-dependencies</name>
 	<description>Spring Cloud AWS Dependencies</description>
