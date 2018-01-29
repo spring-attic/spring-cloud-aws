@@ -18,14 +18,16 @@ package org.springframework.cloud.aws.messaging.support.converter;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.aws.messaging.core.MessageAttributeDataTypes;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.converter.MessageConversionException;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.MimeType;
 import org.springframework.util.NumberUtils;
 
@@ -42,6 +44,7 @@ import java.util.UUID;
  */
 public class NotificationRequestConverter implements MessageConverter {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(NotificationRequestConverter.class);
     private final ObjectMapper jsonMapper = new ObjectMapper();
     private final MessageConverter payloadConverter;
 
@@ -120,12 +123,9 @@ public class NotificationRequestConverter implements MessageConverter {
                 if (MessageAttributeDataTypes.STRING.equals(attributeType)) {
                     messageHeaders.put(attributeName, attributeValue);
                 } else if (attributeType.startsWith(MessageAttributeDataTypes.NUMBER)) {
-                    Object numberValue = getNumberValue(attributeType, attributeValue);
-                    if (numberValue != null) {
-                        messageHeaders.put(attributeName, numberValue);
-                    }
-                } else if (MessageAttributeDataTypes.BINARY.equals(attributeName)) {
-                    messageHeaders.put(attributeName, ByteBuffer.wrap(attributeType.getBytes()));
+                    messageHeaders.put(attributeName, getNumberValue(attributeType, attributeValue));
+                } else if (MessageAttributeDataTypes.BINARY.equals(attributeType)) {
+                    messageHeaders.put(attributeName, ByteBuffer.wrap(attributeValue.getBytes()));
                 }
             }
         }
@@ -134,13 +134,20 @@ public class NotificationRequestConverter implements MessageConverter {
     }
 
     private static Object getNumberValue(String attributeType, String attributeValue) {
-        String numberType = attributeType.substring(MessageAttributeDataTypes.NUMBER.length() + 1);
-        try {
-            Class<? extends Number> numberTypeClass = Class.forName(numberType).asSubclass(Number.class);
-            return NumberUtils.parseNumber(attributeValue, numberTypeClass);
-        } catch (ClassNotFoundException e) {
-            throw new MessagingException(String.format("Message attribute with value '%s' and data type '%s' could not be converted " +
-                    "into a Number because target class was not found.", attributeValue, attributeType), e);
+        Class<? extends Number> numberTypeClass;
+        if (MessageAttributeDataTypes.NUMBER.equals(attributeType)) {
+            numberTypeClass = Number.class;
+        } else {
+            try {
+                String numberType = attributeType.substring(MessageAttributeDataTypes.NUMBER.length() + 1);
+                numberTypeClass = ClassUtils.resolvePrimitiveIfNecessary(ClassUtils.forName(numberType, null)).asSubclass(Number.class);
+            } catch (ClassNotFoundException e) {
+				LOGGER.warn(
+				        "Message attribute with value '{}' and data type '{}' could not be converted into a Number because target class was not found.",
+						attributeValue, attributeType, e);
+                numberTypeClass = Number.class;
+            }
         }
+        return NumberUtils.parseNumber(attributeValue, numberTypeClass);
     }
 }

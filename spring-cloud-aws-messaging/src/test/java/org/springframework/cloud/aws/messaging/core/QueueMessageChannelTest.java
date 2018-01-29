@@ -361,17 +361,70 @@ public class QueueMessageChannelTest {
 
         HashMap<String, MessageAttributeValue> messageAttributes = new HashMap<>();
         double doubleValue = 1234.56;
-        messageAttributes.put("double", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".java.lang.Double").withStringValue(String.valueOf(doubleValue)));
+        messageAttributes.put("double", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER).withStringValue(String.valueOf(doubleValue)));
         long longValue = 1234L;
-        messageAttributes.put("long", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".java.lang.Long").withStringValue(String.valueOf(longValue)));
+        messageAttributes.put("long", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER).withStringValue(String.valueOf(longValue)));
         int integerValue = 1234;
-        messageAttributes.put("integer", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".java.lang.Integer").withStringValue(String.valueOf(integerValue)));
+        messageAttributes.put("integer", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER).withStringValue(String.valueOf(integerValue)));
         byte byteValue = 2;
-        messageAttributes.put("byte", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".java.lang.Byte").withStringValue(String.valueOf(byteValue)));
+        messageAttributes.put("byte", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER).withStringValue(String.valueOf(byteValue)));
         short shortValue = 12;
-        messageAttributes.put("short", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".java.lang.Short").withStringValue(String.valueOf(shortValue)));
+        messageAttributes.put("short", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER).withStringValue(String.valueOf(shortValue)));
         float floatValue = 1234.56f;
-        messageAttributes.put("float", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".java.lang.Float").withStringValue(String.valueOf(floatValue)));
+        messageAttributes.put("float", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER).withStringValue(String.valueOf(floatValue)));
+        BigInteger bigIntegerValue = new BigInteger("616416546156");
+        messageAttributes.put("bigInteger", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER).withStringValue(String.valueOf(bigIntegerValue)));
+        BigDecimal bigDecimalValue = new BigDecimal("7834938");
+        messageAttributes.put("bigDecimal", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER).withStringValue(String.valueOf(bigDecimalValue)));
+
+        when(amazonSqs.receiveMessage(new ReceiveMessageRequest("http://testQueue").
+                withWaitTimeSeconds(0).
+                withMaxNumberOfMessages(1).
+                withAttributeNames(QueueMessageChannel.ATTRIBUTE_NAMES).
+                withMessageAttributeNames("All"))).
+                thenReturn(new ReceiveMessageResult().withMessages(new com.amazonaws.services.sqs.model.Message().withBody("Hello").
+                        withMessageAttributes(messageAttributes)));
+
+        PollableChannel messageChannel = new QueueMessageChannel(amazonSqs, "http://testQueue");
+
+        // Act
+        Message<?> receivedMessage = messageChannel.receive();
+
+        // Assert
+        assertEquals(String.valueOf(doubleValue), receivedMessage.getHeaders().get("double").toString());
+        assertEquals(String.valueOf(longValue), receivedMessage.getHeaders().get("long").toString());
+        assertEquals(String.valueOf(integerValue), receivedMessage.getHeaders().get("integer").toString());
+        assertEquals(String.valueOf(byteValue), receivedMessage.getHeaders().get("byte").toString());
+        assertEquals(String.valueOf(shortValue), receivedMessage.getHeaders().get("short").toString());
+        assertEquals(String.valueOf(floatValue), receivedMessage.getHeaders().get("float").toString());
+        assertEquals(String.valueOf(bigIntegerValue), receivedMessage.getHeaders().get("bigInteger").toString());
+        assertEquals(String.valueOf(bigDecimalValue), receivedMessage.getHeaders().get("bigDecimal").toString());
+    }
+
+    @Test
+    public void receiveMessage_withNumericCustomTypeMessageHeaders_shouldBeReceivedAsQueueMessageAttributes() throws Exception {
+        // Arrange
+        AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
+
+        HashMap<String, MessageAttributeValue> messageAttributes = new HashMap<>();
+        double doubleValue = 1234.56;
+        messageAttributes.put("double", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".double").withStringValue(String.valueOf(doubleValue)));
+        messageAttributes.put("Double", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".java.lang.Double").withStringValue(String.valueOf(doubleValue)));
+        long longValue = 1234L;
+        messageAttributes.put("long", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".long").withStringValue(String.valueOf(longValue)));
+        messageAttributes.put("Long", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".java.lang.Long").withStringValue(String.valueOf(longValue)));
+        int integerValue = 1234;
+        messageAttributes.put("int", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".int").withStringValue(String.valueOf(integerValue)));
+        messageAttributes.put("Integer", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".java.lang.Integer").withStringValue(String.valueOf(integerValue)));
+        byte byteValue = 2;
+        messageAttributes.put("byte", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".byte").withStringValue(String.valueOf(byteValue)));
+        messageAttributes.put("Byte", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".java.lang.Byte").withStringValue(String.valueOf(byteValue)));
+        short shortValue = 12;
+        messageAttributes.put("short", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".short").withStringValue(String.valueOf(shortValue)));
+        messageAttributes.put("Short", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".java.lang.Short").withStringValue(String.valueOf(shortValue)));
+        float floatValue = 1234.56f;
+        messageAttributes.put("float", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".float").withStringValue(String.valueOf(floatValue)));
+        messageAttributes.put("Float", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".java.lang.Float").withStringValue(String.valueOf(floatValue)));
         BigInteger bigIntegerValue = new BigInteger("616416546156");
         messageAttributes.put("bigInteger", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".java.math.BigInteger").withStringValue(String.valueOf(bigIntegerValue)));
         BigDecimal bigDecimalValue = new BigDecimal("7834938");
@@ -392,25 +445,29 @@ public class QueueMessageChannelTest {
 
         // Assert
         assertEquals(doubleValue, receivedMessage.getHeaders().get("double"));
+        assertEquals(doubleValue, receivedMessage.getHeaders().get("Double"));
         assertEquals(longValue, receivedMessage.getHeaders().get("long"));
-        assertEquals(integerValue, receivedMessage.getHeaders().get("integer"));
+        assertEquals(longValue, receivedMessage.getHeaders().get("Long"));
+        assertEquals(integerValue, receivedMessage.getHeaders().get("int"));
+        assertEquals(integerValue, receivedMessage.getHeaders().get("Integer"));
         assertEquals(byteValue, receivedMessage.getHeaders().get("byte"));
+        assertEquals(byteValue, receivedMessage.getHeaders().get("Byte"));
         assertEquals(shortValue, receivedMessage.getHeaders().get("short"));
+        assertEquals(shortValue, receivedMessage.getHeaders().get("Short"));
         assertEquals(floatValue, receivedMessage.getHeaders().get("float"));
+        assertEquals(floatValue, receivedMessage.getHeaders().get("Float"));
         assertEquals(bigIntegerValue, receivedMessage.getHeaders().get("bigInteger"));
         assertEquals(bigDecimalValue, receivedMessage.getHeaders().get("bigDecimal"));
     }
 
     @Test
-    public void receiveMessage_withIncompatibleNumericMessageHeader_shouldThrowAnException() throws Exception {
+    public void receiveMessage_withMissingNumericMessageHeaderTargetClass_shouldBeReceivedAsQueueMessageAttributes() throws Exception {
         // Arrange
         AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
-        this.expectedException.expect(IllegalArgumentException.class);
-        this.expectedException.expectMessage("Cannot convert String [17] to target class [java.util.concurrent.atomic.AtomicInteger]");
 
         HashMap<String, MessageAttributeValue> messageAttributes = new HashMap<>();
-        AtomicInteger atomicInteger = new AtomicInteger(17);
-        messageAttributes.put("atomicInteger", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".java.util.concurrent.atomic.AtomicInteger").withStringValue(String.valueOf(atomicInteger)));
+        String classNotFoundValue = "12";
+        messageAttributes.put("classNotFound", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".class.not.Found").withStringValue(classNotFoundValue));
 
         when(amazonSqs.receiveMessage(new ReceiveMessageRequest("http://testQueue").
                 withWaitTimeSeconds(0).
@@ -423,19 +480,22 @@ public class QueueMessageChannelTest {
         PollableChannel messageChannel = new QueueMessageChannel(amazonSqs, "http://testQueue");
 
         // Act
-        messageChannel.receive();
+        Message<?> receivedMessage = messageChannel.receive();
+
+        // Assert
+        assertEquals(classNotFoundValue, receivedMessage.getHeaders().get("classNotFound").toString());
     }
 
     @Test
-    public void receiveMessage_withMissingNumericMessageHeaderTargetClass_shouldThrowAnException() throws Exception {
+    public void receiveMessage_withIncompatibleNumericMessageHeader_shouldThrowAnException() throws Exception {
         // Arrange
         AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
-        this.expectedException.expect(MessagingException.class);
-        this.expectedException.expectMessage("Message attribute with value '12' and data type 'Number.class.not.Found' could not be converted" +
-                " into a Number because target class was not found.");
+        this.expectedException.expect(IllegalArgumentException.class);
+        this.expectedException.expectMessage("Cannot convert String [17] to target class [java.util.concurrent.atomic.AtomicInteger]");
 
         HashMap<String, MessageAttributeValue> messageAttributes = new HashMap<>();
-        messageAttributes.put("classNotFound", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".class.not.Found").withStringValue("12"));
+        AtomicInteger atomicInteger = new AtomicInteger(17);
+        messageAttributes.put("atomicInteger", new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + ".java.util.concurrent.atomic.AtomicInteger").withStringValue(String.valueOf(atomicInteger)));
 
         when(amazonSqs.receiveMessage(new ReceiveMessageRequest("http://testQueue").
                 withWaitTimeSeconds(0).

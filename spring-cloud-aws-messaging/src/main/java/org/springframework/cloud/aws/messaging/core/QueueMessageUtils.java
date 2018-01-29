@@ -17,10 +17,12 @@
 package org.springframework.cloud.aws.messaging.core;
 
 import com.amazonaws.services.sqs.model.MessageAttributeValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.support.GenericMessage;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.MimeType;
 import org.springframework.util.NumberUtils;
 
@@ -35,6 +37,7 @@ import java.util.UUID;
  */
 public final class QueueMessageUtils {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueueMessageUtils.class);
     private static final String RECEIPT_HANDLE_MESSAGE_ATTRIBUTE_NAME = "ReceiptHandle";
     private static final String MESSAGE_ID_MESSAGE_ATTRIBUTE_NAME = "MessageId";
 
@@ -70,34 +73,43 @@ public final class QueueMessageUtils {
     private static Map<String, Object> getMessageAttributesAsMessageHeaders(com.amazonaws.services.sqs.model.Message message) {
         Map<String, Object> messageHeaders = new HashMap<>();
         for (Map.Entry<String, MessageAttributeValue> messageAttribute : message.getMessageAttributes().entrySet()) {
-            if (MessageHeaders.CONTENT_TYPE.equals(messageAttribute.getKey())) {
-                messageHeaders.put(MessageHeaders.CONTENT_TYPE, MimeType.valueOf(messageAttribute.getValue().getStringValue()));
-            } else if (MessageHeaders.ID.equals(messageAttribute.getKey())) {
-                messageHeaders.put(MessageHeaders.ID, UUID.fromString(messageAttribute.getValue().getStringValue()));
-            } else if (MessageAttributeDataTypes.STRING.equals(messageAttribute.getValue().getDataType())) {
-                messageHeaders.put(messageAttribute.getKey(), messageAttribute.getValue().getStringValue());
-            } else if (messageAttribute.getValue().getDataType().startsWith(MessageAttributeDataTypes.NUMBER)) {
-                Object numberValue = getNumberValue(messageAttribute.getValue());
-                if (numberValue != null) {
-                    messageHeaders.put(messageAttribute.getKey(), numberValue);
+            String attributeName = messageAttribute.getKey();
+            String attributeValue = messageAttribute.getValue().getStringValue();
+            String attributeType = messageAttribute.getValue().getDataType();
+            if (MessageHeaders.CONTENT_TYPE.equals(attributeName)) {
+                messageHeaders.put(MessageHeaders.CONTENT_TYPE, MimeType.valueOf(attributeValue));
+            } else if (MessageHeaders.ID.equals(attributeName)) {
+                messageHeaders.put(MessageHeaders.ID, UUID.fromString(attributeValue));
+            } else {
+                if (MessageAttributeDataTypes.STRING.equals(attributeType)) {
+                    messageHeaders.put(attributeName, attributeValue);
+                } else if (attributeType.startsWith(MessageAttributeDataTypes.NUMBER)) {
+                    messageHeaders.put(attributeName, getNumberValue(attributeType, attributeValue));
+                } else if (MessageAttributeDataTypes.BINARY.equals(attributeType)) {
+                    messageHeaders.put(attributeName, messageAttribute.getValue().getBinaryValue());
                 }
-            } else if (MessageAttributeDataTypes.BINARY.equals(messageAttribute.getValue().getDataType())) {
-                messageHeaders.put(messageAttribute.getKey(), messageAttribute.getValue().getBinaryValue());
             }
         }
 
         return messageHeaders;
     }
 
-    private static Object getNumberValue(MessageAttributeValue value) {
-        String numberType = value.getDataType().substring(MessageAttributeDataTypes.NUMBER.length() + 1);
-        try {
-            Class<? extends Number> numberTypeClass = Class.forName(numberType).asSubclass(Number.class);
-            return NumberUtils.parseNumber(value.getStringValue(), numberTypeClass);
-        } catch (ClassNotFoundException e) {
-            throw new MessagingException(String.format("Message attribute with value '%s' and data type '%s' could not be converted " +
-                    "into a Number because target class was not found.", value.getStringValue(), value.getDataType()), e);
+    private static Object getNumberValue(String attributeType, String attributeValue) {
+        Class<? extends Number> numberTypeClass;
+        if (MessageAttributeDataTypes.NUMBER.equals(attributeType)) {
+            numberTypeClass = Number.class;
+        } else {
+            try {
+                String numberType = attributeType.substring(MessageAttributeDataTypes.NUMBER.length() + 1);
+                numberTypeClass = ClassUtils.resolvePrimitiveIfNecessary(ClassUtils.forName(numberType, null)).asSubclass(Number.class);
+            } catch (ClassNotFoundException e) {
+                LOGGER.warn(
+                        "Message attribute with value '{}' and data type '{}' could not be converted into a Number because target class was not found.",
+                        attributeValue, attributeType, e);
+                numberTypeClass = Number.class;
+            }
         }
+        return NumberUtils.parseNumber(attributeValue, numberTypeClass);
     }
 
 }
