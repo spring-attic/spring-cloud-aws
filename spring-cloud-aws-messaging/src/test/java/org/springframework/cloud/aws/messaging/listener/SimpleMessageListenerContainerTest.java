@@ -16,9 +16,13 @@
 
 package org.springframework.cloud.aws.messaging.listener;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.buffered.AmazonSQSBufferedAsyncClient;
+import com.amazonaws.services.sqs.model.ChangeMessageVisibilityRequest;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.GetQueueAttributesRequest;
 import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
@@ -30,16 +34,14 @@ import com.amazonaws.services.sqs.model.OverLimitException;
 import com.amazonaws.services.sqs.model.QueueAttributeName;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.aws.core.support.documentation.RuntimeUse;
 import org.springframework.cloud.aws.messaging.config.annotation.EnableSqs;
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
@@ -50,6 +52,7 @@ import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.MessagingException;
+import org.springframework.messaging.handler.HandlerMethod;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -58,6 +61,7 @@ import org.springframework.util.StopWatch;
 
 import java.nio.charset.Charset;
 import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -66,8 +70,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -91,7 +95,7 @@ public class SimpleMessageListenerContainerTest {
     private ArgumentCaptor<org.springframework.messaging.Message<String>> stringMessageCaptor;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         initMocks(this);
     }
 
@@ -124,6 +128,36 @@ public class SimpleMessageListenerContainerTest {
     }
 
     @Test
+    public void testWithDefaultTaskExecutorAndOneHandler() throws Exception {
+        int testedMaxNumberOfMessages = 10;
+
+        Map<QueueMessageHandler.MappingInformation, HandlerMethod> messageHandlerMethods = Collections.singletonMap(
+                new QueueMessageHandler.MappingInformation(Collections.singleton("testQueue"),
+                        SqsMessageDeletionPolicy.ALWAYS), null);
+
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+
+        QueueMessageHandler mockedHandler = mock(QueueMessageHandler.class);
+        AmazonSQSAsync mockedSqs = mock(AmazonSQSAsync.class, withSettings().stubOnly());
+
+        when(mockedSqs.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(new GetQueueAttributesResult());
+        when(mockedSqs.getQueueUrl(any(GetQueueUrlRequest.class))).thenReturn(new GetQueueUrlResult().withQueueUrl("testQueueUrl"));
+        when(mockedHandler.getHandlerMethods()).thenReturn(messageHandlerMethods);
+
+        container.setMaxNumberOfMessages(testedMaxNumberOfMessages);
+        container.setAmazonSqs(mockedSqs);
+        container.setMessageHandler(mockedHandler);
+
+        container.afterPropertiesSet();
+
+        int expectedPoolMaxSize = messageHandlerMethods.size() * (testedMaxNumberOfMessages + 1);
+
+        ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) container.getTaskExecutor();
+        assertNotNull(taskExecutor);
+        assertEquals(expectedPoolMaxSize, taskExecutor.getMaxPoolSize());
+    }
+
+    @Test
     public void testCustomTaskExecutor() throws Exception {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
@@ -144,7 +178,7 @@ public class SimpleMessageListenerContainerTest {
         AmazonSQSAsync sqs = mock(AmazonSQSAsync.class, withSettings().stubOnly());
         container.setAmazonSqs(sqs);
 
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
         QueueMessageHandler messageHandler = new QueueMessageHandler() {
 
             @Override
@@ -182,7 +216,7 @@ public class SimpleMessageListenerContainerTest {
 
     @Test
     public void testContainerDoesNotProcessMessageAfterBeingStopped() throws Exception {
-        final SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
         container.setTaskExecutor(taskExecutor);
 
@@ -204,13 +238,9 @@ public class SimpleMessageListenerContainerTest {
         container.afterPropertiesSet();
 
         when(sqs.receiveMessage(new ReceiveMessageRequest("http://testContainerDoesNotProcessMessageAfterBeingStopped.amazonaws.com"))).
-                thenAnswer(new Answer<ReceiveMessageResult>() {
-
-                    @Override
-                    public ReceiveMessageResult answer(InvocationOnMock invocation) throws Throwable {
-                        container.stop();
-                        return new ReceiveMessageResult().withMessages(new Message().withBody("test"));
-                    }
+                thenAnswer((Answer<ReceiveMessageResult>) invocation -> {
+                    container.stop();
+                    return new ReceiveMessageResult().withMessages(new Message().withBody("test"));
                 });
 
         container.start();
@@ -218,7 +248,7 @@ public class SimpleMessageListenerContainerTest {
 
     @Test
     public void listener_withMultipleMessageHandlers_shouldBeCalled() throws Exception {
-        final CountDownLatch countDownLatch = new CountDownLatch(2);
+        CountDownLatch countDownLatch = new CountDownLatch(2);
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer() {
 
             @Override
@@ -268,7 +298,7 @@ public class SimpleMessageListenerContainerTest {
     @Test
     public void messageExecutor_withMessageWithAttributes_shouldPassThemAsHeaders() throws Exception {
         // Arrange
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer() {
 
             @Override
@@ -351,7 +381,7 @@ public class SimpleMessageListenerContainerTest {
     @Test
     public void messageExecutor_messageWithMimeTypeMessageAttribute_shouldSetItAsHeader() throws Exception {
         // Arrange
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer() {
 
             @Override
@@ -400,7 +430,7 @@ public class SimpleMessageListenerContainerTest {
     }
 
     @Test
-    public void queueMessageHandler_withJavaConfig_shouldScanTheListenerMethods() throws Exception {
+    public void queueMessageHandler_withJavaConfig_shouldScanTheListenerMethods() {
         // Arrange & Act
         AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(SqsTestConfig.class, TestMessageListener.class);
         SimpleMessageListenerContainer simpleMessageListenerContainer = applicationContext.getBean(SimpleMessageListenerContainer.class);
@@ -413,7 +443,7 @@ public class SimpleMessageListenerContainerTest {
     @Test
     public void executeMessage_successfulExecution_shouldRemoveMessageFromQueue() throws Exception {
         // Arrange
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer() {
 
             @Override
@@ -453,7 +483,7 @@ public class SimpleMessageListenerContainerTest {
     @Test
     public void executeMessage_executionThrowsExceptionAndQueueHasAllDeletionPolicy_shouldRemoveMessageFromQueue() throws Exception {
         // Arrange
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer() {
 
             @Override
@@ -495,7 +525,7 @@ public class SimpleMessageListenerContainerTest {
     @Test
     public void executeMessage_executionThrowsExceptionAndQueueHasRedrivePolicy_shouldNotRemoveMessageFromQueue() throws Exception {
         // Arrange
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer() {
 
             @Override
@@ -560,7 +590,7 @@ public class SimpleMessageListenerContainerTest {
                         .withMessages(new Message().withBody("messageContent"),
                                 new Message().withBody("messageContent")));
 
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
         QueueMessageHandler messageHandler = new QueueMessageHandler() {
 
             @Override
@@ -598,7 +628,7 @@ public class SimpleMessageListenerContainerTest {
     @Test
     public void receiveMessage_withMessageListenerMethodAndNeverDeletionPolicy_waitsForAcknowledgmentBeforeDeletion() throws Exception {
         // Arrange
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer() {
 
             @Override
@@ -636,6 +666,50 @@ public class SimpleMessageListenerContainerTest {
         testMessageListenerWithManualDeletionPolicy.getCountDownLatch().await(1L, TimeUnit.SECONDS);
         testMessageListenerWithManualDeletionPolicy.acknowledge();
         verify(sqs, times(1)).deleteMessageAsync(eq(new DeleteMessageRequest("http://receiveMessage_withMessageListenerMethodAndNeverDeletionPolicy_waitsForAcknowledgmentBeforeDeletion.amazonaws.com", "ReceiptHandle")));
+        container.stop();
+    }
+
+    @Test
+    public void receiveMessage_withMessageListenerMethodAndVisibilityProlonging_callsChangeMessageVisibility() throws Exception {
+        // Arrange
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer() {
+
+            @Override
+            protected void executeMessage(org.springframework.messaging.Message<String> stringMessage) {
+                countDownLatch.countDown();
+                super.executeMessage(stringMessage);
+            }
+        };
+
+        AmazonSQSAsync sqs = mock(AmazonSQSAsync.class);
+        container.setAmazonSqs(sqs);
+
+        QueueMessageHandler messageHandler = new QueueMessageHandler();
+        container.setMessageHandler(messageHandler);
+
+        StaticApplicationContext applicationContext = new StaticApplicationContext();
+        applicationContext.registerSingleton("testListener", TestMessageListenerWithVisibilityProlong.class);
+
+        mockGetQueueUrl(sqs, "testQueue", "http://receiveMessage_withMessageListenerMethodAndVisibilityProlonging_callsChangeMessageVisibility.amazonaws.com");
+        mockGetQueueAttributesWithEmptyResult(sqs, "http://receiveMessage_withMessageListenerMethodAndVisibilityProlonging_callsChangeMessageVisibility.amazonaws.com");
+
+        messageHandler.setApplicationContext(applicationContext);
+        messageHandler.afterPropertiesSet();
+        container.afterPropertiesSet();
+
+        mockReceiveMessage(sqs, "http://receiveMessage_withMessageListenerMethodAndVisibilityProlonging_callsChangeMessageVisibility.amazonaws.com", "messageContent", "ReceiptHandle");
+
+        // Act
+        container.start();
+
+        // Assert
+        countDownLatch.await(1L, TimeUnit.SECONDS);
+        verify(sqs, never()).changeMessageVisibilityAsync(any(ChangeMessageVisibilityRequest.class));
+        TestMessageListenerWithVisibilityProlong testMessageListenerWithVisibilityProlong = applicationContext.getBean(TestMessageListenerWithVisibilityProlong.class);
+        testMessageListenerWithVisibilityProlong.getCountDownLatch().await(1L, TimeUnit.SECONDS);
+        testMessageListenerWithVisibilityProlong.extend(5);
+        verify(sqs, times(1)).changeMessageVisibilityAsync(eq(new ChangeMessageVisibilityRequest("http://receiveMessage_withMessageListenerMethodAndVisibilityProlonging_callsChangeMessageVisibility.amazonaws.com", "ReceiptHandle", 5)));
         container.stop();
     }
 
@@ -704,13 +778,16 @@ public class SimpleMessageListenerContainerTest {
     }
 
     private static Level disableLogging() {
-        Level previous = LogManager.getLogger(SimpleMessageListenerContainer.class).getLevel();
-        LogManager.getLogger(SimpleMessageListenerContainer.class).setLevel(Level.OFF);
+        LoggerContext logContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        Logger logger = logContext.getLogger(SimpleMessageListenerContainer.class);
+        Level previous = logger.getLevel();
+        logger.setLevel(Level.OFF);
         return previous;
     }
 
     private static void setLogLevel(Level level) {
-        LogManager.getLogger(SimpleMessageListenerContainer.class).setLevel(level);
+        LoggerContext logContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        logContext.getLogger(SimpleMessageListenerContainer.class).setLevel(level);
     }
 
     @Test
@@ -943,9 +1020,9 @@ public class SimpleMessageListenerContainerTest {
         applicationContext.registerSingleton("testMessageListener", TestMessageListener.class);
         applicationContext.registerSingleton("anotherTestMessageListener", AnotherTestMessageListener.class);
 
-        final CountDownLatch testQueueCountdownLatch = new CountDownLatch(1);
-        final CountDownLatch anotherTestQueueCountdownLatch = new CountDownLatch(1);
-        final CountDownLatch spinningThreadsStarted = new CountDownLatch(2);
+        CountDownLatch testQueueCountdownLatch = new CountDownLatch(1);
+        CountDownLatch anotherTestQueueCountdownLatch = new CountDownLatch(1);
+        CountDownLatch spinningThreadsStarted = new CountDownLatch(2);
 
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer() {
 
@@ -978,27 +1055,19 @@ public class SimpleMessageListenerContainerTest {
         when(sqs.receiveMessage(new ReceiveMessageRequest("http://testQueue.amazonaws.com").withAttributeNames("All")
                 .withMessageAttributeNames("All")
                 .withMaxNumberOfMessages(10)))
-                .thenAnswer(new Answer<ReceiveMessageResult>() {
-
-                    @Override
-                    public ReceiveMessageResult answer(InvocationOnMock invocation) throws Throwable {
-                        spinningThreadsStarted.countDown();
-                        testQueueCountdownLatch.await(1, TimeUnit.SECONDS);
-                        throw new OverLimitException("Boom");
-                    }
+                .thenAnswer((Answer<ReceiveMessageResult>) invocation -> {
+                    spinningThreadsStarted.countDown();
+                    testQueueCountdownLatch.await(1, TimeUnit.SECONDS);
+                    throw new OverLimitException("Boom");
                 });
 
         when(sqs.receiveMessage(new ReceiveMessageRequest("http://anotherTestQueue.amazonaws.com").withAttributeNames("All")
                 .withMessageAttributeNames("All")
                 .withMaxNumberOfMessages(10)))
-                .thenAnswer(new Answer<ReceiveMessageResult>() {
-
-                    @Override
-                    public ReceiveMessageResult answer(InvocationOnMock invocation) throws Throwable {
-                        spinningThreadsStarted.countDown();
-                        anotherTestQueueCountdownLatch.await(1, TimeUnit.SECONDS);
-                        throw new OverLimitException("Boom");
-                    }
+                .thenAnswer((Answer<ReceiveMessageResult>) invocation -> {
+                    spinningThreadsStarted.countDown();
+                    anotherTestQueueCountdownLatch.await(1, TimeUnit.SECONDS);
+                    throw new OverLimitException("Boom");
                 });
 
         messageHandler.afterPropertiesSet();
@@ -1156,6 +1225,27 @@ public class SimpleMessageListenerContainerTest {
             return mockAmazonSQS;
         }
 
+    }
+
+    private static class TestMessageListenerWithVisibilityProlong {
+
+        private Visibility visibility;
+        private final CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        @RuntimeUse
+        @SqsListener(value = "testQueue", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
+        private void manualSuccess(String message, Visibility visibility) {
+            this.visibility = visibility;
+            this.countDownLatch.countDown();
+        }
+
+        public void extend(int seconds) {
+            this.visibility.extend(seconds);
+        }
+
+        public CountDownLatch getCountDownLatch() {
+            return this.countDownLatch;
+        }
     }
 
     private static class TestMessageListenerWithManualDeletionPolicy {

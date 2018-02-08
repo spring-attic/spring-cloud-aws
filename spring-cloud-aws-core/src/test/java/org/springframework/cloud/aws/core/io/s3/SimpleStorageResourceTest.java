@@ -27,7 +27,6 @@ import com.amazonaws.services.s3.model.S3Object;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.core.task.SyncTaskExecutor;
 
@@ -42,8 +41,8 @@ import java.util.Date;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -205,7 +204,7 @@ public class SimpleStorageResourceTest {
         SimpleStorageResource simpleStorageResource = new SimpleStorageResource(amazonS3, "bucket", "object", new SyncTaskExecutor());
 
         //Assert
-        assertEquals(new URL("https://s3-eu-west-1.amazonaws.com/bucket/object"), simpleStorageResource.getURL());
+        assertEquals(new URL("https://s3.eu-west-1.amazonaws.com/bucket/object"), simpleStorageResource.getURL());
 
     }
 
@@ -245,18 +244,14 @@ public class SimpleStorageResourceTest {
         //Arrange
         AmazonS3 amazonS3 = mock(AmazonS3.class);
         SimpleStorageResource simpleStorageResource = new SimpleStorageResource(amazonS3, "bucketName", "objectName", new SyncTaskExecutor());
-        final String messageContext = "myFileContent";
-        when(amazonS3.putObject(eq("bucketName"), eq("objectName"), any(InputStream.class), any(ObjectMetadata.class))).thenAnswer(new Answer<PutObjectResult>() {
-
-            @Override
-            public PutObjectResult answer(InvocationOnMock invocation) throws Throwable {
-                assertEquals("bucketName", invocation.getArguments()[0]);
-                assertEquals("objectName", invocation.getArguments()[1]);
-                byte[] content = new byte[messageContext.length()];
-                assertEquals(content.length, ((InputStream) invocation.getArguments()[2]).read(content));
-                assertEquals(messageContext, new String(content));
-                return new PutObjectResult();
-            }
+        String messageContext = "myFileContent";
+        when(amazonS3.putObject(eq("bucketName"), eq("objectName"), any(InputStream.class), any(ObjectMetadata.class))).thenAnswer((Answer<PutObjectResult>) invocation -> {
+            assertEquals("bucketName", invocation.getArguments()[0]);
+            assertEquals("objectName", invocation.getArguments()[1]);
+            byte[] content = new byte[messageContext.length()];
+            assertEquals(content.length, ((InputStream) invocation.getArguments()[2]).read(content));
+            assertEquals(messageContext, new String(content));
+            return new PutObjectResult();
         });
         OutputStream outputStream = simpleStorageResource.getOutputStream();
 

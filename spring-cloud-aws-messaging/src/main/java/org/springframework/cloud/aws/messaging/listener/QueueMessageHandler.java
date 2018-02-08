@@ -21,11 +21,13 @@ import org.springframework.beans.factory.config.BeanExpressionResolver;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
 import org.springframework.cloud.aws.messaging.listener.support.AcknowledgmentHandlerMethodArgumentResolver;
+import org.springframework.cloud.aws.messaging.listener.support.VisibilityHandlerMethodArgumentResolver;
 import org.springframework.cloud.aws.messaging.support.NotificationMessageArgumentResolver;
 import org.springframework.cloud.aws.messaging.support.NotificationSubjectArgumentResolver;
 import org.springframework.cloud.aws.messaging.support.converter.ObjectMessageConverter;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.converter.CompositeMessageConverter;
@@ -65,19 +67,20 @@ public class QueueMessageHandler extends AbstractMethodMessageHandler<QueueMessa
 
     static final String LOGICAL_RESOURCE_ID = "LogicalResourceId";
     static final String ACKNOWLEDGMENT = "Acknowledgment";
+    static final String VISIBILITY = "Visibility";
     private static final boolean JACKSON_2_PRESENT = ClassUtils.isPresent(
             "com.fasterxml.jackson.databind.ObjectMapper", QueueMessageHandler.class.getClassLoader());
 
     @Override
     protected List<? extends HandlerMethodArgumentResolver> initArgumentResolvers() {
-        List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>();
-        resolvers.addAll(getCustomArgumentResolvers());
+        List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>(getCustomArgumentResolvers());
 
         resolvers.add(new HeaderMethodArgumentResolver(null, null));
         resolvers.add(new HeadersMethodArgumentResolver());
 
         resolvers.add(new NotificationSubjectArgumentResolver());
         resolvers.add(new AcknowledgmentHandlerMethodArgumentResolver(ACKNOWLEDGMENT));
+        resolvers.add(new VisibilityHandlerMethodArgumentResolver(VISIBILITY));
 
         CompositeMessageConverter compositeMessageConverter = createPayloadArgumentCompositeConverter();
         resolvers.add(new NotificationMessageArgumentResolver(compositeMessageConverter));
@@ -88,10 +91,8 @@ public class QueueMessageHandler extends AbstractMethodMessageHandler<QueueMessa
 
     @Override
     protected List<? extends HandlerMethodReturnValueHandler> initReturnValueHandlers() {
-        ArrayList<HandlerMethodReturnValueHandler> handlers = new ArrayList<>();
-        handlers.addAll(this.getCustomReturnValueHandlers());
 
-        return handlers;
+        return new ArrayList<>(this.getCustomReturnValueHandlers());
     }
 
     @Override
@@ -211,6 +212,7 @@ public class QueueMessageHandler extends AbstractMethodMessageHandler<QueueMessa
 
         if (JACKSON_2_PRESENT) {
             MappingJackson2MessageConverter jacksonMessageConverter = new MappingJackson2MessageConverter();
+            jacksonMessageConverter.setObjectMapper(Jackson2ObjectMapperBuilder.json().build());
             jacksonMessageConverter.setSerializedPayloadClass(String.class);
             jacksonMessageConverter.setStrictContentTypeMatch(true);
             payloadArgumentConverters.add(jacksonMessageConverter);

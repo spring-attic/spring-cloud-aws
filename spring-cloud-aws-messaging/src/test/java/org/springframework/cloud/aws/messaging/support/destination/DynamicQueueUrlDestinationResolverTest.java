@@ -29,7 +29,7 @@ import org.springframework.messaging.core.DestinationResolutionException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -90,6 +90,21 @@ public class DynamicQueueUrlDestinationResolverTest {
 
         assertEquals("http://queue.com", physicalResourceId);
 
+    }
+
+    @Test
+    public void resolveDestination_withResourceIdResolver_nonUrlId_shouldGetUrlByResolvedName() throws Exception {
+        String queueUrl = "http://queue.com";
+        String resolvedQueueName = "some-queue-name";
+        AmazonSQS amazonSqs = mock(AmazonSQS.class);
+        when(amazonSqs.getQueueUrl(new GetQueueUrlRequest(resolvedQueueName))).thenReturn(new GetQueueUrlResult().withQueueUrl(queueUrl));
+        ResourceIdResolver resourceIdResolver = mock(ResourceIdResolver.class);
+        when(resourceIdResolver.resolveToPhysicalResourceId(anyString())).thenReturn(resolvedQueueName);
+        DynamicQueueUrlDestinationResolver dynamicQueueUrlDestinationResolver = new DynamicQueueUrlDestinationResolver(amazonSqs, resourceIdResolver);
+
+        String physicalResourceId = dynamicQueueUrlDestinationResolver.resolveDestination("testQueue");
+
+        assertEquals("http://queue.com", physicalResourceId);
     }
 
     @Test(expected = IllegalArgumentException.class)

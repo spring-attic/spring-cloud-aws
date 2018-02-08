@@ -16,27 +16,26 @@
 
 package org.springframework.cloud.aws.core.env.stack.config;
 
+import com.amazonaws.services.cloudformation.AmazonCloudFormation;
+import com.amazonaws.services.cloudformation.model.ListStackResourcesResult;
+import com.amazonaws.services.cloudformation.model.StackResourceSummary;
+import org.junit.Test;
+import org.springframework.cloud.aws.core.env.stack.ListableStackResourceFactory;
+import org.springframework.cloud.aws.core.env.stack.StackResource;
+import org.springframework.cloud.aws.core.env.stack.StackResourceRegistry;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
-import org.springframework.cloud.aws.core.env.stack.ListableStackResourceFactory;
-import org.springframework.cloud.aws.core.env.stack.StackResource;
-import org.springframework.cloud.aws.core.env.stack.StackResourceRegistry;
-
-import com.amazonaws.services.cloudformation.AmazonCloudFormation;
-import com.amazonaws.services.cloudformation.model.ListStackResourcesResult;
-import com.amazonaws.services.cloudformation.model.StackResourceSummary;
-
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -85,7 +84,7 @@ public class StackResourceRegistryFactoryBeanTest {
     @Test
     public void createInstance_stackWithName_returnsStackResourceRegistryWithStackName() throws Exception {
         // Arrange
-        StackResourceRegistryFactoryBean stackResourceRegistryFactoryBean = makeStackResourceRegistryFactoryBean(STACK_NAME, Collections.<String, String>emptyMap());
+        StackResourceRegistryFactoryBean stackResourceRegistryFactoryBean = makeStackResourceRegistryFactoryBean(STACK_NAME, Collections.emptyMap());
 
         // Act
         StackResourceRegistry stackResourceRegistry = stackResourceRegistryFactoryBean.createInstance();
@@ -97,7 +96,7 @@ public class StackResourceRegistryFactoryBeanTest {
     @Test
     public void createInstance_stackWithNoResources_returnsStackResourceRegistryAnsweringWithNullForNonExistingLogicalResourceId() throws Exception {
         // Arrange
-        StackResourceRegistryFactoryBean stackResourceRegistryFactoryBean = makeStackResourceRegistryFactoryBean(STACK_NAME, Collections.<String, String>emptyMap());
+        StackResourceRegistryFactoryBean stackResourceRegistryFactoryBean = makeStackResourceRegistryFactoryBean(STACK_NAME, Collections.emptyMap());
 
         // Act
         StackResourceRegistry stackResourceRegistry = stackResourceRegistryFactoryBean.createInstance();
@@ -168,7 +167,7 @@ public class StackResourceRegistryFactoryBeanTest {
 
     private static AmazonCloudFormation makeAmazonCloudFormationClient(Map<String, String> resourceIdMappings) {
         Map<String, List<StackResourceSummary>> stackResourceSummaries = new HashMap<>();
-        stackResourceSummaries.put(STACK_NAME, new ArrayList<StackResourceSummary>()); // allow stack with no resources
+        stackResourceSummaries.put(STACK_NAME, new ArrayList<>()); // allow stack with no resources
 
         for (Map.Entry<String, String> entry : resourceIdMappings.entrySet()) {
             String logicalResourceId = entry.getKey();
@@ -182,11 +181,7 @@ public class StackResourceRegistryFactoryBeanTest {
                 physicalStackName = STACK_NAME;
             }
 
-            List<StackResourceSummary> list = stackResourceSummaries.get(physicalStackName);
-            if (list == null) {
-                list = new ArrayList<>();
-                stackResourceSummaries.put(physicalStackName, list);
-            }
+            List<StackResourceSummary> list = stackResourceSummaries.computeIfAbsent(physicalStackName, k -> new ArrayList<>());
 
             list.add(makeStackResourceSummary(logicalResourceId, physicalResourceId));
         }
@@ -194,7 +189,7 @@ public class StackResourceRegistryFactoryBeanTest {
         AmazonCloudFormation amazonCloudFormationClient = mock(AmazonCloudFormation.class);
 
         for (Map.Entry<String, List<StackResourceSummary>> entry : stackResourceSummaries.entrySet()) {
-            final String stackName = entry.getKey();
+            String stackName = entry.getKey();
 
             ListStackResourcesResult listStackResourcesResult = mock(ListStackResourcesResult.class);
             when(listStackResourcesResult.getStackResourceSummaries()).thenReturn(entry.getValue());
