@@ -32,7 +32,12 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ * @author Agim Emruli
+ * @author Alain Sahli
+ * @author Bart Van Loocke
+ * @since 1.0
+ */
 public class TopicMessageChannel extends AbstractMessageChannel {
 
     public static final String NOTIFICATION_SUBJECT_HEADER = "NOTIFICATION_SUBJECT_HEADER";
@@ -56,7 +61,7 @@ public class TopicMessageChannel extends AbstractMessageChannel {
     private final AmazonSNS amazonSns;
     private final String topicArn;
 
-    public CorrectedTopicMessageChannel(AmazonSNS amazonSns, String topicArn) {
+    public TopicMessageChannel(AmazonSNS amazonSns, String topicArn) {
         this.amazonSns = amazonSns;
         this.topicArn = topicArn;
     }
