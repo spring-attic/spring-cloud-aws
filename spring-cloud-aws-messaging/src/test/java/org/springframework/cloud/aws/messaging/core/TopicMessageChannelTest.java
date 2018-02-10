@@ -153,17 +153,17 @@ public class TopicMessageChannelTest {
         // Assert
         assertTrue(sent);
         Map<String, MessageAttributeValue> messageAttributes = publishRequestArgumentCaptor.getValue().getMessageAttributes();
-        assertEquals(MessageAttributeDataTypes.NUMBER + ".java.lang.Double", messageAttributes.get("double").getDataType());
+        assertEquals(MessageAttributeDataTypes.NUMBER + ".double", messageAttributes.get("double").getDataType());
         assertEquals(String.valueOf(doubleValue), messageAttributes.get("double").getStringValue());
-        assertEquals(MessageAttributeDataTypes.NUMBER + ".java.lang.Long", messageAttributes.get("long").getDataType());
+        assertEquals(MessageAttributeDataTypes.NUMBER + ".long", messageAttributes.get("long").getDataType());
         assertEquals(String.valueOf(longValue), messageAttributes.get("long").getStringValue());
-        assertEquals(MessageAttributeDataTypes.NUMBER + ".java.lang.Integer", messageAttributes.get("integer").getDataType());
+        assertEquals(MessageAttributeDataTypes.NUMBER + ".int", messageAttributes.get("integer").getDataType());
         assertEquals(String.valueOf(integerValue), messageAttributes.get("integer").getStringValue());
-        assertEquals(MessageAttributeDataTypes.NUMBER + ".java.lang.Byte", messageAttributes.get("byte").getDataType());
+        assertEquals(MessageAttributeDataTypes.NUMBER + ".byte", messageAttributes.get("byte").getDataType());
         assertEquals(String.valueOf(byteValue), messageAttributes.get("byte").getStringValue());
-        assertEquals(MessageAttributeDataTypes.NUMBER + ".java.lang.Short", messageAttributes.get("short").getDataType());
+        assertEquals(MessageAttributeDataTypes.NUMBER + ".short", messageAttributes.get("short").getDataType());
         assertEquals(String.valueOf(shortValue), messageAttributes.get("short").getStringValue());
-        assertEquals(MessageAttributeDataTypes.NUMBER + ".java.lang.Float", messageAttributes.get("float").getDataType());
+        assertEquals(MessageAttributeDataTypes.NUMBER + ".float", messageAttributes.get("float").getDataType());
         assertEquals(String.valueOf(floatValue), messageAttributes.get("float").getStringValue());
         assertEquals(MessageAttributeDataTypes.NUMBER + ".java.math.BigInteger", messageAttributes.get("bigInteger").getDataType());
         assertEquals(String.valueOf(bigIntegerValue), messageAttributes.get("bigInteger").getStringValue());
