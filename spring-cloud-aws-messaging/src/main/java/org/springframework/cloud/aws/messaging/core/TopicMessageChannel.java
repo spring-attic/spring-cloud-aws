@@ -16,9 +16,11 @@
 
 package org.springframework.cloud.aws.messaging.core;
 
+
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.model.MessageAttributeValue;
 import com.amazonaws.services.sns.model.PublishRequest;
+import org.springframework.cloud.aws.messaging.core.MessageAttributeDataTypes;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.AbstractMessageChannel;
@@ -30,19 +32,31 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author Agim Emruli
- * @author Alain Sahli
- * @since 1.0
- */
+
 public class TopicMessageChannel extends AbstractMessageChannel {
 
     public static final String NOTIFICATION_SUBJECT_HEADER = "NOTIFICATION_SUBJECT_HEADER";
 
+
+
+    public static final String INT = "Number.int";
+
+    public static final String BOOLEAN = "Number.Boolean";
+
+    public static final String BYTE = "Number.byte";
+
+    public static final String DOUBLE = "Number.double";
+
+    public static final String FLOAT = "Number.float";
+
+    public static final String LONG = "Number.long";
+
+    public static final String SHORT = "Number.short";
+
     private final AmazonSNS amazonSns;
     private final String topicArn;
 
-    public TopicMessageChannel(AmazonSNS amazonSns, String topicArn) {
+    public CorrectedTopicMessageChannel(AmazonSNS amazonSns, String topicArn) {
         this.amazonSns = amazonSns;
         this.topicArn = topicArn;
     }
@@ -108,7 +122,30 @@ public class TopicMessageChannel extends AbstractMessageChannel {
 
     private MessageAttributeValue getNumberMessageAttribute(Object messageHeaderValue) {
         Assert.isTrue(NumberUtils.STANDARD_NUMBER_TYPES.contains(messageHeaderValue.getClass()), "Only standard number types are accepted as message header.");
+        String type = getType(messageHeaderValue);
 
-        return new MessageAttributeValue().withDataType(MessageAttributeDataTypes.NUMBER + "." + messageHeaderValue.getClass().getName()).withStringValue(messageHeaderValue.toString());
+        return new MessageAttributeValue().withDataType(type).withStringValue(messageHeaderValue.toString());
+
+    }
+
+    private static String getType(Object value) {
+        if (value instanceof Integer) {
+            return INT;
+        } else if (value instanceof Long) {
+            return LONG;
+        } else if (value instanceof Boolean) {
+            return BOOLEAN;
+        } else if (value instanceof Byte) {
+            return BYTE;
+        } else if (value instanceof Double) {
+            return DOUBLE;
+        } else if (value instanceof Float) {
+            return FLOAT;
+        } else if (value instanceof Short) {
+            return SHORT;
+        } else {
+           return MessageAttributeDataTypes.NUMBER + "." + value.getClass().getName();
+        }
     }
 }
+
