@@ -35,10 +35,10 @@
 		<main.basedir>${basedir}/../..</main.basedir>
 	</properties>
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-aws-autoconfigure</artifactId>
-		</dependency>
+		<!-- note that we don't depend on spring-cloud-aws-autoconfigure: that module brings in
+		     spring-cloud-aws-context and unwanted autoconfiguration when you just want to use
+		     the Parameter Store configuration support.
+		     We simply include our own auto-configuration for Spring Cloud in this starter instead. -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-aws-parameter-store-config</artifactId>
