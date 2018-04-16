@@ -591,7 +591,7 @@ Spring Cloud provides support for centralized configuration, which can be read a
 `PropertySource` when the application is started. The Parameter Store Configuration allows you to use this mechanism
 with the https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html[AWS Parameter Store].
 
-Simply add a dependency on the `pring-cloud-starter-aws-parameter-store-config` starter module to activate the support.
+Simply add a dependency on the `spring-cloud-starter-aws-parameter-store-config` starter module to activate the support.
 The support is similar to the support provided for the Spring Cloud Config Server or Consul's key-value store:
 configuration parameters can be defined to be shared across all services or for a specific service and can be
 profile-specific. Encrypted values will be decrypted when retrieved.
@@ -650,7 +650,7 @@ You can configure the following settings in a Spring Cloud `bootstrap.properties
 |`aws.paramstore.profileSeparator`
 |`_`
 |String that separates an appended profile from the context name. Note that an AWS parameter key can only contain
- dots, dashed and underscores next to alphanumeric characters.
+ dots, dashes and underscores next to alphanumeric characters.
 
 |`aws.paramstore.failFast`
 |`true`
