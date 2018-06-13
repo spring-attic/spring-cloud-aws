@@ -18,8 +18,11 @@ package org.springframework.cloud.aws.autoconfigure.messaging;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cloud.aws.messaging.SqsListenerHealthIndicator;
 import org.springframework.cloud.aws.messaging.config.annotation.EnableSns;
 import org.springframework.cloud.aws.messaging.config.annotation.EnableSqs;
+import org.springframework.cloud.aws.messaging.listener.SimpleMessageListenerContainer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -34,7 +37,18 @@ public class MessagingAutoConfiguration {
     @EnableSqs
     @Configuration
     public static class SqsAutoConfiguration {
+    }
 
+
+    @ConditionalOnMissingBean(SqsListenerHealthIndicator.class)
+    @ConditionalOnClass(name = "org.springframework.boot.actuate.health.HealthIndicator")
+    @Configuration
+    public static class SqsHealthAutoConfiguration {
+
+        @Bean
+        SqsListenerHealthIndicator sqsListenerHealthIndicator(SimpleMessageListenerContainer container) {
+            return new SqsListenerHealthIndicator(container);
+        }
     }
 
     @ConditionalOnClass(name = "com.amazonaws.services.sns.AmazonSNS")

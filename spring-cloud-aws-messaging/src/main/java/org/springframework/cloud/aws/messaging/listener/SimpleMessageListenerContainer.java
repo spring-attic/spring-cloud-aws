@@ -26,7 +26,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -99,6 +101,10 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
      */
     public void setQueueStopTimeout(long queueStopTimeout) {
         this.queueStopTimeout = queueStopTimeout;
+    }
+
+    public Set<String> getConfiguredQueueNames() {
+        return this.runningStateByQueue.keySet();
     }
 
     @Override
