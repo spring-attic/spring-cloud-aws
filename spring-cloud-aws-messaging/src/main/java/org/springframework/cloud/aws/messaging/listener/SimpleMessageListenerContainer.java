@@ -41,6 +41,7 @@ import static org.springframework.cloud.aws.messaging.core.QueueMessageUtils.cre
 /**
  * @author Agim Emruli
  * @author Alain Sahli
+ * @author Maciej Walkowiak
  * @since 1.0
  */
 public class SimpleMessageListenerContainer extends AbstractMessageListenerContainer {
@@ -103,6 +104,10 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
         this.queueStopTimeout = queueStopTimeout;
     }
 
+    /**
+     * @since 2.0
+     * @return All configured queue names.
+     */
     public Set<String> getConfiguredQueueNames() {
         return this.runningStateByQueue.keySet();
     }
