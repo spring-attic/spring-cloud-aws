@@ -88,6 +88,5 @@ public class SqsListenerHealthIndicator extends AbstractHealthIndicator {
             LOGGER.error("Queue '{}' is not reachable", queueName, e);
             return false;
         }
-
     }
 }
