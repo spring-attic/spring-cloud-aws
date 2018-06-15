@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.aws.autoconfigure.messaging;
 
+import com.amazonaws.services.sqs.AmazonSQS;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -64,8 +65,8 @@ public class MessagingAutoConfiguration {
     public static class SqsHealthAutoConfiguration {
 
         @Bean
-        SqsListenerHealthIndicator sqsListenerHealthIndicator(SimpleMessageListenerContainer container) {
-            return new SqsListenerHealthIndicator(container);
+        SqsListenerHealthIndicator sqsListenerHealthIndicator(SimpleMessageListenerContainer container, AmazonSQS amazonSQS) {
+            return new SqsListenerHealthIndicator(container, amazonSQS);
         }
     }
 

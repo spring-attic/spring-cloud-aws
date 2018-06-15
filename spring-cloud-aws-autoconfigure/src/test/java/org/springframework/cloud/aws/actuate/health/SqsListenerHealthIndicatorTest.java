@@ -16,6 +16,10 @@
 
 package org.springframework.cloud.aws.actuate.health;
 
+import com.amazonaws.SdkClientException;
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.model.GetQueueUrlResult;
+import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
 import org.assertj.core.util.Sets;
 import org.junit.Test;
 import org.springframework.boot.actuate.health.Health;
@@ -24,6 +28,7 @@ import org.springframework.cloud.aws.messaging.listener.SimpleMessageListenerCon
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,13 +41,15 @@ import static org.mockito.Mockito.when;
 public class SqsListenerHealthIndicatorTest {
 
     private final SimpleMessageListenerContainer simpleMessageListenerContainer = mock(SimpleMessageListenerContainer.class);
+    private final AmazonSQS amazonSQS = mock(AmazonSQS.class);
 
-    private final SqsListenerHealthIndicator healthIndicator = new SqsListenerHealthIndicator(simpleMessageListenerContainer);
+    private final SqsListenerHealthIndicator healthIndicator = new SqsListenerHealthIndicator(simpleMessageListenerContainer, amazonSQS);
 
     @Test
     public void reportsTrueWhenAllConfiguredQueuesAreRunning() {
         when(simpleMessageListenerContainer.getConfiguredQueueNames()).thenReturn(Sets.newTreeSet("queue1", "queue2"));
         when(simpleMessageListenerContainer.isRunning(any())).thenReturn(true);
+        when(amazonSQS.getQueueUrl(anyString())).thenReturn(new GetQueueUrlResult().withQueueUrl("http://queue.url"));
         Health.Builder builder = new Health.Builder();
 
         healthIndicator.doHealthCheck(builder);
@@ -63,6 +70,7 @@ public class SqsListenerHealthIndicatorTest {
     @Test
     public void reportsFalseIfAtLeastOneConfiguredQueueIsNotRunning() {
         when(simpleMessageListenerContainer.getConfiguredQueueNames()).thenReturn(Sets.newTreeSet("queue1", "queue2"));
+        when(amazonSQS.getQueueUrl(anyString())).thenReturn(new GetQueueUrlResult().withQueueUrl("http://queue.url"));
         when(simpleMessageListenerContainer.isRunning("queue1")).thenReturn(true);
         when(simpleMessageListenerContainer.isRunning("queue2")).thenReturn(false);
         Health.Builder builder = new Health.Builder();
@@ -72,6 +80,36 @@ public class SqsListenerHealthIndicatorTest {
         Health health = builder.build();
         assertEquals(Status.DOWN, health.getStatus());
         assertTrue(health.getDetails().containsKey("queue2"));
+    }
+
+    @Test
+    public void reportsFalseIfAtLeastOneConfiguredQueueDoesNotExist() {
+        when(simpleMessageListenerContainer.getConfiguredQueueNames()).thenReturn(Sets.newTreeSet("queue1", "queue2"));
+        when(simpleMessageListenerContainer.isRunning(any())).thenReturn(true);
+        when(amazonSQS.getQueueUrl(anyString())).thenThrow(QueueDoesNotExistException.class);
+
+        Health.Builder builder = new Health.Builder();
+
+        healthIndicator.doHealthCheck(builder);
+
+        Health health = builder.build();
+        assertEquals(Status.DOWN, health.getStatus());
+        assertTrue(health.getDetails().containsKey("queue1"));
+    }
+
+    @Test
+    public void reportsFalseIfAtLeastOneConfiguredQueueIsNotReachable() {
+        when(simpleMessageListenerContainer.getConfiguredQueueNames()).thenReturn(Sets.newTreeSet("queue1", "queue2"));
+        when(simpleMessageListenerContainer.isRunning(any())).thenReturn(true);
+        when(amazonSQS.getQueueUrl(anyString())).thenThrow(SdkClientException.class);
+
+        Health.Builder builder = new Health.Builder();
+
+        healthIndicator.doHealthCheck(builder);
+
+        Health health = builder.build();
+        assertEquals(Status.DOWN, health.getStatus());
+        assertTrue(health.getDetails().containsKey("queue1"));
     }
 
 }

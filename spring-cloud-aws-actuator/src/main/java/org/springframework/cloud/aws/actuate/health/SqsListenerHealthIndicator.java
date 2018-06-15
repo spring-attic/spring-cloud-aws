@@ -16,26 +16,39 @@
 
 package org.springframework.cloud.aws.actuate.health;
 
+import com.amazonaws.SdkClientException;
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.cloud.aws.messaging.listener.SimpleMessageListenerContainer;
+import org.springframework.util.Assert;
 
 /**
  * Simple implementation of a {@link HealthIndicator} returning status information for the
  * SQS messaging system.
  *
- * Checks if all {@link SimpleMessageListenerContainer} for all configured queues are in running state.
+ * Checks if all {@link SimpleMessageListenerContainer} for all configured queues are in running state
+ * and if all configured queues exist and are reachable over the network.
  *
  * @author Maciej Walkowiak
  * @since 2.0
  */
 public class SqsListenerHealthIndicator extends AbstractHealthIndicator {
 
-    private final SimpleMessageListenerContainer simpleMessageListenerContainer;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SqsListenerHealthIndicator.class);
 
-    public SqsListenerHealthIndicator(SimpleMessageListenerContainer simpleMessageListenerContainer) {
+    private final SimpleMessageListenerContainer simpleMessageListenerContainer;
+    private final AmazonSQS amazonSQS;
+
+    public SqsListenerHealthIndicator(SimpleMessageListenerContainer simpleMessageListenerContainer, AmazonSQS amazonSQS) {
+        Assert.notNull(simpleMessageListenerContainer, "SimpleMessageListenerContainer must not be null");
+        Assert.notNull(amazonSQS, "AmazonSQS must not be null");
         this.simpleMessageListenerContainer = simpleMessageListenerContainer;
+        this.amazonSQS = amazonSQS;
     }
 
     @Override
@@ -46,9 +59,35 @@ public class SqsListenerHealthIndicator extends AbstractHealthIndicator {
                 builder.down().withDetail(queueName, "listener is not running");
                 allListenersRunning = false;
             }
+
+            if (!isQueueReachable(queueName)) {
+                builder.down().withDetail(queueName, "queue is not reachable");
+                allListenersRunning = false;
+            }
         }
         if (allListenersRunning) {
             builder.up();
         }
+    }
+
+    /**
+     * Checks if queue exists and is reachable over the network.
+     *
+     * @param queueName -  SQS queue name
+     * @return <code>true</code> if queue exists and is reachable
+     *         <code>false</code> otherwise
+     */
+    private boolean isQueueReachable(String queueName) {
+        try {
+            amazonSQS.getQueueUrl(queueName);
+            return true;
+        } catch (QueueDoesNotExistException e) {
+            LOGGER.warn("Queue '{}' does not exist", queueName);
+            return false;
+        } catch (SdkClientException e) {
+            LOGGER.error("Queue '{}' is not reachable", queueName, e);
+            return false;
+        }
+
     }
 }
