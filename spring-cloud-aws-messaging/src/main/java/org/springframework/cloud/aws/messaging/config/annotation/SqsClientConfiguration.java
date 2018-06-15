@@ -18,11 +18,11 @@ package org.springframework.cloud.aws.messaging.config.annotation;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClient;
 import com.amazonaws.services.sqs.buffered.AmazonSQSBufferedAsyncClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.aws.context.annotation.ConditionalOnMissingAmazonClient;
+import org.springframework.cloud.aws.core.config.AmazonWebserviceClientFactoryBean;
 import org.springframework.cloud.aws.core.region.RegionProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,27 +36,19 @@ import org.springframework.context.annotation.Lazy;
 @ConditionalOnMissingAmazonClient(AmazonSQS.class)
 public class SqsClientConfiguration {
 
-	@Autowired(required = false)
-	private AWSCredentialsProvider awsCredentialsProvider;
+    @Autowired(required = false)
+    private AWSCredentialsProvider awsCredentialsProvider;
 
-	@Autowired(required = false)
-	private RegionProvider regionProvider;
+    @Autowired(required = false)
+    private RegionProvider regionProvider;
 
-	@Lazy
-	@Bean(destroyMethod = "shutdown")
-	public AmazonSQSAsync amazonSQS() {
-		AmazonSQSAsyncClient amazonSQSAsyncClient;
-		if (this.awsCredentialsProvider != null) {
-			amazonSQSAsyncClient = new AmazonSQSAsyncClient(this.awsCredentialsProvider);
-		} else {
-			amazonSQSAsyncClient = new AmazonSQSAsyncClient();
-		}
-
-		if (this.regionProvider != null) {
-			amazonSQSAsyncClient.setRegion(this.regionProvider.getRegion());
-		}
-
-		return new AmazonSQSBufferedAsyncClient(amazonSQSAsyncClient);
-	}
-
+    @Lazy
+    @Bean(destroyMethod = "shutdown")
+    public AmazonSQSBufferedAsyncClient amazonSQS() throws Exception {
+        AmazonWebserviceClientFactoryBean<AmazonSQSAsyncClient> clientFactoryBean = new AmazonWebserviceClientFactoryBean<>(AmazonSQSAsyncClient.class,
+                this.awsCredentialsProvider,
+                this.regionProvider);
+        clientFactoryBean.afterPropertiesSet();
+        return new AmazonSQSBufferedAsyncClient(clientFactoryBean.getObject());
+    }
 }

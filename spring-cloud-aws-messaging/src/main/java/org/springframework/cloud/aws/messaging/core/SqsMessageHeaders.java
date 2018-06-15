@@ -29,13 +29,16 @@ import java.util.Map;
  */
 public class SqsMessageHeaders extends MessageHeaders {
 
-	public static final String SQS_DELAY_HEADER = "delay";
+    public static final String SQS_DELAY_HEADER = "delay";
+    public static final String SQS_GROUP_ID_HEADER = "message-group-id";
+    public static final String SQS_DEDUPLICATION_ID_HEADER = "message-deduplication-id";
 
-	public SqsMessageHeaders(Map<String, Object> headers) {
-		super(headers);
 
-		if (headers.containsKey(ID)) {
-			this.getRawHeaders().put(ID, headers.get(ID));
-		}
-	}
+    public SqsMessageHeaders(Map<String, Object> headers) {
+        super(headers);
+
+        if (headers.containsKey(ID)) {
+            this.getRawHeaders().put(ID, headers.get(ID));
+        }
+    }
 }

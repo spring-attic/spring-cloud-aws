@@ -16,10 +16,9 @@
 
 package org.springframework.cloud.aws.messaging;
 
-import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSAsync;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.cloud.aws.messaging.config.QueueMessageHandlerFactory;
 import org.springframework.cloud.aws.messaging.config.SimpleMessageListenerContainerFactory;
@@ -31,56 +30,55 @@ import org.springframework.context.annotation.PropertySource;
 /**
  * @author Alain Sahli
  */
-@SpringApplicationConfiguration(classes = BootQueueListenerTest.QueueListenerTestConfiguration.class)
-@IntegrationTest
+@SpringBootTest(classes = BootQueueListenerTest.QueueListenerTestConfiguration.class)
 public class BootQueueListenerTest extends QueueListenerTest {
 
-	@Configuration
-	@EnableAutoConfiguration
-	@PropertySource({"classpath:Integration-test-config.properties", "file://${els.config.dir}/access.properties"})
-	protected static class QueueListenerTestConfiguration {
+    @Configuration
+    @EnableAutoConfiguration
+    @PropertySource({"classpath:Integration-test-config.properties", "file://${els.config.dir}/access.properties"})
+    protected static class QueueListenerTestConfiguration {
 
-		@Bean
-		public SimpleMessageListenerContainerFactory simpleMessageListenerContainerFactory() {
-			SimpleMessageListenerContainerFactory factory = new SimpleMessageListenerContainerFactory();
-			factory.setVisibilityTimeout(5);
+        @Bean
+        public SimpleMessageListenerContainerFactory simpleMessageListenerContainerFactory() {
+            SimpleMessageListenerContainerFactory factory = new SimpleMessageListenerContainerFactory();
+            factory.setVisibilityTimeout(5);
 
-			return factory;
-		}
+            return factory;
+        }
 
-		@Bean
-		public QueueMessageHandlerFactory queueMessageHandlerFactory() {
-			return new QueueMessageHandlerFactory();
-		}
+        @Bean
+        public QueueMessageHandlerFactory queueMessageHandlerFactory() {
+            return new QueueMessageHandlerFactory();
+        }
 
-		@Bean
-		public QueueMessagingTemplate queueMessagingTemplate(AmazonSQS amazonSqs, ResourceIdResolver resourceIdResolver, QueueMessageHandlerFactory factory) {
-			QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs, resourceIdResolver);
-			factory.setSendToMessagingTemplate(queueMessagingTemplate);
+        @Bean
+        public QueueMessagingTemplate queueMessagingTemplate(AmazonSQSAsync amazonSqs, ResourceIdResolver resourceIdResolver, QueueMessageHandlerFactory factory) {
+            QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs, resourceIdResolver);
+            factory.setSendToMessagingTemplate(queueMessagingTemplate);
 
-			return queueMessagingTemplate;
-		}
+            return queueMessagingTemplate;
+        }
 
-		@Bean
-		public MessageListener messageListener() {
-			return new MessageListener();
-		}
+        @Bean
+        public MessageListener messageListener() {
+            return new MessageListener();
+        }
 
-		@Bean
-		public MessageListenerWithSendTo messageListenerWithSendTo() {
-			return new MessageListenerWithSendTo();
-		}
+        @Bean
+        public MessageListenerWithSendTo messageListenerWithSendTo() {
+            return new MessageListenerWithSendTo();
+        }
 
-		@Bean
-		public RedrivePolicyTestListener redrivePolicyTestListener() {
-			return new RedrivePolicyTestListener();
-		}
+        @Bean
+        public RedrivePolicyTestListener redrivePolicyTestListener() {
+            return new RedrivePolicyTestListener();
+        }
 
-		@Bean
-		public ManualDeletionPolicyTestListener manualDeletionPolicyTestListener() {
-			return new ManualDeletionPolicyTestListener();
-		}
+        @Bean
+        public ManualDeletionPolicyTestListener manualDeletionPolicyTestListener() {
+            return new ManualDeletionPolicyTestListener();
+        }
 
-	}
+    }
 
 }

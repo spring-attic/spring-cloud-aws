@@ -23,30 +23,35 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.util.StringUtils;
 
 import static org.springframework.cloud.aws.context.config.support.ContextConfigurationUtils.registerRegionProvider;
 
 /**
+ * Region auto configuration, based on <a href=https://cloud.spring.io/spring-cloud-aws/spring-cloud-aws.html#_configuring_region>cloud.aws.region</a>
+ * settings
+ *
  * @author Agim Emruli
+ * @author Petromir Dzhunev
  */
 @Configuration
 @Import(ContextRegionProviderAutoConfiguration.Registrar.class)
 public class ContextRegionProviderAutoConfiguration {
 
-	static class Registrar implements EnvironmentAware, ImportBeanDefinitionRegistrar {
+    static class Registrar implements EnvironmentAware, ImportBeanDefinitionRegistrar {
 
-		private Environment environment;
+        private Environment environment;
 
-		@Override
-		public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-				registerRegionProvider(registry, this.environment.getProperty("cloud.aws.region.auto", Boolean.class, true) &&
-								!(this.environment.containsProperty("cloud.aws.region.static")),
-						this.environment.getProperty("cloud.aws.region.static"));
-		}
+        @Override
+        public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+            registerRegionProvider(registry, this.environment.getProperty("cloud.aws.region.auto", Boolean.class, true) &&
+                            !StringUtils.hasText(this.environment.getProperty("cloud.aws.region.static")),
+                    this.environment.getProperty("cloud.aws.region.static"));
+        }
 
-		@Override
-		public void setEnvironment(Environment environment) {
-			this.environment = environment;
-		}
-	}
+        @Override
+        public void setEnvironment(Environment environment) {
+            this.environment = environment;
+        }
+    }
 }

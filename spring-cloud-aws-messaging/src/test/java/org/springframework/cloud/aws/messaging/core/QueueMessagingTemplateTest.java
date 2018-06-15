@@ -22,15 +22,25 @@ import com.amazonaws.services.sqs.model.GetQueueUrlResult;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.cloud.aws.core.env.ResourceIdResolver;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.converter.CompositeMessageConverter;
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.SimpleMessageConverter;
+import org.springframework.messaging.core.DestinationResolver;
 import org.springframework.messaging.support.MessageBuilder;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Locale;
+
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,130 +50,234 @@ import static org.mockito.Mockito.when;
  */
 public class QueueMessagingTemplateTest {
 
-	@Test(expected = IllegalStateException.class)
-	public void send_withoutDefaultDestination_throwAnException() throws Exception {
-		AmazonSQSAsync amazonSqs = createAmazonSqs();
-		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
+    @Test(expected = IllegalStateException.class)
+    public void send_withoutDefaultDestination_throwAnException() {
+        AmazonSQSAsync amazonSqs = createAmazonSqs();
+        QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
 
-		Message<String> stringMessage = MessageBuilder.withPayload("message content").build();
-		queueMessagingTemplate.send(stringMessage);
-	}
+        Message<String> stringMessage = MessageBuilder.withPayload("message content").build();
+        queueMessagingTemplate.send(stringMessage);
+    }
 
-	@Test
-	public void send_withDefaultDestination_usesDefaultDestination() throws Exception {
-		AmazonSQSAsync amazonSqs = createAmazonSqs();
-		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
-		queueMessagingTemplate.setDefaultDestinationName("my-queue");
+    @Test
+    public void send_withDefaultDestination_usesDefaultDestination() {
+        AmazonSQSAsync amazonSqs = createAmazonSqs();
+        QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
+        queueMessagingTemplate.setDefaultDestinationName("my-queue");
 
-		Message<String> stringMessage = MessageBuilder.withPayload("message content").build();
-		queueMessagingTemplate.send(stringMessage);
+        Message<String> stringMessage = MessageBuilder.withPayload("message content").build();
+        queueMessagingTemplate.send(stringMessage);
 
-		ArgumentCaptor<SendMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor.forClass(SendMessageRequest.class);
-		verify(amazonSqs).sendMessage(sendMessageRequestArgumentCaptor.capture());
-		assertEquals("http://queue-url.com", sendMessageRequestArgumentCaptor.getValue().getQueueUrl());
-	}
+        ArgumentCaptor<SendMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor.forClass(SendMessageRequest.class);
+        verify(amazonSqs).sendMessage(sendMessageRequestArgumentCaptor.capture());
+        assertEquals("http://queue-url.com", sendMessageRequestArgumentCaptor.getValue().getQueueUrl());
+    }
 
-	@Test
-	public void send_withDestination_usesDestination() throws Exception {
-		AmazonSQSAsync amazonSqs = createAmazonSqs();
-		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
+    @Test
+    public void send_withDestination_usesDestination() {
+        AmazonSQSAsync amazonSqs = createAmazonSqs();
+        QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
 
-		Message<String> stringMessage = MessageBuilder.withPayload("message content").build();
-		queueMessagingTemplate.send("my-queue", stringMessage);
+        Message<String> stringMessage = MessageBuilder.withPayload("message content").build();
+        queueMessagingTemplate.send("my-queue", stringMessage);
 
-		ArgumentCaptor<SendMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor.forClass(SendMessageRequest.class);
-		verify(amazonSqs).sendMessage(sendMessageRequestArgumentCaptor.capture());
-		assertEquals("http://queue-url.com", sendMessageRequestArgumentCaptor.getValue().getQueueUrl());
-	}
+        ArgumentCaptor<SendMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor.forClass(SendMessageRequest.class);
+        verify(amazonSqs).sendMessage(sendMessageRequestArgumentCaptor.capture());
+        assertEquals("http://queue-url.com", sendMessageRequestArgumentCaptor.getValue().getQueueUrl());
+    }
 
-	@Test(expected = IllegalStateException.class)
-	public void receive_withoutDefaultDestination_throwsAnException() throws Exception {
-		AmazonSQSAsync amazonSqs = createAmazonSqs();
-		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
 
-		queueMessagingTemplate.receive();
-	}
+    @Test
+    public void send_withCustomDestinationResolveAndDestination_usesDestination() {
+        AmazonSQSAsync amazonSqs = createAmazonSqs();
+        QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs, (DestinationResolver<String>) name -> name.toUpperCase(Locale.ENGLISH), null);
 
-	@Test
-	public void receive_withDefaultDestination_useDefaultDestination() throws Exception {
-		AmazonSQSAsync amazonSqs = createAmazonSqs();
-		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
-		queueMessagingTemplate.setDefaultDestinationName("my-queue");
+        Message<String> stringMessage = MessageBuilder.withPayload("message content").build();
+        queueMessagingTemplate.send("myqueue", stringMessage);
 
-		queueMessagingTemplate.receive();
+        ArgumentCaptor<SendMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor.forClass(SendMessageRequest.class);
+        verify(amazonSqs).sendMessage(sendMessageRequestArgumentCaptor.capture());
+        assertEquals("MYQUEUE", sendMessageRequestArgumentCaptor.getValue().getQueueUrl());
+    }
 
-		ArgumentCaptor<ReceiveMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor.forClass(ReceiveMessageRequest.class);
-		verify(amazonSqs).receiveMessage(sendMessageRequestArgumentCaptor.capture());
-		assertEquals("http://queue-url.com", sendMessageRequestArgumentCaptor.getValue().getQueueUrl());
-	}
+    @Test(expected = IllegalStateException.class)
+    public void receive_withoutDefaultDestination_throwsAnException() {
+        AmazonSQSAsync amazonSqs = createAmazonSqs();
+        QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
 
-	@Test
-	public void receive_withDestination_usesDestination() throws Exception {
-		AmazonSQSAsync amazonSqs = createAmazonSqs();
-		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
+        queueMessagingTemplate.receive();
+    }
 
-		queueMessagingTemplate.receive("my-queue");
+    @Test
+    public void receive_withDefaultDestination_useDefaultDestination() {
+        AmazonSQSAsync amazonSqs = createAmazonSqs();
+        QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
+        queueMessagingTemplate.setDefaultDestinationName("my-queue");
 
-		ArgumentCaptor<ReceiveMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor.forClass(ReceiveMessageRequest.class);
-		verify(amazonSqs).receiveMessage(sendMessageRequestArgumentCaptor.capture());
-		assertEquals("http://queue-url.com", sendMessageRequestArgumentCaptor.getValue().getQueueUrl());
-	}
+        queueMessagingTemplate.receive();
 
-	@Test(expected = IllegalStateException.class)
-	public void receiveAndConvert_withoutDefaultDestination_throwsAnException() throws Exception {
-		AmazonSQSAsync amazonSqs = createAmazonSqs();
-		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
+        ArgumentCaptor<ReceiveMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor.forClass(ReceiveMessageRequest.class);
+        verify(amazonSqs).receiveMessage(sendMessageRequestArgumentCaptor.capture());
+        assertEquals("http://queue-url.com", sendMessageRequestArgumentCaptor.getValue().getQueueUrl());
+    }
 
-		queueMessagingTemplate.receiveAndConvert(String.class);
-	}
+    @Test
+    public void receive_withDestination_usesDestination() {
+        AmazonSQSAsync amazonSqs = createAmazonSqs();
+        QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
 
-	@Test
-	public void receiveAndConvert_withDefaultDestination_usesDefaultDestinationAndConvertsMessage() throws Exception {
-		AmazonSQSAsync amazonSqs = createAmazonSqs();
-		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
-		queueMessagingTemplate.setDefaultDestinationName("my-queue");
+        queueMessagingTemplate.receive("my-queue");
 
-		String message = queueMessagingTemplate.receiveAndConvert(String.class);
+        ArgumentCaptor<ReceiveMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor.forClass(ReceiveMessageRequest.class);
+        verify(amazonSqs).receiveMessage(sendMessageRequestArgumentCaptor.capture());
+        assertEquals("http://queue-url.com", sendMessageRequestArgumentCaptor.getValue().getQueueUrl());
+    }
 
-		assertEquals("My message", message);
-	}
+    @Test(expected = IllegalStateException.class)
+    public void receiveAndConvert_withoutDefaultDestination_throwsAnException() {
+        AmazonSQSAsync amazonSqs = createAmazonSqs();
+        QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
 
-	@Test
-	public void receiveAndConvert_withDestination_usesDestinationAndConvertsMessage() throws Exception {
-		AmazonSQSAsync amazonSqs = createAmazonSqs();
-		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
+        queueMessagingTemplate.receiveAndConvert(String.class);
+    }
 
-		String message = queueMessagingTemplate.receiveAndConvert("my-queue", String.class);
+    @Test
+    public void receiveAndConvert_withDefaultDestination_usesDefaultDestinationAndConvertsMessage() {
+        AmazonSQSAsync amazonSqs = createAmazonSqs();
+        QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
+        queueMessagingTemplate.setDefaultDestinationName("my-queue");
 
-		assertEquals("My message", message);
-	}
+        String message = queueMessagingTemplate.receiveAndConvert(String.class);
 
-	@Test
-	public void instantiation_withConverter_shouldAddItToTheCompositeConverter() throws Exception {
-		// Arrange
-		SimpleMessageConverter simpleMessageConverter = new SimpleMessageConverter();
+        assertEquals("My message", message);
+    }
 
-		// Act
-		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(createAmazonSqs(), null, simpleMessageConverter);
+    @Test
+    public void receiveAndConvert_withDestination_usesDestinationAndConvertsMessage() {
+        AmazonSQSAsync amazonSqs = createAmazonSqs();
+        QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
 
-		// Assert
-		assertEquals(2, ((CompositeMessageConverter) queueMessagingTemplate.getMessageConverter()).getConverters().size());
-		assertEquals(simpleMessageConverter, ((CompositeMessageConverter) queueMessagingTemplate.getMessageConverter()).getConverters().get(1));
-	}
+        String message = queueMessagingTemplate.receiveAndConvert("my-queue", String.class);
 
-	private AmazonSQSAsync createAmazonSqs() {
-		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
+        assertEquals("My message", message);
+    }
 
-		GetQueueUrlResult queueUrl = new GetQueueUrlResult();
-		queueUrl.setQueueUrl("http://queue-url.com");
-		when(amazonSqs.getQueueUrl(any(GetQueueUrlRequest.class))).thenReturn(queueUrl);
+    @Test
+    public void instantiation_withConverter_shouldAddItToTheCompositeConverter() {
+        // Arrange
+        SimpleMessageConverter simpleMessageConverter = new SimpleMessageConverter();
 
-		ReceiveMessageResult receiveMessageResult = new ReceiveMessageResult();
-		com.amazonaws.services.sqs.model.Message message = new com.amazonaws.services.sqs.model.Message();
-		message.setBody("My message");
-		receiveMessageResult.withMessages(message);
-		when(amazonSqs.receiveMessage(any(ReceiveMessageRequest.class))).thenReturn(receiveMessageResult);
+        // Act
+        QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(createAmazonSqs(), (ResourceIdResolver) null, simpleMessageConverter);
 
-		return amazonSqs;
-	}
+        // Assert
+        assertEquals(2, ((CompositeMessageConverter) queueMessagingTemplate.getMessageConverter()).getConverters().size());
+        assertEquals(simpleMessageConverter, ((CompositeMessageConverter) queueMessagingTemplate.getMessageConverter()).getConverters().get(1));
+    }
+
+    @Test
+    public void instantiation_WithCustomJacksonConverterThatSupportsJava8Types_shouldConvertMessageToString() throws IOException {
+
+        // Arrange
+        AmazonSQSAsync amazonSqs = createAmazonSqs();
+
+        ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().build();
+
+        MappingJackson2MessageConverter simpleMessageConverter = new MappingJackson2MessageConverter();
+        simpleMessageConverter.setSerializedPayloadClass(String.class);
+        simpleMessageConverter.setObjectMapper(objectMapper);
+
+        QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs, (ResourceIdResolver) null, simpleMessageConverter);
+
+        // Act
+        queueMessagingTemplate.convertAndSend("test", new TestPerson("Agim", "Emruli", LocalDate.of(2017, 1, 1)));
+
+        // Assert
+        ArgumentCaptor<SendMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor.forClass(SendMessageRequest.class);
+        verify(amazonSqs).sendMessage(sendMessageRequestArgumentCaptor.capture());
+        TestPerson testPerson = objectMapper.readValue(sendMessageRequestArgumentCaptor.getValue().getMessageBody(), TestPerson.class);
+
+        assertEquals("Agim", testPerson.getFirstName());
+        assertEquals("Emruli", testPerson.getLastName());
+        assertEquals(LocalDate.of(2017, 1, 1), testPerson.getActiveSince());
+    }
+
+    @Test
+    public void instantiation_withDefaultMapping2JacksonConverter_shouldSupportJava8Types() throws IOException {
+
+        // Arrange
+        AmazonSQSAsync amazonSqs = createAmazonSqs();
+
+        ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().build();
+
+        QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
+
+        // Act
+        queueMessagingTemplate.convertAndSend("test", new TestPerson("Agim", "Emruli", LocalDate.of(2017, 1, 1)));
+
+        // Assert
+        ArgumentCaptor<SendMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor.forClass(SendMessageRequest.class);
+        verify(amazonSqs).sendMessage(sendMessageRequestArgumentCaptor.capture());
+        TestPerson testPerson = objectMapper.readValue(sendMessageRequestArgumentCaptor.getValue().getMessageBody(), TestPerson.class);
+
+        assertEquals("Agim", testPerson.getFirstName());
+        assertEquals("Emruli", testPerson.getLastName());
+        assertEquals(LocalDate.of(2017, 1, 1), testPerson.getActiveSince());
+    }
+
+    private AmazonSQSAsync createAmazonSqs() {
+        AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
+
+        GetQueueUrlResult queueUrl = new GetQueueUrlResult();
+        queueUrl.setQueueUrl("http://queue-url.com");
+        when(amazonSqs.getQueueUrl(any(GetQueueUrlRequest.class))).thenReturn(queueUrl);
+
+        ReceiveMessageResult receiveMessageResult = new ReceiveMessageResult();
+        com.amazonaws.services.sqs.model.Message message = new com.amazonaws.services.sqs.model.Message();
+        message.setBody("My message");
+        receiveMessageResult.withMessages(message);
+        when(amazonSqs.receiveMessage(any(ReceiveMessageRequest.class))).thenReturn(receiveMessageResult);
+
+        return amazonSqs;
+    }
+
+    private static class TestPerson {
+
+        private String firstName;
+        private String lastName;
+        private LocalDate activeSince;
+
+        private TestPerson(String firstName, @JsonProperty String lastName, @JsonProperty LocalDate activeSince) {
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.activeSince = activeSince;
+        }
+
+        protected TestPerson() {
+        }
+
+        public String getFirstName() {
+            return this.firstName;
+        }
+
+        public String getLastName() {
+            return this.lastName;
+        }
+
+        public LocalDate getActiveSince() {
+            return this.activeSince;
+        }
+
+        public void setFirstName(String firstName) {
+            this.firstName = firstName;
+        }
+
+        public void setLastName(String lastName) {
+            this.lastName = lastName;
+        }
+
+        public void setActiveSince(LocalDate activeSince) {
+            this.activeSince = activeSince;
+        }
+    }
 }

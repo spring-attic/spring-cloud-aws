@@ -20,15 +20,10 @@ import com.amazonaws.services.sns.AmazonSNS;
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.cloud.aws.messaging.core.support.AbstractMessageChannelMessagingSendingTemplate;
 import org.springframework.cloud.aws.messaging.support.destination.DynamicTopicDestinationResolver;
-import org.springframework.messaging.converter.CompositeMessageConverter;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
-import org.springframework.messaging.converter.StringMessageConverter;
-import org.springframework.util.ClassUtils;
+import org.springframework.messaging.core.DestinationResolver;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Alain Sahli
@@ -36,74 +31,59 @@ import java.util.List;
  */
 public class NotificationMessagingTemplate extends AbstractMessageChannelMessagingSendingTemplate<TopicMessageChannel> {
 
-	private final AmazonSNS amazonSns;
+    private final AmazonSNS amazonSns;
 
-	private static final boolean JACKSON_2_PRESENT = ClassUtils.isPresent(
-			"com.fasterxml.jackson.databind.ObjectMapper", NotificationMessagingTemplate.class.getClassLoader());
+    public NotificationMessagingTemplate(AmazonSNS amazonSns) {
+        this(amazonSns, (ResourceIdResolver) null, null);
+    }
 
-	public NotificationMessagingTemplate(AmazonSNS amazonSns) {
-		this(amazonSns, null, null);
-	}
+    public NotificationMessagingTemplate(AmazonSNS amazonSns, ResourceIdResolver resourceIdResolver) {
+        this(amazonSns, resourceIdResolver, null);
+    }
 
-	public NotificationMessagingTemplate(AmazonSNS amazonSns, ResourceIdResolver resourceIdResolver) {
-		this(amazonSns, resourceIdResolver, null);
-	}
+    public NotificationMessagingTemplate(AmazonSNS amazonSns, ResourceIdResolver resourceIdResolver, MessageConverter messageConverter) {
+        super(new DynamicTopicDestinationResolver(amazonSns, resourceIdResolver));
+        this.amazonSns = amazonSns;
+        initMessageConverter(messageConverter);
+    }
 
-	public NotificationMessagingTemplate(AmazonSNS amazonSns, ResourceIdResolver resourceIdResolver, MessageConverter messageConverter) {
-		super(new DynamicTopicDestinationResolver(amazonSns, resourceIdResolver));
-		this.amazonSns = amazonSns;
-		initMessageConverter(messageConverter);
-	}
+    public NotificationMessagingTemplate(AmazonSNS amazonSns, DestinationResolver<String> destinationResolver, MessageConverter messageConverter) {
+        super(destinationResolver);
+        this.amazonSns = amazonSns;
+        initMessageConverter(messageConverter);
+    }
 
-	private void initMessageConverter(MessageConverter messageConverter) {
-		List<MessageConverter> messageConverters = new ArrayList<>();
+    @Override
+    protected TopicMessageChannel resolveMessageChannel(String physicalResourceIdentifier) {
+        return new TopicMessageChannel(this.amazonSns, physicalResourceIdentifier);
+    }
 
-		StringMessageConverter stringMessageConverter = new StringMessageConverter();
-		stringMessageConverter.setSerializedPayloadClass(String.class);
-		messageConverters.add(stringMessageConverter);
+    /**
+     * Convenience method that sends a notification with the given {@literal message} and {@literal subject} to the {@literal destination}.
+     * The {@literal subject} is sent as header as defined in the <a href="http://docs.aws.amazon.com/sns/latest/dg/json-formats.html">SNS message JSON formats</a>.
+     *
+     * @param destinationName
+     *         The logical name of the destination
+     * @param message
+     *         The message to send
+     * @param subject
+     *         The subject to send
+     */
+    public void sendNotification(String destinationName, Object message, String subject) {
+        this.convertAndSend(destinationName, message, Collections.singletonMap(TopicMessageChannel.NOTIFICATION_SUBJECT_HEADER, subject));
+    }
 
-		if (messageConverter != null) {
-			messageConverters.add(messageConverter);
-		} else if (JACKSON_2_PRESENT) {
-			MappingJackson2MessageConverter mappingJackson2MessageConverter = new MappingJackson2MessageConverter();
-			mappingJackson2MessageConverter.setSerializedPayloadClass(String.class);
-			messageConverters.add(mappingJackson2MessageConverter);
-		}
-
-		setMessageConverter(new CompositeMessageConverter(messageConverters));
-	}
-
-	@Override
-	protected TopicMessageChannel resolveMessageChannel(String physicalResourceIdentifier) {
-		return new TopicMessageChannel(this.amazonSns, physicalResourceIdentifier);
-	}
-
-	/**
-	 * Convenience method that sends a notification with the given {@literal message} and {@literal subject} to the {@literal destination}.
-	 * The {@literal subject} is sent as header as defined in the <a href="http://docs.aws.amazon.com/sns/latest/dg/json-formats.html">SNS message JSON formats</a>.
-	 *
-	 * @param destinationName
-	 * 		The logical name of the destination
-	 * @param message
-	 * 		The message to send
-	 * @param subject
-	 * 		The subject to send
-	 */
-	public void sendNotification(String destinationName, Object message, String subject) {
-		this.convertAndSend(destinationName, message, Collections.<String, Object>singletonMap(TopicMessageChannel.NOTIFICATION_SUBJECT_HEADER, subject));
-	}
-
-	/**
-	 * Convenience method that sends a notification with the given {@literal message} and {@literal subject} to the {@literal destination}.
-	 * The {@literal subject} is sent as header as defined in the <a href="http://docs.aws.amazon.com/sns/latest/dg/json-formats.html">SNS message JSON formats</a>.
-	 * The configured default destination will be used.
-	 *
-	 * @param message
-	 * 		The message to send
-	 * @param subject
-	 * 		The subject to send
-	 */
-	public void sendNotification(Object message, String subject) {
-		this.convertAndSend(getRequiredDefaultDestination(), message, Collections.<String, Object>singletonMap(TopicMessageChannel.NOTIFICATION_SUBJECT_HEADER, subject));
-	}
+    /**
+     * Convenience method that sends a notification with the given {@literal message} and {@literal subject} to the {@literal destination}.
+     * The {@literal subject} is sent as header as defined in the <a href="http://docs.aws.amazon.com/sns/latest/dg/json-formats.html">SNS message JSON formats</a>.
+     * The configured default destination will be used.
+     *
+     * @param message
+     *         The message to send
+     * @param subject
+     *         The subject to send
+     */
+    public void sendNotification(Object message, String subject) {
+        this.convertAndSend(getRequiredDefaultDestination(), message, Collections.singletonMap(TopicMessageChannel.NOTIFICATION_SUBJECT_HEADER, subject));
+    }
 }

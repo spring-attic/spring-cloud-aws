@@ -19,13 +19,11 @@ package org.springframework.cloud.aws.cache.redis;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.cache.Cache;
 import org.springframework.cloud.aws.cache.AbstractCacheFactory;
-import org.springframework.data.redis.cache.RedisCache;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import org.springframework.data.redis.connection.jredis.JredisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.connection.srp.SrpConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -33,60 +31,38 @@ import org.springframework.util.ClassUtils;
  */
 public class RedisCacheFactory extends AbstractCacheFactory<RedisConnectionFactory> {
 
-	private static final boolean JEDIS_AVAILABLE = ClassUtils.isPresent("redis.clients.jedis.Jedis", ClassUtils.getDefaultClassLoader());
-	private static final boolean JREDIS_AVAILABLE = ClassUtils.isPresent("org.jredis.JRedis", ClassUtils.getDefaultClassLoader());
-	private static final boolean SRP_AVAILABLE = ClassUtils.isPresent("redis.client.RedisClient", ClassUtils.getDefaultClassLoader());
-	private static final boolean LETTUCE_AVAILABLE = ClassUtils.isPresent("com.lambdaworks.redis.RedisClient", ClassUtils.getDefaultClassLoader());
+    private static final boolean JEDIS_AVAILABLE = ClassUtils.isPresent("redis.clients.jedis.Jedis", ClassUtils.getDefaultClassLoader());
+    private static final boolean LETTUCE_AVAILABLE = ClassUtils.isPresent("io.lettuce.core.RedisClient", ClassUtils.getDefaultClassLoader());
 
-	@Override
-	public boolean isSupportingCacheArchitecture(String architecture) {
-		return "redis".equalsIgnoreCase(architecture);
-	}
+    @Override
+    public boolean isSupportingCacheArchitecture(String architecture) {
+        return "redis".equalsIgnoreCase(architecture);
+    }
 
-	@Override
-	public Cache createCache(String cacheName, String host, int port) throws Exception {
-		return new RedisCache(cacheName, null, getRedisTemplate(getConnectionFactory(host, port)), getExpiryTime(cacheName));
-	}
+    @Override
+    public Cache createCache(String cacheName, String host, int port) throws Exception {
+        return RedisCacheManager.builder(getConnectionFactory(host, port)).build().getCache(cacheName);
+    }
 
-	@Override
-	protected void destroyConnectionClient(RedisConnectionFactory connectionClient) throws Exception {
-		if (connectionClient instanceof DisposableBean) {
-			((DisposableBean) connectionClient).destroy();
-		}
-	}
+    @Override
+    protected void destroyConnectionClient(RedisConnectionFactory connectionClient) throws Exception {
+        if (connectionClient instanceof DisposableBean) {
+            ((DisposableBean) connectionClient).destroy();
+        }
+    }
 
-	@Override
-	protected RedisConnectionFactory createConnectionClient(String hostName, int port) {
-		if (JEDIS_AVAILABLE) {
-			JedisConnectionFactory connectionFactory = new JedisConnectionFactory();
-			connectionFactory.setHostName(hostName);
-			connectionFactory.setPort(port);
-			return connectionFactory;
-		} else if (JREDIS_AVAILABLE) {
-			JredisConnectionFactory connectionFactory = new JredisConnectionFactory();
-			connectionFactory.setHostName(hostName);
-			connectionFactory.setPort(port);
-			return connectionFactory;
-		} else if (SRP_AVAILABLE) {
-			SrpConnectionFactory connectionFactory = new SrpConnectionFactory();
-			connectionFactory.setHostName(hostName);
-			connectionFactory.setPort(port);
-			return connectionFactory;
-		} else if (LETTUCE_AVAILABLE) {
-			LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory();
-			lettuceConnectionFactory.setHostName(hostName);
-			lettuceConnectionFactory.setPort(port);
-			return lettuceConnectionFactory;
-		} else {
-			throw new IllegalArgumentException("No Jedis, Jredis, SRP or lettuce redis client on classpath. " +
-					"Please add one of the implementation to your classpath");
-		}
-	}
-
-	protected RedisTemplate<?, ?> getRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
-		RedisTemplate<?, ?> redisTemplate = new RedisTemplate<>();
-		redisTemplate.setConnectionFactory(redisConnectionFactory);
-		redisTemplate.afterPropertiesSet();
-		return redisTemplate;
-	}
+    @Override
+    protected RedisConnectionFactory createConnectionClient(String hostName, int port) {
+        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
+        configuration.setHostName(hostName);
+        configuration.setPort(port);
+        if (JEDIS_AVAILABLE) {
+            return new JedisConnectionFactory(configuration);
+        } else if (LETTUCE_AVAILABLE) {
+            return new LettuceConnectionFactory(configuration);
+        } else {
+            throw new IllegalArgumentException("No Jedis or lettuce client on classpath. " +
+                    "Please add one of the implementation to your classpath");
+        }
+    }
 }

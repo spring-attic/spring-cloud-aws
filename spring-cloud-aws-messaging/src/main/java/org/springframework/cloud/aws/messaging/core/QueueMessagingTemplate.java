@@ -24,14 +24,10 @@ import org.springframework.cloud.aws.messaging.support.destination.DynamicQueueU
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.converter.CompositeMessageConverter;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.converter.StringMessageConverter;
+import org.springframework.messaging.core.DestinationResolver;
 import org.springframework.messaging.core.DestinationResolvingMessageReceivingOperations;
-import org.springframework.util.ClassUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * <b>IMPORTANT</b>: For the message conversion this class always tries to first use the {@link StringMessageConverter}
@@ -47,93 +43,91 @@ import java.util.List;
  */
 public class QueueMessagingTemplate extends AbstractMessageChannelMessagingSendingTemplate<QueueMessageChannel> implements DestinationResolvingMessageReceivingOperations<QueueMessageChannel> {
 
-	private final AmazonSQSAsync amazonSqs;
+    private final AmazonSQSAsync amazonSqs;
 
-	private static final boolean JACKSON_2_PRESENT = ClassUtils.isPresent(
-			"com.fasterxml.jackson.databind.ObjectMapper", QueueMessagingTemplate.class.getClassLoader());
+    public QueueMessagingTemplate(AmazonSQSAsync amazonSqs) {
+        this(amazonSqs, (ResourceIdResolver) null, null);
+    }
 
-	public QueueMessagingTemplate(AmazonSQSAsync amazonSqs) {
-		this(amazonSqs, null, null);
-	}
+    public QueueMessagingTemplate(AmazonSQSAsync amazonSqs, ResourceIdResolver resourceIdResolver) {
+        this(amazonSqs, resourceIdResolver, null);
+    }
 
-	public QueueMessagingTemplate(AmazonSQSAsync amazonSqs, ResourceIdResolver resourceIdResolver) {
-		this(amazonSqs, resourceIdResolver, null);
-	}
+    /**
+     * Initializes the messaging template by configuring the resource Id resolver as well as the message
+     * converter. Uses the {@link DynamicQueueUrlDestinationResolver} with the default configuration to
+     * resolve destination names.
+     *
+     * @param amazonSqs
+     *         The {@link AmazonSQS} client, cannot be {@code null}.
+     * @param resourceIdResolver
+     *         The {@link ResourceIdResolver} to be used for resolving logical queue names.
+     * @param messageConverter
+     *         A {@link MessageConverter} that is going to be added to the composite converter.
+     */
+    public QueueMessagingTemplate(AmazonSQSAsync amazonSqs, ResourceIdResolver resourceIdResolver, MessageConverter messageConverter) {
+        this(amazonSqs, new DynamicQueueUrlDestinationResolver(amazonSqs, resourceIdResolver), messageConverter);
+    }
 
-	/**
-	 * Initializes the messaging template by configuring the destination resolver as well as the message
-	 * converter.
-	 *
-	 * @param amazonSqs
-	 * 		The {@link AmazonSQS} client, cannot be {@code null}.
-	 * @param resourceIdResolver
-	 * 		The {@link ResourceIdResolver} to be used for resolving logical queue names.
-	 * @param messageConverter
-	 * 		A {@link MessageConverter} that is going to be added to the composite converter.
-	 */
-	public QueueMessagingTemplate(AmazonSQSAsync amazonSqs, ResourceIdResolver resourceIdResolver, MessageConverter messageConverter) {
-		super(new DynamicQueueUrlDestinationResolver(amazonSqs, resourceIdResolver));
-		this.amazonSqs = amazonSqs;
-		initMessageConverter(messageConverter);
-	}
+    /**
+     * Initializes the messaging template by configuring the destination resolver as well as the message
+     * converter. Uses the {@link DynamicQueueUrlDestinationResolver} with the default configuration to
+     * resolve destination names.
+     *
+     * @param amazonSqs
+     *         The {@link AmazonSQS} client, cannot be {@code null}.
+     * @param destinationResolver
+     *         A destination resolver implementation to resolve queue names into queue urls. The
+     *         destination resolver will be wrapped into a {@link org.springframework.messaging.core.CachingDestinationResolverProxy}
+     *         to avoid duplicate queue url resolutions.
+     * @param messageConverter
+     *         A {@link MessageConverter} that is going to be added to the composite converter.
+     */
+    public QueueMessagingTemplate(AmazonSQSAsync amazonSqs, DestinationResolver<String> destinationResolver, MessageConverter messageConverter) {
+        super(destinationResolver);
+        this.amazonSqs = amazonSqs;
+        initMessageConverter(messageConverter);
+    }
 
-	private void initMessageConverter(MessageConverter messageConverter) {
-		StringMessageConverter stringMessageConverter = new StringMessageConverter();
-		stringMessageConverter.setSerializedPayloadClass(String.class);
+    @Override
+    protected QueueMessageChannel resolveMessageChannel(String physicalResourceIdentifier) {
+        return new QueueMessageChannel(this.amazonSqs, physicalResourceIdentifier);
+    }
 
-		List<MessageConverter> messageConverters = new ArrayList<>();
-		messageConverters.add(stringMessageConverter);
+    @Override
+    public Message<?> receive() throws MessagingException {
+        return receive(getRequiredDefaultDestination());
+    }
 
-		if (messageConverter != null) {
-			messageConverters.add(messageConverter);
-		} else if (JACKSON_2_PRESENT) {
-			MappingJackson2MessageConverter mappingJackson2MessageConverter = new MappingJackson2MessageConverter();
-			mappingJackson2MessageConverter.setSerializedPayloadClass(String.class);
-			messageConverters.add(mappingJackson2MessageConverter);
-		}
+    @Override
+    public Message<?> receive(QueueMessageChannel destination) throws MessagingException {
+        return destination.receive();
+    }
 
-		setMessageConverter(new CompositeMessageConverter(messageConverters));
-	}
+    @Override
+    public <T> T receiveAndConvert(Class<T> targetClass) throws MessagingException {
+        return receiveAndConvert(getRequiredDefaultDestination(), targetClass);
+    }
 
-	@Override
-	protected QueueMessageChannel resolveMessageChannel(String physicalResourceIdentifier) {
-		return new QueueMessageChannel(this.amazonSqs, physicalResourceIdentifier);
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T receiveAndConvert(QueueMessageChannel destination, Class<T> targetClass) throws MessagingException {
+        Message<?> message = destination.receive();
+        if (message != null) {
+            return (T) getMessageConverter().fromMessage(message, targetClass);
+        } else {
+            return null;
+        }
+    }
 
-	@Override
-	public Message<?> receive() throws MessagingException {
-		return receive(getRequiredDefaultDestination());
-	}
+    @Override
+    public Message<?> receive(String destinationName) throws MessagingException {
+        return resolveMessageChannelByLogicalName(destinationName).receive();
+    }
 
-	@Override
-	public Message<?> receive(QueueMessageChannel destination) throws MessagingException {
-		return destination.receive();
-	}
-
-	@Override
-	public <T> T receiveAndConvert(Class<T> targetClass) throws MessagingException {
-		return receiveAndConvert(getRequiredDefaultDestination(), targetClass);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T receiveAndConvert(QueueMessageChannel destination, Class<T> targetClass) throws MessagingException {
-		Message<?> message = destination.receive();
-		if (message != null) {
-			return (T) getMessageConverter().fromMessage(message, targetClass);
-		} else {
-			return null;
-		}
-	}
-
-	@Override
-	public Message<?> receive(String destinationName) throws MessagingException {
-		return resolveMessageChannelByLogicalName(destinationName).receive();
-	}
-
-	@Override
-	public <T> T receiveAndConvert(String destinationName, Class<T> targetClass) throws MessagingException {
-		QueueMessageChannel channel = resolveMessageChannelByLogicalName(destinationName);
-		return receiveAndConvert(channel, targetClass);
-	}
+    @Override
+    public <T> T receiveAndConvert(String destinationName, Class<T> targetClass) throws MessagingException {
+        QueueMessageChannel channel = resolveMessageChannelByLogicalName(destinationName);
+        return receiveAndConvert(channel, targetClass);
+    }
 }

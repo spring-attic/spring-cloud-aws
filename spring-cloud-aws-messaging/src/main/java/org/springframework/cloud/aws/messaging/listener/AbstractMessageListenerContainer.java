@@ -51,338 +51,352 @@ import java.util.Map;
  */
 abstract class AbstractMessageListenerContainer implements InitializingBean, DisposableBean, SmartLifecycle, BeanNameAware {
 
-	private static final String RECEIVING_ATTRIBUTES = "All";
-	private static final String RECEIVING_MESSAGE_ATTRIBUTES = "All";
-	private static final int DEFAULT_MAX_NUMBER_OF_MESSAGES = 10;
-	private final Logger logger = LoggerFactory.getLogger(getClass());
-	private final Object lifecycleMonitor = new Object();
-	@SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
-	private final Map<String, QueueAttributes> registeredQueues = new HashMap<>();
-	//Mandatory settings, the container synchronizes this fields after calling the setters hence there is no further synchronization
-	@SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
-	private AmazonSQSAsync amazonSqs;
-	@SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
-	private DestinationResolver<String> destinationResolver;
-	private String beanName;
-	@SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
-	private QueueMessageHandler messageHandler;
-	//Optional settings with no defaults
-	private Integer maxNumberOfMessages;
-	private Integer visibilityTimeout;
-	@SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
-	private ResourceIdResolver resourceIdResolver;
-	private Integer waitTimeOut;
-	//Optional settings with defaults
-	private boolean autoStartup = true;
-	private int phase = Integer.MAX_VALUE;
-	//Settings that are changed at runtime
-	private boolean active;
-	private boolean running;
+    private static final String RECEIVING_ATTRIBUTES = "All";
+    private static final String RECEIVING_MESSAGE_ATTRIBUTES = "All";
+    private static final int DEFAULT_MAX_NUMBER_OF_MESSAGES = 10;
+    private static final int DEFAULT_WAIT_TIME_IN_SECONDS = 20;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Object lifecycleMonitor = new Object();
+    @SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
+    private final Map<String, QueueAttributes> registeredQueues = new HashMap<>();
+    //Mandatory settings, the container synchronizes this fields after calling the setters hence there is no further synchronization
+    @SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
+    private AmazonSQSAsync amazonSqs;
+    @SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
+    private DestinationResolver<String> destinationResolver;
+    private String beanName;
+    @SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
+    private QueueMessageHandler messageHandler;
+    //Optional settings with no defaults
+    private Integer maxNumberOfMessages;
+    private Integer visibilityTimeout;
+    @SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
+    private ResourceIdResolver resourceIdResolver;
 
-	protected Map<String, QueueAttributes> getRegisteredQueues() {
-		return Collections.unmodifiableMap(this.registeredQueues);
-	}
+    /**
+     * By default sets the maximum value for long polling in SQS.
+     * For more information read the <a href="http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-long-polling.html">documentation</a>
+     */
+    private Integer waitTimeOut = DEFAULT_WAIT_TIME_IN_SECONDS;
+    //Optional settings with defaults
+    private boolean autoStartup = true;
+    private int phase = Integer.MAX_VALUE;
+    //Settings that are changed at runtime
+    private boolean active;
+    private boolean running;
 
-	protected QueueMessageHandler getMessageHandler() {
-		return this.messageHandler;
-	}
+    protected Map<String, QueueAttributes> getRegisteredQueues() {
+        return Collections.unmodifiableMap(this.registeredQueues);
+    }
 
-	public void setMessageHandler(QueueMessageHandler messageHandler) {
-		this.messageHandler = messageHandler;
-	}
+    protected QueueMessageHandler getMessageHandler() {
+        return this.messageHandler;
+    }
 
-	protected Object getLifecycleMonitor() {
-		return this.lifecycleMonitor;
-	}
+    public void setMessageHandler(QueueMessageHandler messageHandler) {
+        this.messageHandler = messageHandler;
+    }
 
-	protected Logger getLogger() {
-		return this.logger;
-	}
+    protected Object getLifecycleMonitor() {
+        return this.lifecycleMonitor;
+    }
 
-	protected AmazonSQSAsync getAmazonSqs() {
-		return this.amazonSqs;
-	}
+    protected Logger getLogger() {
+        return this.logger;
+    }
 
-	/**
-	 * Configures the mandatory {@link AmazonSQS} client for this instance.
-	 * <b>Note:</b>The configured instance should have a buffering amazon SQS instance (see subclasses) functionality
-	 * to
-	 * improve the performance during message reception and deletion on the queueing system.
-	 *
-	 * @param amazonSqs
-	 * 		the amazon sqs instance. Must not be null
-	 */
-	public void setAmazonSqs(AmazonSQSAsync amazonSqs) {
-		this.amazonSqs = amazonSqs;
-	}
+    protected AmazonSQSAsync getAmazonSqs() {
+        return this.amazonSqs;
+    }
 
-	protected DestinationResolver<String> getDestinationResolver() {
-		return this.destinationResolver;
-	}
+    /**
+     * Configures the mandatory {@link AmazonSQS} client for this instance.
+     * <b>Note:</b>The configured instance should have a buffering amazon SQS instance (see subclasses) functionality
+     * to
+     * improve the performance during message reception and deletion on the queueing system.
+     *
+     * @param amazonSqs
+     *         the amazon sqs instance. Must not be null
+     */
+    public void setAmazonSqs(AmazonSQSAsync amazonSqs) {
+        this.amazonSqs = amazonSqs;
+    }
 
-	/**
-	 * Configures the destination resolver used to retrieve the queue url based on the destination name configured for
-	 * this instance. <br/>
-	 * This setter can be used when a custom configured {@link DestinationResolver}
-	 * must be provided. (For example if one want to have the {@link DynamicQueueUrlDestinationResolver}
-	 * with the auto creation of queues set to {@code true}.
-	 *
-	 * @param destinationResolver
-	 * 		- the destination resolver. Must not be null
-	 */
-	public void setDestinationResolver(DestinationResolver<String> destinationResolver) {
-		this.destinationResolver = destinationResolver;
-	}
+    protected DestinationResolver<String> getDestinationResolver() {
+        return this.destinationResolver;
+    }
 
-	protected String getBeanName() {
-		return this.beanName;
-	}
+    /**
+     * Configures the destination resolver used to retrieve the queue url based on the destination name configured for
+     * this instance. <br/>
+     * This setter can be used when a custom configured {@link DestinationResolver}
+     * must be provided. (For example if one want to have the {@link DynamicQueueUrlDestinationResolver}
+     * with the auto creation of queues set to {@code true}.
+     *
+     * @param destinationResolver
+     *         - the destination resolver. Must not be null
+     */
+    public void setDestinationResolver(DestinationResolver<String> destinationResolver) {
+        this.destinationResolver = destinationResolver;
+    }
 
-	@Override
-	public void setBeanName(String name) {
-		this.beanName = name;
-	}
+    protected String getBeanName() {
+        return this.beanName;
+    }
 
-	protected Integer getMaxNumberOfMessages() {
-		return this.maxNumberOfMessages;
-	}
+    @Override
+    public void setBeanName(String name) {
+        this.beanName = name;
+    }
 
-	/**
-	 * Configure the maximum number of messages that should be retrieved during one poll to the Amazon SQS system. This
-	 * number must be a positive, non-zero number that has a maximum number of 10. Values higher then 10 are currently
-	 * not supported by the queueing system.
-	 *
-	 * @param maxNumberOfMessages
-	 * 		the maximum number of messages (between 1-10)
-	 */
-	public void setMaxNumberOfMessages(Integer maxNumberOfMessages) {
-		this.maxNumberOfMessages = maxNumberOfMessages;
-	}
+    protected Integer getMaxNumberOfMessages() {
+        return this.maxNumberOfMessages;
+    }
 
-	protected Integer getVisibilityTimeout() {
-		return this.visibilityTimeout;
-	}
+    /**
+     * Configure the maximum number of messages that should be retrieved during one poll to the Amazon SQS system. This
+     * number must be a positive, non-zero number that has a maximum number of 10. Values higher then 10 are currently
+     * not supported by the queueing system.
+     *
+     * @param maxNumberOfMessages
+     *         the maximum number of messages (between 1-10)
+     */
+    public void setMaxNumberOfMessages(Integer maxNumberOfMessages) {
+        this.maxNumberOfMessages = maxNumberOfMessages;
+    }
 
-	/**
-	 * Configures the duration (in seconds) that the received messages are hidden from
-	 * subsequent poll requests after being retrieved from the system.
-	 *
-	 * @param visibilityTimeout
-	 * 		the visibility timeout in seconds
-	 */
-	public void setVisibilityTimeout(Integer visibilityTimeout) {
-		this.visibilityTimeout = visibilityTimeout;
-	}
+    protected Integer getVisibilityTimeout() {
+        return this.visibilityTimeout;
+    }
 
-	/**
-	 * This value must be set if no destination resolver has been set.
-	 *
-	 * @param resourceIdResolver
-	 * 		the resourceIdResolver to use for resolving logical to physical ids in a CloudFormation environment.
-	 * 		Must not be null.
-	 */
-	@RuntimeUse
-	public void setResourceIdResolver(ResourceIdResolver resourceIdResolver) {
-		this.resourceIdResolver = resourceIdResolver;
-	}
+    /**
+     * Configures the duration (in seconds) that the received messages are hidden from
+     * subsequent poll requests after being retrieved from the system.
+     *
+     * @param visibilityTimeout
+     *         the visibility timeout in seconds
+     */
+    public void setVisibilityTimeout(Integer visibilityTimeout) {
+        this.visibilityTimeout = visibilityTimeout;
+    }
 
-	protected Integer getWaitTimeOut() {
-		return this.waitTimeOut;
-	}
+    /**
+     * This value must be set if no destination resolver has been set.
+     *
+     * @param resourceIdResolver
+     *         the resourceIdResolver to use for resolving logical to physical ids in a CloudFormation environment.
+     *         Must not be null.
+     */
+    @RuntimeUse
+    public void setResourceIdResolver(ResourceIdResolver resourceIdResolver) {
+        this.resourceIdResolver = resourceIdResolver;
+    }
 
-	/**
-	 * Configures the wait timeout that the poll request will wait for new message to arrive if the are currently no
-	 * messages on the queue. Higher values will reduce poll request to the system significantly.
-	 *
-	 * @param waitTimeOut
-	 * 		- the wait time out in seconds
-	 */
-	public void setWaitTimeOut(Integer waitTimeOut) {
-		this.waitTimeOut = waitTimeOut;
-	}
+    protected Integer getWaitTimeOut() {
+        return this.waitTimeOut;
+    }
 
-	@Override
-	public boolean isAutoStartup() {
-		return this.autoStartup;
-	}
+    /**
+     * Configures the wait timeout that the poll request will wait for new message to arrive if the are currently no
+     * messages on the queue. Higher values will reduce poll request to the system significantly.
+     *
+     * @param waitTimeOut
+     *         - the wait time out in seconds
+     */
+    public void setWaitTimeOut(Integer waitTimeOut) {
+        this.waitTimeOut = waitTimeOut;
+    }
 
-	/**
-	 * Configures if this container should be automatically started. The default value is true
-	 *
-	 * @param autoStartup
-	 * 		- false if the container will be manually started
-	 */
-	public void setAutoStartup(boolean autoStartup) {
-		this.autoStartup = autoStartup;
-	}
+    @Override
+    public boolean isAutoStartup() {
+        return this.autoStartup;
+    }
 
-	@Override
-	public void stop(Runnable callback) {
-		this.stop();
-		callback.run();
-	}
+    /**
+     * Configures if this container should be automatically started. The default value is true
+     *
+     * @param autoStartup
+     *         - false if the container will be manually started
+     */
+    public void setAutoStartup(boolean autoStartup) {
+        this.autoStartup = autoStartup;
+    }
 
-	@Override
-	public int getPhase() {
-		return this.phase;
-	}
+    @Override
+    public void stop(Runnable callback) {
+        this.stop();
+        callback.run();
+    }
 
-	/**
-	 * Configure a custom phase for the container to start. This allows to start other beans that also implements the
-	 * {@link SmartLifecycle} interface.
-	 *
-	 * @param phase
-	 * 		- the phase that defines the phase respecting the {@link org.springframework.core.Ordered} semantics
-	 */
-	public void setPhase(int phase) {
-		this.phase = phase;
-	}
+    @Override
+    public int getPhase() {
+        return this.phase;
+    }
 
-	public boolean isActive() {
-		synchronized (this.getLifecycleMonitor()) {
-			return this.active;
-		}
-	}
+    /**
+     * Configure a custom phase for the container to start. This allows to start other beans that also implements the
+     * {@link SmartLifecycle} interface.
+     *
+     * @param phase
+     *         - the phase that defines the phase respecting the {@link org.springframework.core.Ordered} semantics
+     */
+    public void setPhase(int phase) {
+        this.phase = phase;
+    }
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		validateConfiguration();
-		initialize();
-	}
+    public boolean isActive() {
+        synchronized (this.getLifecycleMonitor()) {
+            return this.active;
+        }
+    }
 
-	private void validateConfiguration() {
-		Assert.state(this.amazonSqs != null, "amazonSqs must not be null");
-		Assert.state(this.messageHandler != null, "messageHandler must not be null");
-	}
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        validateConfiguration();
+        initialize();
+    }
 
-	protected void initialize() {
-		synchronized (this.getLifecycleMonitor()) {
-			if (this.destinationResolver == null) {
-				if (this.resourceIdResolver == null) {
-					this.destinationResolver = new CachingDestinationResolverProxy<>(new DynamicQueueUrlDestinationResolver(this.amazonSqs));
-				} else {
-					this.destinationResolver = new CachingDestinationResolverProxy<>(new DynamicQueueUrlDestinationResolver(this.amazonSqs, this.resourceIdResolver));
-				}
-			}
+    private void validateConfiguration() {
+        Assert.state(this.amazonSqs != null, "amazonSqs must not be null");
+        Assert.state(this.messageHandler != null, "messageHandler must not be null");
+    }
 
-			for (QueueMessageHandler.MappingInformation mappingInformation : this.messageHandler.getHandlerMethods().keySet()) {
-				for (String queue : mappingInformation.getLogicalResourceIds()) {
-					this.registeredQueues.put(queue, queueAttributes(queue, mappingInformation.getDeletionPolicy()));
-				}
-			}
+    protected void initialize() {
+        synchronized (this.getLifecycleMonitor()) {
+            if (this.destinationResolver == null) {
+                if (this.resourceIdResolver == null) {
+                    this.destinationResolver = new CachingDestinationResolverProxy<>(new DynamicQueueUrlDestinationResolver(this.amazonSqs));
+                } else {
+                    this.destinationResolver = new CachingDestinationResolverProxy<>(new DynamicQueueUrlDestinationResolver(this.amazonSqs, this.resourceIdResolver));
+                }
+            }
 
-			this.active = true;
-			this.getLifecycleMonitor().notifyAll();
-		}
-	}
+            for (QueueMessageHandler.MappingInformation mappingInformation : this.messageHandler.getHandlerMethods().keySet()) {
+                for (String queue : mappingInformation.getLogicalResourceIds()) {
+                    QueueAttributes queueAttributes = queueAttributes(queue, mappingInformation.getDeletionPolicy());
 
-	@Override
-	public void start() {
-		getLogger().debug("Starting container with name {}", getBeanName());
-		synchronized (this.getLifecycleMonitor()) {
-			this.running = true;
-			this.getLifecycleMonitor().notifyAll();
-		}
-		doStart();
-	}
+                    if (queueAttributes != null) {
+                        this.registeredQueues.put(queue, queueAttributes);
+                    }
+                }
+            }
 
-	private QueueAttributes queueAttributes(String queue, SqsMessageDeletionPolicy deletionPolicy) {
-		String destinationUrl;
-		try {
-			destinationUrl = getDestinationResolver().resolveDestination(queue);
-		} catch (DestinationResolutionException e) {
-			getLogger().warn(String.format("The queue with name '%s' does not exist.", queue), e);
-			return null;
-		}
+            this.active = true;
+            this.getLifecycleMonitor().notifyAll();
+        }
+    }
 
-		GetQueueAttributesResult queueAttributes = getAmazonSqs().getQueueAttributes(new GetQueueAttributesRequest(destinationUrl)
-				.withAttributeNames(QueueAttributeName.RedrivePolicy));
-		boolean hasRedrivePolicy = queueAttributes.getAttributes().containsKey(QueueAttributeName.RedrivePolicy.toString());
+    @Override
+    public void start() {
+        getLogger().debug("Starting container with name {}", getBeanName());
+        synchronized (this.getLifecycleMonitor()) {
+            this.running = true;
+            this.getLifecycleMonitor().notifyAll();
+        }
+        doStart();
+    }
 
-		return new QueueAttributes(hasRedrivePolicy, deletionPolicy, destinationUrl, getMaxNumberOfMessages(), getVisibilityTimeout(), getWaitTimeOut());
-	}
+    private QueueAttributes queueAttributes(String queue, SqsMessageDeletionPolicy deletionPolicy) {
+        String destinationUrl;
+        try {
+            destinationUrl = getDestinationResolver().resolveDestination(queue);
+        } catch (DestinationResolutionException e) {
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Ignoring queue with name '" + queue + "' as it does not exist.", e);
+            } else {
+                getLogger().warn("Ignoring queue with name '" + queue + "' as it does not exist.");
+            }
+            return null;
+        }
 
-	@Override
-	public void stop() {
-		getLogger().debug("Stopping container with name {}", getBeanName());
-		synchronized (this.getLifecycleMonitor()) {
-			this.running = false;
-			this.getLifecycleMonitor().notifyAll();
-		}
-		doStop();
-	}
+        GetQueueAttributesResult queueAttributes = getAmazonSqs().getQueueAttributes(new GetQueueAttributesRequest(destinationUrl)
+                .withAttributeNames(QueueAttributeName.RedrivePolicy));
+        boolean hasRedrivePolicy = queueAttributes.getAttributes().containsKey(QueueAttributeName.RedrivePolicy.toString());
 
-	@Override
-	public boolean isRunning() {
-		synchronized (this.getLifecycleMonitor()) {
-			return this.running;
-		}
-	}
+        return new QueueAttributes(hasRedrivePolicy, deletionPolicy, destinationUrl, getMaxNumberOfMessages(), getVisibilityTimeout(), getWaitTimeOut());
+    }
 
-	@Override
-	public void destroy() {
-		synchronized (this.lifecycleMonitor) {
-			stop();
-			this.active = false;
-			doDestroy();
-		}
-	}
+    @Override
+    public void stop() {
+        getLogger().debug("Stopping container with name {}", getBeanName());
+        synchronized (this.getLifecycleMonitor()) {
+            this.running = false;
+            this.getLifecycleMonitor().notifyAll();
+        }
+        doStop();
+    }
 
-	protected abstract void doStart();
+    @Override
+    public boolean isRunning() {
+        synchronized (this.getLifecycleMonitor()) {
+            return this.running;
+        }
+    }
 
-	protected abstract void doStop();
+    @Override
+    public void destroy() {
+        synchronized (this.lifecycleMonitor) {
+            stop();
+            this.active = false;
+            doDestroy();
+        }
+    }
 
-	protected void doDestroy() {
+    protected abstract void doStart();
 
-	}
+    protected abstract void doStop();
 
-	protected static class QueueAttributes {
+    protected void doDestroy() {
 
-		private final boolean hasRedrivePolicy;
-		private final SqsMessageDeletionPolicy deletionPolicy;
-		private final String destinationUrl;
-		private final Integer maxNumberOfMessages;
-		private final Integer visibilityTimeout;
-		private final Integer waitTimeOut;
+    }
 
-		public QueueAttributes(boolean hasRedrivePolicy, SqsMessageDeletionPolicy deletionPolicy, String destinationUrl,
-							   Integer maxNumberOfMessages, Integer visibilityTimeout, Integer waitTimeOut) {
-			this.hasRedrivePolicy = hasRedrivePolicy;
-			this.deletionPolicy = deletionPolicy;
-			this.destinationUrl = destinationUrl;
-			this.maxNumberOfMessages = maxNumberOfMessages;
-			this.visibilityTimeout = visibilityTimeout;
-			this.waitTimeOut = waitTimeOut;
-		}
+    protected static class QueueAttributes {
 
-		public boolean hasRedrivePolicy() {
-			return this.hasRedrivePolicy;
-		}
+        private final boolean hasRedrivePolicy;
+        private final SqsMessageDeletionPolicy deletionPolicy;
+        private final String destinationUrl;
+        private final Integer maxNumberOfMessages;
+        private final Integer visibilityTimeout;
+        private final Integer waitTimeOut;
 
-		public ReceiveMessageRequest getReceiveMessageRequest() {
-			ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(this.destinationUrl).
-					withAttributeNames(RECEIVING_ATTRIBUTES).
-					withMessageAttributeNames(RECEIVING_MESSAGE_ATTRIBUTES);
+        public QueueAttributes(boolean hasRedrivePolicy, SqsMessageDeletionPolicy deletionPolicy, String destinationUrl,
+                               Integer maxNumberOfMessages, Integer visibilityTimeout, Integer waitTimeOut) {
+            this.hasRedrivePolicy = hasRedrivePolicy;
+            this.deletionPolicy = deletionPolicy;
+            this.destinationUrl = destinationUrl;
+            this.maxNumberOfMessages = maxNumberOfMessages;
+            this.visibilityTimeout = visibilityTimeout;
+            this.waitTimeOut = waitTimeOut;
+        }
 
-			if (this.maxNumberOfMessages != null) {
-				receiveMessageRequest.withMaxNumberOfMessages(this.maxNumberOfMessages);
-			} else {
-				receiveMessageRequest.withMaxNumberOfMessages(DEFAULT_MAX_NUMBER_OF_MESSAGES);
-			}
+        public boolean hasRedrivePolicy() {
+            return this.hasRedrivePolicy;
+        }
 
-			if (this.visibilityTimeout != null) {
-				receiveMessageRequest.withVisibilityTimeout(this.visibilityTimeout);
-			}
+        public ReceiveMessageRequest getReceiveMessageRequest() {
+            ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(this.destinationUrl).
+                    withAttributeNames(RECEIVING_ATTRIBUTES).
+                    withMessageAttributeNames(RECEIVING_MESSAGE_ATTRIBUTES);
 
-			if (this.waitTimeOut != null) {
-				receiveMessageRequest.setWaitTimeSeconds(this.waitTimeOut);
-			}
+            if (this.maxNumberOfMessages != null) {
+                receiveMessageRequest.withMaxNumberOfMessages(this.maxNumberOfMessages);
+            } else {
+                receiveMessageRequest.withMaxNumberOfMessages(DEFAULT_MAX_NUMBER_OF_MESSAGES);
+            }
 
-			return receiveMessageRequest;
-		}
+            if (this.visibilityTimeout != null) {
+                receiveMessageRequest.withVisibilityTimeout(this.visibilityTimeout);
+            }
 
-		public SqsMessageDeletionPolicy getDeletionPolicy() {
-			return this.deletionPolicy;
-		}
-	}
+            if (this.waitTimeOut != null) {
+                receiveMessageRequest.setWaitTimeSeconds(this.waitTimeOut);
+            }
+
+            return receiveMessageRequest;
+        }
+
+        public SqsMessageDeletionPolicy getDeletionPolicy() {
+            return this.deletionPolicy;
+        }
+    }
 }

@@ -21,6 +21,7 @@ import org.springframework.beans.factory.config.BeanExpressionResolver;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
 import org.springframework.cloud.aws.messaging.listener.support.AcknowledgmentHandlerMethodArgumentResolver;
+import org.springframework.cloud.aws.messaging.listener.support.VisibilityHandlerMethodArgumentResolver;
 import org.springframework.cloud.aws.messaging.support.NotificationMessageArgumentResolver;
 import org.springframework.cloud.aws.messaging.support.NotificationSubjectArgumentResolver;
 import org.springframework.cloud.aws.messaging.support.converter.ObjectMessageConverter;
@@ -29,7 +30,6 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.converter.CompositeMessageConverter;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.converter.SimpleMessageConverter;
 import org.springframework.messaging.handler.HandlerMethod;
@@ -59,209 +59,210 @@ import java.util.Set;
 /**
  * @author Agim Emruli
  * @author Alain Sahli
+ * @author Maciej Walkowiak
  * @since 1.0
  */
 public class QueueMessageHandler extends AbstractMethodMessageHandler<QueueMessageHandler.MappingInformation> {
 
-	static final String LOGICAL_RESOURCE_ID = "LogicalResourceId";
-	static final String ACKNOWLEDGMENT = "Acknowledgment";
-	private static final boolean JACKSON_2_PRESENT = ClassUtils.isPresent(
-			"com.fasterxml.jackson.databind.ObjectMapper", QueueMessageHandler.class.getClassLoader());
+    static final String LOGICAL_RESOURCE_ID = "LogicalResourceId";
+    static final String ACKNOWLEDGMENT = "Acknowledgment";
+    static final String VISIBILITY = "Visibility";
 
-	@Override
-	protected List<? extends HandlerMethodArgumentResolver> initArgumentResolvers() {
-		List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>();
-		resolvers.addAll(getCustomArgumentResolvers());
+    private final List<MessageConverter> messageConverters;
 
-		resolvers.add(new HeaderMethodArgumentResolver(null, null));
-		resolvers.add(new HeadersMethodArgumentResolver());
+    public QueueMessageHandler(List<MessageConverter> messageConverters) {
+        this.messageConverters = messageConverters;
+    }
 
-		resolvers.add(new NotificationSubjectArgumentResolver());
-		resolvers.add(new AcknowledgmentHandlerMethodArgumentResolver(ACKNOWLEDGMENT));
+    public QueueMessageHandler() {
+        this.messageConverters = Collections.emptyList();
+    }
 
-		CompositeMessageConverter compositeMessageConverter = createPayloadArgumentCompositeConverter();
-		resolvers.add(new NotificationMessageArgumentResolver(compositeMessageConverter));
-		resolvers.add(new PayloadArgumentResolver(compositeMessageConverter, new NoOpValidator()));
+    @Override
+    protected List<? extends HandlerMethodArgumentResolver> initArgumentResolvers() {
+        List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>(getCustomArgumentResolvers());
 
-		return resolvers;
-	}
+        resolvers.add(new HeaderMethodArgumentResolver(null, null));
+        resolvers.add(new HeadersMethodArgumentResolver());
 
-	@Override
-	protected List<? extends HandlerMethodReturnValueHandler> initReturnValueHandlers() {
-		ArrayList<HandlerMethodReturnValueHandler> handlers = new ArrayList<>();
-		handlers.addAll(this.getCustomReturnValueHandlers());
+        resolvers.add(new NotificationSubjectArgumentResolver());
+        resolvers.add(new AcknowledgmentHandlerMethodArgumentResolver(ACKNOWLEDGMENT));
+        resolvers.add(new VisibilityHandlerMethodArgumentResolver(VISIBILITY));
 
-		return handlers;
-	}
+        CompositeMessageConverter compositeMessageConverter = createPayloadArgumentCompositeConverter();
+        resolvers.add(new NotificationMessageArgumentResolver(compositeMessageConverter));
+        resolvers.add(new PayloadArgumentResolver(compositeMessageConverter, new NoOpValidator()));
 
-	@Override
-	protected boolean isHandler(Class<?> beanType) {
-		return true;
-	}
+        return resolvers;
+    }
 
-	@Override
-	protected MappingInformation getMappingForMethod(Method method, Class<?> handlerType) {
-		SqsListener sqsListenerAnnotation = AnnotationUtils.findAnnotation(method, SqsListener.class);
-		if (sqsListenerAnnotation != null && sqsListenerAnnotation.value().length > 0) {
-			if (sqsListenerAnnotation.deletionPolicy() == SqsMessageDeletionPolicy.NEVER && hasNoAcknowledgmentParameter(method.getParameterTypes())) {
-				this.logger.warn("Listener method '" + method.getName() + "' in type '" + method.getDeclaringClass().getName() +
-						"' has deletion policy 'NEVER' but does not have a parameter of type Acknowledgment.");
-			}
-			return new MappingInformation(resolveDestinationNames(sqsListenerAnnotation.value()), sqsListenerAnnotation.deletionPolicy());
-		}
+    @Override
+    protected List<? extends HandlerMethodReturnValueHandler> initReturnValueHandlers() {
 
-		MessageMapping messageMappingAnnotation = AnnotationUtils.findAnnotation(method, MessageMapping.class);
-		if (messageMappingAnnotation != null && messageMappingAnnotation.value().length > 0) {
-			return new MappingInformation(resolveDestinationNames(messageMappingAnnotation.value()), SqsMessageDeletionPolicy.ALWAYS);
-		}
+        return new ArrayList<>(this.getCustomReturnValueHandlers());
+    }
 
-		return null;
-	}
+    @Override
+    protected boolean isHandler(Class<?> beanType) {
+        return true;
+    }
 
-	private boolean hasNoAcknowledgmentParameter(Class<?>[] parameterTypes) {
-		for (Class<?> parameterType : parameterTypes) {
-			if (ClassUtils.isAssignable(Acknowledgment.class, parameterType)) {
-				return false;
-			}
-		}
+    @Override
+    protected MappingInformation getMappingForMethod(Method method, Class<?> handlerType) {
+        SqsListener sqsListenerAnnotation = AnnotationUtils.findAnnotation(method, SqsListener.class);
+        if (sqsListenerAnnotation != null && sqsListenerAnnotation.value().length > 0) {
+            if (sqsListenerAnnotation.deletionPolicy() == SqsMessageDeletionPolicy.NEVER && hasNoAcknowledgmentParameter(method.getParameterTypes())) {
+                this.logger.warn("Listener method '" + method.getName() + "' in type '" + method.getDeclaringClass().getName() +
+                        "' has deletion policy 'NEVER' but does not have a parameter of type Acknowledgment.");
+            }
+            return new MappingInformation(resolveDestinationNames(sqsListenerAnnotation.value()), sqsListenerAnnotation.deletionPolicy());
+        }
 
-		return true;
-	}
+        MessageMapping messageMappingAnnotation = AnnotationUtils.findAnnotation(method, MessageMapping.class);
+        if (messageMappingAnnotation != null && messageMappingAnnotation.value().length > 0) {
+            return new MappingInformation(resolveDestinationNames(messageMappingAnnotation.value()), SqsMessageDeletionPolicy.ALWAYS);
+        }
 
-	private Set<String> resolveDestinationNames(String[] destinationNames) {
-		Set<String> result = new HashSet<>(destinationNames.length);
+        return null;
+    }
 
-		for (String destinationName : destinationNames) {
-			result.addAll(Arrays.asList(resolveName(destinationName)));
-		}
+    private boolean hasNoAcknowledgmentParameter(Class<?>[] parameterTypes) {
+        for (Class<?> parameterType : parameterTypes) {
+            if (ClassUtils.isAssignable(Acknowledgment.class, parameterType)) {
+                return false;
+            }
+        }
 
-		return result;
-	}
+        return true;
+    }
 
-	private String[] resolveName(String name) {
-		if (!(getApplicationContext() instanceof ConfigurableApplicationContext)) {
-			return wrapInStringArray(name);
-		}
+    private Set<String> resolveDestinationNames(String[] destinationNames) {
+        Set<String> result = new HashSet<>(destinationNames.length);
 
-		ConfigurableApplicationContext applicationContext = (ConfigurableApplicationContext) getApplicationContext();
-		ConfigurableBeanFactory configurableBeanFactory = applicationContext.getBeanFactory();
+        for (String destinationName : destinationNames) {
+            result.addAll(Arrays.asList(resolveName(destinationName)));
+        }
 
-		String placeholdersResolved = configurableBeanFactory.resolveEmbeddedValue(name);
-		BeanExpressionResolver exprResolver = configurableBeanFactory.getBeanExpressionResolver();
-		if (exprResolver == null) {
-			return wrapInStringArray(name);
-		}
-		Object result = exprResolver.evaluate(placeholdersResolved, new BeanExpressionContext(configurableBeanFactory, null));
-		if (result instanceof String[]) {
-			return (String[]) result;
-		} else if (result != null) {
-			return wrapInStringArray(result);
-		} else {
-			return wrapInStringArray(name);
-		}
-	}
+        return result;
+    }
 
-	private static String[] wrapInStringArray(Object valueToWrap) {
-		return new String[]{valueToWrap.toString()};
-	}
+    private String[] resolveName(String name) {
+        if (!(getApplicationContext() instanceof ConfigurableApplicationContext)) {
+            return wrapInStringArray(name);
+        }
+
+        ConfigurableApplicationContext applicationContext = (ConfigurableApplicationContext) getApplicationContext();
+        ConfigurableBeanFactory configurableBeanFactory = applicationContext.getBeanFactory();
+
+        String placeholdersResolved = configurableBeanFactory.resolveEmbeddedValue(name);
+        BeanExpressionResolver exprResolver = configurableBeanFactory.getBeanExpressionResolver();
+        if (exprResolver == null) {
+            return wrapInStringArray(name);
+        }
+        Object result = exprResolver.evaluate(placeholdersResolved, new BeanExpressionContext(configurableBeanFactory, null));
+        if (result instanceof String[]) {
+            return (String[]) result;
+        } else if (result != null) {
+            return wrapInStringArray(result);
+        } else {
+            return wrapInStringArray(name);
+        }
+    }
+
+    private static String[] wrapInStringArray(Object valueToWrap) {
+        return new String[]{valueToWrap.toString()};
+    }
 
 
-	@Override
-	protected Set<String> getDirectLookupDestinations(MappingInformation mapping) {
-		return mapping.getLogicalResourceIds();
-	}
+    @Override
+    protected Set<String> getDirectLookupDestinations(MappingInformation mapping) {
+        return mapping.getLogicalResourceIds();
+    }
 
-	@Override
-	protected String getDestination(Message<?> message) {
-		return message.getHeaders().get(LOGICAL_RESOURCE_ID).toString();
-	}
+    @Override
+    protected String getDestination(Message<?> message) {
+        return message.getHeaders().get(LOGICAL_RESOURCE_ID).toString();
+    }
 
-	@Override
-	protected MappingInformation getMatchingMapping(MappingInformation mapping, Message<?> message) {
-		if (mapping.getLogicalResourceIds().contains(getDestination(message))) {
-			return mapping;
-		} else {
-			return null;
-		}
-	}
+    @Override
+    protected MappingInformation getMatchingMapping(MappingInformation mapping, Message<?> message) {
+        if (mapping.getLogicalResourceIds().contains(getDestination(message))) {
+            return mapping;
+        } else {
+            return null;
+        }
+    }
 
-	@Override
-	protected Comparator<MappingInformation> getMappingComparator(Message<?> message) {
-		return new ComparableComparator<>();
-	}
+    @Override
+    protected Comparator<MappingInformation> getMappingComparator(Message<?> message) {
+        return new ComparableComparator<>();
+    }
 
-	@Override
-	protected AbstractExceptionHandlerMethodResolver createExceptionHandlerMethodResolverFor(Class<?> beanType) {
-		return new AnnotationExceptionHandlerMethodResolver(beanType);
-	}
+    @Override
+    protected AbstractExceptionHandlerMethodResolver createExceptionHandlerMethodResolverFor(Class<?> beanType) {
+        return new AnnotationExceptionHandlerMethodResolver(beanType);
+    }
 
-	@Override
-	protected void handleNoMatch(Set<MappingInformation> ts, String lookupDestination, Message<?> message) {
-		this.logger.warn("No match found");
-	}
+    @Override
+    protected void handleNoMatch(Set<MappingInformation> ts, String lookupDestination, Message<?> message) {
+        this.logger.warn("No match found");
+    }
 
-	@Override
-	protected void processHandlerMethodException(HandlerMethod handlerMethod, Exception ex, Message<?> message) {
-		super.processHandlerMethodException(handlerMethod, ex, message);
-		throw new MessagingException("An exception occurred while invoking the handler method", ex);
-	}
+    @Override
+    protected void processHandlerMethodException(HandlerMethod handlerMethod, Exception ex, Message<?> message) {
+        super.processHandlerMethodException(handlerMethod, ex, message);
+        throw new MessagingException("An exception occurred while invoking the handler method", ex);
+    }
 
-	private CompositeMessageConverter createPayloadArgumentCompositeConverter() {
-		List<MessageConverter> payloadArgumentConverters = new ArrayList<>();
+    private CompositeMessageConverter createPayloadArgumentCompositeConverter() {
+        List<MessageConverter> payloadArgumentConverters = new ArrayList<>(this.messageConverters);
 
-		if (JACKSON_2_PRESENT) {
-			MappingJackson2MessageConverter jacksonMessageConverter = new MappingJackson2MessageConverter();
-			jacksonMessageConverter.setSerializedPayloadClass(String.class);
-			jacksonMessageConverter.setStrictContentTypeMatch(true);
-			payloadArgumentConverters.add(jacksonMessageConverter);
-		}
+        ObjectMessageConverter objectMessageConverter = new ObjectMessageConverter();
+        objectMessageConverter.setStrictContentTypeMatch(true);
+        payloadArgumentConverters.add(objectMessageConverter);
 
-		ObjectMessageConverter objectMessageConverter = new ObjectMessageConverter();
-		objectMessageConverter.setStrictContentTypeMatch(true);
-		payloadArgumentConverters.add(objectMessageConverter);
+        payloadArgumentConverters.add(new SimpleMessageConverter());
 
-		payloadArgumentConverters.add(new SimpleMessageConverter());
+        return new CompositeMessageConverter(payloadArgumentConverters);
+    }
 
-		return new CompositeMessageConverter(payloadArgumentConverters);
-	}
+    @SuppressWarnings("ComparableImplementedButEqualsNotOverridden")
+    protected static class MappingInformation implements Comparable<MappingInformation> {
 
-	@SuppressWarnings("ComparableImplementedButEqualsNotOverridden")
-	protected static class MappingInformation implements Comparable<MappingInformation> {
+        private final Set<String> logicalResourceIds;
 
-		private final Set<String> logicalResourceIds;
+        private final SqsMessageDeletionPolicy deletionPolicy;
 
-		private final SqsMessageDeletionPolicy deletionPolicy;
+        public MappingInformation(Set<String> logicalResourceIds, SqsMessageDeletionPolicy deletionPolicy) {
+            this.logicalResourceIds = Collections.unmodifiableSet(logicalResourceIds);
+            this.deletionPolicy = deletionPolicy;
+        }
 
-		public MappingInformation(Set<String> logicalResourceIds, SqsMessageDeletionPolicy deletionPolicy) {
-			this.logicalResourceIds = Collections.unmodifiableSet(logicalResourceIds);
-			this.deletionPolicy = deletionPolicy;
-		}
+        public Set<String> getLogicalResourceIds() {
+            return this.logicalResourceIds;
+        }
 
-		public Set<String> getLogicalResourceIds() {
-			return this.logicalResourceIds;
-		}
+        public SqsMessageDeletionPolicy getDeletionPolicy() {
+            return this.deletionPolicy;
+        }
 
-		public SqsMessageDeletionPolicy getDeletionPolicy() {
-			return this.deletionPolicy;
-		}
+        @SuppressWarnings("NullableProblems")
+        @Override
+        public int compareTo(MappingInformation o) {
+            return 0;
+        }
+    }
 
-		@SuppressWarnings("NullableProblems")
-		@Override
-		public int compareTo(MappingInformation o) {
-			return 0;
-		}
-	}
+    private static final class NoOpValidator implements Validator {
 
-	private static final class NoOpValidator implements Validator {
+        @Override
+        public boolean supports(Class<?> clazz) {
+            return false;
+        }
 
-		@Override
-		public boolean supports(Class<?> clazz) {
-			return false;
-		}
-
-		@Override
-		public void validate(Object target, Errors errors) {
-		}
-	}
+        @Override
+        public void validate(Object target, Errors errors) {
+        }
+    }
 
 }
