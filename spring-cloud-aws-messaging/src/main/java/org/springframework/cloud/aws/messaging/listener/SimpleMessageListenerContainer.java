@@ -26,9 +26,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -41,7 +39,6 @@ import static org.springframework.cloud.aws.messaging.core.QueueMessageUtils.cre
 /**
  * @author Agim Emruli
  * @author Alain Sahli
- * @author Maciej Walkowiak
  * @since 1.0
  */
 public class SimpleMessageListenerContainer extends AbstractMessageListenerContainer {
@@ -102,14 +99,6 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
      */
     public void setQueueStopTimeout(long queueStopTimeout) {
         this.queueStopTimeout = queueStopTimeout;
-    }
-
-    /**
-     * @since 2.0
-     * @return All configured queue names.
-     */
-    public Set<String> getConfiguredQueueNames() {
-        return this.runningStateByQueue.keySet();
     }
 
     @Override

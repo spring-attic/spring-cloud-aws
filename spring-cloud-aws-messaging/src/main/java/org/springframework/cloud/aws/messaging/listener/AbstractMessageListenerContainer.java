@@ -39,6 +39,8 @@ import org.springframework.util.Assert;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Abstract base class for message listener containers providing basic lifecycle capabilities and collaborator for the
@@ -47,6 +49,7 @@ import java.util.Map;
  *
  * @author Agim Emruli
  * @author Alain Sahli
+ * @author Maciej Walkowiak
  * @since 1.0
  */
 abstract class AbstractMessageListenerContainer implements InitializingBean, DisposableBean, SmartLifecycle, BeanNameAware {
@@ -278,6 +281,17 @@ abstract class AbstractMessageListenerContainer implements InitializingBean, Dis
             this.active = true;
             this.getLifecycleMonitor().notifyAll();
         }
+    }
+
+    /**
+     * @return set of all queues mapped with {@link org.springframework.cloud.aws.messaging.listener.annotation.SqsListener}
+     * @since 2.0
+     */
+    public Set<String> getMappedQueueNames() {
+        return this.messageHandler.getHandlerMethods().keySet()
+                .stream()
+                .flatMap(mapping -> mapping.getLogicalResourceIds().stream())
+                .collect(Collectors.toSet());
     }
 
     @Override

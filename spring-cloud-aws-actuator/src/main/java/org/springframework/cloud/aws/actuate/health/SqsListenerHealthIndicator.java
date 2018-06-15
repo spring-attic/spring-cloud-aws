@@ -54,7 +54,7 @@ public class SqsListenerHealthIndicator extends AbstractHealthIndicator {
     @Override
     protected void doHealthCheck(Health.Builder builder) {
         boolean allListenersRunning = true;
-        for (String queueName : this.simpleMessageListenerContainer.getConfiguredQueueNames()) {
+        for (String queueName : this.simpleMessageListenerContainer.getMappedQueueNames()) {
             if (!this.simpleMessageListenerContainer.isRunning(queueName)) {
                 builder.down().withDetail(queueName, "listener is not running");
                 allListenersRunning = false;
