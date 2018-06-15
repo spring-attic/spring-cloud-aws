@@ -14,12 +14,22 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.aws.messaging;
+package org.springframework.cloud.aws.actuate.health;
 
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.cloud.aws.messaging.listener.SimpleMessageListenerContainer;
 
+/**
+ * Simple implementation of a {@link HealthIndicator} returning status information for the
+ * SQS messaging system.
+ *
+ * Checks if all {@link SimpleMessageListenerContainer} for all configured queues are in running state.
+ *
+ * @author Maciej Walkowiak
+ * @since 2.0
+ */
 public class SqsListenerHealthIndicator extends AbstractHealthIndicator {
 
     private final SimpleMessageListenerContainer simpleMessageListenerContainer;
@@ -29,7 +39,7 @@ public class SqsListenerHealthIndicator extends AbstractHealthIndicator {
     }
 
     @Override
-    protected void doHealthCheck(Health.Builder builder) throws Exception {
+    protected void doHealthCheck(Health.Builder builder) {
         boolean allListenersRunning = true;
         for (String queueName : this.simpleMessageListenerContainer.getConfiguredQueueNames()) {
             if (!this.simpleMessageListenerContainer.isRunning(queueName)) {

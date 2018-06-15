@@ -18,7 +18,7 @@ package org.springframework.cloud.aws.autoconfigure.messaging;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.cloud.aws.messaging.SqsListenerHealthIndicator;
+import org.springframework.cloud.aws.actuate.health.SqsListenerHealthIndicator;
 import org.springframework.cloud.aws.messaging.config.annotation.EnableSns;
 import org.springframework.cloud.aws.messaging.config.annotation.EnableSqs;
 import org.springframework.cloud.aws.messaging.listener.SimpleMessageListenerContainer;
@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * @author Alain Sahli
  * @author Agim Emruli
+ * @author Maciej Walkowiak
  */
 @ConditionalOnClass(name = "org.springframework.cloud.aws.messaging.listener.SimpleMessageListenerContainer")
 @Configuration
