@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.aws.autoconfigure.messaging;
 
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.aws.actuate.health.SqsListenerHealthIndicator;
@@ -26,6 +27,22 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
+ * {@link EnableAutoConfiguration Auto-configuration} for SQS and SNS messaging.
+ * <p>
+ * This configuration class is active only when the Spring Cloud AWS Messaging library
+ * is on the classpath.
+ * <p>
+ * Registers the following beans:
+ * <ul>
+ * <li>all beans registered with {@link EnableSqs} if there
+ * is no other bean of type {@link SimpleMessageListenerContainer} in the context.</li>
+ * <li>{@link SqsListenerHealthIndicator} instance if Spring Cloud AWS Actuator is on the classpath
+ * and there is no other bean of the same type in the context.</li>
+ * <li>all beans registered with {@link EnableSns} if there
+ * is {@link com.amazonaws.services.sns.AmazonSNS AmazonSNS} on the classpath</li>
+ * </ul>
+ * <p>
+ *
  * @author Alain Sahli
  * @author Agim Emruli
  * @author Maciej Walkowiak
