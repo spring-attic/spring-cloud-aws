@@ -33,17 +33,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for {@link SqsListenerHealthIndicator}.
+ * Tests for {@link SqsHealthIndicator}.
  *
  * @author Maciej Walkowiak
  * @since 2.0
  */
-public class SqsListenerHealthIndicatorTest {
+public class SqsHealthIndicatorTest {
 
     private final SimpleMessageListenerContainer simpleMessageListenerContainer = mock(SimpleMessageListenerContainer.class);
     private final AmazonSQS amazonSQS = mock(AmazonSQS.class);
 
-    private final SqsListenerHealthIndicator healthIndicator = new SqsListenerHealthIndicator(simpleMessageListenerContainer, amazonSQS);
+    private final SqsHealthIndicator healthIndicator = new SqsHealthIndicator(simpleMessageListenerContainer, amazonSQS);
 
     @Test
     public void reportsTrueWhenAllConfiguredQueuesAreRunning() {

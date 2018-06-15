@@ -20,7 +20,7 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.cloud.aws.actuate.health.SqsListenerHealthIndicator;
+import org.springframework.cloud.aws.actuate.health.SqsHealthIndicator;
 import org.springframework.cloud.aws.messaging.config.annotation.EnableSns;
 import org.springframework.cloud.aws.messaging.config.annotation.EnableSqs;
 import org.springframework.cloud.aws.messaging.listener.SimpleMessageListenerContainer;
@@ -37,7 +37,7 @@ import org.springframework.context.annotation.Configuration;
  * <ul>
  * <li>all beans registered with {@link EnableSqs} if there
  * is no other bean of type {@link SimpleMessageListenerContainer} in the context.</li>
- * <li>{@link SqsListenerHealthIndicator} instance if Spring Cloud AWS Actuator is on the classpath
+ * <li>{@link SqsHealthIndicator} instance if Spring Cloud AWS Actuator is on the classpath
  * and there is no other bean of the same type in the context.</li>
  * <li>all beans registered with {@link EnableSns} if there
  * is {@link com.amazonaws.services.sns.AmazonSNS AmazonSNS} on the classpath</li>
@@ -59,14 +59,14 @@ public class MessagingAutoConfiguration {
     }
 
 
-    @ConditionalOnMissingBean(SqsListenerHealthIndicator.class)
+    @ConditionalOnMissingBean(SqsHealthIndicator.class)
     @ConditionalOnClass(name = "org.springframework.boot.actuate.health.HealthIndicator")
     @Configuration
     public static class SqsHealthAutoConfiguration {
 
         @Bean
-        SqsListenerHealthIndicator sqsListenerHealthIndicator(SimpleMessageListenerContainer container, AmazonSQS amazonSQS) {
-            return new SqsListenerHealthIndicator(container, amazonSQS);
+        SqsHealthIndicator sqsHealthIndicator(SimpleMessageListenerContainer container, AmazonSQS amazonSQS) {
+            return new SqsHealthIndicator(container, amazonSQS);
         }
     }
 

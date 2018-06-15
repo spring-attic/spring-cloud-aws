@@ -37,14 +37,14 @@ import org.springframework.util.Assert;
  * @author Maciej Walkowiak
  * @since 2.0
  */
-public class SqsListenerHealthIndicator extends AbstractHealthIndicator {
+public class SqsHealthIndicator extends AbstractHealthIndicator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SqsListenerHealthIndicator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SqsHealthIndicator.class);
 
     private final SimpleMessageListenerContainer simpleMessageListenerContainer;
     private final AmazonSQS amazonSQS;
 
-    public SqsListenerHealthIndicator(SimpleMessageListenerContainer simpleMessageListenerContainer, AmazonSQS amazonSQS) {
+    public SqsHealthIndicator(SimpleMessageListenerContainer simpleMessageListenerContainer, AmazonSQS amazonSQS) {
         Assert.notNull(simpleMessageListenerContainer, "SimpleMessageListenerContainer must not be null");
         Assert.notNull(amazonSQS, "AmazonSQS must not be null");
         this.simpleMessageListenerContainer = simpleMessageListenerContainer;
@@ -79,7 +79,7 @@ public class SqsListenerHealthIndicator extends AbstractHealthIndicator {
      */
     private boolean isQueueReachable(String queueName) {
         try {
-            amazonSQS.getQueueUrl(queueName);
+            this.amazonSQS.getQueueUrl(queueName);
             return true;
         } catch (QueueDoesNotExistException e) {
             LOGGER.warn("Queue '{}' does not exist", queueName);
