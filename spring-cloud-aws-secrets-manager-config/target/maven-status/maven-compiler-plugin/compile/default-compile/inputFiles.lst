@@ -1,0 +1,3 @@
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-secrets-manager-config/src/main/java/org/springframework/cloud/aws/secretsmanager/AwsSecretsManagerPropertySourceLocator.java
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-secrets-manager-config/src/main/java/org/springframework/cloud/aws/secretsmanager/AwsSecretsManagerProperties.java
+/opt/jenkins/data/workspace/spring-cloud-aws-master-ci/spring-cloud-aws-secrets-manager-config/src/main/java/org/springframework/cloud/aws/secretsmanager/AwsSecretsManagerPropertySource.java

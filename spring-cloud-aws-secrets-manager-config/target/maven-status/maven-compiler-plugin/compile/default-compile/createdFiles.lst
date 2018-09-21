@@ -1,0 +1,5 @@
+org/springframework/cloud/aws/secretsmanager/AwsSecretsManagerPropertySource$1.class
+META-INF/spring-configuration-metadata.json
+org/springframework/cloud/aws/secretsmanager/AwsSecretsManagerPropertySourceLocator.class
+org/springframework/cloud/aws/secretsmanager/AwsSecretsManagerPropertySource.class
+org/springframework/cloud/aws/secretsmanager/AwsSecretsManagerProperties.class
