@@ -39,7 +39,7 @@ import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement
  * param value: with the AWS Parameter Store that wouldn't make sense, given the maximum size limit of 4096 characters
  * for a parameter value.
  *
- * @author Joris Kuipers
+ * @author Joris
  * @since 2.0.0
  */
 public class AwsParamStorePropertySourceLocator implements PropertySourceLocator {
@@ -67,7 +67,7 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 
         ConfigurableEnvironment env = (ConfigurableEnvironment) environment;
 
-        String appName = properties.getName();
+        String appName = getProperty(env, "aws.paramstore.name", properties.getName());
 
         if (appName == null) {
             appName = env.getProperty("spring.application.name");
@@ -75,15 +75,17 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 
         List<String> profiles = Arrays.asList(env.getActiveProfiles());
 
-        String prefix = this.properties.getPrefix();
+        String prefix = getProperty(env, "aws.paramstore.prefix", this.properties.getPrefix());
 
-        String defaultContext = prefix + "/" + this.properties.getDefaultContext();
+        String defaultContext = prefix + "/" + getProperty(env,"aws.paramstore.defaultContext", this.properties.getDefaultContext());
         this.contexts.add(defaultContext + "/");
-        addProfiles(this.contexts, defaultContext, profiles);
+
+        String profileSeparator = getProperty(env, "aws.paramstore.profileSeparator", this.properties.getProfileSeparator());
+        addProfiles(this.contexts, defaultContext, profileSeparator, profiles);
 
         String baseContext = prefix + "/" + appName;
         this.contexts.add(baseContext + "/");
-        addProfiles(this.contexts, baseContext, profiles);
+        addProfiles(this.contexts, baseContext, profileSeparator, profiles);
 
         Collections.reverse(this.contexts);
 
@@ -106,15 +108,23 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
         return composite;
     }
 
+    private String getProperty(Environment env, String propertyName, String defaultValue){
+        String value = env.getProperty(propertyName);
+        if(value == null){
+            return defaultValue;
+        }
+        return value;
+    }
+
     private AwsParamStorePropertySource create(String context) {
         AwsParamStorePropertySource propertySource = new AwsParamStorePropertySource(context, this.ssmClient);
         propertySource.init();
         return propertySource;
     }
 
-    private void addProfiles(List<String> contexts, String baseContext, List<String> profiles) {
+    private void addProfiles(List<String> contexts, String baseContext, String pathSeparator, List<String> profiles) {
         for (String profile : profiles) {
-            contexts.add(baseContext + this.properties.getProfileSeparator() + profile + "/");
+            contexts.add(baseContext + pathSeparator + profile + "/");
         }
     }
 
