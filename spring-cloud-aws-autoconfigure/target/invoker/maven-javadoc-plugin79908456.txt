@@ -1,0 +1,26 @@
+Invoking Maven for the goals: [org.apache.maven.plugins:maven-javadoc-plugin:2.10.4:javadoc] with no properties
+
+M2_HOME=/home/jenkins/.m2/wrapper/dists/apache-maven-3.5.0-bin/6ps54u5pnnbbpr6ds9rppcc7iv/apache-maven-3.5.0
+MAVEN_OPTS=null
+JAVA_HOME=/opt/jenkins/data/tools/hudson.model.JDK/jdk8/jdk1.8.0_161/jre/..
+JAVA_OPTS=null
+
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Spring Cloud AWS Actuator 2.0.2.BUILD-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] >>> maven-javadoc-plugin:2.10.4:javadoc (default-cli) > generate-sources @ spring-cloud-aws-actuator >>>
+[INFO] 
+[INFO] <<< maven-javadoc-plugin:2.10.4:javadoc (default-cli) < generate-sources @ spring-cloud-aws-actuator <<<
+[INFO] 
+[INFO] 
+[INFO] --- maven-javadoc-plugin:2.10.4:javadoc (default-cli) @ spring-cloud-aws-actuator ---
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 1.718 s
+[INFO] Finished at: 2018-09-28T19:03:04Z
+[INFO] Final Memory: 25M/323M
+[INFO] ------------------------------------------------------------------------
