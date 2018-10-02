@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"org.springframework.cloud.aws.secretsmanager"}]

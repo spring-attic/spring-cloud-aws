@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"org.springframework.cloud.aws.autoconfigure.cache"},{"l":"org.springframework.cloud.aws.autoconfigure.context"},{"l":"org.springframework.cloud.aws.autoconfigure.jdbc"},{"l":"org.springframework.cloud.aws.autoconfigure.mail"},{"l":"org.springframework.cloud.aws.autoconfigure.messaging"},{"l":"org.springframework.cloud.aws.autoconfigure.metrics"}]

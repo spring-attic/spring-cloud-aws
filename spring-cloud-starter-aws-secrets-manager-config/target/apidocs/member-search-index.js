@@ -1,0 +1,1 @@
+memberSearchIndex = [{"p":"org.springframework.cloud.aws.autoconfigure.secretsmanager","c":"AwsSecretsManagerBootstrapConfiguration","l":"AwsSecretsManagerBootstrapConfiguration()"}]

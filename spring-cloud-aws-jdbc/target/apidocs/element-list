@@ -1,0 +1,6 @@
+org.springframework.cloud.aws.jdbc.config.annotation
+org.springframework.cloud.aws.jdbc.config.xml
+org.springframework.cloud.aws.jdbc.datasource
+org.springframework.cloud.aws.jdbc.datasource.support
+org.springframework.cloud.aws.jdbc.rds
+org.springframework.cloud.aws.jdbc.retry

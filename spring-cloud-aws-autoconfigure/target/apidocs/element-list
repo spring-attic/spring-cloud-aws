@@ -1,0 +1,6 @@
+org.springframework.cloud.aws.autoconfigure.cache
+org.springframework.cloud.aws.autoconfigure.context
+org.springframework.cloud.aws.autoconfigure.jdbc
+org.springframework.cloud.aws.autoconfigure.mail
+org.springframework.cloud.aws.autoconfigure.messaging
+org.springframework.cloud.aws.autoconfigure.metrics

@@ -1,0 +1,1 @@
+typeSearchIndex = [{"p":"org.springframework.cloud.aws.autoconfigure.paramstore","l":"AwsParamStoreBootstrapConfiguration"}]
