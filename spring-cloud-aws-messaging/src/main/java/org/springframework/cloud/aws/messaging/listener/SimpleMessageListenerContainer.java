@@ -28,9 +28,9 @@ import org.springframework.util.ClassUtils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -183,8 +183,16 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
         if (spinningThreads > 0) {
             threadPoolTaskExecutor.setCorePoolSize(spinningThreads * DEFAULT_WORKER_THREADS);
 
-            int maxNumberOfMessagePerBatch = getMaxNumberOfMessages() != null ? getMaxNumberOfMessages() : DEFAULT_WORKER_THREADS;
-            threadPoolTaskExecutor.setMaxPoolSize(spinningThreads * (maxNumberOfMessagePerBatch + 1));
+            int maxPoolSize = 0;
+            for (QueueAttributes queueAttributes : this.getRegisteredQueues().values()) {
+                int queueMaxNumberOfMessages = queueAttributes.getMaxNumberOfMessages();
+                // Each queue needs 1 polling thread plus n handler threads
+                // where n is determined by the queue concurrency or batch size
+                maxPoolSize += 1 + (queueAttributes.getMaxConcurrency() != null
+                                    ? queueAttributes.getMaxConcurrency()
+                                    : queueMaxNumberOfMessages);
+            }
+            threadPoolTaskExecutor.setMaxPoolSize(maxPoolSize);
         }
 
         // No use of a thread pool executor queue to avoid retaining message to long in memory
@@ -276,22 +284,40 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 
         @Override
         public void run() {
+            final int maxMessages = queueAttributes.getMaxNumberOfMessages();
+            final int maxConcurrency = queueAttributes.getMaxConcurrency() != null ? queueAttributes.getMaxConcurrency() : maxMessages;
+            // Semaphore used to limit the number of messages being handled concurrently.
+            final Semaphore semaphore = new Semaphore(maxConcurrency);
             while (isQueueRunning()) {
+                // How many semaphore permits this thread currently holds.
+                int currentPermits = 0;
                 try {
+                    // Wait for sufficient threads available before requesting
+                    // additional messages.
+                    currentPermits += acquirePermits(semaphore, Math.min(maxConcurrency, maxMessages));
+                    if (!isQueueRunning()) {
+                        break;
+                    }
+
                     ReceiveMessageResult receiveMessageResult = getAmazonSqs().receiveMessage(this.queueAttributes.getReceiveMessageRequest());
-                    CountDownLatch messageBatchLatch = new CountDownLatch(receiveMessageResult.getMessages().size());
                     for (Message message : receiveMessageResult.getMessages()) {
+                        // If maxConcurrency < maxMessages we might have more
+                        // messages than threads available. In that case we
+                        // wait to acquire a worker thread permit before
+                        // submitting each message to the task executor.
+                        if (currentPermits == 0) {
+                            currentPermits += acquirePermits(semaphore, 1);
+                        }
                         if (isQueueRunning()) {
                             MessageExecutor messageExecutor = new MessageExecutor(this.logicalQueueName, message, this.queueAttributes);
-                            getTaskExecutor().execute(new SignalExecutingRunnable(messageBatchLatch, messageExecutor));
-                        } else {
-                            messageBatchLatch.countDown();
+                            getTaskExecutor().execute(new SignalExecutingRunnable(semaphore, messageExecutor));
+                            if (currentPermits > 0) {
+                                // After submitting the task to the executor, it's
+                                // the SignalExecutingRunnable's job to release the
+                                // permit, so we can decrement 
+                                currentPermits -= 1;
+                            }
                         }
-                    }
-                    try {
-                        messageBatchLatch.await();
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
                     }
                 } catch (Exception e) {
                     getLogger().warn("An Exception occurred while polling queue '{}'. The failing operation will be " +
@@ -302,8 +328,13 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
                     } catch (InterruptedException ie) {
                         Thread.currentThread().interrupt();
                     }
+                } finally {
+                    semaphore.release(currentPermits);
                 }
             }
+
+            // Wait for all tasks to complete before terminating
+            acquirePermits(semaphore, maxConcurrency);
 
             SimpleMessageListenerContainer.this.scheduledFutureByQueue.remove(this.logicalQueueName);
         }
@@ -314,6 +345,16 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
             } else {
                 getLogger().warn("Stopped queue '" + this.logicalQueueName + "' because it was not listed as running queue.");
                 return false;
+            }
+        }
+
+        private int acquirePermits(Semaphore semaphore, int permits) {
+            try {
+                semaphore.acquire(permits);
+                return permits;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return 0;
             }
         }
     }
@@ -383,11 +424,11 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 
     private static class SignalExecutingRunnable implements Runnable {
 
-        private final CountDownLatch countDownLatch;
+        private final Semaphore semaphore;
         private final Runnable runnable;
 
-        private SignalExecutingRunnable(CountDownLatch endSignal, Runnable runnable) {
-            this.countDownLatch = endSignal;
+        private SignalExecutingRunnable(Semaphore semaphore, Runnable runnable) {
+            this.semaphore = semaphore;
             this.runnable = runnable;
         }
 
@@ -396,7 +437,7 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
             try {
                 this.runnable.run();
             } finally {
-                this.countDownLatch.countDown();
+                this.semaphore.release();
             }
         }
     }

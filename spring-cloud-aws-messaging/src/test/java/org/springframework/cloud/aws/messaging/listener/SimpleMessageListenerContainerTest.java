@@ -133,7 +133,7 @@ public class SimpleMessageListenerContainerTest {
 
         Map<QueueMessageHandler.MappingInformation, HandlerMethod> messageHandlerMethods = Collections.singletonMap(
                 new QueueMessageHandler.MappingInformation(Collections.singleton("testQueue"),
-                        SqsMessageDeletionPolicy.ALWAYS), null);
+                        SqsMessageDeletionPolicy.ALWAYS, null), null);
 
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 
@@ -151,6 +151,37 @@ public class SimpleMessageListenerContainerTest {
         container.afterPropertiesSet();
 
         int expectedPoolMaxSize = messageHandlerMethods.size() * (testedMaxNumberOfMessages + 1);
+
+        ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) container.getTaskExecutor();
+        assertNotNull(taskExecutor);
+        assertEquals(expectedPoolMaxSize, taskExecutor.getMaxPoolSize());
+    }
+
+    @Test
+    public void testWithDefaultTaskExecutorAndOneHandlerMaxConcurrency() throws Exception {
+        final int testedMaxNumberOfMessages = 10;
+        final int testedMaxConcurrency = 15;
+
+        Map<QueueMessageHandler.MappingInformation, HandlerMethod> messageHandlerMethods = Collections.singletonMap(
+                new QueueMessageHandler.MappingInformation(Collections.singleton("testQueue"),
+                        SqsMessageDeletionPolicy.ALWAYS, testedMaxConcurrency), null);
+
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+
+        QueueMessageHandler mockedHandler = mock(QueueMessageHandler.class);
+        AmazonSQSAsync mockedSqs = mock(AmazonSQSAsync.class, withSettings().stubOnly());
+
+        when(mockedSqs.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(new GetQueueAttributesResult());
+        when(mockedSqs.getQueueUrl(any(GetQueueUrlRequest.class))).thenReturn(new GetQueueUrlResult().withQueueUrl("testQueueUrl"));
+        when(mockedHandler.getHandlerMethods()).thenReturn(messageHandlerMethods);
+
+        container.setMaxNumberOfMessages(testedMaxNumberOfMessages);
+        container.setAmazonSqs(mockedSqs);
+        container.setMessageHandler(mockedHandler);
+
+        container.afterPropertiesSet();
+
+        int expectedPoolMaxSize = messageHandlerMethods.size() * (testedMaxConcurrency + 1);
 
         ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) container.getTaskExecutor();
         assertNotNull(taskExecutor);
@@ -801,6 +832,95 @@ public class SimpleMessageListenerContainerTest {
     }
 
     @Test
+    public void testReceiveMessageMaxConcurrencyLessThanMaxNumberOfMessages() throws Exception {
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+        int maxNumberOfMessages = 2;
+        container.setMaxNumberOfMessages(maxNumberOfMessages);
+
+        AmazonSQSAsync sqs = mock(AmazonSQSAsync.class, withSettings().stubOnly());
+        container.setAmazonSqs(sqs);
+
+        QueueMessageHandler messageHandler = new QueueMessageHandler();
+        container.setMessageHandler(messageHandler);
+        StaticApplicationContext applicationContext = new StaticApplicationContext();
+        applicationContext.registerSingleton("testMessageListener", TestListenerLowMaxConcurrency.class);
+        messageHandler.setApplicationContext(applicationContext);
+        container.setBeanName("testContainerName");
+        messageHandler.afterPropertiesSet();
+
+        String queueUrl = "http://lowMaxConcurrency.amazonaws.com";
+        mockGetQueueUrl(sqs, "lowMaxConcurrency", queueUrl);
+        mockGetQueueAttributesWithEmptyResult(sqs, queueUrl);
+
+        container.afterPropertiesSet();
+
+        when(sqs.receiveMessage(new ReceiveMessageRequest(queueUrl).withAttributeNames("All")
+                .withMessageAttributeNames("All")
+                .withMaxNumberOfMessages(maxNumberOfMessages)
+                .withWaitTimeSeconds(20)))
+                .thenReturn(new ReceiveMessageResult().withMessages(new Message().withBody("message1-1"),
+                        new Message().withBody("message1-2")))
+                .thenReturn(new ReceiveMessageResult());
+        when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(new GetQueueAttributesResult());
+
+        container.start();
+
+        final TestListenerLowMaxConcurrency listener = applicationContext.getBean(TestListenerLowMaxConcurrency.class);
+        assertTrue(listener.getCountDownLatch().await(1, TimeUnit.SECONDS));
+
+        container.stop();
+
+        // Verify that the messages were processed one at a time
+        assertEquals(1, listener.getObservedMaxConcurrency());
+    }
+
+    @Test
+    public void testReceiveMessageMaxConcurrencyMoreThanMaxNumberOfMessages() throws Exception {
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+        int maxNumberOfMessages = 2;
+        container.setMaxNumberOfMessages(maxNumberOfMessages);
+
+        AmazonSQSAsync sqs = mock(AmazonSQSAsync.class, withSettings().stubOnly());
+        container.setAmazonSqs(sqs);
+
+        QueueMessageHandler messageHandler = new QueueMessageHandler();
+        container.setMessageHandler(messageHandler);
+        StaticApplicationContext applicationContext = new StaticApplicationContext();
+        applicationContext.registerSingleton("testMessageListener", TestListenerHighMaxConcurrency.class);
+        messageHandler.setApplicationContext(applicationContext);
+        container.setBeanName("testContainerName");
+        messageHandler.afterPropertiesSet();
+
+        String queueUrl = "http://highMaxConcurrency.amazonaws.com";
+        mockGetQueueUrl(sqs, "highMaxConcurrency", queueUrl);
+        mockGetQueueAttributesWithEmptyResult(sqs, queueUrl);
+
+        container.afterPropertiesSet();
+
+        when(sqs.receiveMessage(new ReceiveMessageRequest(queueUrl).withAttributeNames("All")
+                .withMessageAttributeNames("All")
+                .withMaxNumberOfMessages(maxNumberOfMessages)
+                .withWaitTimeSeconds(20)))
+                .thenReturn(new ReceiveMessageResult().withMessages(new Message().withBody("message1-1"),
+                        new Message().withBody("message1-2")))
+                .thenReturn(new ReceiveMessageResult().withMessages(new Message().withBody("message2-1"),
+                        new Message().withBody("message2-2")))
+                .thenReturn(new ReceiveMessageResult().withMessages(new Message().withBody("message3-1")))
+                .thenReturn(new ReceiveMessageResult());
+        when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(new GetQueueAttributesResult());
+
+        container.start();
+
+        final TestListenerHighMaxConcurrency listener = applicationContext.getBean(TestListenerHighMaxConcurrency.class);
+        assertTrue(listener.getCountDownLatch().await(1, TimeUnit.SECONDS));
+
+        container.stop();
+
+        // Verify that 4 messages (i.e. 2 batches) were processed at once
+        assertEquals(4, listener.getObservedMaxConcurrency());
+    }
+
+    @Test
     public void stop_withALogicalQueueName_mustStopOnlyTheSpecifiedQueue() throws Exception {
         // Arrange
         StaticApplicationContext applicationContext = new StaticApplicationContext();
@@ -1364,4 +1484,69 @@ public class SimpleMessageListenerContainerTest {
         }
     }
 
+    private static class MaxConcurrencyMetric {
+        private int concurrency;
+        private int maxConcurrency;
+
+        public synchronized void enter() {
+            concurrency++;
+            maxConcurrency = Math.max(concurrency, maxConcurrency);
+        }
+
+        public synchronized void exit() {
+            concurrency--;
+        }
+
+        public synchronized int getMaxConcurrency() {
+            return maxConcurrency;
+        }
+    }
+
+    private static class TestListenerLowMaxConcurrency {
+
+        private final CountDownLatch countDownLatch = new CountDownLatch(2);
+
+        private final MaxConcurrencyMetric maxConcurrencyMetric = new MaxConcurrencyMetric();
+
+        @RuntimeUse
+        @SqsListener(value = "lowMaxConcurrency", maxConcurrency = 1)
+        private void handleMessage(String message) throws InterruptedException {
+            maxConcurrencyMetric.enter();
+            Thread.sleep(200);
+            maxConcurrencyMetric.exit();
+            this.countDownLatch.countDown();
+        }
+
+        public CountDownLatch getCountDownLatch() {
+            return countDownLatch;
+        }
+
+        public int getObservedMaxConcurrency() {
+            return maxConcurrencyMetric.getMaxConcurrency();
+        }
+    }
+
+    private static class TestListenerHighMaxConcurrency {
+
+        private final CountDownLatch countDownLatch = new CountDownLatch(5);
+
+        private final MaxConcurrencyMetric maxConcurrencyMetric = new MaxConcurrencyMetric();
+
+        @RuntimeUse
+        @SqsListener(value = "highMaxConcurrency", maxConcurrency = 4)
+        private void handleMessage(String message) throws InterruptedException {
+            maxConcurrencyMetric.enter();
+            Thread.sleep(200);
+            maxConcurrencyMetric.exit();
+            this.countDownLatch.countDown();
+        }
+
+        public CountDownLatch getCountDownLatch() {
+            return countDownLatch;
+        }
+
+        public int getObservedMaxConcurrency() {
+            return maxConcurrencyMetric.getMaxConcurrency();
+        }
+    }
 }

@@ -115,12 +115,17 @@ public class QueueMessageHandler extends AbstractMethodMessageHandler<QueueMessa
                 this.logger.warn("Listener method '" + method.getName() + "' in type '" + method.getDeclaringClass().getName() +
                         "' has deletion policy 'NEVER' but does not have a parameter of type Acknowledgment.");
             }
-            return new MappingInformation(resolveDestinationNames(sqsListenerAnnotation.value()), sqsListenerAnnotation.deletionPolicy());
+            Integer maxConcurrency = sqsListenerAnnotation.maxConcurrency() > 0 ? sqsListenerAnnotation.maxConcurrency() : null;
+            return new MappingInformation(resolveDestinationNames(sqsListenerAnnotation.value()),
+                                          sqsListenerAnnotation.deletionPolicy(),
+                                          maxConcurrency);
         }
 
         MessageMapping messageMappingAnnotation = AnnotationUtils.findAnnotation(method, MessageMapping.class);
         if (messageMappingAnnotation != null && messageMappingAnnotation.value().length > 0) {
-            return new MappingInformation(resolveDestinationNames(messageMappingAnnotation.value()), SqsMessageDeletionPolicy.ALWAYS);
+            return new MappingInformation(resolveDestinationNames(messageMappingAnnotation.value()),
+                                          SqsMessageDeletionPolicy.ALWAYS,
+                                          null);  // maxConcurrency
         }
 
         return null;
@@ -233,9 +238,14 @@ public class QueueMessageHandler extends AbstractMethodMessageHandler<QueueMessa
 
         private final SqsMessageDeletionPolicy deletionPolicy;
 
-        public MappingInformation(Set<String> logicalResourceIds, SqsMessageDeletionPolicy deletionPolicy) {
+        private final Integer maxConcurrency;
+
+        public MappingInformation(Set<String> logicalResourceIds,
+                                  SqsMessageDeletionPolicy deletionPolicy,
+                                  Integer maxConcurrency) {
             this.logicalResourceIds = Collections.unmodifiableSet(logicalResourceIds);
             this.deletionPolicy = deletionPolicy;
+            this.maxConcurrency = maxConcurrency;
         }
 
         public Set<String> getLogicalResourceIds() {
@@ -244,6 +254,10 @@ public class QueueMessageHandler extends AbstractMethodMessageHandler<QueueMessa
 
         public SqsMessageDeletionPolicy getDeletionPolicy() {
             return this.deletionPolicy;
+        }
+
+        public Integer getMaxConcurrency() {
+           return this.maxConcurrency;
         }
 
         @SuppressWarnings("NullableProblems")

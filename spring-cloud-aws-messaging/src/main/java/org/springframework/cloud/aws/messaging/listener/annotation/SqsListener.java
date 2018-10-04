@@ -75,4 +75,9 @@ public @interface SqsListener {
      */
     SqsMessageDeletionPolicy deletionPolicy() default SqsMessageDeletionPolicy.NO_REDRIVE;
 
+    /**
+     * Defines the maximum number of messages to process concurrently.
+     */
+    int maxConcurrency() default 0;
+
 }

@@ -273,7 +273,7 @@ abstract class AbstractMessageListenerContainer implements InitializingBean, Dis
 
             for (QueueMessageHandler.MappingInformation mappingInformation : this.messageHandler.getHandlerMethods().keySet()) {
                 for (String queue : mappingInformation.getLogicalResourceIds()) {
-                    QueueAttributes queueAttributes = queueAttributes(queue, mappingInformation.getDeletionPolicy());
+                    QueueAttributes queueAttributes = queueAttributes(queue, mappingInformation.getDeletionPolicy(), mappingInformation.getMaxConcurrency());
 
                     if (queueAttributes != null) {
                         this.registeredQueues.put(queue, queueAttributes);
@@ -296,7 +296,7 @@ abstract class AbstractMessageListenerContainer implements InitializingBean, Dis
         doStart();
     }
 
-    private QueueAttributes queueAttributes(String queue, SqsMessageDeletionPolicy deletionPolicy) {
+    private QueueAttributes queueAttributes(String queue, SqsMessageDeletionPolicy deletionPolicy, Integer maxConcurrency) {
         String destinationUrl;
         try {
             destinationUrl = getDestinationResolver().resolveDestination(queue);
@@ -313,7 +313,8 @@ abstract class AbstractMessageListenerContainer implements InitializingBean, Dis
                 .withAttributeNames(QueueAttributeName.RedrivePolicy));
         boolean hasRedrivePolicy = queueAttributes.getAttributes().containsKey(QueueAttributeName.RedrivePolicy.toString());
 
-        return new QueueAttributes(hasRedrivePolicy, deletionPolicy, destinationUrl, getMaxNumberOfMessages(), getVisibilityTimeout(), getWaitTimeOut());
+        return new QueueAttributes(hasRedrivePolicy, deletionPolicy, maxConcurrency, destinationUrl,
+                                   getMaxNumberOfMessages(), getVisibilityTimeout(), getWaitTimeOut());
     }
 
     @Override
@@ -354,15 +355,17 @@ abstract class AbstractMessageListenerContainer implements InitializingBean, Dis
 
         private final boolean hasRedrivePolicy;
         private final SqsMessageDeletionPolicy deletionPolicy;
+        private final Integer maxConcurrency;
         private final String destinationUrl;
         private final Integer maxNumberOfMessages;
         private final Integer visibilityTimeout;
         private final Integer waitTimeOut;
 
-        public QueueAttributes(boolean hasRedrivePolicy, SqsMessageDeletionPolicy deletionPolicy, String destinationUrl,
-                               Integer maxNumberOfMessages, Integer visibilityTimeout, Integer waitTimeOut) {
+        public QueueAttributes(boolean hasRedrivePolicy, SqsMessageDeletionPolicy deletionPolicy, Integer maxConcurrency,
+                               String destinationUrl, Integer maxNumberOfMessages, Integer visibilityTimeout, Integer waitTimeOut) {
             this.hasRedrivePolicy = hasRedrivePolicy;
             this.deletionPolicy = deletionPolicy;
+            this.maxConcurrency = maxConcurrency;
             this.destinationUrl = destinationUrl;
             this.maxNumberOfMessages = maxNumberOfMessages;
             this.visibilityTimeout = visibilityTimeout;
@@ -376,13 +379,8 @@ abstract class AbstractMessageListenerContainer implements InitializingBean, Dis
         public ReceiveMessageRequest getReceiveMessageRequest() {
             ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(this.destinationUrl).
                     withAttributeNames(RECEIVING_ATTRIBUTES).
-                    withMessageAttributeNames(RECEIVING_MESSAGE_ATTRIBUTES);
-
-            if (this.maxNumberOfMessages != null) {
-                receiveMessageRequest.withMaxNumberOfMessages(this.maxNumberOfMessages);
-            } else {
-                receiveMessageRequest.withMaxNumberOfMessages(DEFAULT_MAX_NUMBER_OF_MESSAGES);
-            }
+                    withMessageAttributeNames(RECEIVING_MESSAGE_ATTRIBUTES).
+                    withMaxNumberOfMessages(getMaxNumberOfMessages());
 
             if (this.visibilityTimeout != null) {
                 receiveMessageRequest.withVisibilityTimeout(this.visibilityTimeout);
@@ -397,6 +395,14 @@ abstract class AbstractMessageListenerContainer implements InitializingBean, Dis
 
         public SqsMessageDeletionPolicy getDeletionPolicy() {
             return this.deletionPolicy;
+        }
+
+        public Integer getMaxConcurrency() {
+            return this.maxConcurrency;
+        }
+
+        public int getMaxNumberOfMessages() {
+            return this.maxNumberOfMessages != null ? this.maxNumberOfMessages : DEFAULT_MAX_NUMBER_OF_MESSAGES;
         }
     }
 }
