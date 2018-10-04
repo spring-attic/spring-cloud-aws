@@ -310,12 +310,18 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
                         }
                         if (isQueueRunning()) {
                             MessageExecutor messageExecutor = new MessageExecutor(this.logicalQueueName, message, this.queueAttributes);
-                            getTaskExecutor().execute(new SignalExecutingRunnable(semaphore, messageExecutor));
                             if (currentPermits > 0) {
-                                // After submitting the task to the executor, it's
-                                // the SignalExecutingRunnable's job to release the
-                                // permit, so we can decrement 
+                                getTaskExecutor().execute(new SignalExecutingRunnable(semaphore, messageExecutor));
+                                // After submitting the task to the executor,
+                                // it's the SignalExecutingRunnable's job to
+                                // release the permit, so we can decrement our
+                                // permit count for this thread.
                                 currentPermits -= 1;
+                            } else {
+                                // We failed to acquire a permit due to being interrupted.
+                                // Don't use a SignalExecutingRunnable since the worker
+                                // should not release an extra permit.
+                                getTaskExecutor().execute(messageExecutor);
                             }
                         }
                     }
