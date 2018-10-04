@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -311,17 +312,18 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
                         if (isQueueRunning()) {
                             MessageExecutor messageExecutor = new MessageExecutor(this.logicalQueueName, message, this.queueAttributes);
                             if (currentPermits > 0) {
-                                getTaskExecutor().execute(new SignalExecutingRunnable(semaphore, messageExecutor));
-                                // After submitting the task to the executor,
+                                executeTask(new SignalExecutingRunnable(semaphore, messageExecutor));
+                                // After the task is submitted to the executor,
                                 // it's the SignalExecutingRunnable's job to
                                 // release the permit, so we can decrement our
                                 // permit count for this thread.
                                 currentPermits -= 1;
                             } else {
-                                // We failed to acquire a permit due to being interrupted.
-                                // Don't use a SignalExecutingRunnable since the worker
-                                // should not release an extra permit.
-                                getTaskExecutor().execute(messageExecutor);
+                                // We failed to acquire a permit due to being
+                                // interrupted. We don't want the worker to
+                                // release a permit that wasn't acquired, so
+                                // don't use SignalExecutingRunnable.
+                                executeTask(messageExecutor);
                             }
                         }
                     }
@@ -362,6 +364,28 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
                 Thread.currentThread().interrupt();
                 return 0;
             }
+        }
+
+        private void executeTask(Runnable runnable) {
+            // There is a potential race condition between the time when the
+            // semaphore is released by the SignalExecutingRunnable, and the
+            // time when the thread pool thread actually becomes available to
+            // accept another task.
+            //
+            // As a workaround, we retry a single time after a
+            // RejectedExecutionException.
+            try {
+                getTaskExecutor().execute(runnable);
+                return;
+            } catch (RejectedExecutionException e) {
+                // Sleep for a moment and try again
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            getTaskExecutor().execute(runnable);
         }
     }
 
