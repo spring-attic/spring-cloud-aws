@@ -44,7 +44,6 @@ import static org.springframework.cloud.aws.messaging.core.QueueMessageUtils.cre
  */
 public class SimpleMessageListenerContainer extends AbstractMessageListenerContainer {
 
-    private static final int DEFAULT_WORKER_THREADS = 2;
     private static final String DEFAULT_THREAD_NAME_PREFIX =
             ClassUtils.getShortName(SimpleMessageListenerContainer.class) + "-";
 
@@ -182,22 +181,28 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
         int spinningThreads = this.getRegisteredQueues().size();
 
         if (spinningThreads > 0) {
-            threadPoolTaskExecutor.setCorePoolSize(spinningThreads * DEFAULT_WORKER_THREADS);
-
-            int maxPoolSize = 0;
+            int poolSize = 0;
+            int bufferSize = 0;
             for (QueueAttributes queueAttributes : this.getRegisteredQueues().values()) {
                 int queueMaxNumberOfMessages = queueAttributes.getMaxNumberOfMessages();
                 // Each queue needs 1 polling thread plus n handler threads
                 // where n is determined by the queue concurrency or batch size
-                maxPoolSize += 1 + (queueAttributes.getMaxConcurrency() != null
-                                    ? queueAttributes.getMaxConcurrency()
-                                    : queueMaxNumberOfMessages);
+                poolSize += 1 + (queueAttributes.getMaxConcurrency() != null
+                                 ? queueAttributes.getMaxConcurrency()
+                                 : queueMaxNumberOfMessages);
+                bufferSize += queueMaxNumberOfMessages;
             }
-            threadPoolTaskExecutor.setMaxPoolSize(maxPoolSize);
+            threadPoolTaskExecutor.setCorePoolSize(poolSize);
+            threadPoolTaskExecutor.setMaxPoolSize(poolSize);
+            // Ideally we would like to set the queue capacity to 0 to avoid
+            // messages waiting too long in memory, but due to a race condition
+            // we may encounter a transitional state where a task finishes
+            // executing but the thread is not ready to accept a new task for a
+            // few milliseconds, resulting in rejected task exceptions. To
+            // prevent this issue we allow a small amount of buffering.
+            threadPoolTaskExecutor.setQueueCapacity(bufferSize);
+            threadPoolTaskExecutor.setAllowCoreThreadTimeOut(true);
         }
-
-        // No use of a thread pool executor queue to avoid retaining message to long in memory
-        threadPoolTaskExecutor.setQueueCapacity(0);
         threadPoolTaskExecutor.afterPropertiesSet();
 
         return threadPoolTaskExecutor;
@@ -312,7 +317,7 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
                         if (isQueueRunning()) {
                             MessageExecutor messageExecutor = new MessageExecutor(this.logicalQueueName, message, this.queueAttributes);
                             if (currentPermits > 0) {
-                                executeTask(new SignalExecutingRunnable(semaphore, messageExecutor));
+                                getTaskExecutor().execute(new SignalExecutingRunnable(semaphore, messageExecutor));
                                 // After the task is submitted to the executor,
                                 // it's the SignalExecutingRunnable's job to
                                 // release the permit, so we can decrement our
@@ -323,7 +328,7 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
                                 // interrupted. We don't want the worker to
                                 // release a permit that wasn't acquired, so
                                 // don't use SignalExecutingRunnable.
-                                executeTask(messageExecutor);
+                                getTaskExecutor().execute(messageExecutor);
                             }
                         }
                     }
@@ -364,28 +369,6 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
                 Thread.currentThread().interrupt();
                 return 0;
             }
-        }
-
-        private void executeTask(Runnable runnable) {
-            // There is a potential race condition between the time when the
-            // semaphore is released by the SignalExecutingRunnable, and the
-            // time when the thread pool thread actually becomes available to
-            // accept another task.
-            //
-            // As a workaround, we retry a single time after a
-            // RejectedExecutionException.
-            try {
-                getTaskExecutor().execute(runnable);
-                return;
-            } catch (RejectedExecutionException e) {
-                // Sleep for a moment and try again
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-            getTaskExecutor().execute(runnable);
         }
     }
 
