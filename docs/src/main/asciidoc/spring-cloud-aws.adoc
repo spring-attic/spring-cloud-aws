@@ -24,7 +24,7 @@ The Spring Cloud AWS module provides a module set so that application developers
 their needs for the particular services. The graphic below provides a general overview of all Spring Cloud AWS modules along
 with the service support for the respective Spring Cloud AWS services.
 
-image::overview.png[Overview]
+image::images/overview.png[Overview]
 
 * *Spring Cloud AWS Core* is the core module of Spring Cloud AWS providing basic services for security and configuration
 setup. Developers will not use this module directly but rather through other modules. The core module provides support for
@@ -427,7 +427,7 @@ expects the format `<key>:<value>;<key>:<value>` inside the user data so that it
 
 The user data can be configured using either the management console shown below or a http://aws.amazon.com/cloudformation/aws-cloudformation-templates/[CloudFormation template].
 
-image::cloud-environment-user-data.png[User data in the management console]
+image::images/cloud-environment-user-data.png[User data in the management console]
 
 
 A CloudFormation template snippet for the configuration of the user data is outlined below:
@@ -481,7 +481,7 @@ on instance startup.
 Instance specific tags can be configured on the instance level through the management console outlined below and
 like user data also with a CloudFormation template shown afterwards.
 
-image::cloud-environment-instance-tags.png[Instance data in the management console]
+image::images/cloud-environment-instance-tags.png[Instance data in the management console]
 
 A CloudFormation template snippet for the configuration of the instance tags is outlined below:
 
@@ -749,7 +749,7 @@ developers to work with logical names instead of the random physical ones.
 
 The next graphics shows a typical stack configuration.
 
-image::cloudformation-overview.png[CloudFormation overview]
+image::images/cloudformation-overview.png[CloudFormation overview]
 
 The *Template File* describes all stack resources with their _logical name_. The *CloudFormation* service parses the stack
 template file and creates all resources with their _physical name_. The application can use all the stack configured resources
@@ -1193,7 +1193,7 @@ interested clients may subscribe using different protocols like HTTP/HTTPS, e-ma
 
 The next graphic shows a typical example of an Amazon SNS architecture.
 
-image::sns-overview.png[SNS Overview]
+image::images/sns-overview.png[SNS Overview]
 
 Spring Cloud AWS supports Amazon SNS by providing support to send notifications with a `NotificationMessagingTemplate` and
 to receive notifications with the HTTP/HTTPS endpoint using the Spring Web MVC `@Controller` based programming model. Amazon
@@ -1860,7 +1860,7 @@ the broken connection will never be refreshed.
 The configuration above in combination with a transaction configuration will produce the following proxy configuration
 for the service.
 
-image::jdbc-retry-interceptor.png[Retry interceptor]
+image::images/jdbc-retry-interceptor.png[Retry interceptor]
 
 === CloudFormation support
 Spring Cloud AWS supports database instances that are configured with CloudFormation. Spring Cloud AWS can use the logical
