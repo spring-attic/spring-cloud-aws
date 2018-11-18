@@ -1,1 +1,0 @@
-typeSearchIndex = [{"p":"org.springframework.cloud.aws.autoconfigure.secretsmanager","l":"AwsSecretsManagerBootstrapConfiguration"}]

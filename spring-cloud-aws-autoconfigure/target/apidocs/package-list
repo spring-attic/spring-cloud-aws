@@ -1,6 +1,0 @@
-org.springframework.cloud.aws.autoconfigure.actuate
-org.springframework.cloud.aws.autoconfigure.cache
-org.springframework.cloud.aws.autoconfigure.context
-org.springframework.cloud.aws.autoconfigure.jdbc
-org.springframework.cloud.aws.autoconfigure.mail
-org.springframework.cloud.aws.autoconfigure.messaging

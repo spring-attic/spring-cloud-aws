@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"org.springframework.cloud.aws.autoconfigure.paramstore"}]

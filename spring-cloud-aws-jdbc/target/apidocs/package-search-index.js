@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"org.springframework.cloud.aws.jdbc.config.annotation"},{"l":"org.springframework.cloud.aws.jdbc.config.xml"},{"l":"org.springframework.cloud.aws.jdbc.datasource"},{"l":"org.springframework.cloud.aws.jdbc.datasource.support"},{"l":"org.springframework.cloud.aws.jdbc.rds"},{"l":"org.springframework.cloud.aws.jdbc.retry"}]

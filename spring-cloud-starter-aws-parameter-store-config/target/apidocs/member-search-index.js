@@ -1,1 +1,0 @@
-memberSearchIndex = [{"p":"org.springframework.cloud.aws.autoconfigure.paramstore","c":"AwsParamStoreBootstrapConfiguration","l":"AwsParamStoreBootstrapConfiguration()"}]

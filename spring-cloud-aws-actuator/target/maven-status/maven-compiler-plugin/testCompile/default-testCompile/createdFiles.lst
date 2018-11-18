@@ -1,2 +1,0 @@
-org/springframework/cloud/aws/actuate/metrics/CloudWatchMetricWriterTest.class
-org/springframework/cloud/aws/actuate/metrics/BufferingCloudWatchMetricSenderTest.class
