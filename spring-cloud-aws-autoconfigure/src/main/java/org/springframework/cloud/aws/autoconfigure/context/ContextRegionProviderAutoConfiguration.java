@@ -17,7 +17,10 @@
 package org.springframework.cloud.aws.autoconfigure.context;
 
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.aws.autoconfigure.context.properties.AwsRegionProperties;
 import org.springframework.context.EnvironmentAware;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
@@ -38,15 +41,28 @@ import static org.springframework.cloud.aws.context.config.support.ContextConfig
 @Import(ContextRegionProviderAutoConfiguration.Registrar.class)
 public class ContextRegionProviderAutoConfiguration {
 
+    private static final String AWS_REGION_PROPERTIES_PREFIX = "cloud.aws.region";
+
+    /**
+     * Bind AWS region related properties to a property instance.
+     *
+     * @return An {@link AwsRegionProperties} instance
+     */
+    @Bean
+    @ConfigurationProperties(prefix = AWS_REGION_PROPERTIES_PREFIX)
+    public AwsRegionProperties awsRegionProperties() {
+        return new AwsRegionProperties();
+    }
+
     static class Registrar implements EnvironmentAware, ImportBeanDefinitionRegistrar {
 
         private Environment environment;
 
         @Override
         public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-            registerRegionProvider(registry, this.environment.getProperty("cloud.aws.region.auto", Boolean.class, true) &&
-                            !StringUtils.hasText(this.environment.getProperty("cloud.aws.region.static")),
-                    this.environment.getProperty("cloud.aws.region.static"));
+            registerRegionProvider(registry, this.environment.getProperty(AWS_REGION_PROPERTIES_PREFIX + ".auto", Boolean.class, true) &&
+                            !StringUtils.hasText(this.environment.getProperty(AWS_REGION_PROPERTIES_PREFIX + ".static")),
+                    this.environment.getProperty(AWS_REGION_PROPERTIES_PREFIX + ".static"));
         }
 
         @Override
