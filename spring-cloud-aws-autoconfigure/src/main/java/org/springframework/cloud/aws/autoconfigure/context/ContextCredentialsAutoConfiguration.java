@@ -16,6 +16,10 @@
 
 package org.springframework.cloud.aws.autoconfigure.context;
 
+import static com.amazonaws.auth.profile.internal.AwsProfileNameLoader.DEFAULT_PROFILE_NAME;
+import static org.springframework.cloud.aws.context.config.support.ContextConfigurationUtils.registerCredentialsProvider;
+import static org.springframework.cloud.aws.context.config.support.ContextConfigurationUtils.registerDefaultAWSCredentialsProvider;
+
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -30,10 +34,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.StringUtils;
 
-import static com.amazonaws.auth.profile.internal.AwsProfileNameLoader.DEFAULT_PROFILE_NAME;
-import static org.springframework.cloud.aws.context.config.support.ContextConfigurationUtils.registerCredentialsProvider;
-import static org.springframework.cloud.aws.context.config.support.ContextConfigurationUtils.registerDefaultAWSCredentialsProvider;
-
 /**
  * @author Agim Emruli
  */
@@ -42,21 +42,21 @@ import static org.springframework.cloud.aws.context.config.support.ContextConfig
 @ConditionalOnClass(name = "com.amazonaws.auth.AWSCredentialsProvider")
 public class ContextCredentialsAutoConfiguration {
 
-    /**
-     * The prefix used for AWS credentials related properties.
-     */
-    public static final String AWS_CREDENTIALS_PROPERTY_PREFIX = "cloud.aws.credentials";
+	/**
+	 * The prefix used for AWS credentials related properties.
+	 */
+	public static final String AWS_CREDENTIALS_PROPERTY_PREFIX = "cloud.aws.credentials";
 
-    /**
-     * Bind AWS credentials related properties to a property instance.
-     *
-     * @return An {@link AwsCredentialsProperties} instance
-     */
-    @Bean
-    @ConfigurationProperties(prefix = AWS_CREDENTIALS_PROPERTY_PREFIX)
-    public AwsCredentialsProperties awsCredentialsProperties() {
-        return new AwsCredentialsProperties();
-    }
+	/**
+	 * Bind AWS credentials related properties to a property instance.
+	 *
+	 * @return An {@link AwsCredentialsProperties} instance
+	 */
+	@Bean
+	@ConfigurationProperties(prefix = AWS_CREDENTIALS_PROPERTY_PREFIX)
+	public AwsCredentialsProperties awsCredentialsProperties() {
+		return new AwsCredentialsProperties();
+	}
 
     public static class Registrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {
 

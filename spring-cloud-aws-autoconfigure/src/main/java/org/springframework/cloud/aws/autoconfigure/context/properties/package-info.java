@@ -15,7 +15,8 @@
  */
 
 /**
- * Classes intended to be bound into {@link org.springframework.boot.context.properties.ConfigurationProperties} within
+ * Classes intended to be bound into
+ * {@link org.springframework.boot.context.properties.ConfigurationProperties} within
  * Spring Boot auto configuration.
  *
  * @author tgianos

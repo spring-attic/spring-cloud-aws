@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.aws.autoconfigure.context;
 
+import static org.springframework.cloud.aws.context.config.support.ContextConfigurationUtils.registerRegionProvider;
+
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.aws.autoconfigure.context.properties.AwsRegionProperties;
@@ -28,8 +30,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.StringUtils;
 
-import static org.springframework.cloud.aws.context.config.support.ContextConfigurationUtils.registerRegionProvider;
-
 /**
  * Region auto configuration, based on <a href=https://cloud.spring.io/spring-cloud-aws/spring-cloud-aws.html#_configuring_region>cloud.aws.region</a>
  * settings
@@ -41,21 +41,21 @@ import static org.springframework.cloud.aws.context.config.support.ContextConfig
 @Import(ContextRegionProviderAutoConfiguration.Registrar.class)
 public class ContextRegionProviderAutoConfiguration {
 
-    /**
-     * The prefix used for AWS region related properties.
-     */
-    public static final String AWS_REGION_PROPERTIES_PREFIX = "cloud.aws.region";
+	/**
+	 * The prefix used for AWS region related properties.
+	 */
+	public static final String AWS_REGION_PROPERTIES_PREFIX = "cloud.aws.region";
 
-    /**
-     * Bind AWS region related properties to a property instance.
-     *
-     * @return An {@link AwsRegionProperties} instance
-     */
-    @Bean
-    @ConfigurationProperties(prefix = AWS_REGION_PROPERTIES_PREFIX)
-    public AwsRegionProperties awsRegionProperties() {
-        return new AwsRegionProperties();
-    }
+	/**
+	 * Bind AWS region related properties to a property instance.
+	 *
+	 * @return An {@link AwsRegionProperties} instance
+	 */
+	@Bean
+	@ConfigurationProperties(prefix = AWS_REGION_PROPERTIES_PREFIX)
+	public AwsRegionProperties awsRegionProperties() {
+		return new AwsRegionProperties();
+	}
 
     static class Registrar implements EnvironmentAware, ImportBeanDefinitionRegistrar {
 

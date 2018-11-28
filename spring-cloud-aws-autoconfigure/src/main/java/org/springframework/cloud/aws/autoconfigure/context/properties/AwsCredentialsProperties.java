@@ -26,81 +26,82 @@ import com.amazonaws.auth.profile.internal.AwsProfileNameLoader;
  */
 public class AwsCredentialsProperties {
 
-    /**
-     * The access key to be used with a static provider.
-     */
-    private String accessKey;
+	/**
+	 * The access key to be used with a static provider.
+	 */
+	private String accessKey;
 
-    /**
-     * The secret key to be used with a static provider.
-     */
-    private String secretKey;
+	/**
+	 * The secret key to be used with a static provider.
+	 */
+	private String secretKey;
 
-    /**
-     * Configures an instance profile credentials provider with no further configuration.
-     */
-    private boolean instanceProfile = true;
+	/**
+	 * Configures an instance profile credentials provider with no further configuration.
+	 */
+	private boolean instanceProfile = true;
 
-    /**
-     * Use the DefaultAWSCredentials Chain instead of configuring a custom credentials chain.
-     */
-    private boolean useDefaultAwsCredentialsChain;
+	/**
+	 * Use the DefaultAWSCredentials Chain instead of configuring a custom credentials
+	 * chain.
+	 */
+	private boolean useDefaultAwsCredentialsChain;
 
-    /**
-     * The AWS profile name.
-     */
-    private String profileName = AwsProfileNameLoader.DEFAULT_PROFILE_NAME;
+	/**
+	 * The AWS profile name.
+	 */
+	private String profileName = AwsProfileNameLoader.DEFAULT_PROFILE_NAME;
 
-    /**
-     * The AWS profile path.
-     */
-    private String profilePath;
+	/**
+	 * The AWS profile path.
+	 */
+	private String profilePath;
 
-    public String getAccessKey() {
-        return this.accessKey;
-    }
+	public String getAccessKey() {
+		return this.accessKey;
+	}
 
-    public void setAccessKey(String accessKey) {
-        this.accessKey = accessKey;
-    }
+	public void setAccessKey(String accessKey) {
+		this.accessKey = accessKey;
+	}
 
-    public String getSecretKey() {
-        return this.secretKey;
-    }
+	public String getSecretKey() {
+		return this.secretKey;
+	}
 
-    public void setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
-    }
+	public void setSecretKey(String secretKey) {
+		this.secretKey = secretKey;
+	}
 
-    public boolean isInstanceProfile() {
-        return this.instanceProfile;
-    }
+	public boolean isInstanceProfile() {
+		return this.instanceProfile;
+	}
 
-    public void setInstanceProfile(boolean instanceProfile) {
-        this.instanceProfile = instanceProfile;
-    }
+	public void setInstanceProfile(boolean instanceProfile) {
+		this.instanceProfile = instanceProfile;
+	}
 
-    public boolean isUseDefaultAwsCredentialsChain() {
-        return this.useDefaultAwsCredentialsChain;
-    }
+	public boolean isUseDefaultAwsCredentialsChain() {
+		return this.useDefaultAwsCredentialsChain;
+	}
 
-    public void setUseDefaultAwsCredentialsChain(boolean useDefaultAwsCredentialsChain) {
-        this.useDefaultAwsCredentialsChain = useDefaultAwsCredentialsChain;
-    }
+	public void setUseDefaultAwsCredentialsChain(boolean useDefaultAwsCredentialsChain) {
+		this.useDefaultAwsCredentialsChain = useDefaultAwsCredentialsChain;
+	}
 
-    public String getProfileName() {
-        return this.profileName;
-    }
+	public String getProfileName() {
+		return this.profileName;
+	}
 
-    public void setProfileName(String profileName) {
-        this.profileName = profileName;
-    }
+	public void setProfileName(String profileName) {
+		this.profileName = profileName;
+	}
 
-    public String getProfilePath() {
-        return this.profilePath;
-    }
+	public String getProfilePath() {
+		return this.profilePath;
+	}
 
-    public void setProfilePath(String profilePath) {
-        this.profilePath = profilePath;
-    }
+	public void setProfilePath(String profilePath) {
+		this.profilePath = profilePath;
+	}
 }

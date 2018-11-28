@@ -16,7 +16,8 @@
 package org.springframework.cloud.aws.autoconfigure.context.properties;
 
 /**
- * Properties related to S3 client behavior within the application {@link org.springframework.core.io.ResourceLoader}.
+ * Properties related to S3 client behavior within the application
+ * {@link org.springframework.core.io.ResourceLoader}.
  *
  * @author tgianos
  * @see org.springframework.cloud.aws.autoconfigure.context.ContextResourceLoaderAutoConfiguration
@@ -24,48 +25,48 @@ package org.springframework.cloud.aws.autoconfigure.context.properties;
  */
 public class AwsS3ResourceLoaderProperties {
 
-    /**
-     * The core pool size of the Task Executor used for parallel S3 interaction.
-     *
-     * @see org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor#setCorePoolSize(int)
-     */
-    private int corePoolSize = 1;
+	/**
+	 * The core pool size of the Task Executor used for parallel S3 interaction.
+	 *
+	 * @see org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor#setCorePoolSize(int)
+	 */
+	private int corePoolSize = 1;
 
-    /**
-     * The maximum pool size of the Task Executor used for parallel S3 interaction.
-     *
-     * @see org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor#setMaxPoolSize(int)
-     */
-    private int maxPoolSize = Integer.MAX_VALUE;
+	/**
+	 * The maximum pool size of the Task Executor used for parallel S3 interaction.
+	 *
+	 * @see org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor#setMaxPoolSize(int)
+	 */
+	private int maxPoolSize = Integer.MAX_VALUE;
 
-    /**
-     * The maximum queue capacity for backed up S3 requests.
-     *
-     * @see org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor#setQueueCapacity(int)
-     */
-    private int queueCapacity = Integer.MAX_VALUE;
+	/**
+	 * The maximum queue capacity for backed up S3 requests.
+	 *
+	 * @see org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor#setQueueCapacity(int)
+	 */
+	private int queueCapacity = Integer.MAX_VALUE;
 
-    public int getCorePoolSize() {
-        return this.corePoolSize;
-    }
+	public int getCorePoolSize() {
+		return this.corePoolSize;
+	}
 
-    public void setCorePoolSize(int corePoolSize) {
-        this.corePoolSize = corePoolSize;
-    }
+	public void setCorePoolSize(int corePoolSize) {
+		this.corePoolSize = corePoolSize;
+	}
 
-    public int getMaxPoolSize() {
-        return this.maxPoolSize;
-    }
+	public int getMaxPoolSize() {
+		return this.maxPoolSize;
+	}
 
-    public void setMaxPoolSize(int maxPoolSize) {
-        this.maxPoolSize = maxPoolSize;
-    }
+	public void setMaxPoolSize(int maxPoolSize) {
+		this.maxPoolSize = maxPoolSize;
+	}
 
-    public int getQueueCapacity() {
-        return this.queueCapacity;
-    }
+	public int getQueueCapacity() {
+		return this.queueCapacity;
+	}
 
-    public void setQueueCapacity(int queueCapacity) {
-        this.queueCapacity = queueCapacity;
-    }
+	public void setQueueCapacity(int queueCapacity) {
+		this.queueCapacity = queueCapacity;
+	}
 }

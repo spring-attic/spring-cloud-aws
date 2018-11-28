@@ -37,21 +37,22 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @ConditionalOnClass(name = "com.amazonaws.services.s3.AmazonS3Client")
 public class ContextResourceLoaderAutoConfiguration {
 
-    /**
-     * The prefix used for properties related to S3 resource loading via the ResourceLoader.
-     */
-    public static final String AWS_LOADER_PROPERTY_PREFIX = "cloud.aws.loader";
+	/**
+	 * The prefix used for properties related to S3 resource loading via the
+	 * ResourceLoader.
+	 */
+	public static final String AWS_LOADER_PROPERTY_PREFIX = "cloud.aws.loader";
 
-    /**
-     * Bind AWS resource loader related properties to a property instance.
-     *
-     * @return An {@link AwsS3ResourceLoaderProperties} instance
-     */
-    @Bean
-    @ConfigurationProperties(prefix = AWS_LOADER_PROPERTY_PREFIX)
-    public AwsS3ResourceLoaderProperties awsS3ResourceLoaderProperties() {
-        return new AwsS3ResourceLoaderProperties();
-    }
+	/**
+	 * Bind AWS resource loader related properties to a property instance.
+	 *
+	 * @return An {@link AwsS3ResourceLoaderProperties} instance
+	 */
+	@Bean
+	@ConfigurationProperties(prefix = AWS_LOADER_PROPERTY_PREFIX)
+	public AwsS3ResourceLoaderProperties awsS3ResourceLoaderProperties() {
+		return new AwsS3ResourceLoaderProperties();
+	}
 
     public static class Registrar extends ContextResourceLoaderConfiguration.Registrar implements EnvironmentAware {
 

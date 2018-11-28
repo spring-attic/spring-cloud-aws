@@ -27,61 +27,45 @@ import org.junit.Test;
  */
 public class AwsS3ResourceLoaderPropertiesTest {
 
-    private AwsS3ResourceLoaderProperties properties;
+	private AwsS3ResourceLoaderProperties properties;
 
-    @Before
-    public void setup() {
-        this.properties = new AwsS3ResourceLoaderProperties();
-    }
+	@Before
+	public void setup() {
+		this.properties = new AwsS3ResourceLoaderProperties();
+	}
 
-    @Test
-    public void corePoolSizeCanBeSet() {
-        Assert.assertEquals(
-                "Default value of the core size should be one",
-                1,
-                this.properties.getCorePoolSize()
-        );
+	@Test
+	public void corePoolSizeCanBeSet() {
+		Assert.assertEquals("Default value of the core size should be one", 1,
+				this.properties.getCorePoolSize());
 
-        int newSize = 138;
-        this.properties.setCorePoolSize(newSize);
-        Assert.assertEquals(
-                "Core size should have been reset",
-                newSize,
-                this.properties.getCorePoolSize()
-        );
-    }
+		int newSize = 138;
+		this.properties.setCorePoolSize(newSize);
+		Assert.assertEquals("Core size should have been reset", newSize,
+				this.properties.getCorePoolSize());
+	}
 
-    @Test
-    public void maxPoolSizeCanBeSet() {
-        Assert.assertEquals(
-                "Default value of the max pool size should be integer max value",
-                Integer.MAX_VALUE,
-                this.properties.getMaxPoolSize()
-        );
+	@Test
+	public void maxPoolSizeCanBeSet() {
+		Assert.assertEquals(
+				"Default value of the max pool size should be integer max value",
+				Integer.MAX_VALUE, this.properties.getMaxPoolSize());
 
-        int newSize = 11;
-        this.properties.setMaxPoolSize(newSize);
-        Assert.assertEquals(
-                "Max pool size should have been reset",
-                newSize,
-                this.properties.getMaxPoolSize()
-        );
-    }
+		int newSize = 11;
+		this.properties.setMaxPoolSize(newSize);
+		Assert.assertEquals("Max pool size should have been reset", newSize,
+				this.properties.getMaxPoolSize());
+	}
 
-    @Test
-    public void queueCapacityCanBeSet() {
-        Assert.assertEquals(
-                "Default value of the queue capacity size should be integer max value",
-                Integer.MAX_VALUE,
-                this.properties.getQueueCapacity()
-        );
+	@Test
+	public void queueCapacityCanBeSet() {
+		Assert.assertEquals(
+				"Default value of the queue capacity size should be integer max value",
+				Integer.MAX_VALUE, this.properties.getQueueCapacity());
 
-        int newSize = 11;
-        this.properties.setQueueCapacity(newSize);
-        Assert.assertEquals(
-                "Queue capacity should have been reset",
-                newSize,
-                this.properties.getQueueCapacity()
-        );
-    }
+		int newSize = 11;
+		this.properties.setQueueCapacity(newSize);
+		Assert.assertEquals("Queue capacity should have been reset", newSize,
+				this.properties.getQueueCapacity());
+	}
 }

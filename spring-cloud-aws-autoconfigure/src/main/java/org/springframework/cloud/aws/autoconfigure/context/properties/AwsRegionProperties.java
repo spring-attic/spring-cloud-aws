@@ -24,35 +24,38 @@ package org.springframework.cloud.aws.autoconfigure.context.properties;
  */
 public class AwsRegionProperties {
 
-    /**
-     * Enables automatic region detection based on the EC2 meta data service.
-     */
-    private boolean auto = true;
+	/**
+	 * Enables automatic region detection based on the EC2 meta data service.
+	 */
+	private boolean auto = true;
 
-    /**
-     * Configures a static region for the application.
-     * Possible regions are (currently) us-east-1, us-west-1, us-west-2, eu-west-1, eu-central-1, ap-southeast-1,
-     * ap-southeast-1, ap-northeast-1, sa-east-1, cn-north-1 and any custom region configured with own region meta data.
-     */
-    private String staticRegion;
+	/**
+	 * Configures a static region for the application. Possible regions are (currently)
+	 * us-east-1, us-west-1, us-west-2, eu-west-1, eu-central-1, ap-southeast-1,
+	 * ap-southeast-1, ap-northeast-1, sa-east-1, cn-north-1 and any custom region
+	 * configured with own region meta data.
+	 */
+	private String staticRegion;
 
-    public boolean isAuto() {
-        return this.auto;
-    }
+	public boolean isAuto() {
+		return this.auto;
+	}
 
-    public void setAuto(boolean auto) {
-        this.auto = auto;
-    }
+	public void setAuto(boolean auto) {
+		this.auto = auto;
+	}
 
-    public String getStatic() {
-        return this.staticRegion;
-    }
+	public String getStatic() {
+		return this.staticRegion;
+	}
 
-    public void setStatic(String staticRegion) {
-        // Feels like validation should be done to make sure this is a valid AWS region value. However current
-        // configuration in ContextRegionProviderAutoConfiguration doesn't seem to check property is valid before
-        // creating a bean definition. Leaving for now.
-        // - tgianos 11/26/2018
-        this.staticRegion = staticRegion;
-    }
+	public void setStatic(String staticRegion) {
+		// Feels like validation should be done to make sure this is a valid AWS region
+		// value. However current
+		// configuration in ContextRegionProviderAutoConfiguration doesn't seem to check
+		// property is valid before
+		// creating a bean definition. Leaving for now.
+		// - tgianos 11/26/2018
+		this.staticRegion = staticRegion;
+	}
 }
