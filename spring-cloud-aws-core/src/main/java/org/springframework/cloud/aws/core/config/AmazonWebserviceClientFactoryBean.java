@@ -17,6 +17,7 @@
 package org.springframework.cloud.aws.core.config;
 
 import com.amazonaws.AmazonWebServiceClient;
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.client.builder.AwsAsyncClientBuilder;
 import com.amazonaws.client.builder.AwsClientBuilder;
@@ -48,6 +49,7 @@ public class AmazonWebserviceClientFactoryBean<T extends AmazonWebServiceClient>
     private RegionProvider regionProvider;
     private Region customRegion;
     private ExecutorService executor;
+    private ClientConfiguration clientConfiguration;
 
     public AmazonWebserviceClientFactoryBean(Class<T> clientClass,
                                              AWSCredentialsProvider credentialsProvider) {
@@ -58,6 +60,14 @@ public class AmazonWebserviceClientFactoryBean<T extends AmazonWebServiceClient>
     public AmazonWebserviceClientFactoryBean(Class<T> clientClass, AWSCredentialsProvider credentialsProvider, RegionProvider regionProvider) {
         this(clientClass, credentialsProvider);
         setRegionProvider(regionProvider);
+    }
+
+    public AmazonWebserviceClientFactoryBean(Class<T> clientClass,
+                                             AWSCredentialsProvider credentialsProvider,
+                                             RegionProvider regionProvider,
+                                             ClientConfiguration clientConfiguration) {
+        this(clientClass, credentialsProvider, regionProvider);
+        setClientConfiguration(clientConfiguration);
     }
 
     @Override
@@ -86,6 +96,10 @@ public class AmazonWebserviceClientFactoryBean<T extends AmazonWebServiceClient>
             builder.withCredentials(this.credentialsProvider);
         }
 
+        if (this.clientConfiguration != null) {
+            builder.withClientConfiguration(this.clientConfiguration);
+        }
+
         if (this.customRegion != null) {
             builder.withRegion(this.customRegion.getName());
         } else if (this.regionProvider != null) {
@@ -102,6 +116,10 @@ public class AmazonWebserviceClientFactoryBean<T extends AmazonWebServiceClient>
 
     public void setCustomRegion(String customRegionName) {
         this.customRegion = RegionUtils.getRegion(customRegionName);
+    }
+
+    public void setClientConfiguration(ClientConfiguration clientConfiguration) {
+        this.clientConfiguration = clientConfiguration;
     }
 
     public void setExecutor(ExecutorService executor) {
