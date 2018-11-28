@@ -37,7 +37,10 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @ConditionalOnClass(name = "com.amazonaws.services.s3.AmazonS3Client")
 public class ContextResourceLoaderAutoConfiguration {
 
-    private static final String AWS_LOADER_PROPERTY_PREFIX = "cloud.aws.loader";
+    /**
+     * The prefix used for properties related to S3 resource loading via the ResourceLoader.
+     */
+    public static final String AWS_LOADER_PROPERTY_PREFIX = "cloud.aws.loader";
 
     /**
      * Bind AWS resource loader related properties to a property instance.

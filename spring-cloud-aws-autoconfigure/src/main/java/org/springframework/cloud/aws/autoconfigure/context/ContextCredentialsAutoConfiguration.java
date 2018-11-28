@@ -42,7 +42,10 @@ import static org.springframework.cloud.aws.context.config.support.ContextConfig
 @ConditionalOnClass(name = "com.amazonaws.auth.AWSCredentialsProvider")
 public class ContextCredentialsAutoConfiguration {
 
-    private static final String AWS_CREDENTIALS_PROPERTY_PREFIX = "cloud.aws.credentials";
+    /**
+     * The prefix used for AWS credentials related properties.
+     */
+    public static final String AWS_CREDENTIALS_PROPERTY_PREFIX = "cloud.aws.credentials";
 
     /**
      * Bind AWS credentials related properties to a property instance.

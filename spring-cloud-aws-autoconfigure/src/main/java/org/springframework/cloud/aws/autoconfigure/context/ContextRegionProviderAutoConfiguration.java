@@ -41,7 +41,10 @@ import static org.springframework.cloud.aws.context.config.support.ContextConfig
 @Import(ContextRegionProviderAutoConfiguration.Registrar.class)
 public class ContextRegionProviderAutoConfiguration {
 
-    private static final String AWS_REGION_PROPERTIES_PREFIX = "cloud.aws.region";
+    /**
+     * The prefix used for AWS region related properties.
+     */
+    public static final String AWS_REGION_PROPERTIES_PREFIX = "cloud.aws.region";
 
     /**
      * Bind AWS region related properties to a property instance.
