@@ -19,6 +19,7 @@ package org.springframework.cloud.aws.messaging.support.converter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.cloud.aws.messaging.core.MessageAttributeDataTypes;
+import org.springframework.cloud.aws.messaging.core.QueueMessageUtils;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.MessagingException;
@@ -120,7 +121,7 @@ public class NotificationRequestConverter implements MessageConverter {
                 if (MessageAttributeDataTypes.STRING.equals(attributeType)) {
                     messageHeaders.put(attributeName, attributeValue);
                 } else if (attributeType.startsWith(MessageAttributeDataTypes.NUMBER)) {
-                    Object numberValue = getNumberValue(attributeType, attributeValue);
+                    Number numberValue = QueueMessageUtils.getNumberValue(attributeType, attributeValue);
                     if (numberValue != null) {
                         messageHeaders.put(attributeName, numberValue);
                     }
@@ -131,16 +132,5 @@ public class NotificationRequestConverter implements MessageConverter {
         }
 
         return messageHeaders;
-    }
-
-    private static Object getNumberValue(String attributeType, String attributeValue) {
-        String numberType = attributeType.substring(MessageAttributeDataTypes.NUMBER.length() + 1);
-        try {
-            Class<? extends Number> numberTypeClass = Class.forName(numberType).asSubclass(Number.class);
-            return NumberUtils.parseNumber(attributeValue, numberTypeClass);
-        } catch (ClassNotFoundException e) {
-            throw new MessagingException(String.format("Message attribute with value '%s' and data type '%s' could not be converted " +
-                    "into a Number because target class was not found.", attributeValue, attributeType), e);
-        }
     }
 }

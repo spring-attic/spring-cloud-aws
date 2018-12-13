@@ -21,13 +21,23 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.support.GenericMessage;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.MimeType;
 import org.springframework.util.NumberUtils;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.AbstractMap;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * @author Alain Sahli
@@ -37,6 +47,23 @@ public final class QueueMessageUtils {
 
     private static final String RECEIPT_HANDLE_MESSAGE_ATTRIBUTE_NAME = "ReceiptHandle";
     private static final String MESSAGE_ID_MESSAGE_ATTRIBUTE_NAME = "MessageId";
+
+    private static final Map<Class<? extends Number>, Class<? extends Number>> PRIMITIVE_NUMBER_TYPE_TO_WRAPPED_TYPE_MAP = Stream.of(
+            new AbstractMap.SimpleImmutableEntry<>(byte.class, Byte.class),
+            new AbstractMap.SimpleImmutableEntry<>(short.class, Short.class),
+            new AbstractMap.SimpleImmutableEntry<>(int.class, Integer.class),
+            new AbstractMap.SimpleImmutableEntry<>(long.class, Long.class),
+            new AbstractMap.SimpleImmutableEntry<>(float.class, Float.class),
+            new AbstractMap.SimpleImmutableEntry<>(double.class, Double.class))
+            .collect(collectingAndThen(toMap(Map.Entry::getKey, Map.Entry::getValue), Collections::unmodifiableMap));
+
+    private static final Map<String, Class<? extends Number>> NUMBER_TYPE_NAME_TO_CLASS_MAP = Stream.of(
+            PRIMITIVE_NUMBER_TYPE_TO_WRAPPED_TYPE_MAP,
+            Stream.concat(PRIMITIVE_NUMBER_TYPE_TO_WRAPPED_TYPE_MAP.values().parallelStream(), Stream.of(BigInteger.class, BigDecimal.class, Number.class))
+                    .collect(collectingAndThen(toMap(Function.identity(), Function.identity()), Collections::unmodifiableMap)))
+            .map(Map::entrySet)
+            .flatMap(Collection::parallelStream)
+            .collect(collectingAndThen(toMap(e -> e.getKey().getSimpleName(), Map.Entry::getValue), Collections::unmodifiableMap));
 
     private QueueMessageUtils() {
         // Avoid instantiation
@@ -77,7 +104,7 @@ public final class QueueMessageUtils {
             } else if (MessageAttributeDataTypes.STRING.equals(messageAttribute.getValue().getDataType())) {
                 messageHeaders.put(messageAttribute.getKey(), messageAttribute.getValue().getStringValue());
             } else if (messageAttribute.getValue().getDataType().startsWith(MessageAttributeDataTypes.NUMBER)) {
-                Object numberValue = getNumberValue(messageAttribute.getValue());
+                Number numberValue = getNumberValue(messageAttribute.getValue().getDataType(), messageAttribute.getValue().getStringValue());
                 if (numberValue != null) {
                     messageHeaders.put(messageAttribute.getKey(), numberValue);
                 }
@@ -89,15 +116,24 @@ public final class QueueMessageUtils {
         return messageHeaders;
     }
 
-    private static Object getNumberValue(MessageAttributeValue value) {
-        String numberType = value.getDataType().substring(MessageAttributeDataTypes.NUMBER.length() + 1);
+    public static Number getNumberValue(final String attributeType, final String attributeValue) {
+        final String numberType;
+
+
+        if (attributeType.equals(MessageAttributeDataTypes.NUMBER)) {
+            numberType = Number.class.getSimpleName();
+        } else if (attributeType.startsWith(MessageAttributeDataTypes.NUMBER + ".")) {
+            numberType = attributeType.substring(MessageAttributeDataTypes.NUMBER.length() + 1);
+        } else {
+            throw new IllegalArgumentException(String.format("data type \"%s\" must be one of: {\"Number\", \"Number.*\"}", attributeType));
+        }
+
         try {
-            Class<? extends Number> numberTypeClass = Class.forName(numberType).asSubclass(Number.class);
-            return NumberUtils.parseNumber(value.getStringValue(), numberTypeClass);
-        } catch (ClassNotFoundException e) {
+            final Class<? extends Number> typeClass = NUMBER_TYPE_NAME_TO_CLASS_MAP.containsKey(numberType) ? NUMBER_TYPE_NAME_TO_CLASS_MAP.get(numberType) : ClassUtils.forName(numberType, QueueMessageUtils.class.getClassLoader()).asSubclass(Number.class);
+            return NumberUtils.parseNumber(attributeValue, typeClass);
+        } catch (ClassNotFoundException | ClassCastException e) {
             throw new MessagingException(String.format("Message attribute with value '%s' and data type '%s' could not be converted " +
-                    "into a Number because target class was not found.", value.getStringValue(), value.getDataType()), e);
+                    "into a Number because target class was not found.", attributeValue, attributeType), e);
         }
     }
-
 }
