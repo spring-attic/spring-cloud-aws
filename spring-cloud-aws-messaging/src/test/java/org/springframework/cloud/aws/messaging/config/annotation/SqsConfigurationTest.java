@@ -18,6 +18,7 @@ package org.springframework.cloud.aws.messaging.config.annotation;
 
 import java.util.Collections;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.regions.Region;
@@ -53,7 +54,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.withSettings;
 
 /**
+ * Test cases for corresponding class {@link SqsClientConfiguration}.
+ *
  * @author Alain Sahli
+ * @author <a href="christian.ribeaud@karakun.com">Christian Ribeaud</a>
  */
 public class SqsConfigurationTest {
 
@@ -86,6 +90,11 @@ public class SqsConfigurationTest {
 		assertThat(
 				ReflectionTestUtils.getField(amazonSqsClient, "awsCredentialsProvider"))
 						.isNotNull();
+		// ClientConfiguration
+		ClientConfiguration clientConfiguration = amazonSqsClient.getClientConfiguration();
+		assertThat(clientConfiguration.getNonProxyHosts()).isEqualTo("local|*.local|169.254/16|*.169.254/16");
+		assertThat(clientConfiguration.getProxyPort()).isEqualTo(-1);
+		assertThat(clientConfiguration.getProxyHost()).isNull();
 	}
 
 	@Test
@@ -230,6 +239,26 @@ public class SqsConfigurationTest {
 		assertThat(ReflectionTestUtils.getField(amazonSqs, "endpoint").toString())
 				.isEqualTo("https://"
 						+ Region.getRegion(Regions.EU_WEST_1).getServiceEndpoint("sqs"));
+	}
+
+	@Test
+	public void configuration_withCustomClientConfiguration_shouldUseItForClient()
+		throws Exception {
+		// Arrange & Act
+		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(
+			ConfigurationWithClientConfiguration.class);
+		AmazonSQSAsync bufferedAmazonSqsClient = applicationContext
+			.getBean(AmazonSQSAsync.class);
+		AmazonSQSAsyncClient amazonSqs = (AmazonSQSAsyncClient) ReflectionTestUtils
+			.getField(bufferedAmazonSqsClient, "realSQS");
+		ClientConfiguration clientConfiguration = amazonSqs.getClientConfiguration();
+		ClientConfiguration bean = applicationContext.getBean(ClientConfiguration.class);
+		// Assert
+		// Interesting though to notice we get two different instances
+		assertThat(clientConfiguration).isNotEqualTo(bean);
+		assertThat(clientConfiguration.getProxyHost()).isEqualTo(ConfigurationWithClientConfiguration.PROXY_HOST);
+		assertThat(clientConfiguration.getProxyPort()).isEqualTo(ConfigurationWithClientConfiguration.PROXY_PORT);
+		assertThat(clientConfiguration.getNonProxyHosts()).isEqualTo(ConfigurationWithClientConfiguration.NON_PROXY_HOSTS);
 	}
 
 	@EnableSqs
@@ -379,6 +408,24 @@ public class SqsConfigurationTest {
 	@Configuration
 	public static class ConfigurationWithRegionProvider {
 
+	}
+
+	@EnableSqs
+	@Configuration
+	public static class ConfigurationWithClientConfiguration {
+
+		public static final String PROXY_HOST = "http://www.proxy.com/";
+		public static final int PROXY_PORT = 2011;
+		public static final String NON_PROXY_HOSTS = "localhost,microsoft.com";
+
+		@Bean
+		public ClientConfiguration createClientConfiguration() {
+			ClientConfiguration clientConfiguration = new ClientConfiguration();
+			clientConfiguration.withProxyHost(PROXY_HOST);
+			clientConfiguration.withProxyPort(PROXY_PORT);
+			clientConfiguration.withNonProxyHosts(NON_PROXY_HOSTS);
+			return clientConfiguration;
+		}
 	}
 
 }

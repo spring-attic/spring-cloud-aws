@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.aws.messaging.config.annotation;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClient;
@@ -30,7 +31,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 /**
+ * <b>SQS</b> client configuration.
+ * <p>
+ * The class will try to autowire following beans if found:
+ * <ul>
+ * <li>{@link AWSCredentialsProvider}</li>
+ * <li>{@link RegionProvider}</li>
+ * <li>{@link ClientConfiguration}</li>
+ * </ul>
+ * before generating a new {@link AmazonSQSBufferedAsyncClient}.
+ * </p>
+ *
  * @author Alain Sahli
+ * @author <a href="christian.ribeaud@karakun.com">Christian Ribeaud</a>
  * @since 1.0
  */
 @Configuration
@@ -43,12 +56,16 @@ public class SqsClientConfiguration {
 	@Autowired(required = false)
 	private RegionProvider regionProvider;
 
+	@Autowired(required = false)
+	private ClientConfiguration clientConfiguration;
+
 	@Lazy
 	@Bean(destroyMethod = "shutdown")
 	public AmazonSQSBufferedAsyncClient amazonSQS() throws Exception {
 		AmazonWebserviceClientFactoryBean<AmazonSQSAsyncClient> clientFactoryBean = new AmazonWebserviceClientFactoryBean<>(
 				AmazonSQSAsyncClient.class, this.awsCredentialsProvider,
 				this.regionProvider);
+		clientFactoryBean.setClientConfiguration(clientConfiguration);
 		clientFactoryBean.afterPropertiesSet();
 		return new AmazonSQSBufferedAsyncClient(clientFactoryBean.getObject());
 	}

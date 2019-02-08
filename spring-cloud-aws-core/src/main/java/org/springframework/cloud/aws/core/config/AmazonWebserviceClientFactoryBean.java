@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.util.concurrent.ExecutorService;
 
 import com.amazonaws.AmazonWebServiceClient;
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.client.builder.AwsAsyncClientBuilder;
 import com.amazonaws.client.builder.AwsClientBuilder;
@@ -56,6 +57,8 @@ public class AmazonWebserviceClientFactoryBean<T extends AmazonWebServiceClient>
 	private Region customRegion;
 
 	private ExecutorService executor;
+
+	private ClientConfiguration clientConfiguration;
 
 	public AmazonWebserviceClientFactoryBean(Class<T> clientClass,
 			AWSCredentialsProvider credentialsProvider) {
@@ -107,6 +110,8 @@ public class AmazonWebserviceClientFactoryBean<T extends AmazonWebServiceClient>
 		else {
 			builder.withRegion(Regions.DEFAULT_REGION);
 		}
+		// The builder properly handles 'null' value
+		builder.withClientConfiguration(clientConfiguration);
 		return builder.build();
 	}
 
@@ -122,9 +127,17 @@ public class AmazonWebserviceClientFactoryBean<T extends AmazonWebServiceClient>
 		this.executor = executor;
 	}
 
+	/**
+	 * Sets the client configuration which should be used for building the client.
+	 *
+	 * @param clientConfiguration the {@link ClientConfiguration} instance. Could be <code>null</code>.
+	 */
+	public void setClientConfiguration(ClientConfiguration clientConfiguration) {
+		this.clientConfiguration = clientConfiguration;
+	}
+
 	@Override
 	protected void destroyInstance(T instance) throws Exception {
 		instance.shutdown();
 	}
-
 }
