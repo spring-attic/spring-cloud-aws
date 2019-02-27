@@ -65,7 +65,8 @@ public class SimpleStorageProtocolResolver implements ProtocolResolver, Initiali
 					SimpleStorageNameUtils.getBucketNameFromLocation(location),
 					SimpleStorageNameUtils.getObjectNameFromLocation(location),
 					this.taskExecutor,
-					SimpleStorageNameUtils.getVersionIdFromLocation(location));
+					SimpleStorageNameUtils.getVersionIdFromLocation(location),
+					SimpleStorageNameUtils.getContentTypeFromLocation(location));
 		}
 		else {
 			return null;
