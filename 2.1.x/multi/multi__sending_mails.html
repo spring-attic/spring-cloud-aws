@@ -1,0 +1,94 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>8.&nbsp;Sending mails</title><link rel="stylesheet" type="text/css" href="css/manual-multipage.css"><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"><link rel="home" href="multi_spring-cloud-aws.html" title="Spring Cloud AWS"><link rel="up" href="multi_spring-cloud-aws.html" title="Spring Cloud AWS"><link rel="prev" href="multi__data_access_with_jdbc.html" title="7.&nbsp;Data Access with JDBC"><link rel="next" href="multi__resource_handling.html" title="9.&nbsp;Resource handling"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">8.&nbsp;Sending mails</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="multi__data_access_with_jdbc.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="multi__resource_handling.html">Next</a></td></tr></table><hr></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a name="_sending_mails" href="#_sending_mails"></a>8.&nbsp;Sending mails</h1></div></div></div><p>Spring has a built-in support to send e-mails based on the <a class="link" href="http://www.oracle.com/technetwork/java/javamail/index.html" target="_top">Java Mail API</a>
+to avoid any static method calls while using the Java Mail API and thus supporting the testability of an application.
+Spring Cloud AWS supports the <a class="link" href="http://aws.amazon.com/de/ses/" target="_top">Amazon SES</a> as an implementation of the Spring Mail abstraction.</p><p>As a result Spring Cloud AWS users can decide to use the Spring Cloud AWS implementation of the Amazon SES service or
+use the standard Java Mail API based implementation that sends e-mails via SMTP to Amazon SES.</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>It is preferred to use the Spring Cloud AWS implementation instead of SMTP mainly for performance reasons.
+Spring Cloud AWS uses one API call to send a mail message, while the SMTP protocol makes multiple requests (EHLO, MAIL FROM, RCPT TO, DATA, QUIT)
+until it sends an e-mail.</p></td></tr></table></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_configuring_the_mail_sender" href="#_configuring_the_mail_sender"></a>8.1&nbsp;Configuring the mail sender</h2></div></div></div><p>Spring Cloud AWS provides an XML element to configure a Spring <code class="literal">org.springframework.mail.MailSender</code> implementation for the
+client to be used. The default mail sender works without a Java Mail dependency and is capable of sending messages without
+attachments as simple mail messages. A configuration with the necessary elements will look like this:</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;beans</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xmlns:aws-mail</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.springframework.org/schema/cloud/aws/mail"</span>
+   <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xsi:schemaLocation</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.springframework.org/schema/cloud/aws/mail
+      http://www.springframework.org/schema/cloud/aws/mail/spring-cloud-aws-mail.xsd"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&gt;</span>
+
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-context:context-credentials&gt;</span>
+	  ..
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/aws-context:context-credentials&gt;</span>
+
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-context:context-region</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">region</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"eu-west-1"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span>
+
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-mail:mail-sender</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">id</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"testSender"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span>
+
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/beans&gt;</span></pre></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_sending_simple_mails" href="#_sending_simple_mails"></a>8.2&nbsp;Sending simple mails</h2></div></div></div><p>Application developers can inject the <code class="literal">MailSender</code> into their application code and directly send simple text based e-mail
+messages. The sample below demonstrates the creation of a simple mail message.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> MailSendingService {
+
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> MailSender mailSender;
+
+	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> MailSendingService(MailSender mailSender) {
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.mailSender = mailSender;
+	}
+
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> sendMailMessage() {
+		SimpleMailMessage simpleMailMessage = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> SimpleMailMessage();
+		simpleMailMessage.setFrom(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"foo@bar.com"</span>);
+		simpleMailMessage.setTo(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"bar@baz.com"</span>);
+		simpleMailMessage.setSubject(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"test subject"</span>);
+		simpleMailMessage.setText(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"test content"</span>);
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.mailSender.send(simpleMailMessage);
+	}
+}</pre></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_sending_attachments" href="#_sending_attachments"></a>8.3&nbsp;Sending attachments</h2></div></div></div><p>Sending attachments with e-mail requires MIME messages to be created and sent. In order to create MIME messages,
+the Java Mail dependency is required and has to be included in the classpath. Spring Cloud AWS will detect the
+dependency and create a <code class="literal">org.springframework.mail.javamail.JavaMailSender</code> implementation that allows to create and
+build MIME messages and send them. A dependency configuration for the Java Mail API is the only change in the configuration
+which is shown below.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;dependency&gt;</span>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;groupId&gt;</span>javax.mail<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/groupId&gt;</span>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;artifactId&gt;</span>mailapi<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/artifactId&gt;</span>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;version&gt;</span>1.4.1<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/version&gt;</span>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;exclusions&gt;</span>
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">&lt;!-- exclusion because we are running on Java 1.7 that includes the activation API by default--&gt;</span>
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;exclusion&gt;</span>
+			<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;artifactId&gt;</span>activation<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/artifactId&gt;</span>
+			<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;groupId&gt;</span>javax.activation<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/groupId&gt;</span>
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/exclusion&gt;</span>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/exclusions&gt;</span>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/dependency&gt;</span></pre><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>Even though there is a dependency to the Java Mail API there is still the Amazon SES API used underneath to send mail
+messages. There is no <a class="link" href="http://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-smtp.html" target="_top">SMTP setup</a> required
+on the Amazon AWS side.</p></td></tr></table></div><p>Sending the mail requires the application developer to use the <code class="literal">JavaMailSender</code> to send an e-mail as shown in the example
+below.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> MailSendingService {
+
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> JavaMailSender mailSender;
+
+   	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> MailSendingService(JavaMailSender mailSender) {
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.mailSender = mailSender;
+	}
+
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> sendMailMessage() {
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.mailSender.send(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> MimeMessagePreparator() {
+
+   			<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+   			<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> prepare(MimeMessage mimeMessage) <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> Exception {
+   				MimeMessageHelper helper =
+   					<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> MimeMessageHelper(mimeMessage, true, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"UTF-8"</span>);
+   				helper.addTo(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"foo@bar.com"</span>);
+   				helper.setFrom(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"bar@baz.com"</span>);
+   				helper.addAttachment(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"test.txt"</span>, ...);
+   				helper.setSubject(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"test subject with attachment"</span>);
+   				helper.setText(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"mime body"</span>, false);
+   			}
+   		});
+	}
+}</pre></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_configuring_regions" href="#_configuring_regions"></a>8.4&nbsp;Configuring regions</h2></div></div></div><p>Amazon SES is not available in all <a class="link" href="http://docs.aws.amazon.com/ses/latest/DeveloperGuide/regions.html" target="_top">regions</a> of the
+Amazon Web Services cloud. Therefore an application hosted and operated in a region that does not support the mail
+service will produce an error while using the mail service. Therefore the region must be overridden for the mail
+sender configuration. The example below shows a typical combination of a region (EU-CENTRAL-1) that does not provide
+an SES service where the client is overridden to use a valid region (EU-WEST-1).</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;beans</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">...&gt;</span>
+
+ <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">&lt;aws-context:context-region</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">region</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"eu-central-1"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span>
+ <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-mail:mail-sender</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">id</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"testSender"</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">region</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"eu-west-1"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">/&gt;</span>
+
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/beans&gt;</span></pre></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_authenticating_e_mails" href="#_authenticating_e_mails"></a>8.5&nbsp;Authenticating e-mails</h2></div></div></div><p>To avoid any spam attacks on the Amazon SES mail service, applications without production access must
+<a class="link" href="http://docs.aws.amazon.com/ses/latest/DeveloperGuide/verify-email-addresses.html" target="_top">verify</a> each
+e-mail receiver otherwise the mail sender will throw a <code class="literal">com.amazonaws.services.simpleemail.model.MessageRejectedException</code>.</p><p><a class="link" href="http://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.html" target="_top">Production access</a> can be requested
+and will disable the need for mail address verification.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="multi__data_access_with_jdbc.html">Prev</a>&nbsp;</td><td width="20%" align="center">&nbsp;</td><td width="40%" align="right">&nbsp;<a accesskey="n" href="multi__resource_handling.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">7.&nbsp;Data Access with JDBC&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="multi_spring-cloud-aws.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;9.&nbsp;Resource handling</td></tr></table></div></body></html>
