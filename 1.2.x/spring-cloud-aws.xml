@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Spring Cloud AWS</title>
-<date>2017-08-29</date>
+<date>2019-03-07</date>
 <authorgroup>
 <author>
 <personname>
@@ -244,7 +244,7 @@ maven dependency inside the application. The typical configuration will look lik
     &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
     &lt;artifactId&gt;spring-cloud-aws-autoconfigure&lt;/artifactId&gt;
     &lt;version&gt;{spring-cloud-version}&lt;/version&gt;
-  &lt;/dependency&gt;&gt;
+  &lt;/dependency&gt;
 &lt;/dependencies&gt;</programlisting>
 <simpara>Additional dependencies to enable particular features like messaging and JDBC have to be added. Spring Cloud AWS will
 only configure classes that are available in the Spring Boot application&#8217;s classpath.</simpara>
