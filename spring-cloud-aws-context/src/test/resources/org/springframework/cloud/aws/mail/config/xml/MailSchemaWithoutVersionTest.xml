@@ -15,13 +15,13 @@
   ~ limitations under the License.
   -->
 
-<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xmlns:mail="http://www.springframework.org/schema/cloud/aws/mail"
-	   xmlns="http://www.springframework.org/schema/beans"
-	   xsi:schemaLocation="http://www.springframework.org/schema/beans
-			     	   	   http://www.springframework.org/schema/beans/spring-beans.xsd
-			     	   	   http://www.springframework.org/schema/cloud/aws/mail
-			     	   	   http://www.springframework.org/schema/cloud/aws/mail/spring-cloud-aws-mail.xsd">
+<beans xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:mail="https://www.springframework.org/schema/cloud/aws/mail"
+	   xmlns="https://www.springframework.org/schema/beans"
+	   xsi:schemaLocation="https://www.springframework.org/schema/beans
+			     	   	   https://www.springframework.org/schema/beans/spring-beans.xsd
+			     	   	   https://www.springframework.org/schema/cloud/aws/mail
+			     	   	   https://www.springframework.org/schema/cloud/aws/mail/spring-cloud-aws-mail.xsd">
 
 	<mail:mail-sender id="mailSender"/>
 
