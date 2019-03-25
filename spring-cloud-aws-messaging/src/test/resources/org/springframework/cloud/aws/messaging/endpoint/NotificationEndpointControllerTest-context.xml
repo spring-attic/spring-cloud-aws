@@ -15,15 +15,15 @@
   ~ limitations under the License.
   -->
 
-<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xmlns:aws-messaging="http://www.springframework.org/schema/cloud/aws/messaging"
-	   xmlns:mvc="http://www.springframework.org/schema/mvc"
-	   xmlns="http://www.springframework.org/schema/beans"
-	   xsi:schemaLocation="http://www.springframework.org/schema/beans
-	   					   http://www.springframework.org/schema/beans/spring-beans.xsd
-	   					   http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
-	   					   http://www.springframework.org/schema/cloud/aws/messaging
-	   					   http://www.springframework.org/schema/cloud/aws/messaging/spring-cloud-aws-messaging.xsd">
+<beans xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:aws-messaging="https://www.springframework.org/schema/cloud/aws/messaging"
+	   xmlns:mvc="https://www.springframework.org/schema/mvc"
+	   xmlns="https://www.springframework.org/schema/beans"
+	   xsi:schemaLocation="https://www.springframework.org/schema/beans
+	   					   https://www.springframework.org/schema/beans/spring-beans.xsd
+	   					   https://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
+	   					   https://www.springframework.org/schema/cloud/aws/messaging
+	   					   https://www.springframework.org/schema/cloud/aws/messaging/spring-cloud-aws-messaging.xsd">
 
 	<mvc:annotation-driven>
 		<mvc:argument-resolvers>

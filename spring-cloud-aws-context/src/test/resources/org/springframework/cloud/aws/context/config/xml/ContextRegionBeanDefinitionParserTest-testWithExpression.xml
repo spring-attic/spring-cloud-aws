@@ -14,16 +14,16 @@
   ~ limitations under the License.
   -->
 
-<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xmlns:context="http://www.springframework.org/schema/cloud/aws/context"
-	   xmlns:util="http://www.springframework.org/schema/util"
-	   xmlns="http://www.springframework.org/schema/beans"
-	   xsi:schemaLocation="http://www.springframework.org/schema/beans
-	   					   http://www.springframework.org/schema/beans/spring-beans.xsd
-	   					   http://www.springframework.org/schema/cloud/aws/context
-	   					   http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd
-	   					   http://www.springframework.org/schema/util
-	   					   http://www.springframework.org/schema/util/spring-util.xsd">
+<beans xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="https://www.springframework.org/schema/cloud/aws/context"
+	   xmlns:util="https://www.springframework.org/schema/util"
+	   xmlns="https://www.springframework.org/schema/beans"
+	   xsi:schemaLocation="https://www.springframework.org/schema/beans
+	   					   https://www.springframework.org/schema/beans/spring-beans.xsd
+	   					   https://www.springframework.org/schema/cloud/aws/context
+	   					   https://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd
+	   					   https://www.springframework.org/schema/util
+	   					   https://www.springframework.org/schema/util/spring-util.xsd">
 
 	<context:context-region region="#{configuration['region']}" />
 
