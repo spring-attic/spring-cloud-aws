@@ -15,13 +15,13 @@
   ~ limitations under the License.
   -->
 
-<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xmlns:cache="http://www.springframework.org/schema/cloud/aws/cache"
-	   xmlns="http://www.springframework.org/schema/beans"
-	   xsi:schemaLocation="http://www.springframework.org/schema/beans
-			     	   	   http://www.springframework.org/schema/beans/spring-beans.xsd
-			     	   	   http://www.springframework.org/schema/cloud/aws/cache
-			     	   	   http://www.springframework.org/schema/cloud/aws/cache/spring-cloud-aws-cache.xsd">
+<beans xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:cache="https://www.springframework.org/schema/cloud/aws/cache"
+	   xmlns="https://www.springframework.org/schema/beans"
+	   xsi:schemaLocation="https://www.springframework.org/schema/beans
+			     	   	   https://www.springframework.org/schema/beans/spring-beans.xsd
+			     	   	   https://www.springframework.org/schema/cloud/aws/cache
+			     	   	   https://www.springframework.org/schema/cloud/aws/cache/spring-cloud-aws-cache.xsd">
 
 	<cache:cache-manager>
 		<cache:cache-cluster name="test" />
