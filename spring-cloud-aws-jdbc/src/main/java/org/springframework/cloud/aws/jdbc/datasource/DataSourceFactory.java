@@ -28,7 +28,7 @@ import javax.sql.DataSource;
  * while destroying the application itself.
  * <p>
  * <b>Note:</b> This interface does not assume what kind of datasource is returned. It is strongly recommended to use
- * an already existing and pooled datasource like <a href="http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html">Tomcat
+ * an already existing and pooled datasource like <a href="https://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html">Tomcat
  * JDBC datasource</a> for real life production applications.
  * </p>
  *
