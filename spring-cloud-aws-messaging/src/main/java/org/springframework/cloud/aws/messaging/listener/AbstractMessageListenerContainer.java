@@ -75,7 +75,7 @@ abstract class AbstractMessageListenerContainer implements InitializingBean, Dis
 
     /**
      * By default sets the maximum value for long polling in SQS.
-     * For more information read the <a href="http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-long-polling.html">documentation</a>
+     * For more information read the <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-long-polling.html">documentation</a>
      */
     private Integer waitTimeOut = DEFAULT_WAIT_TIME_IN_SECONDS;
     //Optional settings with defaults

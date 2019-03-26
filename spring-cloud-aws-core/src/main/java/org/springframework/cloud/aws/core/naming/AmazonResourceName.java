@@ -29,7 +29,7 @@ import java.util.Arrays;
  * to an account if the resource is scoped ot an account.
  * <p>
  * More information on resources are available on
- * <a href="http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html">the Amazon Webservice Manual</a>
+ * <a href="https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html">the Amazon Webservice Manual</a>
  * </p>
  *
  * @author Agim Emruli
@@ -79,7 +79,7 @@ public class AmazonResourceName {
 
     /**
      * Returns the service name for this particular AmazonResourceName. The service name is a plain string which will be
-     * one of the service from the namespace defined at <a href="http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html#genref-aws-service-namespaces">user
+     * one of the service from the namespace defined at <a href="https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html#genref-aws-service-namespaces">user
      * manual</a>
      *
      * @return - the service as a string - never be null
