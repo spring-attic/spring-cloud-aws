@@ -65,7 +65,7 @@ public class QueueMessagingTemplateTest {
 
 		ArgumentCaptor<SendMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor.forClass(SendMessageRequest.class);
 		verify(amazonSqs).sendMessage(sendMessageRequestArgumentCaptor.capture());
-		assertEquals("http://queue-url.com", sendMessageRequestArgumentCaptor.getValue().getQueueUrl());
+		assertEquals("https://queue-url.com", sendMessageRequestArgumentCaptor.getValue().getQueueUrl());
 	}
 
 	@Test
@@ -78,7 +78,7 @@ public class QueueMessagingTemplateTest {
 
 		ArgumentCaptor<SendMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor.forClass(SendMessageRequest.class);
 		verify(amazonSqs).sendMessage(sendMessageRequestArgumentCaptor.capture());
-		assertEquals("http://queue-url.com", sendMessageRequestArgumentCaptor.getValue().getQueueUrl());
+		assertEquals("https://queue-url.com", sendMessageRequestArgumentCaptor.getValue().getQueueUrl());
 	}
 
 
@@ -119,7 +119,7 @@ public class QueueMessagingTemplateTest {
 
 		ArgumentCaptor<ReceiveMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor.forClass(ReceiveMessageRequest.class);
 		verify(amazonSqs).receiveMessage(sendMessageRequestArgumentCaptor.capture());
-		assertEquals("http://queue-url.com", sendMessageRequestArgumentCaptor.getValue().getQueueUrl());
+		assertEquals("https://queue-url.com", sendMessageRequestArgumentCaptor.getValue().getQueueUrl());
 	}
 
 	@Test
@@ -131,7 +131,7 @@ public class QueueMessagingTemplateTest {
 
 		ArgumentCaptor<ReceiveMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor.forClass(ReceiveMessageRequest.class);
 		verify(amazonSqs).receiveMessage(sendMessageRequestArgumentCaptor.capture());
-		assertEquals("http://queue-url.com", sendMessageRequestArgumentCaptor.getValue().getQueueUrl());
+		assertEquals("https://queue-url.com", sendMessageRequestArgumentCaptor.getValue().getQueueUrl());
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -180,7 +180,7 @@ public class QueueMessagingTemplateTest {
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
 
 		GetQueueUrlResult queueUrl = new GetQueueUrlResult();
-		queueUrl.setQueueUrl("http://queue-url.com");
+		queueUrl.setQueueUrl("https://queue-url.com");
 		when(amazonSqs.getQueueUrl(any(GetQueueUrlRequest.class))).thenReturn(queueUrl);
 
 		ReceiveMessageResult receiveMessageResult = new ReceiveMessageResult();

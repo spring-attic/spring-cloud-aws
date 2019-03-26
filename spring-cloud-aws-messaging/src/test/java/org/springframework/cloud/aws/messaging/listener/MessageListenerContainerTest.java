@@ -259,7 +259,7 @@ public class MessageListenerContainerTest {
 		when(mock.getQueueUrl(new GetQueueUrlRequest().withQueueName("testQueue"))).
 				thenReturn(new GetQueueUrlResult().withQueueUrl("http://testQueue.amazonaws.com"));
 		when(mock.getQueueUrl(new GetQueueUrlRequest().withQueueName("anotherTestQueue"))).
-				thenReturn(new GetQueueUrlResult().withQueueUrl("http://anotherTestQueue.amazonaws.com"));
+				thenReturn(new GetQueueUrlResult().withQueueUrl("https://anotherTestQueue.amazonaws.com"));
 		when(mock.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(new GetQueueAttributesResult());
 
 		messageHandler.afterPropertiesSet();
@@ -271,7 +271,7 @@ public class MessageListenerContainerTest {
 		assertEquals(11L, registeredQueues.get("testQueue").getReceiveMessageRequest().getMaxNumberOfMessages().longValue());
 		assertEquals(22L, registeredQueues.get("testQueue").getReceiveMessageRequest().getVisibilityTimeout().longValue());
 		assertEquals(33L, registeredQueues.get("testQueue").getReceiveMessageRequest().getWaitTimeSeconds().longValue());
-		assertEquals("http://anotherTestQueue.amazonaws.com", registeredQueues.get("anotherTestQueue").getReceiveMessageRequest().getQueueUrl());
+		assertEquals("https://anotherTestQueue.amazonaws.com", registeredQueues.get("anotherTestQueue").getReceiveMessageRequest().getQueueUrl());
 		assertEquals(11L, registeredQueues.get("anotherTestQueue").getReceiveMessageRequest().getMaxNumberOfMessages().longValue());
 		assertEquals(22L, registeredQueues.get("anotherTestQueue").getReceiveMessageRequest().getVisibilityTimeout().longValue());
 		assertEquals(33L, registeredQueues.get("anotherTestQueue").getReceiveMessageRequest().getWaitTimeSeconds().longValue());
@@ -418,7 +418,7 @@ public class MessageListenerContainerTest {
 		when(mock.getQueueUrl(new GetQueueUrlRequest().withQueueName("testQueue"))).
 				thenThrow(new DestinationResolutionException("Queue not found"));
 		when(mock.getQueueUrl(new GetQueueUrlRequest().withQueueName("anotherTestQueue"))).
-				thenReturn(new GetQueueUrlResult().withQueueUrl("http://anotherTestQueue.amazonaws.com"));
+				thenReturn(new GetQueueUrlResult().withQueueUrl("https://anotherTestQueue.amazonaws.com"));
 		when(mock.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(new GetQueueAttributesResult());
 
 		messageHandler.afterPropertiesSet();
@@ -433,7 +433,7 @@ public class MessageListenerContainerTest {
 		Map<String, QueueAttributes> registeredQueues = container.getRegisteredQueues();
 		assertNull(registeredQueues.get("testQueue"));
 		assertEquals("The queue with name 'testQueue' does not exist.", logMsgArgCaptor.getValue());
-		assertEquals("http://anotherTestQueue.amazonaws.com", registeredQueues.get("anotherTestQueue").getReceiveMessageRequest().getQueueUrl());
+		assertEquals("https://anotherTestQueue.amazonaws.com", registeredQueues.get("anotherTestQueue").getReceiveMessageRequest().getQueueUrl());
 	}
 
 	private static class StubAbstractMessageListenerContainer extends AbstractMessageListenerContainer {
