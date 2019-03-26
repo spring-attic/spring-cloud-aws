@@ -227,7 +227,7 @@ public class SimpleMessageListenerContainerTest {
 		when(sqs.getQueueUrl(new GetQueueUrlRequest("testQueue"))).thenReturn(new GetQueueUrlResult().
 				withQueueUrl("http://testQueue.amazonaws.com"));
 		when(sqs.getQueueUrl(new GetQueueUrlRequest("anotherTestQueue"))).thenReturn(new GetQueueUrlResult().
-				withQueueUrl("http://anotherTestQueue.amazonaws.com"));
+				withQueueUrl("https://anotherTestQueue.amazonaws.com"));
 
 		messageHandler.setApplicationContext(applicationContext);
 		messageHandler.afterPropertiesSet();
@@ -238,7 +238,7 @@ public class SimpleMessageListenerContainerTest {
 				.withMaxNumberOfMessages(10)))
 				.thenReturn(new ReceiveMessageResult().withMessages(new Message().withBody("messageContent")))
 				.thenReturn(new ReceiveMessageResult());
-		when(sqs.receiveMessage(new ReceiveMessageRequest("http://anotherTestQueue.amazonaws.com").withAttributeNames("All")
+		when(sqs.receiveMessage(new ReceiveMessageRequest("https://anotherTestQueue.amazonaws.com").withAttributeNames("All")
 				.withMessageAttributeNames("All")
 				.withMaxNumberOfMessages(10)))
 				.thenReturn(new ReceiveMessageResult().withMessages(new Message().withBody("anotherMessageContent")))
