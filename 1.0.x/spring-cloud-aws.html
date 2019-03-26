@@ -9,7 +9,7 @@
 <title>Spring Cloud AWS</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400">
 <style>
-/* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
+/* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
 /* Remove the comments around the @import statement below when using this as a custom stylesheet */
 /*@import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400";*/
 article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block}
@@ -593,8 +593,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_using_amazon_web_services">1. Using Amazon Web Services</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Amazon provides a <a href="http://aws.amazon.com/sdk-for-java/">Java SDK</a> to issue requests for the all services provided by the
-<a href="http://aws.amazon.com">Amazon Web Service</a> platform. Using the SDK, application developers still have to integrate the
+<p>Amazon provides a <a href="https://aws.amazon.com/sdk-for-java/">Java SDK</a> to issue requests for the all services provided by the
+<a href="https://aws.amazon.com">Amazon Web Service</a> platform. Using the SDK, application developers still have to integrate the
 SDK into their application with a considerable amount of infrastructure related code. Spring Cloud AWS provides application
 developers already integrated Spring-based modules to consume services and avoid infrastructure related code as much as possible.
 The Spring Cloud AWS module provides a module set so that application developers can arrange the dependencies based on
@@ -611,22 +611,22 @@ with the service support for the respective Spring Cloud AWS services.</p>
 <li>
 <p><strong>Spring Cloud AWS Core</strong> is the core module of Spring Cloud AWS providing basic services for security and configuration
 setup. Developers will not use this module directly but rather through other modules. The core module provides support for
-cloud based environment configurations providing direct access to the instance based <a href="http://aws.amazon.com/ec2/">EC2</a>
-metadata and the overall application stack specific <a href="http://aws.amazon.com/cloudformation/">CloudFormation</a> metadata.</p>
+cloud based environment configurations providing direct access to the instance based <a href="https://aws.amazon.com/ec2/">EC2</a>
+metadata and the overall application stack specific <a href="https://aws.amazon.com/cloudformation/">CloudFormation</a> metadata.</p>
 </li>
 <li>
-<p><strong>Spring Cloud AWS Context</strong> delivers access to the <a href="http://aws.amazon.com/s3/">Simple Storage Service</a> via the Spring
-resource loader abstraction. Moreover developers can send e-mails using the <a href="http://aws.amazon.com/ses/">Simple E-Mail Service</a>
+<p><strong>Spring Cloud AWS Context</strong> delivers access to the <a href="https://aws.amazon.com/s3/">Simple Storage Service</a> via the Spring
+resource loader abstraction. Moreover developers can send e-mails using the <a href="https://aws.amazon.com/ses/">Simple E-Mail Service</a>
 and the Spring mail abstraction. Further the developers can introduce declarative caching using the Spring caching support
-and the <a href="http://aws.amazon.com/elasticache/">ElastiCache</a> caching service.</p>
+and the <a href="https://aws.amazon.com/elasticache/">ElastiCache</a> caching service.</p>
 </li>
 <li>
-<p><strong>Spring Cloud AWS JDBC</strong> provides automatic datasource lookup and configuration for the <a href="http://aws.amazon.com/rds/">Relational Database Service</a>
+<p><strong>Spring Cloud AWS JDBC</strong> provides automatic datasource lookup and configuration for the <a href="https://aws.amazon.com/rds/">Relational Database Service</a>
 which can be used with JDBC or any other support data access technology by Spring.</p>
 </li>
 <li>
-<p><strong>Spring Cloud AWS Messaging</strong> enables developers to receive and send messages with the <a href="http://aws.amazon.com/sqs/">Simple Queueing Service</a> for
-point-to-point communication. Publish-subscribe messaging is supported with the integration of the <a href="http://aws.amazon.com/sns/">Simple Notification Service</a>.</p>
+<p><strong>Spring Cloud AWS Messaging</strong> enables developers to receive and send messages with the <a href="https://aws.amazon.com/sqs/">Simple Queueing Service</a> for
+point-to-point communication. Publish-subscribe messaging is supported with the integration of the <a href="https://aws.amazon.com/sns/">Simple Notification Service</a>.</p>
 </li>
 </ul>
 </div>
@@ -642,7 +642,7 @@ The next chapters describe the dependency management and also the basic configur
 <div class="sect2">
 <h3 id="_spring_cloud_aws_maven_dependency_management">2.1. Spring Cloud AWS maven dependency management</h3>
 <div class="paragraph">
-<p>Spring Cloud AWS module dependencies can be used directly in <a href="http://maven.apache.org">Maven</a> with a direct configuration
+<p>Spring Cloud AWS module dependencies can be used directly in <a href="https://maven.apache.org">Maven</a> with a direct configuration
 of the particular module. The Spring Cloud AWS module includes all transitive dependencies for the Spring modules and
 also the Amazon SDK that are needed to operate the modules. The general dependency configuration will look like this:</p>
 </div>
@@ -670,7 +670,7 @@ developer snapshots), you need to specify the repository location in your Maven 
 <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;repositories&gt;
     &lt;repository&gt;
         &lt;id&gt;io.spring.repo.maven.release&lt;/id&gt;
-        &lt;url&gt;http://repo.spring.io/release/&lt;/url&gt;
+        &lt;url&gt;https://repo.spring.io/release/&lt;/url&gt;
         &lt;snapshots&gt;&lt;enabled&gt;false&lt;/enabled&gt;&lt;/snapshots&gt;
     &lt;/repository&gt;
 &lt;/repositories&gt;</code></pre>
@@ -684,7 +684,7 @@ developer snapshots), you need to specify the repository location in your Maven 
 <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;repositories&gt;
     &lt;repository&gt;
         &lt;id&gt;io.spring.repo.maven.milestone&lt;/id&gt;
-        &lt;url&gt;http://repo.spring.io/milestone/&lt;/url&gt;
+        &lt;url&gt;https://repo.spring.io/milestone/&lt;/url&gt;
         &lt;snapshots&gt;&lt;enabled&gt;false&lt;/enabled&gt;&lt;/snapshots&gt;
     &lt;/repository&gt;
 &lt;/repositories&gt;</code></pre>
@@ -705,9 +705,9 @@ use of the modules. A typical XML configuration to use Spring Cloud AWS is outli
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aws-context="http://www.springframework.org/schema/cloud/aws/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd
+        https://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/cloud/aws/context
-        http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context-1.0.xsd"&gt;
+        https://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context-1.0.xsd"&gt;
 
            &lt;aws-context:context-region region="..."/&gt;
 &lt;/beans&gt;</code></pre>
@@ -791,7 +791,7 @@ and not be checked in into the source management system.</p>
 <div class="sect4">
 <h5 id="_instance_profile_configuration">Instance profile configuration</h5>
 <div class="paragraph">
-<p>An <a href="http://docs.aws.amazon.com/IAM/latest/UserGuide/instance-profiles.html">instance profile configuration</a> allows to assign
+<p>An <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/instance-profiles.html">instance profile configuration</a> allows to assign
 a profile that is authorized by a role while starting an EC2 instance. All calls made from the EC2 instance are then authenticated
 with the instance profile specific user role. Therefore there is no dedicated access-key and secret-key needed in the configuration.
 The configuration for the instance profile in Spring Cloud AWS looks like this:</p>
@@ -843,7 +843,7 @@ errors if the properties are not configured at all.</p>
 <div class="sect3">
 <h4 id="_region_configuration">2.2.2. Region configuration</h4>
 <div class="paragraph">
-<p>Amazon Web services are available in different <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html">regions</a>. Based
+<p>Amazon Web services are available in different <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html">regions</a>. Based
 on the custom requirements, the user can host the application on different Amazon regions. The <code>spring-cloud-aws-context</code>
 module provides a way to define the region for the entire application context.</p>
 </div>
@@ -880,7 +880,7 @@ be reconfigured with property files or system properties.</p>
 <h5 id="_automatic_region_configuration">Automatic region configuration</h5>
 <div class="paragraph">
 <p>If the application context is started inside an EC2 instance, then the region can automatically be fetched from the
-<a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html">instance metadata</a> and therefore must
+<a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html">instance metadata</a> and therefore must
 not be configured statically. The configuration will look like this:</p>
 </div>
 <div class="listingblock">
@@ -1045,7 +1045,7 @@ application context using common Spring mechanisms like property placeholder or 
 <div class="sect2">
 <h3 id="_retrieving_instance_metadata">3.1. Retrieving instance metadata</h3>
 <div class="paragraph">
-<p><a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html">Instance metadata</a> are available inside an
+<p><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html">Instance metadata</a> are available inside an
 EC2 environment. The metadata can be queried using a special HTTP address that provides the instance metadata. Spring Cloud
 AWS enables application to access this metadata directly in expression or property placeholder without the need to call
 an external HTTP service.</p>
@@ -1151,7 +1151,7 @@ public class ApplicationInfoBean {
 </td>
 <td class="content">
 <div class="paragraph">
-<p>Every instance metadata can be accessed by the key available in the <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html">instance metadata service</a>
+<p>Every instance metadata can be accessed by the key available in the <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html">instance metadata service</a>
 Nested properties can be accessed by separating the properties with a slash ('/').</p>
 </div>
 </td>
@@ -1167,7 +1167,7 @@ parsed by Spring Cloud AWS. The user data can be defined while starting an EC2 i
 expects the format <code>&lt;key&gt;:&lt;value&gt;;&lt;key&gt;:&lt;value&gt;</code> inside the user data so that it can parse the string and extract the key value pairs.</p>
 </div>
 <div class="paragraph">
-<p>The user data can be configured using either the management console shown below or a <a href="http://aws.amazon.com/cloudformation/aws-cloudformation-templates/">CloudFormation template</a>.</p>
+<p>The user data can be configured using either the management console shown below or a <a href="https://aws.amazon.com/cloudformation/aws-cloudformation-templates/">CloudFormation template</a>.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -1228,7 +1228,7 @@ the instance.</p>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html">User data</a> can also be used to execute scripts
+<p><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html">User data</a> can also be used to execute scripts
 on instance startup. Therefore it is useful to leverage instance tags for user configuration and user data to execute scripts
 on instance startup.</p>
 </div>
@@ -1367,7 +1367,7 @@ the specified region and security credentials. Application developers can inject
 <div class="sectionbody">
 <div class="paragraph">
 <p>Managing environments manually with the management console does not scale and can become error-prone with the increasing
-complexity of the infrastructure. Amazon Web services offers a <a href="http://aws.amazon.com/cloudformation/">CloudFormation</a>
+complexity of the infrastructure. Amazon Web services offers a <a href="https://aws.amazon.com/cloudformation/">CloudFormation</a>
 service that allows to define stack configuration templates and bootstrap the whole infrastructure with the services.
 In order to allow multiple stacks in parallel, each resource in the stack receives a unique physical name that contains
 some arbitrary generated name. In order to interact with the stack resources in a unified way Spring Cloud AWS allows
@@ -1422,7 +1422,7 @@ the database.</p>
 	   xmlns:aws-context="http://www.springframework.org/schema/cloud/aws/context"
 	   xmlns="http://www.springframework.org/schema/beans"
 	   xsi:schemaLocation="http://www.springframework.org/schema/cloud/aws/context
-	   http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context-1.0.xsd"&gt;
+	   https://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context-1.0.xsd"&gt;
 
   &lt;aws-context:context-credentials&gt;
   	...
@@ -1604,7 +1604,7 @@ with a special setup. The client itself can be configured using the <code>amazon
 <h2 id="_messaging">5. Messaging</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Spring Cloud AWS provides <a href="http://aws.amazon.com/sqs/">Amazon SQS</a> and <a href="http://aws.amazon.com/sqs/">Amazon SNS</a> integration
+<p>Spring Cloud AWS provides <a href="https://aws.amazon.com/sqs/">Amazon SQS</a> and <a href="https://aws.amazon.com/sqs/">Amazon SNS</a> integration
 that simplifies the publication and consumption of messages over SQS or SNS. While SQS fully relies on the messaging API
 introduced with Spring 4.0, SNS only partially implements it as the receiving part must be handled differently for
 push notifications.</p>
@@ -1701,11 +1701,11 @@ resource name resolution).</p>
 	xmlns:aws-messaging="http://www.springframework.org/schema/cloud/aws/messaging"
 	xmlns="http://www.springframework.org/schema/beans"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
-		http://www.springframework.org/schema/beans/spring-beans.xsd
+		https://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/cloud/aws/context
-		http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context-1.0.xsd
+		https://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context-1.0.xsd
 		http://www.springframework.org/schema/cloud/aws/messaging
-	   	http://www.springframework.org/schema/cloud/aws/messaging/spring-cloud-aws-messaging-1.0.xsd"&gt;
+	   	https://www.springframework.org/schema/cloud/aws/messaging/spring-cloud-aws-messaging-1.0.xsd"&gt;
 
 	&lt;aws-context:context-credentials&gt;
 		&lt;aws-context:instance-profile-credentials /&gt;
@@ -1841,7 +1841,7 @@ sophisticated <code>MessageConverter</code> that converts objects into JSON when
 <div class="paragraph">
 <p>In this example a <code>QueueMessagingTemplate</code> is created using the messaging namespace. The <code>convertAndSend</code> method
 converts the payload <code>Person</code> using the configured <code>MessageConverter</code> and sends the message.
-Only the <a href="http://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_Message.html">standard
+Only the <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_Message.html">standard
 message attributes</a> sent with an SQS message are supported. Custom attributes are currently not supported.</p>
 </div>
 <div class="paragraph">
@@ -2145,10 +2145,10 @@ provides, since version 3.1, a unified Cache abstraction to allow declarative ca
 declarative transactions.</p>
 </div>
 <div class="paragraph">
-<p>Spring Cloud AWS integrates the <a href="http://aws.amazon.com/elasticache/">Amazon ElastiCache</a> service into the Spring unified
+<p>Spring Cloud AWS integrates the <a href="https://aws.amazon.com/elasticache/">Amazon ElastiCache</a> service into the Spring unified
 caching abstraction providing a cache manager based on the memcached and Redis protocols. The caching support for Spring
 Cloud AWS provides its own memcached implementation for ElastiCache and uses
-<a href="http://projects.spring.io/spring-data-redis/">Spring Data Redis</a> for Redis caches.</p>
+<a href="https://projects.spring.io/spring-data-redis/">Spring Data Redis</a> for Redis caches.</p>
 </div>
 <div class="sect2">
 <h3 id="_configuring_dependencies_for_redis_caches">6.1. Configuring dependencies for Redis caches</h3>
@@ -2192,9 +2192,9 @@ configuration to enable declarative, annotation-based caching.</p>
 	   xmlns:cache="http://www.springframework.org/schema/cache"
 	   xmlns="http://www.springframework.org/schema/beans"
 	   xsi:schemaLocation="http://www.springframework.org/schema/cloud/aws/cache
-	   	http://www.springframework.org/schema/cloud/aws/cache/spring-cloud-aws-cache-1.0.xsd
+	   	https://www.springframework.org/schema/cloud/aws/cache/spring-cloud-aws-cache-1.0.xsd
 	   	http://www.springframework.org/schema/cache
-	   	http://www.springframework.org/schema/cache/spring-cache.xsd"&gt;
+	   	https://www.springframework.org/schema/cache/spring-cache.xsd"&gt;
 
 	&lt;aws-context:context-credentials&gt;
 		...
@@ -2210,7 +2210,7 @@ configuration to enable declarative, annotation-based caching.</p>
 </div>
 <div class="paragraph">
 <p>The configuration above configures a <code>cache-manager</code> with one cache with the name <code>CacheCluster</code> that represents an
-<a href="http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ManagingCacheClusters.html">ElasticCache cluster</a>.</p>
+<a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ManagingCacheClusters.html">ElasticCache cluster</a>.</p>
 </div>
 <div class="sect3">
 <h4 id="_mixing_caches">6.2.1. Mixing caches</h4>
@@ -2340,7 +2340,7 @@ public class ExpensiveService {
 <p>There are different memcached client implementations available for Java, the most prominent ones are
 <a href="https://github.com/couchbase/spymemcached">Spymemcached</a> and <a href="https://github.com/killme2008/xmemcached">XMemcached</a>.
 Amazon AWS supports a dynamic configuration and delivers an enhanced memcached client based on Spymemcached to support the
-<a href="http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/AutoDiscovery.html">auto-discovery</a> of new nodes based on
+<a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/AutoDiscovery.html">auto-discovery</a> of new nodes based on
 a central configuration endpoint.</p>
 </div>
 <div class="paragraph">
@@ -2394,7 +2394,7 @@ without any configuration change inside the application.</p>
 <div class="paragraph">
 <p>Spring has a broad support of data access technologies built on top of JDBC like <code>JdbcTemplate</code> and dedicated ORM (JPA,
 Hibernate support). Spring Cloud AWS enables application developers to re-use their JDBC technology of choice and access the
-<a href="http://aws.amazon.com/rds/">Amazon Relational Database Service</a> with a declarative configuration. The main support provided by Spring
+<a href="https://aws.amazon.com/rds/">Amazon Relational Database Service</a> with a declarative configuration. The main support provided by Spring
 Cloud AWS for JDBC data access are:</p>
 </div>
 <div class="ulist">
@@ -2445,7 +2445,7 @@ to configure the data source with the minimum attributes as shown in the example
 	   xmlns:jdbc="http://www.springframework.org/schema/cloud/aws/jdbc"
 	   xmlns="http://www.springframework.org/schema/beans"
 	   xsi:schemaLocation="http://www.springframework.org/schema/cloud/aws/jdbc
-	   http://www.springframework.org/schema/cloud/aws/jdbc/spring-cloud-aws-jdbc-1.0.xsd"&gt;
+	   https://www.springframework.org/schema/cloud/aws/jdbc/spring-cloud-aws-jdbc-1.0.xsd"&gt;
 
  &lt;aws-context:context-credentials&gt;
   ...
@@ -2467,7 +2467,7 @@ user to be used (which is recommended) then the <code>username</code> attribute 
 </div>
 <div class="paragraph">
 <p>With this configuration Spring Cloud AWS fetches all the necessary metadata and creates a
-<a href="http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html">Tomcat JDBC pool</a> with the default properties. The data source
+<a href="https://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html">Tomcat JDBC pool</a> with the default properties. The data source
 can be later injected into any Spring Bean as shown below:</p>
 </div>
 <div class="listingblock">
@@ -2518,7 +2518,7 @@ with custom pool properties.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>A full list of all configuration attributes with their value is available <a href="http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html">here</a>.</p>
+<p>A full list of all configuration attributes with their value is available <a href="https://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html">here</a>.</p>
 </div>
 </div>
 </div>
@@ -2654,7 +2654,7 @@ outlines all properties for a data source using <code>test</code> as the instanc
 <div class="sect2">
 <h3 id="_read_replica_configuration">7.4. Read-replica configuration</h3>
 <div class="paragraph">
-<p>Amazon RDS allows to use <a href="http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html">MySQL read-replica</a>
+<p>Amazon RDS allows to use <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html">MySQL read-replica</a>
 instances to increase the overall throughput of the database by offloading read data access to one or more read-replica
 slaves while maintaining the data in one master database.</p>
 </div>
@@ -2671,7 +2671,7 @@ for write operations.</p>
 </td>
 <td class="content">
 <div class="paragraph">
-<p>Using read-replica instances does not guarantee strict <a href="http://en.wikipedia.org/wiki/ACID">ACID</a> semantics for the database
+<p>Using read-replica instances does not guarantee strict <a href="https://en.wikipedia.org/wiki/ACID">ACID</a> semantics for the database
 access and should be used with care. This is due to the fact that the read-replica might be behind and a write might not
 be immediately visible to the read transaction. Therefore it is recommended to use read-replica instances only for transactions that read
 data which is not changed very often and where outdated data can be handled by the application.</p>
@@ -2726,7 +2726,7 @@ public class SimpleDatabaseService {
 <div class="sect2">
 <h3 id="_failover_support">7.5. Failover support</h3>
 <div class="paragraph">
-<p>Amazon RDS supports a <a href="http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.MultiAZ.html">Multi-AZ</a> fail-over if
+<p>Amazon RDS supports a <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.MultiAZ.html">Multi-AZ</a> fail-over if
 one availability zone is not available due to an outage or failure of the primary instance. The replication is synchronous
 (compared to the read-replicas) and provides continuous service. Spring Cloud AWS supports a Multi-AZ failover with a retry
 mechanism to recover transactions that fail during a Multi-AZ failover.</p>
@@ -2907,9 +2907,9 @@ database is configured using CloudFormation.</p>
 <h2 id="_sending_mails">8. Sending mails</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Spring has a built-in support to send e-mails based on the <a href="http://www.oracle.com/technetwork/java/javamail/index.html">Java Mail API</a>
+<p>Spring has a built-in support to send e-mails based on the <a href="https://www.oracle.com/technetwork/java/javamail/index.html">Java Mail API</a>
 to avoid any static method calls while using the Java Mail API and thus supporting the testability of an application.
-Spring Cloud AWS supports the <a href="http://aws.amazon.com/de/ses/">Amazon SES</a> as an implementation of the Spring Mail abstraction.</p>
+Spring Cloud AWS supports the <a href="https://aws.amazon.com/de/ses/">Amazon SES</a> as an implementation of the Spring Mail abstraction.</p>
 </div>
 <div class="paragraph">
 <p>As a result Spring Cloud AWS users can decide to use the Spring Cloud AWS implementation of the Amazon SES service or
@@ -2942,7 +2942,7 @@ attachments as simple mail messages. A configuration with the necessary elements
 <div class="content">
 <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;beans xmlns:aws-mail="http://www.springframework.org/schema/cloud/aws/mail"
    xsi:schemaLocation="http://www.springframework.org/schema/cloud/aws/mail
-      http://www.springframework.org/schema/cloud/aws/mail/spring-cloud-aws-mail-1.0.xsd"&gt;
+      https://www.springframework.org/schema/cloud/aws/mail/spring-cloud-aws-mail-1.0.xsd"&gt;
 
 	&lt;aws-context:context-credentials&gt;
 	  ..
@@ -3019,7 +3019,7 @@ which is shown below.</p>
 <td class="content">
 <div class="paragraph">
 <p>Even though there is a dependency to the Java Mail API there is still the Amazon SES API used underneath to send mail
-messages. There is no <a href="http://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-smtp.html">SMTP setup</a> required
+messages. There is no <a href="https://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-smtp.html">SMTP setup</a> required
 on the Amazon AWS side.</p>
 </div>
 </td>
@@ -3063,7 +3063,7 @@ below.</p>
 <div class="sect2">
 <h3 id="_configuring_regions">8.4. Configuring regions</h3>
 <div class="paragraph">
-<p>Amazon SES is not available in all <a href="http://docs.aws.amazon.com/ses/latest/DeveloperGuide/regions.html">regions</a> of the
+<p>Amazon SES is not available in all <a href="https://docs.aws.amazon.com/ses/latest/DeveloperGuide/regions.html">regions</a> of the
 Amazon Web Services cloud. Therefore an application hosted and operated in a region that does not support the mail
 service will produce an error while using the mail service. Therefore the region must be overridden for the mail
 sender configuration. The example below shows a typical combination of a region (EU-CENTRAL-1) that does not provide
@@ -3084,11 +3084,11 @@ an SES service where the client is overridden to use a valid region (EU-WEST-1).
 <h3 id="_authenticating_e_mails">8.5. Authenticating e-mails</h3>
 <div class="paragraph">
 <p>To avoid any spam attacks on the Amazon SES mail service, applications without production access must
-<a href="http://docs.aws.amazon.com/ses/latest/DeveloperGuide/verify-email-addresses.html">verify</a> each
+<a href="https://docs.aws.amazon.com/ses/latest/DeveloperGuide/verify-email-addresses.html">verify</a> each
 e-mail receiver otherwise the mail sender will throw a <code>com.amazonaws.services.simpleemail.model.MessageRejectedException</code>.</p>
 </div>
 <div class="paragraph">
-<p><a href="http://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.html">Production access</a> can be requested
+<p><a href="https://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.html">Production access</a> can be requested
 and will disable the need for mail address verification.</p>
 </div>
 </div>
@@ -3099,7 +3099,7 @@ and will disable the need for mail address verification.</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The Spring Framework provides a <code>org.springframework.core.io.ResourceLoader</code> abstraction to load files from the filesystem,
-servlet context and the classpath. Spring Cloud AWS adds support for the <a href="http://aws.amazon.com/s3/">Amazon S3</a> service
+servlet context and the classpath. Spring Cloud AWS adds support for the <a href="https://aws.amazon.com/s3/">Amazon S3</a> service
 to load and write resources with the resource loader and the <code>s3</code> protocol.</p>
 </div>
 <div class="paragraph">
@@ -3117,7 +3117,7 @@ The configuration consists of one element for the whole application context that
 <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	   xmlns:aws-context="http://www.springframework.org/schema/cloud/aws/context"
 	   xsi:schemaLocation="http://www.springframework.org/schema/cloud/aws/context
-	   http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context-1.0.xsd"&gt;
+	   https://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context-1.0.xsd"&gt;
 
 	&lt;aws-context:context-credentials&gt;
     		...
@@ -3184,7 +3184,7 @@ using the <code>WritableResource</code> interface. The next example demonstrates
 <div class="sect3">
 <h4 id="_uploading_multi_part_files">9.3.1. Uploading multi-part files</h4>
 <div class="paragraph">
-<p>Amazon S3 supports <a href="http://docs.aws.amazon.com/AmazonS3/latest/dev/uploadobjusingmpu.html">multi-part uploads</a> to
+<p>Amazon S3 supports <a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/uploadobjusingmpu.html">multi-part uploads</a> to
 increase the general throughput while uploading. Spring Cloud AWS by default only uses one thread to upload the files and
 therefore does not provide parallel upload support. Users can configure a custom <code>org.springframework.core.task.TaskExecutor</code>
 for the resource loader. The resource loader will queue multiple threads at the same time to use parallel multi-part uploads.</p>
