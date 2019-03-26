@@ -50,7 +50,7 @@ public class DynamicQueueUrlDestinationResolverTest {
 	public void testAbsoluteUrl() throws Exception {
 		AmazonSQS amazonSqs = mock(AmazonSQS.class);
 		DynamicQueueUrlDestinationResolver dynamicQueueDestinationResolver = new DynamicQueueUrlDestinationResolver(amazonSqs);
-		String destination = "http://sqs-amazon.aws.com/123123123/myQueue";
+		String destination = "https://sqs-amazon.aws.com/123123123/myQueue";
 		assertEquals(destination, dynamicQueueDestinationResolver.resolveDestination(destination));
 	}
 
