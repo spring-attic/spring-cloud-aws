@@ -46,7 +46,7 @@ use of the modules. A typical XML configuration to use Spring Cloud AWS is outli
        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xsi:schemaLocation</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.springframework.org/schema/beans
         https://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/cloud/aws/context
-        https://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&gt;</span>
+        http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&gt;</span>
 
            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-context:context-region</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">region</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"..."</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">/&gt;</span>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/beans&gt;</span></pre><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_sdk_credentials_configuration" href="#_sdk_credentials_configuration"></a>2.2.1&nbsp;SDK credentials configuration</h3></div></div></div><p>In order to make calls to the Amazon Web Service the credentials must be configured for the the Amazon SDK. Spring Cloud AWS
@@ -271,7 +271,7 @@ the database.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/n
 	   <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xmlns:aws-context</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.springframework.org/schema/cloud/aws/context"</span>
 	   <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xmlns</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.springframework.org/schema/beans"</span>
 	   <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xsi:schemaLocation</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.springframework.org/schema/cloud/aws/context
-	   https://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&gt;</span>
+	   http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&gt;</span>
 
   <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-context:context-credentials&gt;</span>
   	...
@@ -369,7 +369,7 @@ resource name resolution).</p><p>With the messaging namespace a <code class="lit
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xsi:schemaLocation</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.springframework.org/schema/beans
 		https://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/cloud/aws/context
-		https://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd
+		http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd
 		http://www.springframework.org/schema/cloud/aws/messaging
 	   	http://www.springframework.org/schema/cloud/aws/messaging/spring-cloud-aws-messaging"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&gt;</span>
 
@@ -557,7 +557,7 @@ configuration to enable declarative, annotation-based caching.</p><pre class="pr
 	   <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xmlns:cache</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.springframework.org/schema/cache"</span>
 	   <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xmlns</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.springframework.org/schema/beans"</span>
 	   <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xsi:schemaLocation</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.springframework.org/schema/cloud/aws/cache
-	   	https://www.springframework.org/schema/cloud/aws/cache/spring-cloud-aws-cache.xsd
+	   	http://www.springframework.org/schema/cloud/aws/cache/spring-cloud-aws-cache.xsd
 	   	http://www.springframework.org/schema/cache
 	   	https://www.springframework.org/schema/cache/spring-cache.xsd"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&gt;</span>
 
@@ -641,7 +641,7 @@ to configure the data source with the minimum attributes as shown in the example
 	   <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xmlns:jdbc</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.springframework.org/schema/cloud/aws/jdbc"</span>
 	   <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xmlns</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.springframework.org/schema/beans"</span>
 	   <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xsi:schemaLocation</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.springframework.org/schema/cloud/aws/jdbc
-	   https://www.springframework.org/schema/cloud/aws/jdbc/spring-cloud-aws-jdbc.xsd"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&gt;</span>
+	   http://www.springframework.org/schema/cloud/aws/jdbc/spring-cloud-aws-jdbc.xsd"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&gt;</span>
 
  <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-context:context-credentials&gt;</span>
   ...
@@ -819,7 +819,7 @@ until it sends an e-mail.</p></td></tr></table></div><div class="section"><div c
 client to be used. The default mail sender works without a Java Mail dependency and is capable of sending messages without
 attachments as simple mail messages. A configuration with the necessary elements will look like this:</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;beans</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xmlns:aws-mail</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.springframework.org/schema/cloud/aws/mail"</span>
    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xsi:schemaLocation</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.springframework.org/schema/cloud/aws/mail
-      https://www.springframework.org/schema/cloud/aws/mail/spring-cloud-aws-mail.xsd"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&gt;</span>
+      http://www.springframework.org/schema/cloud/aws/mail/spring-cloud-aws-mail.xsd"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&gt;</span>
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-context:context-credentials&gt;</span>
 	  ..
@@ -908,7 +908,7 @@ handling support.</p><div class="section"><div class="titlepage"><div><div><h2 c
 The configuration consists of one element for the whole application context that is shown below:</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;beans</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xmlns:xsi</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.w3.org/2001/XMLSchema-instance"</span>
 	   <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xmlns:aws-context</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.springframework.org/schema/cloud/aws/context"</span>
 	   <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">xsi:schemaLocation</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"http://www.springframework.org/schema/cloud/aws/context
-	   https://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&gt;</span>
+	   http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&gt;</span>
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-context:context-credentials&gt;</span>
     		...

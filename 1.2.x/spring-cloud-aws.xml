@@ -115,7 +115,7 @@ use of the modules. A typical XML configuration to use Spring Cloud AWS is outli
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         https://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/cloud/aws/context
-        https://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd"&gt;
+        http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd"&gt;
 
            &lt;aws-context:context-region region="..."/&gt;
 &lt;/beans&gt;</programlisting>
@@ -589,7 +589,7 @@ the database.</simpara>
 	   xmlns:aws-context="http://www.springframework.org/schema/cloud/aws/context"
 	   xmlns="http://www.springframework.org/schema/beans"
 	   xsi:schemaLocation="http://www.springframework.org/schema/cloud/aws/context
-	   https://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd"&gt;
+	   http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd"&gt;
 
   &lt;aws-context:context-credentials&gt;
   	...
@@ -784,7 +784,7 @@ resource name resolution).</simpara>
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 		https://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/cloud/aws/context
-		https://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd
+		http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd
 		http://www.springframework.org/schema/cloud/aws/messaging
 	   	http://www.springframework.org/schema/cloud/aws/messaging/spring-cloud-aws-messaging"&gt;
 
@@ -1102,7 +1102,7 @@ configuration to enable declarative, annotation-based caching.</simpara>
 	   xmlns:cache="http://www.springframework.org/schema/cache"
 	   xmlns="http://www.springframework.org/schema/beans"
 	   xsi:schemaLocation="http://www.springframework.org/schema/cloud/aws/cache
-	   	https://www.springframework.org/schema/cloud/aws/cache/spring-cloud-aws-cache.xsd
+	   	http://www.springframework.org/schema/cloud/aws/cache/spring-cloud-aws-cache.xsd
 	   	http://www.springframework.org/schema/cache
 	   	https://www.springframework.org/schema/cache/spring-cache.xsd"&gt;
 
@@ -1264,7 +1264,7 @@ to configure the data source with the minimum attributes as shown in the example
 	   xmlns:jdbc="http://www.springframework.org/schema/cloud/aws/jdbc"
 	   xmlns="http://www.springframework.org/schema/beans"
 	   xsi:schemaLocation="http://www.springframework.org/schema/cloud/aws/jdbc
-	   https://www.springframework.org/schema/cloud/aws/jdbc/spring-cloud-aws-jdbc.xsd"&gt;
+	   http://www.springframework.org/schema/cloud/aws/jdbc/spring-cloud-aws-jdbc.xsd"&gt;
 
  &lt;aws-context:context-credentials&gt;
   ...
@@ -1583,7 +1583,7 @@ client to be used. The default mail sender works without a Java Mail dependency 
 attachments as simple mail messages. A configuration with the necessary elements will look like this:</simpara>
 <programlisting language="xml" linenumbering="unnumbered">&lt;beans xmlns:aws-mail="http://www.springframework.org/schema/cloud/aws/mail"
    xsi:schemaLocation="http://www.springframework.org/schema/cloud/aws/mail
-      https://www.springframework.org/schema/cloud/aws/mail/spring-cloud-aws-mail.xsd"&gt;
+      http://www.springframework.org/schema/cloud/aws/mail/spring-cloud-aws-mail.xsd"&gt;
 
 	&lt;aws-context:context-credentials&gt;
 	  ..
@@ -1707,7 +1707,7 @@ The configuration consists of one element for the whole application context that
 <programlisting language="xml" linenumbering="unnumbered">&lt;beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	   xmlns:aws-context="http://www.springframework.org/schema/cloud/aws/context"
 	   xsi:schemaLocation="http://www.springframework.org/schema/cloud/aws/context
-	   https://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd"&gt;
+	   http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd"&gt;
 
 	&lt;aws-context:context-credentials&gt;
     		...
