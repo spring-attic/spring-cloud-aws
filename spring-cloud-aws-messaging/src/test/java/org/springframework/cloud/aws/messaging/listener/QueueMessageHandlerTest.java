@@ -566,6 +566,39 @@ public class QueueMessageHandlerTest {
 				.containsAll(Arrays.asList("queueOne", "queueTwo"))).isTrue();
 	}
 
+	@Test
+	public void processHandlerMethodException_invocableHandlerMethodNotAvailable_errorMustNotBeLogged() {
+		// Arrange
+		StaticApplicationContext applicationContext = new StaticApplicationContext();
+		applicationContext.registerSingleton("sqsListenerWithoutMessageExceptionHandler",
+				SqsListenerWithoutMessageExceptionHandler.class);
+		applicationContext.registerBeanDefinition("queueMessageHandler",
+				getQueueMessageHandlerBeanDefinition());
+		applicationContext.refresh();
+		MessageHandler messageHandler = applicationContext.getBean(MessageHandler.class);
+
+		LoggerContext logContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+		ListAppender<ILoggingEvent> appender = new ListAppender<>();
+		appender.start();
+		Logger log = logContext.getLogger(QueueMessageHandler.class);
+		log.setLevel(Level.ERROR);
+		log.addAppender(appender);
+		appender.setContext(log.getLoggerContext());
+
+		// Act
+		try {
+			messageHandler.handleMessage(MessageBuilder.withPayload("testContent")
+					.setHeader(QueueMessageHandler.LOGICAL_RESOURCE_ID, "receive")
+					.build());
+		}
+		catch (MessagingException e) {
+			// ignore
+		}
+
+		// Assert
+		assertThat(appender.list).isEmpty();
+	}
+
 	@SuppressWarnings("UnusedDeclaration")
 	private static class IncomingMessageHandler {
 
@@ -602,6 +635,14 @@ public class QueueMessageHandlerTest {
 			return this.lastReceivedMessage;
 		}
 
+	}
+
+	private static class SqsListenerWithoutMessageExceptionHandler {
+
+		@SqsListener("receive")
+		public String receive(String value) {
+			return value.toUpperCase();
+		}
 	}
 
 	private static class IncomingMessageHandlerWithMultipleQueueNames {
