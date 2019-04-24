@@ -726,6 +726,10 @@ You can configure the following settings in a Spring Cloud `bootstrap.properties
 |`_`
 |String that separates an appended profile from the context name.
 
+|`aws.secretsmanager.prefixSeparator`
+|`/`
+|String that separates an appended prefix from the context name.
+
 |`aws.secretsmanager.failFast`
 |`true`
 |Indicates if an error while retrieving the secrets should fail starting the application.

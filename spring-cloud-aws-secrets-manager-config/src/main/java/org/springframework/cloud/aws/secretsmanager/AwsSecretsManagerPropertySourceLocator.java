@@ -31,6 +31,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.PropertySource;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * Builds a {@link CompositePropertySource} with various
@@ -78,14 +79,24 @@ public class AwsSecretsManagerPropertySourceLocator implements PropertySourceLoc
 		List<String> profiles = Arrays.asList(env.getActiveProfiles());
 
 		String prefix = this.properties.getPrefix();
+		String prefixSeparator = this.properties.getPrefixSeparator();
 
-		String defaultContext = prefix + "/" + this.properties.getDefaultContext();
-		this.contexts.add(defaultContext);
-		addProfiles(this.contexts, defaultContext, profiles);
+		String defaultContext = StringUtils.isEmpty(prefix) ? this.properties.getDefaultContext() : prefix + prefixSeparator + this.properties.getDefaultContext();
+		// Prevent to add an empty context if there is no prefix, and an empty properties.getDefaultContext()
+		if (!StringUtils.isEmpty(defaultContext)) {
+			this.contexts.add(defaultContext);
+			addProfiles(this.contexts, defaultContext, profiles);
+		}
 
-		String baseContext = prefix + "/" + appName;
-		this.contexts.add(baseContext);
-		addProfiles(this.contexts, baseContext, profiles);
+		// appName can be null or empty
+		if (!StringUtils.isEmpty(appName)) {
+			String baseContext = StringUtils.isEmpty(prefix) ? appName : prefix + prefixSeparator + appName;
+			// Prevent to add an empty context if there is no prefix, and an empty appName
+			if (!StringUtils.isEmpty(baseContext)) {
+				this.contexts.add(baseContext);
+				addProfiles(this.contexts, baseContext, profiles);
+			}
+		}
 
 		Collections.reverse(this.contexts);
 

@@ -54,6 +54,10 @@ public class AwsSecretsManagerProperties {
 	@Pattern(regexp = "[a-zA-Z0-9.\\-_]+")
 	private String profileSeparator = "_";
 
+	@NotNull
+	@Pattern(regexp = "[a-zA-Z0-9.\\-_/]+")
+	private String prefixSeparator = "/";
+
 	/** Throw exceptions during config lookup if true, otherwise, log warnings. */
 	private boolean failFast = true;
 
@@ -114,4 +118,11 @@ public class AwsSecretsManagerProperties {
 		this.enabled = enabled;
 	}
 
+	public String getPrefixSeparator() {
+		return prefixSeparator;
+	}
+
+	public void setPrefixSeparator(String prefixSeparator) {
+		this.prefixSeparator = prefixSeparator;
+	}
 }
