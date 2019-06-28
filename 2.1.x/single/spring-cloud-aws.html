@@ -127,8 +127,8 @@ The following code sample demonstrates the activation of the instance metadata s
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/beans&gt;</span></pre><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Instance metadata can be retrieved without an authorized service call, therefore the configuration above does not require
 any region or security specific configuration.</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_enabling_instance_metadata_support_with_java" href="#_enabling_instance_metadata_support_with_java"></a>3.1.2&nbsp;Enabling instance metadata support with Java</h3></div></div></div><p>The instance metadata can also be configured within a Java configuration class without the need for an XML configuration.
 The next example shows a typical Spring <code class="literal">@Configuration</code> class that enables the instance metadata with the
-<code class="literal">org.springframework.cloud.aws.context.config.annotation.EnableInstanceData</code></p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
-<em><span class="hl-annotation" style="color: gray">@EnableContextInstanceData</span></em>
+<code class="literal">org.springframework.cloud.aws.context.config.annotation.EnableInstanceData</code></p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Configuration</xslthl:annotation>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@EnableContextInstanceData</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">static</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> ApplicationConfiguration {
 }</pre></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_enabling_instance_metadata_support_in_spring_boot" href="#_enabling_instance_metadata_support_in_spring_boot"></a>3.1.3&nbsp;Enabling instance metadata support in Spring Boot</h3></div></div></div><p>The instance metadata is automatically available in a Spring Boot application as a property source if the application
 is running on an EC2 instance.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_using_instance_metadata" href="#_using_instance_metadata"></a>3.1.4&nbsp;Using instance metadata</h3></div></div></div><p>Instance metadata can be used in XML, Java placeholders and expressions. The example below demonstrates the usage of
@@ -140,19 +140,19 @@ instance metadata inside an XML file using placeholders and also the expression 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;property</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">name</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"value4"</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">value</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"${instance-id}"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span>
  <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/bean&gt;</span>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/beans&gt;</span></pre><p>Instance metadata can also be injected with the Spring <code class="literal">org.springframework.beans.factory.annotation.Value</code> annotation
-directly into Java fields. The next example demonstrates the use of instance metadata inside a Spring bean.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Component</span></em>
+directly into Java fields. The next example demonstrates the use of instance metadata inside a Spring bean.</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Component</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> ApplicationInfoBean {
 
-    <em><span class="hl-annotation" style="color: gray">@Value("${ami-id:N/A}")</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("${ami-id:N/A}")</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String amiId;
 
-    <em><span class="hl-annotation" style="color: gray">@Value("${hostname:N/A}")</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("${hostname:N/A}")</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String hostname;
 
-    <em><span class="hl-annotation" style="color: gray">@Value("${instance-type:N/A}")</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("${instance-type:N/A}")</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String instanceType;
 
-    <em><span class="hl-annotation" style="color: gray">@Value("${services/domain:N/A}")</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("${services/domain:N/A}")</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String serviceDomain;
 }</pre><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>Every instance metadata can be accessed by the key available in the <a class="link" href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html" target="_top">instance metadata service</a>
 Nested properties can be accessed by separating the properties with a slash ('/').</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_using_instance_user_data" href="#_using_instance_user_data"></a>3.1.5&nbsp;Using instance user data</h3></div></div></div><p>Besides the default instance metadata it is also possible to configure user data on each instance. This user data is retrieved and
@@ -170,13 +170,13 @@ expects the format <code class="literal">&lt;key&gt;:&lt;value&gt;;&lt;key&gt;:&
 	 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">}</span>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">}</span>
 ...</pre><p>The user data can be accessed directly in the application context like the instance metadata through placeholders
-or expressions.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Component</span></em>
+or expressions.</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Component</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> SecondConfigurationBean {
 
-	<em><span class="hl-annotation" style="color: gray">@Value("${data1}")</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("${data1}")</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String firstDataOption;
 
-	<em><span class="hl-annotation" style="color: gray">@Value("${data2}")</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("${data2}")</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String secondDataOption;
 }</pre></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_using_instance_tags" href="#_using_instance_tags"></a>3.1.6&nbsp;Using instance tags</h3></div></div></div><p>User configured properties can also be configured with tags instead of user data. Tags are a global concept in the context
 of Amazon Web services and used in different services. Spring Cloud AWS supports instance tags also across different
@@ -220,16 +220,16 @@ can then be queried using expression for other bean definitions.</p><pre class="
  <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">&lt;aws-context:context-instance-data</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">user-tags-map</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"instanceData"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/beans&gt;</span></pre><p>A java bean might resolve expressions with the <code class="literal">@Value</code> annotation.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> SimpleConfigurationBean {
 
-	<em><span class="hl-annotation" style="color: gray">@Value("#{instanceData.tag1}")</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("#{instanceData.tag1}")</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String value1;
 
-	<em><span class="hl-annotation" style="color: gray">@Value("#{instanceData.tag2}")</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("#{instanceData.tag2}")</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String value2;
 
-	<em><span class="hl-annotation" style="color: gray">@Value("#{instanceData.tag3}")</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("#{instanceData.tag3}")</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String value3;
 
-	<em><span class="hl-annotation" style="color: gray">@Value("#{instanceData.tag4}")</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("#{instanceData.tag4}")</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String value4;
 }</pre></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_configuring_custom_ec2_client" href="#_configuring_custom_ec2_client"></a>3.1.7&nbsp;Configuring custom EC2 client</h3></div></div></div><p>In some circumstances it is necessary to have a custom EC2 client to retrieve the instance information. The
 <code class="literal">context-instance-data</code> element supports a custom EC2 client with the <code class="literal">amazon-ec2</code> attribute. The next
@@ -247,7 +247,7 @@ the specified region and security credentials. Application developers can inject
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> AmazonEC2 amazonEc2;
 
-	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ApplicationService(AmazonEC2 amazonEc2) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.amazonEc2 = amazonEc2;
 	}
@@ -327,18 +327,18 @@ respective stack configuration information at runtime.</p><pre class="programlis
  XML inside the application configuration. Spring Cloud AWS provides the annotation
  <code class="literal">og.springframework.cloud.aws.context.config.annotation.EnableStackConfiguration</code> that allows the automatic and manual
  stack configuration. The next example shows a configuration class that configures the CloudFormation support with an
- explicit stack name (here <code class="literal">manualStackName</code>).</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
-<em><span class="hl-annotation" style="color: gray">@EnableStackConfiguration(stackName = "manualStackName")</span></em>
+ explicit stack name (here <code class="literal">manualStackName</code>).</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Configuration</xslthl:annotation>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@EnableStackConfiguration(stackName = "manualStackName")</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> ApplicationConfiguration {
 }</pre><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Do not define the <code class="literal">stackName</code> attribute if an automatic stack name should be enabled.</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_cloudformation_configuration_in_spring_boot" href="#_cloudformation_configuration_in_spring_boot"></a>4.4&nbsp;CloudFormation configuration in Spring Boot</h2></div></div></div><p>Spring Cloud AWS also supports the configuration of the CloudFormation support within the Spring Boot configuration. The
 manual and automatic stack configuration can be defined with properties that are described in the table below.</p><div class="informaltable"><table class="informaltable" style="border-collapse: collapse;border-top: 1px solid ; border-bottom: 1px solid ; border-left: 1px solid ; border-right: 1px solid ; "><colgroup><col class="col_1"><col class="col_2"><col class="col_3"></colgroup><thead><tr><th style="border-right: 1px solid ; border-bottom: 1px solid ; " align="left" valign="top">property</th><th style="border-right: 1px solid ; border-bottom: 1px solid ; " align="left" valign="top">example</th><th style="border-bottom: 1px solid ; " align="left" valign="top">description</th></tr></thead><tbody><tr><td style="border-right: 1px solid ; border-bottom: 1px solid ; " align="left" valign="top"><p>cloud.aws.stack.name</p></td><td style="border-right: 1px solid ; border-bottom: 1px solid ; " align="left" valign="top"><p>myStackName</p></td><td style="border-bottom: 1px solid ; " align="left" valign="top"><p>The name of the manually configured stack name that will be used to retrieve the resources.</p></td></tr><tr><td style="border-right: 1px solid ; " align="left" valign="top"><p>cloud.aws.stack.auto</p></td><td style="border-right: 1px solid ; " align="left" valign="top"><p>true</p></td><td style="" align="left" valign="top"><p>Enables the automatic stack name detection for the application.</p></td></tr></tbody></table></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_manual_name_resolution" href="#_manual_name_resolution"></a>4.5&nbsp;Manual name resolution</h2></div></div></div><p>Spring Cloud AWS uses the CloudFormation stack to resolve all resources internally using the logical names. In some circumstances
 it might be needed to resolve the physical name inside the application code. Spring Cloud AWS provides a pre-configured
-service to resolve the physical stack name based on the logical name. The sample shows a manual stack resource resolution.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Service</span></em>
+service to resolve the physical stack name based on the logical name. The sample shows a manual stack resource resolution.</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Service</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> ApplicationService {
 
  <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> ResourceIdResolver resourceIdResolver;
 
- <em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+ <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
  <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ApplicationService(ResourceIdResolver resourceIdResolver) {
  	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.resourceIdResolver = resourceIdResolver;
  }
@@ -383,7 +383,7 @@ be resolved against the SQS API. The send method that takes no destination argum
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> QueueMessagingTemplate queueMessagingTemplate;
 
-	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> SqsQueueSender(AmazonSQS amazonSqs) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.queueMessagingTemplate = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> QueueMessagingTemplate(amazonSqs);
 	}
@@ -429,7 +429,7 @@ sophisticated <code class="literal">MessageConverter</code> that converts object
 converts the payload <code class="literal">Person</code> using the configured <code class="literal">MessageConverter</code> and sends the message.</p></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_receiving_a_message" href="#_receiving_a_message"></a>5.2.2&nbsp;Receiving a message</h3></div></div></div><p>There are two ways for receiving SQS messages, either use the <code class="literal">receive</code> methods of the <code class="literal">QueueMessagingTemplate</code> or with
 annotation-driven listener endpoints. The latter is by far the more convenient way to receive messages.</p><pre class="programlisting">Person person = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.queueMessagingTemplate.receiveAndConvert(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"queueName"</span>, Person.<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span>);</pre><p>In this example the <code class="literal">QueueMessagingTemplate</code> will get one message from the SQS queue and convert it to the target class
 passed as argument.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_annotation_driven_listener_endpoints" href="#_annotation_driven_listener_endpoints"></a>5.2.3&nbsp;Annotation-driven listener endpoints</h3></div></div></div><p>Annotation-driven listener endpoints are the easiest way for listening on SQS messages. Simply annotate methods with
-<code class="literal">MessageMapping</code> and the <code class="literal">QueueMessageHandler</code> will route the messages to the annotated methods.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:annotation-driven-queue-listener /&gt;</span></pre><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@SqsListener("queueName")</span></em>
+<code class="literal">MessageMapping</code> and the <code class="literal">QueueMessageHandler</code> will route the messages to the annotated methods.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:annotation-driven-queue-listener /&gt;</span></pre><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@SqsListener("queueName")</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> queueListener(Person person) {
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// ...</span>
 }</pre><p>In this example a queue listener container is started that polls the SQS <code class="literal">queueName</code> passed to the <code class="literal">MessageMapping</code>
@@ -447,27 +447,27 @@ the number of queues by the value of the <code class="literal">maxNumberOfMessag
 the application, a custom task executor can be set with the <code class="literal">task-executor</code> attribute (see example below).</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:annotation-driven-queue-listener</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">task-executor</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"simpleTaskExecutor"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span></pre><div class="section"><div class="titlepage"><div><div><h4 class="title"><a name="_message_reply" href="#_message_reply"></a>Message reply</h4></div></div></div><p>Message listener methods can be annotated with <code class="literal">@SendTo</code> to send their return value to another channel. The
 <code class="literal">SendToHandlerMethodReturnValueHandler</code> uses the defined messaging template set on the
 <code class="literal">aws-messaging:annotation-driven-queue-listener</code> element to send the return value. The messaging template must implement
-the <code class="literal">DestinationResolvingMessageSendingOperations</code> interface.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:annotation-driven-queue-listener</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">send-to-message-template</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"queueMessagingTemplate"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">/&gt;</span></pre><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@SqsListener("treeQueue")</span></em>
-<em><span class="hl-annotation" style="color: gray">@SendTo("leafsQueue")</span></em>
+the <code class="literal">DestinationResolvingMessageSendingOperations</code> interface.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:annotation-driven-queue-listener</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">send-to-message-template</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"queueMessagingTemplate"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">/&gt;</span></pre><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@SqsListener("treeQueue")</xslthl:annotation>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@SendTo("leafsQueue")</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> List&lt;Leaf&gt; extractLeafs(Tree tree) {
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// ...</span>
 }</pre><p>In this example the <code class="literal">extractLeafs</code> method will receive messages coming from the <code class="literal">treeQueue</code> and then return a
 <code class="literal">List</code> of <code class="literal">Leaf</code>s which is going to be sent to the <code class="literal">leafsQueue</code>. Note that on the
 <code class="literal">aws-messaging:annotation-driven-queue-listener</code> XML element there is an attribute <code class="literal">send-to-message-template</code>
 that specifies <code class="literal">QueueMessagingTemplate</code> as the messaging template to be used to send the return value of the message
-listener method.</p></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_the_simplemessagelistenercontainerfactory" href="#_the_simplemessagelistenercontainerfactory"></a>5.2.4&nbsp;The SimpleMessageListenerContainerFactory</h3></div></div></div><p>The <code class="literal">SimpleMessageListenerContainer</code> can also be configured with Java by creating a bean of type <code class="literal">SimpleMessageListenerContainerFactory</code>.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+listener method.</p></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_the_simplemessagelistenercontainerfactory" href="#_the_simplemessagelistenercontainerfactory"></a>5.2.4&nbsp;The SimpleMessageListenerContainerFactory</h3></div></div></div><p>The <code class="literal">SimpleMessageListenerContainer</code> can also be configured with Java by creating a bean of type <code class="literal">SimpleMessageListenerContainerFactory</code>.</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Bean</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> SimpleMessageListenerContainerFactory simpleMessageListenerContainerFactory(AmazonSQSAsync amazonSqs) {
 	SimpleMessageListenerContainerFactory factory = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> SimpleMessageListenerContainerFactory();
 	factory.setAmazonSqs(amazonSqs);
 	factory.setAutoStartup(false);
-	factory.setMaxNumberOfMessages(<span class="hl-number">5</span>);
+	factory.setMaxNumberOfMessages(<xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">5</xslthl:number>);
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// ...</span>
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> factory;
 }</pre></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_consuming_aws_event_messages_with_amazon_sqs" href="#_consuming_aws_event_messages_with_amazon_sqs"></a>5.2.5&nbsp;Consuming AWS Event messages with Amazon SQS</h3></div></div></div><p>It is also possible to receive AWS generated event messages with the SQS message listeners. Because
 AWS messages does not contain the mime-type header, the Jackson message converter has to be configured
 with the <code class="literal">strictContentTypeMatch</code> property false to also parse message without the proper mime type.</p><p>The next code shows the configuration of the message converter using the <code class="literal">QueueMessageHandlerFactory</code>
-and re-configuring the <code class="literal">MappingJackson2MessageConverter</code></p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+and re-configuring the <code class="literal">MappingJackson2MessageConverter</code></p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Bean</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> QueueMessageHandlerFactory queueMessageHandlerFactory() {
 	QueueMessageHandlerFactory factory = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> QueueMessageHandlerFactory();
 	MappingJackson2MessageConverter messageConverter = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> MappingJackson2MessageConverter();
@@ -477,9 +477,9 @@ and re-configuring the <code class="literal">MappingJackson2MessageConverter</co
 	factory.setArgumentResolvers(Collections.&lt;HandlerMethodArgumentResolver&gt;singletonList(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> PayloadArgumentResolver(messageConverter)));
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> factory;
 }</pre><p>With the configuration above, it is possible to receive event notification for S3 buckets (and also other
- event notifications like elastic transcoder messages) inside <code class="literal">@SqsListener</code> annotated methods s shown below.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@SqsListener("testQueue")</span></em>
+ event notifications like elastic transcoder messages) inside <code class="literal">@SqsListener</code> annotated methods s shown below.</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@SqsListener("testQueue")</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> receive(S3EventNotification s3EventNotificationRecord) {
-	S3EventNotification.S3Entity s3Entity = s3EventNotificationRecord.getRecords().get(<span class="hl-number">0</span>).getS3();
+	S3EventNotification.S3Entity s3Entity = s3EventNotificationRecord.getRecords().get(<xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">0</xslthl:number>).getS3();
 }</pre></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_sns_support" href="#_sns_support"></a>5.3&nbsp;SNS support</h2></div></div></div><p>Amazon SNS is a publish-subscribe messaging system that allows clients to publish notification to a particular topic. Other
 interested clients may subscribe using different protocols like HTTP/HTTPS, e-mail or an Amazon SQS queue to receive the messages.</p><p>The next graphic shows a typical example of an Amazon SNS architecture.</p><div class="informalfigure"><div class="mediaobject"><img src="images/sns-overview.png" alt="SNS Overview"></div></div><p>Spring Cloud AWS supports Amazon SNS by providing support to send notifications with a <code class="literal">NotificationMessagingTemplate</code> and
 to receive notifications with the HTTP/HTTPS endpoint using the Spring Web MVC <code class="literal">@Controller</code> based programming model. Amazon
@@ -495,7 +495,7 @@ type by the SNS API.</p></td></tr></table></div><pre class="programlisting"><spa
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> NotificationMessagingTemplate notificationMessagingTemplate;
 
-	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> SnsNotificationSender(AmazonSNS amazonSns) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.notificationMessagingTemplate = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> NotificationMessagingTemplate(amazonSns);
 	}
@@ -511,22 +511,22 @@ is resolved at runtime by the Amazon SNS client. Optionally a <code class="liter
 (See <a class="xref" href="#_managing_cloud_environments" title="4.&nbsp;Managing cloud environments">Chapter&nbsp;4, <i>Managing cloud environments</i></a> for more information about resource name resolution.)</p><p>It is recommended to use the XML messaging namespace to create <code class="literal">NotificationMessagingTemplate</code> as it will automatically
 configure the SNS client to setup the default converter.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:notification-messaging-template</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">id</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"notificationMessagingTemplate"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span></pre></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_annotation_driven_http_notification_endpoint" href="#_annotation_driven_http_notification_endpoint"></a>5.3.2&nbsp;Annotation-driven HTTP notification endpoint</h3></div></div></div><p>SNS supports multiple endpoint types (SQS, Email, HTTP, HTTPS), Spring Cloud AWS provides support for HTTP(S) endpoints.
 SNS sends three type of requests to an HTTP topic listener endpoint, for each of them annotations are provided:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">Subscription request &#8594; <code class="literal">@NotificationSubscriptionMapping</code></li><li class="listitem">Notification request &#8594; <code class="literal">@NotificationMessageMapping</code></li><li class="listitem">Unsubscription request &#8594; <code class="literal">@NotificationUnsubscribeMapping</code></li></ul></div><p>HTTP endpoints are based on Spring MVC controllers. Spring Cloud AWS added some custom argument resolvers to extract
-the message and subject out of the notification requests.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Controller</span></em>
-<em><span class="hl-annotation" style="color: gray">@RequestMapping("/topicName")</span></em>
+the message and subject out of the notification requests.</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Controller</xslthl:annotation>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@RequestMapping("/topicName")</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> NotificationTestController {
 
-	<em><span class="hl-annotation" style="color: gray">@NotificationSubscriptionMapping</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@NotificationSubscriptionMapping</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> handleSubscriptionMessage(NotificationStatus status) <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">//We subscribe to start receive the message</span>
 		status.confirmSubscription();
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@NotificationMessageMapping</span></em>
-	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> handleNotificationMessage(<em><span class="hl-annotation" style="color: gray">@NotificationSubject</span></em> String subject, <em><span class="hl-annotation" style="color: gray">@NotificationMessage</span></em> String message) {
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@NotificationMessageMapping</xslthl:annotation>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> handleNotificationMessage(<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@NotificationSubject</xslthl:annotation> String subject, <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@NotificationMessage</xslthl:annotation> String message) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// ...</span>
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@NotificationUnsubscribeConfirmationMapping</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@NotificationUnsubscribeConfirmationMapping</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> handleUnsubscribeMessage(NotificationStatus status) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">//e.g. the client has been unsubscribed and we want to "re-subscribe"</span>
 		status.confirmSubscription();
@@ -556,7 +556,7 @@ name. The example below shows an SNS topic and SQS queue configuration inside a 
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">}</span></pre><p>The logical names <code class="literal">LogicalQueueName</code> and <code class="literal">LogicalTopicName</code> can then be used in the configuration and in the application
 as shown below:</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:queue-messaging-template</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">default-destination</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"LogicalQueueName"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span>
 
-<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:notification-messaging-template</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">default-destination</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"LogicalTopicName"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span></pre><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@SqsListener("LogicalQueueName")</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:notification-messaging-template</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">default-destination</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"LogicalTopicName"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span></pre><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@SqsListener("LogicalQueueName")</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> receiveQueueMessages(Person person) {
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// Logical names can also be used with messaging templates</span>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.notificationMessagingTemplate.sendNotification(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"anotherLogicalTopicName"</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"Message"</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"Subject"</span>);
@@ -619,20 +619,20 @@ No configured values implies that there is an infinite expiration time.</p><pre 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/aws-cache:cache-manager&gt;</span>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/beans&gt;</span></pre></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_configuring_caching_using_java_configuration" href="#_configuring_caching_using_java_configuration"></a>6.3&nbsp;Configuring caching using Java configuration</h2></div></div></div><p>Spring Cloud AWS also support the cache configuration with Java configuration classes. On any <code class="literal">Configuration</code> class,
 the caching can be configured using the <code class="literal">org.springframework.cloud.aws.cache.config.annotation.EnableElastiCache</code>
-annotation provided by Spring Cloud AWS. The next example shows a configuration of two cache clusters.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@EnableElastiCache({@CacheClusterConfig(name = "firstCache"), @CacheClusterConfig(name = "secondCache")})</span></em>
+annotation provided by Spring Cloud AWS. The next example shows a configuration of two cache clusters.</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@EnableElastiCache({@CacheClusterConfig(name = "firstCache"), @CacheClusterConfig(name = "secondCache")})</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> ApplicationConfiguration {
 }</pre><div class="important" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Important"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="images/important.png"></td><th align="left">Important</th></tr><tr><td align="left" valign="top"><p>If you leave the <code class="literal">value</code> attribute empty, then all the caches inside your CloudFormation stack (if available)
 will be configured automatically.</p></td></tr></table></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_configuring_expiry_time_for_caches" href="#_configuring_expiry_time_for_caches"></a>6.3.1&nbsp;Configuring expiry time for caches</h3></div></div></div><p>The Java configuration also allows to configure the expiry time for the caches. This can be done for all
-caches using the <code class="literal">defaultExpiration</code> attribute as shown in the example below.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@EnableElastiCache(defaultExpiration = 23)</span></em>
+caches using the <code class="literal">defaultExpiration</code> attribute as shown in the example below.</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@EnableElastiCache(defaultExpiration = 23)</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> ApplicationConfiguration {
 }</pre><p>The expiration can be defined on a cache level using the <code class="literal">@CacheClusterConfig</code> annotations expiration attribute as shown below (using seconds as
-the value).</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@EnableElastiCache({@CacheClusterConfig(name = "firstCache", expiration = 23), @CacheClusterConfig(name = "secondCache", expiration = 42)})</span></em>
+the value).</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@EnableElastiCache({@CacheClusterConfig(name = "firstCache", expiration = 23), @CacheClusterConfig(name = "secondCache", expiration = 42)})</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> ApplicationConfiguration {
 }</pre></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_configuring_caching_in_spring_boot" href="#_configuring_caching_in_spring_boot"></a>6.4&nbsp;Configuring caching in Spring Boot</h2></div></div></div><p>The caches will automatically be configured in Spring Boot without any explicit configuration property.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_using_caching" href="#_using_caching"></a>6.5&nbsp;Using caching</h2></div></div></div><p>Based on the configuration of the cache, developers can annotate their methods to use the caching for method return values.
-The next example contains a caching declaration for a service for which the return values should be cached</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Service</span></em>
+The next example contains a caching declaration for a service for which the return values should be cached</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Service</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> ExpensiveService {
 
-    <em><span class="hl-annotation" style="color: gray">@Cacheable("CacheCluster")</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Cacheable("CacheCluster")</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String calculateExpensiveValue(String key) {
 		...
     }
@@ -688,12 +688,12 @@ to configure the data source with the minimum attributes as shown in the example
 that points to a valid Amazon RDS database instance. The master user password for the master user. If there is another
 user to be used (which is recommended) then the <code class="literal">username</code> attribute can be set.</p><p>With this configuration Spring Cloud AWS fetches all the necessary metadata and creates a
 <a class="link" href="https://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html" target="_top">Tomcat JDBC pool</a> with the default properties. The data source
-can be later injected into any Spring Bean as shown below:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Service</span></em>
+can be later injected into any Spring Bean as shown below:</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Service</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> SimpleDatabaseService <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">implements</span> DatabaseService {
 
  <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> JdbcTemplate jdbcTemplate;
 
- <em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+ <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
  <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> SimpleDatabaseService(DataSource dataSource) {
  	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.jdbcTemplate = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> JdbcTemplate(dataSource);
  }
@@ -719,24 +719,24 @@ with custom pool properties.</p><pre class="programlisting"><span xmlns:d="http:
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/beans&gt;</span></pre><p>A full list of all configuration attributes with their value is available <a class="link" href="https://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html" target="_top">here</a>.</p></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_configuring_data_source_with_java_config" href="#_configuring_data_source_with_java_config"></a>7.2&nbsp;Configuring data source with Java config</h2></div></div></div><p>Spring Cloud AWS also supports the configuration of the data source within an <code class="literal">@Configuration</code> class. The
 <code class="literal">org.springframework.cloud.aws.jdbc.config.annotation.EnableRdsInstance</code> annotation can be used to configure one data
 source. Multiple ones can be used to configure more then one data source. Each annotation will generate exactly one
-data source bean.</p><p>The class below shows a data source configuration inside a configuration class</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
-<em><span class="hl-annotation" style="color: gray">@EnableRdsInstance(dbInstanceIdentifier = "test",password = "secret", readReplicaSupport = true)</span></em>
+data source bean.</p><p>The class below shows a data source configuration inside a configuration class</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Configuration</xslthl:annotation>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@EnableRdsInstance(dbInstanceIdentifier = "test",password = "secret", readReplicaSupport = true)</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> ApplicationConfiguration {
 }</pre><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>The configuration attributes are the same in the XML element. The required attributes are also the same
 for the XML configuration (the <code class="literal">dbInstanceIdentifier</code> and <code class="literal">password</code> attribute)</p></td></tr></table></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_java_based_data_source_pool_configuration" href="#_java_based_data_source_pool_configuration"></a>7.2.1&nbsp;Java based data source pool configuration</h3></div></div></div><p>It is also possible to override the pool configuration with custom values. Spring Cloud AWS provides a
 <code class="literal">org.springframework.cloud.aws.jdbc.config.annotation.RdsInstanceConfigurer</code> that creates a
 <code class="literal">org.springframework.cloud.aws.jdbc.datasource.DataSourceFactory</code> which might contain custom pool attributes. The next
-examples shows the implementation of one configurer that overrides the validation query and the initial size.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
-<em><span class="hl-annotation" style="color: gray">@EnableRdsInstance(dbInstanceIdentifier = "test",password = "secret")</span></em>
+examples shows the implementation of one configurer that overrides the validation query and the initial size.</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Configuration</xslthl:annotation>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@EnableRdsInstance(dbInstanceIdentifier = "test",password = "secret")</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> ApplicationConfiguration {
 
-    <em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Bean</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> RdsInstanceConfigurer instanceConfigurer() {
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> RdsInstanceConfigurer() {
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
         	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> DataSourceFactory getDataSourceFactory() {
         		TomcatJdbcDataSourceFactory dataSourceFactory = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> TomcatJdbcDataSourceFactory();
-        		dataSourceFactory.setInitialSize(<span class="hl-number">10</span>);
+        		dataSourceFactory.setInitialSize(<xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">10</xslthl:number>);
         		dataSourceFactory.setValidationQuery(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"SELECT 1 FROM DUAL"</span>);
         		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> dataSourceFactory;
         	}
@@ -760,22 +760,22 @@ data which is not changed very often and where outdated data can be handled by t
  <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/jdbc:data-source&gt;</span>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/beans&gt;</span></pre><p>Spring Cloud AWS will search for any read-replica that is created for the master database and route the read-only transactions
 to one of the read-replicas that are available. A business service that uses read-replicas can be implemented like shown
-in the example.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Service</span></em>
+in the example.</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Service</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> SimpleDatabaseService {
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> JdbcTemplate jdbcTemplate;
 
-	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> SimpleDatabaseService(DataSource dataSource) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.jdbcTemplate = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> JdbcTemplate(dataSource);
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@Transactional(readOnly = true)</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Transactional(readOnly = true)</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Person loadAll() {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// read data on the read replica</span>
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@Transactional</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Transactional</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> updatePerson(Person person) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// write data into database</span>
 	}
@@ -838,7 +838,7 @@ on the <code class="literal">data-source</code> element. Configure the tags supp
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">db-instance-identifier</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"myRdsDatabase"</span>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">password</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"${rdsPassword}"</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">user-tags-map</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"dbTags"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span></pre><p>That allows the developer to access the properties in the code using expressions like shown in the class below:</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> SampleService {
 
-	<em><span class="hl-annotation" style="color: gray">@Value("#{dbTags['aws:cloudformation:aws:cloudformation:stack-name']}")</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("#{dbTags['aws:cloudformation:aws:cloudformation:stack-name']}")</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String stackName;
 }</pre><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>The database tag <code class="literal">aws:cloudformation:aws:cloudformation:stack-name</code> is a default tag that is created if the
 database is configured using CloudFormation.</p></td></tr></table></div></div></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a name="_sending_mails" href="#_sending_mails"></a>8.&nbsp;Sending mails</h1></div></div></div><p>Spring has a built-in support to send e-mails based on the <a class="link" href="https://www.oracle.com/technetwork/java/javamail/index.html" target="_top">Java Mail API</a>
@@ -865,7 +865,7 @@ messages. The sample below demonstrates the creation of a simple mail message.</
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> MailSender mailSender;
 
-	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> MailSendingService(MailSender mailSender) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.mailSender = mailSender;
 	}
@@ -900,7 +900,7 @@ below.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbo
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> JavaMailSender mailSender;
 
-   	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+   	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> MailSendingService(JavaMailSender mailSender) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.mailSender = mailSender;
 	}
@@ -908,7 +908,7 @@ below.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbo
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> sendMailMessage() {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.mailSender.send(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> MimeMessagePreparator() {
 
-   			<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+   			<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
    			<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> prepare(MimeMessage mimeMessage) <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> Exception {
    				MimeMessageHelper helper =
    					<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> MimeMessageHelper(mimeMessage, true, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"UTF-8"</span>);
@@ -951,7 +951,7 @@ typical pattern is <code class="literal">s3://&lt;bucket&gt;/&lt;object&gt;</cod
 name inside the bucket. The object name can be a file in the <span class="emphasis"><em>root</em></span> folder of a bucket or a nested file within a directory
 inside a bucket.</p><p>The next example demonstrates the use of the resource loader to load different resources.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> SimpleResourceLoadingBean {
 
-	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> ResourceLoader resourceLoader;
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> resourceLoadingMethod() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
@@ -965,7 +965,7 @@ inside a bucket.</p><p>The next example demonstrates the use of the resource loa
 interface which is a specialization of the <code class="literal">org.springframework.core.io.ResourceLoader</code> interface. Clients can upload files
 using the <code class="literal">WritableResource</code> interface. The next example demonstrates an upload of a resource using the resource loader.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> SimpleResourceLoadingBean {
 
-    <em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> ResourceLoader resourceLoader;
 
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> writeResource() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
@@ -989,7 +989,7 @@ the multi-part functionality. A <code class="literal">com.amazonaws.services.s3.
 code and injected with the pre-configured <code class="literal">com.amazonaws.services.s3.AmazonS3</code> client that is already created
 with the Spring Cloud AWS resource loader configuration.</p><p>This example shows the use of the <code class="literal">transferManager</code> within an application to upload files from the hard-drive.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> SimpleResourceLoadingBean {
 
-	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> AmazonS3 amazonS3;
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> withTransferManager() {
@@ -1003,7 +1003,7 @@ will fall back to the original one. The next example shows the resource resoluti
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> ResourcePatternResolver resourcePatternResolver;
 
- 	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+ 	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> setupResolver(ApplicationContext applicationContext, AmazonS3 amazonS3){
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.resourcePatternResolver = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> PathMatchingSimpleStorageResourcePatternResolver(amazonS3, applicationContext);
     }
@@ -1029,7 +1029,7 @@ like <span class="emphasis"><em>integrationteststack-sampleBucket-23qysofs62tc2<
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> ResourceLoader loader;
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> ResourceIdResolver idResolver;
 
-	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> SimpleResourceLoadingBean(ResourceLoader loader, ResourceIdResolver idResolver) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.loader = loader;
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.idResolver = idResolver;

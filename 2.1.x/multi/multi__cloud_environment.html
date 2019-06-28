@@ -11,8 +11,8 @@ The following code sample demonstrates the activation of the instance metadata s
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/beans&gt;</span></pre><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Instance metadata can be retrieved without an authorized service call, therefore the configuration above does not require
 any region or security specific configuration.</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_enabling_instance_metadata_support_with_java" href="#_enabling_instance_metadata_support_with_java"></a>3.1.2&nbsp;Enabling instance metadata support with Java</h3></div></div></div><p>The instance metadata can also be configured within a Java configuration class without the need for an XML configuration.
 The next example shows a typical Spring <code class="literal">@Configuration</code> class that enables the instance metadata with the
-<code class="literal">org.springframework.cloud.aws.context.config.annotation.EnableInstanceData</code></p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
-<em><span class="hl-annotation" style="color: gray">@EnableContextInstanceData</span></em>
+<code class="literal">org.springframework.cloud.aws.context.config.annotation.EnableInstanceData</code></p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Configuration</xslthl:annotation>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@EnableContextInstanceData</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">static</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> ApplicationConfiguration {
 }</pre></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_enabling_instance_metadata_support_in_spring_boot" href="#_enabling_instance_metadata_support_in_spring_boot"></a>3.1.3&nbsp;Enabling instance metadata support in Spring Boot</h3></div></div></div><p>The instance metadata is automatically available in a Spring Boot application as a property source if the application
 is running on an EC2 instance.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_using_instance_metadata" href="#_using_instance_metadata"></a>3.1.4&nbsp;Using instance metadata</h3></div></div></div><p>Instance metadata can be used in XML, Java placeholders and expressions. The example below demonstrates the usage of
@@ -24,19 +24,19 @@ instance metadata inside an XML file using placeholders and also the expression 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;property</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">name</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"value4"</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">value</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"${instance-id}"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span>
  <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/bean&gt;</span>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/beans&gt;</span></pre><p>Instance metadata can also be injected with the Spring <code class="literal">org.springframework.beans.factory.annotation.Value</code> annotation
-directly into Java fields. The next example demonstrates the use of instance metadata inside a Spring bean.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Component</span></em>
+directly into Java fields. The next example demonstrates the use of instance metadata inside a Spring bean.</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Component</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> ApplicationInfoBean {
 
-    <em><span class="hl-annotation" style="color: gray">@Value("${ami-id:N/A}")</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("${ami-id:N/A}")</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String amiId;
 
-    <em><span class="hl-annotation" style="color: gray">@Value("${hostname:N/A}")</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("${hostname:N/A}")</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String hostname;
 
-    <em><span class="hl-annotation" style="color: gray">@Value("${instance-type:N/A}")</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("${instance-type:N/A}")</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String instanceType;
 
-    <em><span class="hl-annotation" style="color: gray">@Value("${services/domain:N/A}")</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("${services/domain:N/A}")</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String serviceDomain;
 }</pre><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>Every instance metadata can be accessed by the key available in the <a class="link" href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html" target="_top">instance metadata service</a>
 Nested properties can be accessed by separating the properties with a slash ('/').</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_using_instance_user_data" href="#_using_instance_user_data"></a>3.1.5&nbsp;Using instance user data</h3></div></div></div><p>Besides the default instance metadata it is also possible to configure user data on each instance. This user data is retrieved and
@@ -54,13 +54,13 @@ expects the format <code class="literal">&lt;key&gt;:&lt;value&gt;;&lt;key&gt;:&
 	 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">}</span>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">}</span>
 ...</pre><p>The user data can be accessed directly in the application context like the instance metadata through placeholders
-or expressions.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Component</span></em>
+or expressions.</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Component</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> SecondConfigurationBean {
 
-	<em><span class="hl-annotation" style="color: gray">@Value("${data1}")</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("${data1}")</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String firstDataOption;
 
-	<em><span class="hl-annotation" style="color: gray">@Value("${data2}")</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("${data2}")</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String secondDataOption;
 }</pre></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_using_instance_tags" href="#_using_instance_tags"></a>3.1.6&nbsp;Using instance tags</h3></div></div></div><p>User configured properties can also be configured with tags instead of user data. Tags are a global concept in the context
 of Amazon Web services and used in different services. Spring Cloud AWS supports instance tags also across different
@@ -104,16 +104,16 @@ can then be queried using expression for other bean definitions.</p><pre class="
  <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">&lt;aws-context:context-instance-data</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">user-tags-map</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"instanceData"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/beans&gt;</span></pre><p>A java bean might resolve expressions with the <code class="literal">@Value</code> annotation.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> SimpleConfigurationBean {
 
-	<em><span class="hl-annotation" style="color: gray">@Value("#{instanceData.tag1}")</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("#{instanceData.tag1}")</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String value1;
 
-	<em><span class="hl-annotation" style="color: gray">@Value("#{instanceData.tag2}")</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("#{instanceData.tag2}")</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String value2;
 
-	<em><span class="hl-annotation" style="color: gray">@Value("#{instanceData.tag3}")</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("#{instanceData.tag3}")</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String value3;
 
-	<em><span class="hl-annotation" style="color: gray">@Value("#{instanceData.tag4}")</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("#{instanceData.tag4}")</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String value4;
 }</pre></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_configuring_custom_ec2_client" href="#_configuring_custom_ec2_client"></a>3.1.7&nbsp;Configuring custom EC2 client</h3></div></div></div><p>In some circumstances it is necessary to have a custom EC2 client to retrieve the instance information. The
 <code class="literal">context-instance-data</code> element supports a custom EC2 client with the <code class="literal">amazon-ec2</code> attribute. The next
@@ -131,7 +131,7 @@ the specified region and security credentials. Application developers can inject
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> AmazonEC2 amazonEc2;
 
-	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ApplicationService(AmazonEC2 amazonEc2) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.amazonEc2 = amazonEc2;
 	}

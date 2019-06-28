@@ -24,7 +24,7 @@ be resolved against the SQS API. The send method that takes no destination argum
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> QueueMessagingTemplate queueMessagingTemplate;
 
-	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> SqsQueueSender(AmazonSQS amazonSqs) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.queueMessagingTemplate = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> QueueMessagingTemplate(amazonSqs);
 	}
@@ -70,7 +70,7 @@ sophisticated <code class="literal">MessageConverter</code> that converts object
 converts the payload <code class="literal">Person</code> using the configured <code class="literal">MessageConverter</code> and sends the message.</p></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_receiving_a_message" href="#_receiving_a_message"></a>5.2.2&nbsp;Receiving a message</h3></div></div></div><p>There are two ways for receiving SQS messages, either use the <code class="literal">receive</code> methods of the <code class="literal">QueueMessagingTemplate</code> or with
 annotation-driven listener endpoints. The latter is by far the more convenient way to receive messages.</p><pre class="programlisting">Person person = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.queueMessagingTemplate.receiveAndConvert(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"queueName"</span>, Person.<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span>);</pre><p>In this example the <code class="literal">QueueMessagingTemplate</code> will get one message from the SQS queue and convert it to the target class
 passed as argument.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_annotation_driven_listener_endpoints" href="#_annotation_driven_listener_endpoints"></a>5.2.3&nbsp;Annotation-driven listener endpoints</h3></div></div></div><p>Annotation-driven listener endpoints are the easiest way for listening on SQS messages. Simply annotate methods with
-<code class="literal">MessageMapping</code> and the <code class="literal">QueueMessageHandler</code> will route the messages to the annotated methods.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:annotation-driven-queue-listener /&gt;</span></pre><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@SqsListener("queueName")</span></em>
+<code class="literal">MessageMapping</code> and the <code class="literal">QueueMessageHandler</code> will route the messages to the annotated methods.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:annotation-driven-queue-listener /&gt;</span></pre><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@SqsListener("queueName")</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> queueListener(Person person) {
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// ...</span>
 }</pre><p>In this example a queue listener container is started that polls the SQS <code class="literal">queueName</code> passed to the <code class="literal">MessageMapping</code>
@@ -88,27 +88,27 @@ the number of queues by the value of the <code class="literal">maxNumberOfMessag
 the application, a custom task executor can be set with the <code class="literal">task-executor</code> attribute (see example below).</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:annotation-driven-queue-listener</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">task-executor</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"simpleTaskExecutor"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span></pre><div class="section"><div class="titlepage"><div><div><h4 class="title"><a name="_message_reply" href="#_message_reply"></a>Message reply</h4></div></div></div><p>Message listener methods can be annotated with <code class="literal">@SendTo</code> to send their return value to another channel. The
 <code class="literal">SendToHandlerMethodReturnValueHandler</code> uses the defined messaging template set on the
 <code class="literal">aws-messaging:annotation-driven-queue-listener</code> element to send the return value. The messaging template must implement
-the <code class="literal">DestinationResolvingMessageSendingOperations</code> interface.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:annotation-driven-queue-listener</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">send-to-message-template</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"queueMessagingTemplate"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">/&gt;</span></pre><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@SqsListener("treeQueue")</span></em>
-<em><span class="hl-annotation" style="color: gray">@SendTo("leafsQueue")</span></em>
+the <code class="literal">DestinationResolvingMessageSendingOperations</code> interface.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:annotation-driven-queue-listener</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">send-to-message-template</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"queueMessagingTemplate"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">/&gt;</span></pre><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@SqsListener("treeQueue")</xslthl:annotation>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@SendTo("leafsQueue")</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> List&lt;Leaf&gt; extractLeafs(Tree tree) {
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// ...</span>
 }</pre><p>In this example the <code class="literal">extractLeafs</code> method will receive messages coming from the <code class="literal">treeQueue</code> and then return a
 <code class="literal">List</code> of <code class="literal">Leaf</code>s which is going to be sent to the <code class="literal">leafsQueue</code>. Note that on the
 <code class="literal">aws-messaging:annotation-driven-queue-listener</code> XML element there is an attribute <code class="literal">send-to-message-template</code>
 that specifies <code class="literal">QueueMessagingTemplate</code> as the messaging template to be used to send the return value of the message
-listener method.</p></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_the_simplemessagelistenercontainerfactory" href="#_the_simplemessagelistenercontainerfactory"></a>5.2.4&nbsp;The SimpleMessageListenerContainerFactory</h3></div></div></div><p>The <code class="literal">SimpleMessageListenerContainer</code> can also be configured with Java by creating a bean of type <code class="literal">SimpleMessageListenerContainerFactory</code>.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+listener method.</p></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_the_simplemessagelistenercontainerfactory" href="#_the_simplemessagelistenercontainerfactory"></a>5.2.4&nbsp;The SimpleMessageListenerContainerFactory</h3></div></div></div><p>The <code class="literal">SimpleMessageListenerContainer</code> can also be configured with Java by creating a bean of type <code class="literal">SimpleMessageListenerContainerFactory</code>.</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Bean</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> SimpleMessageListenerContainerFactory simpleMessageListenerContainerFactory(AmazonSQSAsync amazonSqs) {
 	SimpleMessageListenerContainerFactory factory = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> SimpleMessageListenerContainerFactory();
 	factory.setAmazonSqs(amazonSqs);
 	factory.setAutoStartup(false);
-	factory.setMaxNumberOfMessages(<span class="hl-number">5</span>);
+	factory.setMaxNumberOfMessages(<xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">5</xslthl:number>);
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// ...</span>
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> factory;
 }</pre></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_consuming_aws_event_messages_with_amazon_sqs" href="#_consuming_aws_event_messages_with_amazon_sqs"></a>5.2.5&nbsp;Consuming AWS Event messages with Amazon SQS</h3></div></div></div><p>It is also possible to receive AWS generated event messages with the SQS message listeners. Because
 AWS messages does not contain the mime-type header, the Jackson message converter has to be configured
 with the <code class="literal">strictContentTypeMatch</code> property false to also parse message without the proper mime type.</p><p>The next code shows the configuration of the message converter using the <code class="literal">QueueMessageHandlerFactory</code>
-and re-configuring the <code class="literal">MappingJackson2MessageConverter</code></p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+and re-configuring the <code class="literal">MappingJackson2MessageConverter</code></p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Bean</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> QueueMessageHandlerFactory queueMessageHandlerFactory() {
 	QueueMessageHandlerFactory factory = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> QueueMessageHandlerFactory();
 	MappingJackson2MessageConverter messageConverter = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> MappingJackson2MessageConverter();
@@ -118,9 +118,9 @@ and re-configuring the <code class="literal">MappingJackson2MessageConverter</co
 	factory.setArgumentResolvers(Collections.&lt;HandlerMethodArgumentResolver&gt;singletonList(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> PayloadArgumentResolver(messageConverter)));
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> factory;
 }</pre><p>With the configuration above, it is possible to receive event notification for S3 buckets (and also other
- event notifications like elastic transcoder messages) inside <code class="literal">@SqsListener</code> annotated methods s shown below.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@SqsListener("testQueue")</span></em>
+ event notifications like elastic transcoder messages) inside <code class="literal">@SqsListener</code> annotated methods s shown below.</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@SqsListener("testQueue")</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> receive(S3EventNotification s3EventNotificationRecord) {
-	S3EventNotification.S3Entity s3Entity = s3EventNotificationRecord.getRecords().get(<span class="hl-number">0</span>).getS3();
+	S3EventNotification.S3Entity s3Entity = s3EventNotificationRecord.getRecords().get(<xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">0</xslthl:number>).getS3();
 }</pre></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_sns_support" href="#_sns_support"></a>5.3&nbsp;SNS support</h2></div></div></div><p>Amazon SNS is a publish-subscribe messaging system that allows clients to publish notification to a particular topic. Other
 interested clients may subscribe using different protocols like HTTP/HTTPS, e-mail or an Amazon SQS queue to receive the messages.</p><p>The next graphic shows a typical example of an Amazon SNS architecture.</p><div class="informalfigure"><div class="mediaobject"><img src="images/sns-overview.png" alt="SNS Overview"></div></div><p>Spring Cloud AWS supports Amazon SNS by providing support to send notifications with a <code class="literal">NotificationMessagingTemplate</code> and
 to receive notifications with the HTTP/HTTPS endpoint using the Spring Web MVC <code class="literal">@Controller</code> based programming model. Amazon
@@ -136,7 +136,7 @@ type by the SNS API.</p></td></tr></table></div><pre class="programlisting"><spa
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> NotificationMessagingTemplate notificationMessagingTemplate;
 
-	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> SnsNotificationSender(AmazonSNS amazonSns) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.notificationMessagingTemplate = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> NotificationMessagingTemplate(amazonSns);
 	}
@@ -152,22 +152,22 @@ is resolved at runtime by the Amazon SNS client. Optionally a <code class="liter
 (See <a class="xref" href="multi__managing_cloud_environments.html" title="4.&nbsp;Managing cloud environments">Chapter&nbsp;4, <i>Managing cloud environments</i></a> for more information about resource name resolution.)</p><p>It is recommended to use the XML messaging namespace to create <code class="literal">NotificationMessagingTemplate</code> as it will automatically
 configure the SNS client to setup the default converter.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:notification-messaging-template</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">id</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"notificationMessagingTemplate"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span></pre></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_annotation_driven_http_notification_endpoint" href="#_annotation_driven_http_notification_endpoint"></a>5.3.2&nbsp;Annotation-driven HTTP notification endpoint</h3></div></div></div><p>SNS supports multiple endpoint types (SQS, Email, HTTP, HTTPS), Spring Cloud AWS provides support for HTTP(S) endpoints.
 SNS sends three type of requests to an HTTP topic listener endpoint, for each of them annotations are provided:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">Subscription request &#8594; <code class="literal">@NotificationSubscriptionMapping</code></li><li class="listitem">Notification request &#8594; <code class="literal">@NotificationMessageMapping</code></li><li class="listitem">Unsubscription request &#8594; <code class="literal">@NotificationUnsubscribeMapping</code></li></ul></div><p>HTTP endpoints are based on Spring MVC controllers. Spring Cloud AWS added some custom argument resolvers to extract
-the message and subject out of the notification requests.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Controller</span></em>
-<em><span class="hl-annotation" style="color: gray">@RequestMapping("/topicName")</span></em>
+the message and subject out of the notification requests.</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Controller</xslthl:annotation>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@RequestMapping("/topicName")</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> NotificationTestController {
 
-	<em><span class="hl-annotation" style="color: gray">@NotificationSubscriptionMapping</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@NotificationSubscriptionMapping</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> handleSubscriptionMessage(NotificationStatus status) <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">//We subscribe to start receive the message</span>
 		status.confirmSubscription();
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@NotificationMessageMapping</span></em>
-	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> handleNotificationMessage(<em><span class="hl-annotation" style="color: gray">@NotificationSubject</span></em> String subject, <em><span class="hl-annotation" style="color: gray">@NotificationMessage</span></em> String message) {
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@NotificationMessageMapping</xslthl:annotation>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> handleNotificationMessage(<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@NotificationSubject</xslthl:annotation> String subject, <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@NotificationMessage</xslthl:annotation> String message) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// ...</span>
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@NotificationUnsubscribeConfirmationMapping</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@NotificationUnsubscribeConfirmationMapping</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> handleUnsubscribeMessage(NotificationStatus status) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">//e.g. the client has been unsubscribed and we want to "re-subscribe"</span>
 		status.confirmSubscription();
@@ -197,7 +197,7 @@ name. The example below shows an SNS topic and SQS queue configuration inside a 
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">}</span></pre><p>The logical names <code class="literal">LogicalQueueName</code> and <code class="literal">LogicalTopicName</code> can then be used in the configuration and in the application
 as shown below:</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:queue-messaging-template</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">default-destination</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"LogicalQueueName"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span>
 
-<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:notification-messaging-template</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">default-destination</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"LogicalTopicName"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span></pre><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@SqsListener("LogicalQueueName")</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;aws-messaging:notification-messaging-template</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">default-destination</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"LogicalTopicName"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span></pre><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@SqsListener("LogicalQueueName")</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> receiveQueueMessages(Person person) {
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// Logical names can also be used with messaging templates</span>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.notificationMessagingTemplate.sendNotification(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"anotherLogicalTopicName"</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"Message"</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"Subject"</span>);

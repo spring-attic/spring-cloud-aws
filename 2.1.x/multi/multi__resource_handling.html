@@ -19,7 +19,7 @@ typical pattern is <code class="literal">s3://&lt;bucket&gt;/&lt;object&gt;</cod
 name inside the bucket. The object name can be a file in the <span class="emphasis"><em>root</em></span> folder of a bucket or a nested file within a directory
 inside a bucket.</p><p>The next example demonstrates the use of the resource loader to load different resources.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> SimpleResourceLoadingBean {
 
-	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> ResourceLoader resourceLoader;
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> resourceLoadingMethod() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
@@ -33,7 +33,7 @@ inside a bucket.</p><p>The next example demonstrates the use of the resource loa
 interface which is a specialization of the <code class="literal">org.springframework.core.io.ResourceLoader</code> interface. Clients can upload files
 using the <code class="literal">WritableResource</code> interface. The next example demonstrates an upload of a resource using the resource loader.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> SimpleResourceLoadingBean {
 
-    <em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> ResourceLoader resourceLoader;
 
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> writeResource() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
@@ -57,7 +57,7 @@ the multi-part functionality. A <code class="literal">com.amazonaws.services.s3.
 code and injected with the pre-configured <code class="literal">com.amazonaws.services.s3.AmazonS3</code> client that is already created
 with the Spring Cloud AWS resource loader configuration.</p><p>This example shows the use of the <code class="literal">transferManager</code> within an application to upload files from the hard-drive.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> SimpleResourceLoadingBean {
 
-	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> AmazonS3 amazonS3;
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> withTransferManager() {
@@ -71,7 +71,7 @@ will fall back to the original one. The next example shows the resource resoluti
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> ResourcePatternResolver resourcePatternResolver;
 
- 	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+ 	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> setupResolver(ApplicationContext applicationContext, AmazonS3 amazonS3){
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.resourcePatternResolver = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> PathMatchingSimpleStorageResourcePatternResolver(amazonS3, applicationContext);
     }
@@ -97,7 +97,7 @@ like <span class="emphasis"><em>integrationteststack-sampleBucket-23qysofs62tc2<
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> ResourceLoader loader;
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> ResourceIdResolver idResolver;
 
-	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> SimpleResourceLoadingBean(ResourceLoader loader, ResourceIdResolver idResolver) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.loader = loader;
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.idResolver = idResolver;

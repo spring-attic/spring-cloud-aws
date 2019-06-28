@@ -31,12 +31,12 @@ to configure the data source with the minimum attributes as shown in the example
 that points to a valid Amazon RDS database instance. The master user password for the master user. If there is another
 user to be used (which is recommended) then the <code class="literal">username</code> attribute can be set.</p><p>With this configuration Spring Cloud AWS fetches all the necessary metadata and creates a
 <a class="link" href="https://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html" target="_top">Tomcat JDBC pool</a> with the default properties. The data source
-can be later injected into any Spring Bean as shown below:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Service</span></em>
+can be later injected into any Spring Bean as shown below:</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Service</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> SimpleDatabaseService <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">implements</span> DatabaseService {
 
  <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> JdbcTemplate jdbcTemplate;
 
- <em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+ <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
  <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> SimpleDatabaseService(DataSource dataSource) {
  	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.jdbcTemplate = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> JdbcTemplate(dataSource);
  }
@@ -62,24 +62,24 @@ with custom pool properties.</p><pre class="programlisting"><span xmlns:d="http:
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/beans&gt;</span></pre><p>A full list of all configuration attributes with their value is available <a class="link" href="https://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html" target="_top">here</a>.</p></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_configuring_data_source_with_java_config" href="#_configuring_data_source_with_java_config"></a>7.2&nbsp;Configuring data source with Java config</h2></div></div></div><p>Spring Cloud AWS also supports the configuration of the data source within an <code class="literal">@Configuration</code> class. The
 <code class="literal">org.springframework.cloud.aws.jdbc.config.annotation.EnableRdsInstance</code> annotation can be used to configure one data
 source. Multiple ones can be used to configure more then one data source. Each annotation will generate exactly one
-data source bean.</p><p>The class below shows a data source configuration inside a configuration class</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
-<em><span class="hl-annotation" style="color: gray">@EnableRdsInstance(dbInstanceIdentifier = "test",password = "secret", readReplicaSupport = true)</span></em>
+data source bean.</p><p>The class below shows a data source configuration inside a configuration class</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Configuration</xslthl:annotation>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@EnableRdsInstance(dbInstanceIdentifier = "test",password = "secret", readReplicaSupport = true)</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> ApplicationConfiguration {
 }</pre><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>The configuration attributes are the same in the XML element. The required attributes are also the same
 for the XML configuration (the <code class="literal">dbInstanceIdentifier</code> and <code class="literal">password</code> attribute)</p></td></tr></table></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_java_based_data_source_pool_configuration" href="#_java_based_data_source_pool_configuration"></a>7.2.1&nbsp;Java based data source pool configuration</h3></div></div></div><p>It is also possible to override the pool configuration with custom values. Spring Cloud AWS provides a
 <code class="literal">org.springframework.cloud.aws.jdbc.config.annotation.RdsInstanceConfigurer</code> that creates a
 <code class="literal">org.springframework.cloud.aws.jdbc.datasource.DataSourceFactory</code> which might contain custom pool attributes. The next
-examples shows the implementation of one configurer that overrides the validation query and the initial size.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
-<em><span class="hl-annotation" style="color: gray">@EnableRdsInstance(dbInstanceIdentifier = "test",password = "secret")</span></em>
+examples shows the implementation of one configurer that overrides the validation query and the initial size.</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Configuration</xslthl:annotation>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@EnableRdsInstance(dbInstanceIdentifier = "test",password = "secret")</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> ApplicationConfiguration {
 
-    <em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Bean</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> RdsInstanceConfigurer instanceConfigurer() {
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> RdsInstanceConfigurer() {
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
         	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> DataSourceFactory getDataSourceFactory() {
         		TomcatJdbcDataSourceFactory dataSourceFactory = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> TomcatJdbcDataSourceFactory();
-        		dataSourceFactory.setInitialSize(<span class="hl-number">10</span>);
+        		dataSourceFactory.setInitialSize(<xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">10</xslthl:number>);
         		dataSourceFactory.setValidationQuery(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"SELECT 1 FROM DUAL"</span>);
         		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> dataSourceFactory;
         	}
@@ -103,22 +103,22 @@ data which is not changed very often and where outdated data can be handled by t
  <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/jdbc:data-source&gt;</span>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/beans&gt;</span></pre><p>Spring Cloud AWS will search for any read-replica that is created for the master database and route the read-only transactions
 to one of the read-replicas that are available. A business service that uses read-replicas can be implemented like shown
-in the example.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Service</span></em>
+in the example.</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Service</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> SimpleDatabaseService {
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> JdbcTemplate jdbcTemplate;
 
-	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> SimpleDatabaseService(DataSource dataSource) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.jdbcTemplate = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> JdbcTemplate(dataSource);
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@Transactional(readOnly = true)</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Transactional(readOnly = true)</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Person loadAll() {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// read data on the read replica</span>
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@Transactional</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Transactional</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> updatePerson(Person person) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// write data into database</span>
 	}
@@ -181,7 +181,7 @@ on the <code class="literal">data-source</code> element. Configure the tags supp
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">db-instance-identifier</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"myRdsDatabase"</span>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">password</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"${rdsPassword}"</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">user-tags-map</span>=<span xmlns:d="http://docbook.org/ns/docbook" class="hl-value">"dbTags"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag"> /&gt;</span></pre><p>That allows the developer to access the properties in the code using expressions like shown in the class below:</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> SampleService {
 
-	<em><span class="hl-annotation" style="color: gray">@Value("#{dbTags['aws:cloudformation:aws:cloudformation:stack-name']}")</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Value("#{dbTags['aws:cloudformation:aws:cloudformation:stack-name']}")</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> String stackName;
 }</pre><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>The database tag <code class="literal">aws:cloudformation:aws:cloudformation:stack-name</code> is a default tag that is created if the
 database is configured using CloudFormation.</p></td></tr></table></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="multi__caching.html">Prev</a>&nbsp;</td><td width="20%" align="center">&nbsp;</td><td width="40%" align="right">&nbsp;<a accesskey="n" href="multi__sending_mails.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">6.&nbsp;Caching&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="multi_spring-cloud-aws.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;8.&nbsp;Sending mails</td></tr></table></div></body></html>

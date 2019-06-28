@@ -24,7 +24,7 @@ messages. The sample below demonstrates the creation of a simple mail message.</
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> MailSender mailSender;
 
-	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> MailSendingService(MailSender mailSender) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.mailSender = mailSender;
 	}
@@ -59,7 +59,7 @@ below.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbo
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> JavaMailSender mailSender;
 
-   	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+   	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> MailSendingService(JavaMailSender mailSender) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.mailSender = mailSender;
 	}
@@ -67,7 +67,7 @@ below.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbo
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> sendMailMessage() {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.mailSender.send(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> MimeMessagePreparator() {
 
-   			<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+   			<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
    			<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> prepare(MimeMessage mimeMessage) <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> Exception {
    				MimeMessageHelper helper =
    					<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> MimeMessageHelper(mimeMessage, true, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"UTF-8"</span>);
