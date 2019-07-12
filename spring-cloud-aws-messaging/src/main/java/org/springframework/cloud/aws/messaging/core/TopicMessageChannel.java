@@ -18,7 +18,9 @@ package org.springframework.cloud.aws.messaging.core;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.model.MessageAttributeValue;
@@ -34,6 +36,7 @@ import org.springframework.util.NumberUtils;
 /**
  * @author Agim Emruli
  * @author Alain Sahli
+ * @author Gyozo Papp
  * @since 1.0
  */
 public class TopicMessageChannel extends AbstractMessageChannel {
@@ -99,6 +102,10 @@ public class TopicMessageChannel extends AbstractMessageChannel {
 				messageAttributes.put(messageHeaderName,
 						getBinaryMessageAttribute((ByteBuffer) messageHeaderValue));
 			}
+			else if (messageHeaderValue instanceof List) {
+				messageAttributes.put(messageHeaderName,
+						getStringArrayMessageAttribute((List<Object>) messageHeaderValue));
+			}
 			else {
 				this.logger.warn(String.format(
 						"Message header with name '%s' and type '%s' cannot be sent as"
@@ -109,6 +116,19 @@ public class TopicMessageChannel extends AbstractMessageChannel {
 		}
 
 		return messageAttributes;
+	}
+
+	private MessageAttributeValue getStringArrayMessageAttribute(
+			List<Object> messageHeaderValue) {
+		List<String> stringValues = messageHeaderValue.stream()
+			// TODO: escape string properly (quotes, etc)
+			.map(item -> String.format("\"%s\"", item.toString()))
+			.collect(Collectors.toList());
+		String stringValue = "[" + String.join(", ", stringValues) + "]";
+
+		return new MessageAttributeValue()
+				.withDataType(MessageAttributeDataTypes.STRING_ARRAY)
+				.withStringValue(stringValue);
 	}
 
 	private MessageAttributeValue getBinaryMessageAttribute(
