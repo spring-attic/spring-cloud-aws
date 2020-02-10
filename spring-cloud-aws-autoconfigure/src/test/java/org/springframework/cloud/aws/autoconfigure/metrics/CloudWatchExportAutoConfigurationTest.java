@@ -16,8 +16,8 @@
 
 package org.springframework.cloud.aws.autoconfigure.metrics;
 
-import io.micrometer.cloudwatch.CloudWatchConfig;
-import io.micrometer.cloudwatch.CloudWatchMeterRegistry;
+import io.micrometer.cloudwatch2.CloudWatchConfig;
+import io.micrometer.cloudwatch2.CloudWatchMeterRegistry;
 import io.micrometer.core.instrument.Clock;
 import org.junit.Before;
 import org.junit.Test;

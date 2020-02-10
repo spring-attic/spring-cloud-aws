@@ -16,10 +16,9 @@
 
 package org.springframework.cloud.aws.autoconfigure.context;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.services.cloudformation.AmazonCloudFormation;
-import com.amazonaws.services.cloudformation.AmazonCloudFormationClient;
-import com.amazonaws.services.ec2.AmazonEC2;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.services.cloudformation.CloudFormationClient;
+import software.amazon.awssdk.services.ec2.Ec2Client;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -51,18 +50,18 @@ public class ContextStackAutoConfiguration {
 	private Environment environment;
 
 	@Autowired(required = false)
-	private AmazonEC2 amazonEC2;
+	private Ec2Client amazonEC2;
 
 	@Autowired(required = false)
 	private RegionProvider regionProvider;
 
 	@Autowired(required = false)
-	private AWSCredentialsProvider credentialsProvider;
+	private AwsCredentialsProvider credentialsProvider;
 
 	@Bean
 	@ConditionalOnMissingBean(StackResourceRegistry.class)
 	public StackResourceRegistryFactoryBean stackResourceRegistryFactoryBean(
-			AmazonCloudFormation amazonCloudFormation) {
+			CloudFormationClient amazonCloudFormation) {
 
 		if (StringUtils.hasText(environment.getProperty("cloud.aws.stack.name"))) {
 			return new StackResourceRegistryFactoryBean(amazonCloudFormation,
@@ -81,9 +80,9 @@ public class ContextStackAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingAmazonClient(AmazonCloudFormation.class)
-	public AmazonWebserviceClientFactoryBean<AmazonCloudFormationClient> amazonCloudFormation() {
-		return new AmazonWebserviceClientFactoryBean<>(AmazonCloudFormationClient.class,
+	@ConditionalOnMissingAmazonClient(CloudFormationClient.class)
+	public AmazonWebserviceClientFactoryBean<CloudFormationClient> amazonCloudFormation() {
+		return new AmazonWebserviceClientFactoryBean<>(CloudFormationClient.class,
 				this.credentialsProvider, this.regionProvider);
 	}
 

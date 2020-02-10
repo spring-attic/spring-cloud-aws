@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.aws.autoconfigure.context.properties;
 
-import com.amazonaws.auth.profile.internal.AwsProfileNameLoader;
+import software.amazon.awssdk.profiles.ProfileFileSystemSetting;
 
 /**
  * Properties related to AWS credentials.
@@ -51,7 +51,7 @@ public class AwsCredentialsProperties {
 	/**
 	 * The AWS profile name.
 	 */
-	private String profileName = AwsProfileNameLoader.DEFAULT_PROFILE_NAME;
+	private String profileName = ProfileFileSystemSetting.AWS_PROFILE.defaultValue();
 
 	/**
 	 * The AWS profile path.

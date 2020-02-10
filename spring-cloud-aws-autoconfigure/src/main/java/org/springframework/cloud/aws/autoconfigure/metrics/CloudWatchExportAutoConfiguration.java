@@ -16,12 +16,11 @@
 
 package org.springframework.cloud.aws.autoconfigure.metrics;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.services.cloudwatch.AmazonCloudWatchAsync;
-import com.amazonaws.services.cloudwatch.AmazonCloudWatchAsyncClient;
-import io.micrometer.cloudwatch.CloudWatchConfig;
-import io.micrometer.cloudwatch.CloudWatchMeterRegistry;
+import io.micrometer.cloudwatch2.CloudWatchConfig;
+import io.micrometer.cloudwatch2.CloudWatchMeterRegistry;
 import io.micrometer.core.instrument.Clock;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration;
@@ -67,15 +66,15 @@ public class CloudWatchExportAutoConfiguration {
 	@ConditionalOnProperty(value = "management.metrics.export.cloudwatch.enabled",
 			matchIfMissing = true)
 	public CloudWatchMeterRegistry cloudWatchMeterRegistry(CloudWatchConfig config,
-			Clock clock, AmazonCloudWatchAsync client) {
+			Clock clock, CloudWatchAsyncClient client) {
 		return new CloudWatchMeterRegistry(config, clock, client);
 	}
 
 	@Bean
-	@ConditionalOnMissingAmazonClient(AmazonCloudWatchAsync.class)
-	public AmazonWebserviceClientFactoryBean<AmazonCloudWatchAsyncClient> amazonCloudWatchAsync(
-			AWSCredentialsProvider credentialsProvider) {
-		return new AmazonWebserviceClientFactoryBean<>(AmazonCloudWatchAsyncClient.class,
+	@ConditionalOnMissingAmazonClient(CloudWatchAsyncClient.class)
+	public AmazonWebserviceClientFactoryBean<CloudWatchAsyncClient> amazonCloudWatchAsync(
+			AwsCredentialsProvider credentialsProvider) {
+		return new AmazonWebserviceClientFactoryBean<>(CloudWatchAsyncClient.class,
 				credentialsProvider, this.regionProvider);
 	}
 

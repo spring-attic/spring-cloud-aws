@@ -19,11 +19,6 @@ package org.springframework.cloud.aws.autoconfigure.cache;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
-import com.amazonaws.services.elasticache.AmazonElastiCache;
-import com.amazonaws.services.elasticache.model.CacheCluster;
-import com.amazonaws.services.elasticache.model.DescribeCacheClustersRequest;
-import com.amazonaws.services.elasticache.model.DescribeCacheClustersResult;
-import com.amazonaws.services.elasticache.model.Endpoint;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.After;
@@ -31,6 +26,11 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
+import software.amazon.awssdk.services.elasticache.model.CacheCluster;
+import software.amazon.awssdk.services.elasticache.model.DescribeCacheClustersRequest;
+import software.amazon.awssdk.services.elasticache.model.DescribeCacheClustersResponse;
+import software.amazon.awssdk.services.elasticache.model.Endpoint;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurer;
@@ -128,40 +128,32 @@ public class ElastiCacheAutoConfigurationTest {
 	public static class MockCacheConfigurationWithStackCaches {
 
 		@Bean
-		public AmazonElastiCache amazonElastiCache() {
-			AmazonElastiCache amazonElastiCache = Mockito.mock(AmazonElastiCache.class);
+		public ElastiCacheClient amazonElastiCache() {
+			ElastiCacheClient amazonElastiCache = Mockito.mock(ElastiCacheClient.class);
 			int port = TestMemcacheServer.startServer();
-			DescribeCacheClustersRequest sampleCacheOneLogical = new DescribeCacheClustersRequest()
-					.withCacheClusterId("sampleCacheOneLogical");
-			sampleCacheOneLogical.setShowCacheNodeInfo(true);
+			DescribeCacheClustersRequest sampleCacheOneLogical = DescribeCacheClustersRequest
+					.builder().cacheClusterId("sampleCacheOneLogical")
+					.showCacheNodeInfo(true).build();
 
 			Mockito.when(amazonElastiCache.describeCacheClusters(sampleCacheOneLogical))
-					.thenReturn(
-							new DescribeCacheClustersResult()
-									.withCacheClusters(
-											new CacheCluster()
-													.withConfigurationEndpoint(
-															new Endpoint()
-																	.withAddress(
-																			"localhost")
-																	.withPort(port))
-													.withEngine("memcached")));
+					.thenReturn(DescribeCacheClustersResponse.builder()
+							.cacheClusters(CacheCluster.builder()
+									.configurationEndpoint(Endpoint.builder()
+											.address("localhost").port(port).build())
+									.engine("memcached").build())
+							.build());
 
-			DescribeCacheClustersRequest sampleCacheTwoLogical = new DescribeCacheClustersRequest()
-					.withCacheClusterId("sampleCacheTwoLogical");
-			sampleCacheTwoLogical.setShowCacheNodeInfo(true);
+			DescribeCacheClustersRequest sampleCacheTwoLogical = DescribeCacheClustersRequest
+					.builder().cacheClusterId("sampleCacheTwoLogical")
+					.showCacheNodeInfo(true).build();
 
 			Mockito.when(amazonElastiCache.describeCacheClusters(sampleCacheTwoLogical))
-					.thenReturn(
-							new DescribeCacheClustersResult()
-									.withCacheClusters(
-											new CacheCluster()
-													.withConfigurationEndpoint(
-															new Endpoint()
-																	.withAddress(
-																			"localhost")
-																	.withPort(port))
-													.withEngine("memcached")));
+					.thenReturn(DescribeCacheClustersResponse.builder()
+							.cacheClusters(CacheCluster.builder()
+									.configurationEndpoint(Endpoint.builder()
+											.address("localhost").port(port).build())
+									.engine("memcached").build())
+							.build());
 			return amazonElastiCache;
 		}
 

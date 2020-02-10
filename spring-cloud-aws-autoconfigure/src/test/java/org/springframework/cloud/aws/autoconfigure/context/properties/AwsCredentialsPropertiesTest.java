@@ -18,9 +18,9 @@ package org.springframework.cloud.aws.autoconfigure.context.properties;
 
 import java.util.UUID;
 
-import com.amazonaws.auth.profile.internal.AwsProfileNameLoader;
 import org.junit.Before;
 import org.junit.Test;
+import software.amazon.awssdk.profiles.ProfileFileSystemSetting;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -86,7 +86,7 @@ public class AwsCredentialsPropertiesTest {
 	public void profileNameCanBeSet() {
 		assertThat(this.properties.getProfileName())
 				.as("Default profile name expected to be set")
-				.isEqualTo(AwsProfileNameLoader.DEFAULT_PROFILE_NAME);
+				.isEqualTo(ProfileFileSystemSetting.AWS_PROFILE.defaultValue());
 
 		String newProfileName = UUID.randomUUID().toString();
 		this.properties.setProfileName(newProfileName);

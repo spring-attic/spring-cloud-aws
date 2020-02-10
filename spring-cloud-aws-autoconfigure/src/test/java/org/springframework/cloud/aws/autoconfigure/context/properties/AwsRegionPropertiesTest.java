@@ -16,9 +16,9 @@
 
 package org.springframework.cloud.aws.autoconfigure.context.properties;
 
-import com.amazonaws.regions.Regions;
 import org.junit.Before;
 import org.junit.Test;
+import software.amazon.awssdk.regions.Region;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,10 +52,10 @@ public class AwsRegionPropertiesTest {
 		assertThat(this.properties.getStatic())
 				.as("Static region value should have default of null").isNull();
 
-		this.properties.setStatic(Regions.US_EAST_1.getName());
+		this.properties.setStatic(Region.US_EAST_1.id());
 		assertThat(this.properties.getStatic())
 				.as("Static region should have been assigned to us-east-1")
-				.isEqualTo(Regions.US_EAST_1.getName());
+				.isEqualTo(Region.US_EAST_1.id());
 	}
 
 }

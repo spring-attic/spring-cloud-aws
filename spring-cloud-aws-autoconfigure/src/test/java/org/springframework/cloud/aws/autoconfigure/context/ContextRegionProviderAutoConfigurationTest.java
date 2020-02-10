@@ -16,10 +16,9 @@
 
 package org.springframework.cloud.aws.autoconfigure.context;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import org.junit.After;
 import org.junit.Test;
+import software.amazon.awssdk.regions.Region;
 
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.aws.core.region.Ec2MetadataRegionProvider;
@@ -89,8 +88,7 @@ public class ContextRegionProviderAutoConfigurationTest {
 				.getBean(StaticRegionProvider.class);
 
 		// Assert
-		assertThat(regionProvider.getRegion())
-				.isEqualTo(Region.getRegion(Regions.EU_WEST_1));
+		assertThat(regionProvider.getRegion()).isEqualTo(Region.EU_WEST_1);
 	}
 
 }
