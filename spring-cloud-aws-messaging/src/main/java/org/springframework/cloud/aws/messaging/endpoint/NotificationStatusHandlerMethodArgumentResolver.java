@@ -16,8 +16,9 @@
 
 package org.springframework.cloud.aws.messaging.endpoint;
 
-import com.amazonaws.services.sns.AmazonSNS;
 import com.fasterxml.jackson.databind.JsonNode;
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.model.ConfirmSubscriptionRequest;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
@@ -28,9 +29,9 @@ import org.springframework.http.HttpInputMessage;
 public class NotificationStatusHandlerMethodArgumentResolver
 		extends AbstractNotificationMessageHandlerMethodArgumentResolver {
 
-	private final AmazonSNS amazonSns;
+	private final SnsClient amazonSns;
 
-	public NotificationStatusHandlerMethodArgumentResolver(AmazonSNS amazonSns) {
+	public NotificationStatusHandlerMethodArgumentResolver(SnsClient amazonSns) {
 		this.amazonSns = amazonSns;
 	}
 
@@ -53,13 +54,13 @@ public class NotificationStatusHandlerMethodArgumentResolver
 
 	private static final class AmazonSnsNotificationStatus implements NotificationStatus {
 
-		private final AmazonSNS amazonSns;
+		private final SnsClient amazonSns;
 
 		private final String topicArn;
 
 		private final String confirmationToken;
 
-		private AmazonSnsNotificationStatus(AmazonSNS amazonSns, String topicArn,
+		private AmazonSnsNotificationStatus(SnsClient amazonSns, String topicArn,
 				String confirmationToken) {
 			this.amazonSns = amazonSns;
 			this.topicArn = topicArn;
@@ -68,7 +69,8 @@ public class NotificationStatusHandlerMethodArgumentResolver
 
 		@Override
 		public void confirmSubscription() {
-			this.amazonSns.confirmSubscription(this.topicArn, this.confirmationToken);
+			this.amazonSns.confirmSubscription(ConfirmSubscriptionRequest.builder()
+					.topicArn(this.topicArn).token(this.confirmationToken).build());
 		}
 
 	}

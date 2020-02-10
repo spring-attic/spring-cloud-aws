@@ -18,7 +18,7 @@ package org.springframework.cloud.aws.messaging.config.annotation;
 
 import java.util.Arrays;
 
-import com.amazonaws.services.sqs.AmazonSQSAsync;
+import software.amazon.awssdk.services.sqs.SqsClient;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +64,7 @@ public class SqsConfiguration {
 
 	@Bean
 	public SimpleMessageListenerContainer simpleMessageListenerContainer(
-			AmazonSQSAsync amazonSqs) {
+			SqsClient amazonSqs) {
 		if (this.simpleMessageListenerContainerFactory.getAmazonSqs() == null) {
 			this.simpleMessageListenerContainerFactory.setAmazonSqs(amazonSqs);
 		}
@@ -80,7 +80,7 @@ public class SqsConfiguration {
 	}
 
 	@Bean
-	public QueueMessageHandler queueMessageHandler(AmazonSQSAsync amazonSqs) {
+	public QueueMessageHandler queueMessageHandler(SqsClient amazonSqs) {
 		if (this.simpleMessageListenerContainerFactory.getQueueMessageHandler() != null) {
 			return this.simpleMessageListenerContainerFactory.getQueueMessageHandler();
 		}
@@ -89,7 +89,7 @@ public class SqsConfiguration {
 		}
 	}
 
-	private QueueMessageHandler getMessageHandler(AmazonSQSAsync amazonSqs) {
+	private QueueMessageHandler getMessageHandler(SqsClient amazonSqs) {
 		if (this.queueMessageHandlerFactory.getAmazonSqs() == null) {
 			this.queueMessageHandlerFactory.setAmazonSqs(amazonSqs);
 		}

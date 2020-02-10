@@ -20,9 +20,10 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.model.MessageAttributeValue;
-import com.amazonaws.services.sns.model.PublishRequest;
+import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.model.MessageAttributeValue;
+import software.amazon.awssdk.services.sns.model.PublishRequest;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
@@ -43,11 +44,11 @@ public class TopicMessageChannel extends AbstractMessageChannel {
 	 */
 	public static final String NOTIFICATION_SUBJECT_HEADER = "NOTIFICATION_SUBJECT_HEADER";
 
-	private final AmazonSNS amazonSns;
+	private final SnsClient amazonSns;
 
 	private final String topicArn;
 
-	public TopicMessageChannel(AmazonSNS amazonSns, String topicArn) {
+	public TopicMessageChannel(SnsClient amazonSns, String topicArn) {
 		this.amazonSns = amazonSns;
 		this.topicArn = topicArn;
 	}
@@ -59,14 +60,15 @@ public class TopicMessageChannel extends AbstractMessageChannel {
 
 	@Override
 	protected boolean sendInternal(Message<?> message, long timeout) {
-		PublishRequest publishRequest = new PublishRequest(this.topicArn,
-				message.getPayload().toString(), findNotificationSubject(message));
+		PublishRequest.Builder publishRequest = PublishRequest.builder()
+				.topicArn(this.topicArn).message(message.getPayload().toString())
+				.subject(findNotificationSubject(message));
 		Map<String, MessageAttributeValue> messageAttributes = getMessageAttributes(
 				message);
 		if (!messageAttributes.isEmpty()) {
-			publishRequest.withMessageAttributes(messageAttributes);
+			publishRequest.messageAttributes(messageAttributes);
 		}
-		this.amazonSns.publish(publishRequest);
+		this.amazonSns.publish(publishRequest.build());
 
 		return true;
 	}
@@ -113,28 +115,28 @@ public class TopicMessageChannel extends AbstractMessageChannel {
 
 	private MessageAttributeValue getBinaryMessageAttribute(
 			ByteBuffer messageHeaderValue) {
-		return new MessageAttributeValue().withDataType(MessageAttributeDataTypes.BINARY)
-				.withBinaryValue(messageHeaderValue);
+		return MessageAttributeValue.builder().dataType(MessageAttributeDataTypes.BINARY)
+				.binaryValue(SdkBytes.fromByteBuffer(messageHeaderValue)).build();
 	}
 
 	private MessageAttributeValue getContentTypeMessageAttribute(
 			Object messageHeaderValue) {
 		if (messageHeaderValue instanceof MimeType) {
-			return new MessageAttributeValue()
-					.withDataType(MessageAttributeDataTypes.STRING)
-					.withStringValue(messageHeaderValue.toString());
+			return MessageAttributeValue.builder()
+					.dataType(MessageAttributeDataTypes.STRING)
+					.stringValue(messageHeaderValue.toString()).build();
 		}
 		else if (messageHeaderValue instanceof String) {
-			return new MessageAttributeValue()
-					.withDataType(MessageAttributeDataTypes.STRING)
-					.withStringValue((String) messageHeaderValue);
+			return MessageAttributeValue.builder()
+					.dataType(MessageAttributeDataTypes.STRING)
+					.stringValue((String) messageHeaderValue).build();
 		}
 		return null;
 	}
 
 	private MessageAttributeValue getStringMessageAttribute(String messageHeaderValue) {
-		return new MessageAttributeValue().withDataType(MessageAttributeDataTypes.STRING)
-				.withStringValue(messageHeaderValue);
+		return MessageAttributeValue.builder().dataType(MessageAttributeDataTypes.STRING)
+				.stringValue(messageHeaderValue).build();
 	}
 
 	private MessageAttributeValue getNumberMessageAttribute(Object messageHeaderValue) {
@@ -142,10 +144,10 @@ public class TopicMessageChannel extends AbstractMessageChannel {
 				NumberUtils.STANDARD_NUMBER_TYPES.contains(messageHeaderValue.getClass()),
 				"Only standard number types are accepted as message header.");
 
-		return new MessageAttributeValue()
-				.withDataType(MessageAttributeDataTypes.NUMBER + "."
+		return MessageAttributeValue.builder()
+				.dataType(MessageAttributeDataTypes.NUMBER + "."
 						+ messageHeaderValue.getClass().getName())
-				.withStringValue(messageHeaderValue.toString());
+				.stringValue(messageHeaderValue.toString()).build();
 	}
 
 }

@@ -25,9 +25,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import com.amazonaws.services.sqs.model.DeleteMessageRequest;
-import com.amazonaws.services.sqs.model.Message;
-import com.amazonaws.services.sqs.model.ReceiveMessageResult;
+import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
+import software.amazon.awssdk.services.sqs.model.Message;
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
 
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.messaging.MessagingException;
@@ -331,12 +331,12 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 		public void run() {
 			while (isQueueRunning()) {
 				try {
-					ReceiveMessageResult receiveMessageResult = getAmazonSqs()
+					ReceiveMessageResponse receiveMessageResult = getAmazonSqs()
 							.receiveMessage(
 									this.queueAttributes.getReceiveMessageRequest());
 					CountDownLatch messageBatchLatch = new CountDownLatch(
-							receiveMessageResult.getMessages().size());
-					for (Message message : receiveMessageResult.getMessages()) {
+							receiveMessageResult.messages().size());
+					for (Message message : receiveMessageResult.messages()) {
 						if (isQueueRunning()) {
 							MessageExecutor messageExecutor = new MessageExecutor(
 									this.logicalQueueName, message, this.queueAttributes);
@@ -404,14 +404,14 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 				QueueAttributes queueAttributes) {
 			this.logicalQueueName = logicalQueueName;
 			this.message = message;
-			this.queueUrl = queueAttributes.getReceiveMessageRequest().getQueueUrl();
+			this.queueUrl = queueAttributes.getReceiveMessageRequest().queueUrl();
 			this.hasRedrivePolicy = queueAttributes.hasRedrivePolicy();
 			this.deletionPolicy = queueAttributes.getDeletionPolicy();
 		}
 
 		@Override
 		public void run() {
-			String receiptHandle = this.message.getReceiptHandle();
+			String receiptHandle = this.message.receiptHandle();
 			org.springframework.messaging.Message<String> queueMessage = getMessageForExecution();
 			try {
 				executeMessage(queueMessage);
@@ -444,8 +444,9 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 		}
 
 		private void deleteMessage(String receiptHandle) {
-			getAmazonSqs().deleteMessageAsync(
-					new DeleteMessageRequest(this.queueUrl, receiptHandle));
+			// TODO SDK2 migration: used to be async
+			getAmazonSqs().deleteMessage(DeleteMessageRequest.builder()
+					.queueUrl(this.queueUrl).receiptHandle(receiptHandle).build());
 		}
 
 		private org.springframework.messaging.Message<String> getMessageForExecution() {
@@ -453,16 +454,20 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 			additionalHeaders.put(QueueMessageHandler.LOGICAL_RESOURCE_ID,
 					this.logicalQueueName);
 			if (this.deletionPolicy == SqsMessageDeletionPolicy.NEVER) {
-				String receiptHandle = this.message.getReceiptHandle();
-				QueueMessageAcknowledgment acknowledgment = new QueueMessageAcknowledgment(
-						SimpleMessageListenerContainer.this.getAmazonSqs(), this.queueUrl,
-						receiptHandle);
-				additionalHeaders.put(QueueMessageHandler.ACKNOWLEDGMENT, acknowledgment);
+				String receiptHandle = this.message.receiptHandle();
+				// TODO SDK2 migration: re-add after solving issue with clients
+				// QueueMessageAcknowledgment acknowledgment = new
+				// QueueMessageAcknowledgment(
+				// SimpleMessageListenerContainer.this.getAmazonSqsAsync(), this.queueUrl,
+				// receiptHandle);
+				// additionalHeaders.put(QueueMessageHandler.ACKNOWLEDGMENT,
+				// acknowledgment);
 			}
-			additionalHeaders.put(QueueMessageHandler.VISIBILITY,
-					new QueueMessageVisibility(
-							SimpleMessageListenerContainer.this.getAmazonSqs(),
-							this.queueUrl, this.message.getReceiptHandle()));
+			// TODO SDK2 migration: re-add after solving issue with clients
+			// additionalHeaders.put(QueueMessageHandler.VISIBILITY,
+			// new QueueMessageVisibility(
+			// SimpleMessageListenerContainer.this.getAmazonSqsAsync(),
+			// this.queueUrl, this.message.receiptHandle()));
 
 			return createMessage(this.message, additionalHeaders);
 		}

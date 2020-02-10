@@ -19,12 +19,12 @@ package org.springframework.cloud.aws.messaging.support.destination;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.model.CreateQueueRequest;
-import com.amazonaws.services.sqs.model.CreateQueueResult;
-import com.amazonaws.services.sqs.model.GetQueueUrlRequest;
-import com.amazonaws.services.sqs.model.GetQueueUrlResult;
-import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.CreateQueueRequest;
+import software.amazon.awssdk.services.sqs.model.CreateQueueResponse;
+import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
+import software.amazon.awssdk.services.sqs.model.GetQueueUrlResponse;
+import software.amazon.awssdk.services.sqs.model.QueueDoesNotExistException;
 
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.messaging.core.DestinationResolutionException;
@@ -37,13 +37,13 @@ import org.springframework.util.Assert;
  */
 public class DynamicQueueUrlDestinationResolver implements DestinationResolver<String> {
 
-	private final AmazonSQS amazonSqs;
+	private final SqsClient amazonSqs;
 
 	private final ResourceIdResolver resourceIdResolver;
 
 	private boolean autoCreate;
 
-	public DynamicQueueUrlDestinationResolver(AmazonSQS amazonSqs,
+	public DynamicQueueUrlDestinationResolver(SqsClient amazonSqs,
 			ResourceIdResolver resourceIdResolver) {
 		Assert.notNull(amazonSqs, "amazonSqs must not be null");
 
@@ -51,7 +51,7 @@ public class DynamicQueueUrlDestinationResolver implements DestinationResolver<S
 		this.resourceIdResolver = resourceIdResolver;
 	}
 
-	public DynamicQueueUrlDestinationResolver(AmazonSQS amazonSqs) {
+	public DynamicQueueUrlDestinationResolver(SqsClient amazonSqs) {
 		this(amazonSqs, null);
 	}
 
@@ -84,15 +84,15 @@ public class DynamicQueueUrlDestinationResolver implements DestinationResolver<S
 
 		if (this.autoCreate) {
 			// Auto-create is fine to be called even if the queue exists.
-			CreateQueueResult createQueueResult = this.amazonSqs
-					.createQueue(new CreateQueueRequest(queueName));
-			return createQueueResult.getQueueUrl();
+			CreateQueueResponse createQueueResult = this.amazonSqs.createQueue(
+					CreateQueueRequest.builder().queueName(queueName).build());
+			return createQueueResult.queueUrl();
 		}
 		else {
 			try {
-				GetQueueUrlResult getQueueUrlResult = this.amazonSqs
-						.getQueueUrl(new GetQueueUrlRequest(queueName));
-				return getQueueUrlResult.getQueueUrl();
+				GetQueueUrlResponse getQueueUrlResult = this.amazonSqs.getQueueUrl(
+						GetQueueUrlRequest.builder().queueName(queueName).build());
+				return getQueueUrlResult.queueUrl();
 			}
 			catch (QueueDoesNotExistException e) {
 				throw toDestinationResolutionException(e);

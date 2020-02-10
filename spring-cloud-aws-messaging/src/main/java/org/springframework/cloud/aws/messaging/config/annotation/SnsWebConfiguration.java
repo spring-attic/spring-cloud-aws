@@ -18,7 +18,7 @@ package org.springframework.cloud.aws.messaging.config.annotation;
 
 import java.util.List;
 
-import com.amazonaws.services.sns.AmazonSNS;
+import software.amazon.awssdk.services.sns.SnsClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.aws.context.annotation.ConditionalOnClass;
@@ -36,7 +36,7 @@ import static org.springframework.cloud.aws.messaging.endpoint.config.Notificati
 public class SnsWebConfiguration implements WebMvcConfigurer {
 
 	@Autowired
-	private AmazonSNS amazonSns;
+	private SnsClient amazonSns;
 
 	@Override
 	public void addArgumentResolvers(

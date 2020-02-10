@@ -18,12 +18,12 @@ package org.springframework.cloud.aws.messaging.config.annotation;
 
 import java.util.List;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.sns.AmazonSNS;
 import org.junit.Before;
 import org.junit.Test;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.regions.ServiceMetadata;
+import software.amazon.awssdk.services.sns.SnsClient;
 
 import org.springframework.cloud.aws.context.config.annotation.EnableContextRegion;
 import org.springframework.cloud.aws.messaging.endpoint.NotificationStatusHandlerMethodArgumentResolver;
@@ -87,7 +87,7 @@ public class SnsConfigurationTest {
 		// Arrange & Act
 		this.webApplicationContext.register(SnsConfigurationWithCredentials.class);
 		this.webApplicationContext.refresh();
-		AmazonSNS amazonSns = this.webApplicationContext.getBean(AmazonSNS.class);
+		SnsClient amazonSns = this.webApplicationContext.getBean(SnsClient.class);
 
 		// Assert
 		assertThat(ReflectionTestUtils.getField(amazonSns, "awsCredentialsProvider"))
@@ -121,12 +121,12 @@ public class SnsConfigurationTest {
 		// Arrange & Act
 		this.webApplicationContext.register(SnsConfigurationWithRegionProvider.class);
 		this.webApplicationContext.refresh();
-		AmazonSNS amazonSns = this.webApplicationContext.getBean(AmazonSNS.class);
+		SnsClient amazonSns = this.webApplicationContext.getBean(SnsClient.class);
 
 		// Assert
 		assertThat(ReflectionTestUtils.getField(amazonSns, "endpoint").toString())
 				.isEqualTo("https://"
-						+ Region.getRegion(Regions.EU_WEST_1).getServiceEndpoint("sns"));
+						+ ServiceMetadata.of("sns").endpointFor(Region.EU_WEST_1));
 	}
 
 	private NotificationStatusHandlerMethodArgumentResolver getNotificationStatusHandlerMethodArgumentResolver(
@@ -151,11 +151,11 @@ public class SnsConfigurationTest {
 	@EnableSns
 	protected static class SnsConfigurationWithCredentials {
 
-		public static final AWSCredentialsProvider AWS_CREDENTIALS_PROVIDER = mock(
-				AWSCredentialsProvider.class);
+		public static final AwsCredentialsProvider AWS_CREDENTIALS_PROVIDER = mock(
+				AwsCredentialsProvider.class);
 
 		@Bean
-		public AWSCredentialsProvider awsCredentialsProvider() {
+		public AwsCredentialsProvider awsCredentialsProvider() {
 			return AWS_CREDENTIALS_PROVIDER;
 		}
 
@@ -165,10 +165,10 @@ public class SnsConfigurationTest {
 	@EnableSns
 	protected static class SnsConfigurationWithCustomAmazonClient {
 
-		public static final AmazonSNS AMAZON_SNS = mock(AmazonSNS.class);
+		public static final SnsClient AMAZON_SNS = mock(SnsClient.class);
 
 		@Bean
-		public AmazonSNS amazonSNS() {
+		public SnsClient amazonSNS() {
 			return AMAZON_SNS;
 		}
 

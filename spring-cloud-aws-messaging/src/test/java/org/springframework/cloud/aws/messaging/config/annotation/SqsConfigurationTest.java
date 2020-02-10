@@ -18,16 +18,18 @@ package org.springframework.cloud.aws.messaging.config.annotation;
 
 import java.util.Collections;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.sqs.AmazonSQSAsync;
-import com.amazonaws.services.sqs.AmazonSQSAsyncClient;
-import com.amazonaws.services.sqs.buffered.AmazonSQSBufferedAsyncClient;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.awscore.client.config.AwsClientOption;
+import software.amazon.awssdk.core.client.config.SdkClientConfiguration;
+import software.amazon.awssdk.core.client.config.SdkClientOption;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.regions.ServiceMetadata;
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
+import software.amazon.awssdk.services.sqs.SqsClient;
 
 import org.springframework.cloud.aws.context.config.annotation.EnableContextRegion;
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
@@ -79,13 +81,10 @@ public class SqsConfigurationTest {
 				.getCustomReturnValueHandlers().get(0);
 		QueueMessagingTemplate messagingTemplate = (QueueMessagingTemplate) ReflectionTestUtils
 				.getField(sendToReturnValueHandler, "messageTemplate");
-		AmazonSQSBufferedAsyncClient amazonBufferedSqsClient = (AmazonSQSBufferedAsyncClient) ReflectionTestUtils
-				.getField(messagingTemplate, "amazonSqs");
-		AmazonSQSAsyncClient amazonSqsClient = (AmazonSQSAsyncClient) ReflectionTestUtils
-				.getField(amazonBufferedSqsClient, "realSQS");
-		assertThat(
-				ReflectionTestUtils.getField(amazonSqsClient, "awsCredentialsProvider"))
-						.isNotNull();
+
+		SqsAsyncClient amazonSqs = (SqsAsyncClient) ReflectionTestUtils.getField(messagingTemplate, "amazonSqs");
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
+		assertThat(clientConfiguration.option(AwsClientOption.CREDENTIALS_PROVIDER)).isNotNull();
 	}
 
 	@Test
@@ -96,7 +95,7 @@ public class SqsConfigurationTest {
 				ConfigurationWithCustomAmazonClient.class);
 
 		// Assert
-		AmazonSQSAsync amazonSqsClient = applicationContext.getBean(AmazonSQSAsync.class);
+		SqsClient amazonSqsClient = applicationContext.getBean(SqsClient.class);
 		assertThat(amazonSqsClient)
 				.isEqualTo(ConfigurationWithCustomAmazonClient.CUSTOM_SQS_CLIENT);
 	}
@@ -207,13 +206,11 @@ public class SqsConfigurationTest {
 				ConfigurationWithMissingAwsCredentials.class);
 
 		// Assert
-		AmazonSQSBufferedAsyncClient bufferedAmazonSqsClient = applicationContext
-				.getBean(AmazonSQSBufferedAsyncClient.class);
-		AmazonSQSAsyncClient amazonSqsClient = (AmazonSQSAsyncClient) ReflectionTestUtils
-				.getField(bufferedAmazonSqsClient, "realSQS");
-		assertThat(DefaultAWSCredentialsProviderChain.class.isInstance(
-				ReflectionTestUtils.getField(amazonSqsClient, "awsCredentialsProvider")))
-						.isTrue();
+		SqsAsyncClient amazonSqs = applicationContext.getBean(SqsAsyncClient.class);
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
+		assertThat(
+			DefaultCredentialsProvider.class.isInstance(clientConfiguration.option(AwsClientOption.CREDENTIALS_PROVIDER)))
+			.isTrue();
 	}
 
 	@Test
@@ -221,15 +218,12 @@ public class SqsConfigurationTest {
 		// Arrange & Act
 		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(
 				ConfigurationWithRegionProvider.class);
-		AmazonSQSAsync bufferedAmazonSqsClient = applicationContext
-				.getBean(AmazonSQSAsync.class);
-		AmazonSQSAsyncClient amazonSqs = (AmazonSQSAsyncClient) ReflectionTestUtils
-				.getField(bufferedAmazonSqsClient, "realSQS");
+		SqsAsyncClient amazonSqs = applicationContext.getBean(SqsAsyncClient.class);
 
 		// Assert
-		assertThat(ReflectionTestUtils.getField(amazonSqs, "endpoint").toString())
-				.isEqualTo("https://"
-						+ Region.getRegion(Regions.EU_WEST_1).getServiceEndpoint("sqs"));
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
+		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
+			.isEqualTo(ServiceMetadata.of("sqs").endpointFor(Region.EU_WEST_1));
 	}
 
 	@EnableSqs
@@ -237,8 +231,8 @@ public class SqsConfigurationTest {
 	public static class MinimalConfiguration {
 
 		@Bean
-		public AWSCredentialsProvider awsCredentials() {
-			return mock(AWSCredentialsProvider.class);
+		public AwsCredentialsProvider awsCredentials() {
+			return mock(AwsCredentialsProvider.class);
 		}
 
 	}
@@ -247,16 +241,16 @@ public class SqsConfigurationTest {
 	@Configuration(proxyBeanMethods = false)
 	public static class ConfigurationWithCustomAmazonClient {
 
-		public static final AmazonSQSAsync CUSTOM_SQS_CLIENT = mock(AmazonSQSAsync.class,
+		public static final SqsClient CUSTOM_SQS_CLIENT = mock(SqsClient.class,
 				withSettings().stubOnly());
 
 		@Bean
-		public AWSCredentialsProvider awsCredentials() {
-			return mock(AWSCredentialsProvider.class);
+		public AwsCredentialsProvider awsCredentials() {
+			return mock(AwsCredentialsProvider.class);
 		}
 
 		@Bean
-		public AmazonSQSAsync amazonSQS() {
+		public SqsClient amazonSQS() {
 			return CUSTOM_SQS_CLIENT;
 		}
 
@@ -273,7 +267,7 @@ public class SqsConfigurationTest {
 		public static final HandlerMethodArgumentResolver CUSTOM_ARGUMENT_RESOLVER = mock(
 				HandlerMethodArgumentResolver.class);
 
-		public static final AmazonSQSAsync CUSTOM_AMAZON_SQS = mock(AmazonSQSAsync.class,
+		public static final SqsClient CUSTOM_AMAZON_SQS = mock(SqsClient.class,
 				withSettings().stubOnly());
 
 		public static final ResourceIdResolver CUSTOM_RESOURCE_ID_RESOLVER = mock(
@@ -298,7 +292,7 @@ public class SqsConfigurationTest {
 	@Configuration(proxyBeanMethods = false)
 	public static class ConfigurationWithCustomContainerFactory {
 
-		public static final AmazonSQSAsync AMAZON_SQS = mock(AmazonSQSAsync.class,
+		public static final SqsClient AMAZON_SQS = mock(SqsClient.class,
 				withSettings().stubOnly());
 
 		public static final boolean AUTO_STARTUP = true;
@@ -317,7 +311,7 @@ public class SqsConfigurationTest {
 		public static final int WAIT_TIME_OUT = 12;
 
 		public static final DestinationResolver<String> DESTINATION_RESOLVER = new DynamicQueueUrlDestinationResolver(
-				mock(AmazonSQSAsync.class, withSettings().stubOnly()));
+				mock(SqsClient.class, withSettings().stubOnly()));
 
 		public static final long BACK_OFF_TIME = 5000;
 
@@ -345,7 +339,7 @@ public class SqsConfigurationTest {
 		}
 
 		@Bean
-		public AmazonSQSAsync amazonSQS() {
+		public SqsClient amazonSQS() {
 			return AMAZON_SQS;
 		}
 

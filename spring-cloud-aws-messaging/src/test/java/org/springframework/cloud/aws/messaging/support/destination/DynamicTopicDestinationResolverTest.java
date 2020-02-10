@@ -16,15 +16,15 @@
 
 package org.springframework.cloud.aws.messaging.support.destination;
 
-import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.model.CreateTopicRequest;
-import com.amazonaws.services.sns.model.CreateTopicResult;
-import com.amazonaws.services.sns.model.ListTopicsRequest;
-import com.amazonaws.services.sns.model.ListTopicsResult;
-import com.amazonaws.services.sns.model.Topic;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.model.CreateTopicRequest;
+import software.amazon.awssdk.services.sns.model.CreateTopicResponse;
+import software.amazon.awssdk.services.sns.model.ListTopicsRequest;
+import software.amazon.awssdk.services.sns.model.ListTopicsResponse;
+import software.amazon.awssdk.services.sns.model.Topic;
 
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 
@@ -50,9 +50,9 @@ public class DynamicTopicDestinationResolverTest {
 		this.expectedException.expect(IllegalArgumentException.class);
 		this.expectedException.expectMessage("No topic found for name :'test'");
 
-		AmazonSNS sns = mock(AmazonSNS.class);
-		when(sns.listTopics(new ListTopicsRequest(null)))
-				.thenReturn(new ListTopicsResult());
+		SnsClient sns = mock(SnsClient.class);
+		when(sns.listTopics(ListTopicsRequest.builder().nextToken(null).build()))
+				.thenReturn(ListTopicsResponse.builder().build());
 
 		DynamicTopicDestinationResolver resolver = new DynamicTopicDestinationResolver(
 				sns);
@@ -70,11 +70,11 @@ public class DynamicTopicDestinationResolverTest {
 		this.expectedException.expect(IllegalArgumentException.class);
 		this.expectedException.expectMessage("No topic found for name :'test'");
 
-		AmazonSNS sns = mock(AmazonSNS.class);
-		when(sns.listTopics(new ListTopicsRequest(null)))
-				.thenReturn(new ListTopicsResult().withNextToken("foo"));
-		when(sns.listTopics(new ListTopicsRequest("foo")))
-				.thenReturn(new ListTopicsResult());
+		SnsClient sns = mock(SnsClient.class);
+		when(sns.listTopics(ListTopicsRequest.builder().nextToken(null).build()))
+				.thenReturn(ListTopicsResponse.builder().nextToken("foo").build());
+		when(sns.listTopics(ListTopicsRequest.builder().nextToken("foo").build()))
+				.thenReturn(ListTopicsResponse.builder().build());
 
 		DynamicTopicDestinationResolver resolver = new DynamicTopicDestinationResolver(
 				sns);
@@ -89,9 +89,10 @@ public class DynamicTopicDestinationResolverTest {
 		// Arrange
 		String topicArn = "arn:aws:sns:eu-west:123456789012:test";
 
-		AmazonSNS sns = mock(AmazonSNS.class);
-		when(sns.listTopics(new ListTopicsRequest(null))).thenReturn(
-				new ListTopicsResult().withTopics(new Topic().withTopicArn(topicArn)));
+		SnsClient sns = mock(SnsClient.class);
+		when(sns.listTopics(ListTopicsRequest.builder().nextToken(null).build()))
+				.thenReturn(ListTopicsResponse.builder()
+						.topics(Topic.builder().topicArn(topicArn).build()).build());
 
 		DynamicTopicDestinationResolver resolver = new DynamicTopicDestinationResolver(
 				sns);
@@ -108,13 +109,14 @@ public class DynamicTopicDestinationResolverTest {
 			throws Exception {
 		// Arrange
 
-		AmazonSNS sns = mock(AmazonSNS.class);
-		when(sns.listTopics(new ListTopicsRequest(null)))
-				.thenReturn(new ListTopicsResult().withNextToken("mark"));
+		SnsClient sns = mock(SnsClient.class);
+		when(sns.listTopics(ListTopicsRequest.builder().nextToken(null).build()))
+				.thenReturn(ListTopicsResponse.builder().nextToken("mark").build());
 
 		String topicArn = "arn:aws:sns:eu-west:123456789012:test";
-		when(sns.listTopics(new ListTopicsRequest("mark"))).thenReturn(
-				new ListTopicsResult().withTopics(new Topic().withTopicArn(topicArn)));
+		when(sns.listTopics(ListTopicsRequest.builder().nextToken("mark").build()))
+				.thenReturn(ListTopicsResponse.builder()
+						.topics(Topic.builder().topicArn(topicArn).build()).build());
 
 		DynamicTopicDestinationResolver resolver = new DynamicTopicDestinationResolver(
 				sns);
@@ -132,7 +134,7 @@ public class DynamicTopicDestinationResolverTest {
 		// Arrange
 		String topicArn = "arn:aws:sns:eu-west:123456789012:test";
 
-		AmazonSNS sns = mock(AmazonSNS.class);
+		SnsClient sns = mock(SnsClient.class);
 		DynamicTopicDestinationResolver resolver = new DynamicTopicDestinationResolver(
 				sns);
 
@@ -149,9 +151,9 @@ public class DynamicTopicDestinationResolverTest {
 		// Arrange
 		String topicArn = "arn:aws:sns:eu-west:123456789012:test";
 
-		AmazonSNS sns = mock(AmazonSNS.class);
-		when(sns.createTopic(new CreateTopicRequest("test")))
-				.thenReturn(new CreateTopicResult().withTopicArn(topicArn));
+		SnsClient sns = mock(SnsClient.class);
+		when(sns.createTopic(CreateTopicRequest.builder().name("test").build()))
+				.thenReturn(CreateTopicResponse.builder().topicArn(topicArn).build());
 
 		DynamicTopicDestinationResolver resolver = new DynamicTopicDestinationResolver(
 				sns);
@@ -175,10 +177,11 @@ public class DynamicTopicDestinationResolverTest {
 		when(resourceIdResolver.resolveToPhysicalResourceId(logicalTopicName))
 				.thenReturn(physicalTopicName);
 
-		AmazonSNS sns = mock(AmazonSNS.class);
-		when(sns.listTopics(new ListTopicsRequest(null)))
-				.thenReturn(new ListTopicsResult()
-						.withTopics(new Topic().withTopicArn(physicalTopicName)));
+		SnsClient sns = mock(SnsClient.class);
+		when(sns.listTopics(ListTopicsRequest.builder().nextToken(null).build()))
+				.thenReturn(ListTopicsResponse.builder()
+						.topics(Topic.builder().topicArn(physicalTopicName).build())
+						.build());
 
 		DynamicTopicDestinationResolver resolver = new DynamicTopicDestinationResolver(
 				sns, resourceIdResolver);

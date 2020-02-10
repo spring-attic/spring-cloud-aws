@@ -18,10 +18,10 @@ package org.springframework.cloud.aws.messaging.config.xml;
 
 import java.util.List;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.sns.AmazonSNSClient;
 import org.junit.Test;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.regions.ServiceMetadata;
+import software.amazon.awssdk.services.sns.SnsClient;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -60,7 +60,7 @@ public class NotificationMessagingTemplateBeanDefinitionParserTest {
 				.getBean(NotificationMessagingTemplate.class);
 		assertThat(
 				ReflectionTestUtils.getField(notificationMessagingTemplate, "amazonSns"))
-						.isSameAs(registry.getBean(AmazonSNSClient.class));
+						.isSameAs(registry.getBean(SnsClient.class));
 
 		Object cachingDestinationResolverProxy = ReflectionTestUtils
 				.getField(notificationMessagingTemplate, "destinationResolver");
@@ -150,10 +150,10 @@ public class NotificationMessagingTemplateBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-custom-region.xml", getClass()));
 
 		// Assert
-		AmazonSNSClient amazonSns = registry.getBean(AmazonSNSClient.class);
+		SnsClient amazonSns = registry.getBean(SnsClient.class);
 		assertThat(ReflectionTestUtils.getField(amazonSns, "endpoint").toString())
 				.isEqualTo("https://"
-						+ Region.getRegion(Regions.EU_WEST_1).getServiceEndpoint("sns"));
+						+ ServiceMetadata.of("sns").endpointFor(Region.EU_WEST_1));
 	}
 
 	@Test
@@ -168,10 +168,10 @@ public class NotificationMessagingTemplateBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-custom-region-provider.xml", getClass()));
 
 		// Assert
-		AmazonSNSClient amazonSns = registry.getBean(AmazonSNSClient.class);
+		SnsClient amazonSns = registry.getBean(SnsClient.class);
 		assertThat(ReflectionTestUtils.getField(amazonSns, "endpoint").toString())
 				.isEqualTo("https://"
-						+ Region.getRegion(Regions.CN_NORTH_1).getServiceEndpoint("sns"));
+						+ ServiceMetadata.of("sns").endpointFor(Region.CN_NORTH_1));
 	}
 
 }

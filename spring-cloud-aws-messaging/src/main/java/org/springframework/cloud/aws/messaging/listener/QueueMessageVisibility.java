@@ -18,8 +18,8 @@ package org.springframework.cloud.aws.messaging.listener;
 
 import java.util.concurrent.Future;
 
-import com.amazonaws.services.sqs.AmazonSQSAsync;
-import com.amazonaws.services.sqs.model.ChangeMessageVisibilityRequest;
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
+import software.amazon.awssdk.services.sqs.model.ChangeMessageVisibilityRequest;
 
 /**
  * @author Szymon Dembek
@@ -27,13 +27,13 @@ import com.amazonaws.services.sqs.model.ChangeMessageVisibilityRequest;
  */
 public class QueueMessageVisibility implements Visibility {
 
-	private final AmazonSQSAsync amazonSqsAsync;
+	private final SqsAsyncClient amazonSqsAsync;
 
 	private final String queueUrl;
 
 	private final String receiptHandle;
 
-	public QueueMessageVisibility(AmazonSQSAsync amazonSqsAsync, String queueUrl,
+	public QueueMessageVisibility(SqsAsyncClient amazonSqsAsync, String queueUrl,
 			String receiptHandle) {
 		this.amazonSqsAsync = amazonSqsAsync;
 		this.queueUrl = queueUrl;
@@ -42,10 +42,9 @@ public class QueueMessageVisibility implements Visibility {
 
 	@Override
 	public Future<?> extend(int seconds) {
-		return this.amazonSqsAsync
-				.changeMessageVisibilityAsync(new ChangeMessageVisibilityRequest()
-						.withQueueUrl(this.queueUrl).withReceiptHandle(this.receiptHandle)
-						.withVisibilityTimeout(seconds));
+		return this.amazonSqsAsync.changeMessageVisibility(ChangeMessageVisibilityRequest
+				.builder().queueUrl(this.queueUrl).receiptHandle(this.receiptHandle)
+				.visibilityTimeout(seconds).build());
 	}
 
 }

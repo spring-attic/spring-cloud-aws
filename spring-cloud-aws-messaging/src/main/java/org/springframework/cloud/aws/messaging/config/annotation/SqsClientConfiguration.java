@@ -16,10 +16,8 @@
 
 package org.springframework.cloud.aws.messaging.config.annotation;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSAsyncClient;
-import com.amazonaws.services.sqs.buffered.AmazonSQSBufferedAsyncClient;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.aws.context.annotation.ConditionalOnMissingAmazonClient;
@@ -34,23 +32,28 @@ import org.springframework.context.annotation.Lazy;
  * @since 1.0
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnMissingAmazonClient(AmazonSQS.class)
+@ConditionalOnMissingAmazonClient(SqsAsyncClient.class)
 public class SqsClientConfiguration {
 
 	@Autowired(required = false)
-	private AWSCredentialsProvider awsCredentialsProvider;
+	private AwsCredentialsProvider awsCredentialsProvider;
 
 	@Autowired(required = false)
 	private RegionProvider regionProvider;
 
 	@Lazy
 	@Bean(destroyMethod = "shutdown")
-	public AmazonSQSBufferedAsyncClient amazonSQS() throws Exception {
-		AmazonWebserviceClientFactoryBean<AmazonSQSAsyncClient> clientFactoryBean = new AmazonWebserviceClientFactoryBean<>(
-				AmazonSQSAsyncClient.class, this.awsCredentialsProvider,
-				this.regionProvider);
+	public SqsAsyncClient amazonSQS() throws Exception {
+		AmazonWebserviceClientFactoryBean<SqsAsyncClient> clientFactoryBean = new AmazonWebserviceClientFactoryBean<>(
+				SqsAsyncClient.class, this.awsCredentialsProvider, this.regionProvider);
 		clientFactoryBean.afterPropertiesSet();
-		return new AmazonSQSBufferedAsyncClient(clientFactoryBean.getObject());
+		// TODO SDK2 migration: update
+		// Important
+		// The AWS SDK for Java 2.x isn't currently compatible with the
+		// AmazonSQSBufferedAsyncClient.
+		// https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-client-side-buffering-request-batching.html
+		// return new AmazonSQSBufferedAsyncClient(clientFactoryBean.getObject());
+		return clientFactoryBean.getObject();
 	}
 
 }

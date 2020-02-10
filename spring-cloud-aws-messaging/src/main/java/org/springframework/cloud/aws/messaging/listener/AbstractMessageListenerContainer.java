@@ -20,14 +20,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSAsync;
-import com.amazonaws.services.sqs.model.GetQueueAttributesRequest;
-import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
-import com.amazonaws.services.sqs.model.QueueAttributeName;
-import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.GetQueueAttributesRequest;
+import software.amazon.awssdk.services.sqs.model.GetQueueAttributesResponse;
+import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
@@ -54,7 +53,7 @@ import org.springframework.util.Assert;
 abstract class AbstractMessageListenerContainer
 		implements InitializingBean, DisposableBean, SmartLifecycle, BeanNameAware {
 
-	private static final String RECEIVING_ATTRIBUTES = "All";
+	private static final QueueAttributeName RECEIVING_ATTRIBUTES = QueueAttributeName.ALL;
 
 	private static final String RECEIVING_MESSAGE_ATTRIBUTES = "All";
 
@@ -73,7 +72,8 @@ abstract class AbstractMessageListenerContainer
 	// Mandatory settings, the container synchronizes this fields after calling the
 	// setters hence there is no further synchronization
 	@SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
-	private AmazonSQSAsync amazonSqs;
+	// TODO SDK2 migration: used to be async client
+	private SqsClient amazonSqs;
 
 	@SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
 	private DestinationResolver<String> destinationResolver;
@@ -128,18 +128,19 @@ abstract class AbstractMessageListenerContainer
 		return this.logger;
 	}
 
-	protected AmazonSQSAsync getAmazonSqs() {
+	protected SqsClient getAmazonSqs() {
 		return this.amazonSqs;
 	}
 
 	/**
-	 * Configures the mandatory {@link AmazonSQS} client for this instance.
+	 * Configures the mandatory {@link SqsClient} client for this instance. // TODO SDK2
+	 * migration: update comment depending on what to do about the buffering client
 	 * <b>Note:</b>The configured instance should have a buffering amazon SQS instance
 	 * (see subclasses) functionality to improve the performance during message reception
 	 * and deletion on the queueing system.
 	 * @param amazonSqs the amazon sqs instance. Must not be null
 	 */
-	public void setAmazonSqs(AmazonSQSAsync amazonSqs) {
+	public void setAmazonSqs(SqsClient amazonSqs) {
 		this.amazonSqs = amazonSqs;
 	}
 
@@ -332,11 +333,11 @@ abstract class AbstractMessageListenerContainer
 			return null;
 		}
 
-		GetQueueAttributesResult queueAttributes = getAmazonSqs()
-				.getQueueAttributes(new GetQueueAttributesRequest(destinationUrl)
-						.withAttributeNames(QueueAttributeName.RedrivePolicy));
-		boolean hasRedrivePolicy = queueAttributes.getAttributes()
-				.containsKey(QueueAttributeName.RedrivePolicy.toString());
+		GetQueueAttributesResponse queueAttributes = getAmazonSqs().getQueueAttributes(
+				GetQueueAttributesRequest.builder().queueUrl(destinationUrl)
+						.attributeNames(QueueAttributeName.REDRIVE_POLICY).build());
+		boolean hasRedrivePolicy = queueAttributes.attributes()
+				.containsKey(QueueAttributeName.REDRIVE_POLICY.toString());
 
 		return new QueueAttributes(hasRedrivePolicy, deletionPolicy, destinationUrl,
 				getMaxNumberOfMessages(), getVisibilityTimeout(), getWaitTimeOut());
@@ -407,27 +408,27 @@ abstract class AbstractMessageListenerContainer
 		}
 
 		public ReceiveMessageRequest getReceiveMessageRequest() {
-			ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(
-					this.destinationUrl).withAttributeNames(RECEIVING_ATTRIBUTES)
-							.withMessageAttributeNames(RECEIVING_MESSAGE_ATTRIBUTES);
+			ReceiveMessageRequest.Builder receiveMessageRequest = ReceiveMessageRequest
+					.builder().queueUrl(this.destinationUrl)
+					.attributeNames(RECEIVING_ATTRIBUTES)
+					.messageAttributeNames(RECEIVING_MESSAGE_ATTRIBUTES);
 
 			if (this.maxNumberOfMessages != null) {
-				receiveMessageRequest.withMaxNumberOfMessages(this.maxNumberOfMessages);
+				receiveMessageRequest.maxNumberOfMessages(this.maxNumberOfMessages);
 			}
 			else {
-				receiveMessageRequest
-						.withMaxNumberOfMessages(DEFAULT_MAX_NUMBER_OF_MESSAGES);
+				receiveMessageRequest.maxNumberOfMessages(DEFAULT_MAX_NUMBER_OF_MESSAGES);
 			}
 
 			if (this.visibilityTimeout != null) {
-				receiveMessageRequest.withVisibilityTimeout(this.visibilityTimeout);
+				receiveMessageRequest.visibilityTimeout(this.visibilityTimeout);
 			}
 
 			if (this.waitTimeOut != null) {
-				receiveMessageRequest.setWaitTimeSeconds(this.waitTimeOut);
+				receiveMessageRequest.waitTimeSeconds(this.waitTimeOut);
 			}
 
-			return receiveMessageRequest;
+			return receiveMessageRequest.build();
 		}
 
 		public SqsMessageDeletionPolicy getDeletionPolicy() {

@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.aws.messaging.endpoint.config;
 
-import com.amazonaws.services.sns.AmazonSNS;
+import software.amazon.awssdk.services.sns.SnsClient;
 
 import org.springframework.cloud.aws.messaging.endpoint.NotificationMessageHandlerMethodArgumentResolver;
 import org.springframework.cloud.aws.messaging.endpoint.NotificationStatusHandlerMethodArgumentResolver;
@@ -35,7 +35,7 @@ public final class NotificationHandlerMethodArgumentResolverConfigurationUtils {
 	}
 
 	public static HandlerMethodArgumentResolver getNotificationHandlerMethodArgumentResolver(
-			AmazonSNS amazonSns) {
+			SnsClient amazonSns) {
 		HandlerMethodArgumentResolverComposite composite = new HandlerMethodArgumentResolverComposite();
 		composite.addResolver(
 				new NotificationStatusHandlerMethodArgumentResolver(amazonSns));

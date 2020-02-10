@@ -16,10 +16,10 @@
 
 package org.springframework.cloud.aws.messaging.endpoint.config;
 
-import com.amazonaws.services.sns.AmazonSNS;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import software.amazon.awssdk.services.sns.SnsClient;
 
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodArgumentResolverComposite;
@@ -36,7 +36,7 @@ public class NotificationHandlerMethodArgumentResolverFactoryBeanTest {
 	public void getObjectType_defaultConfiguration_returnsHandlerMethodArgumentResolverType()
 			throws Exception {
 		// Arrange
-		AmazonSNS amazonSns = mock(AmazonSNS.class);
+		SnsClient amazonSns = mock(SnsClient.class);
 		NotificationHandlerMethodArgumentResolverFactoryBean factoryBean;
 		factoryBean = new NotificationHandlerMethodArgumentResolverFactoryBean(amazonSns);
 
@@ -51,7 +51,7 @@ public class NotificationHandlerMethodArgumentResolverFactoryBeanTest {
 	public void getObject_withDefaultConfiguration_createCompositeResolverWithAllDelegatedResolvers()
 			throws Exception {
 		// Arrange
-		AmazonSNS amazonSns = mock(AmazonSNS.class);
+		SnsClient amazonSns = mock(SnsClient.class);
 		NotificationHandlerMethodArgumentResolverFactoryBean factoryBean;
 		factoryBean = new NotificationHandlerMethodArgumentResolverFactoryBean(amazonSns);
 		factoryBean.afterPropertiesSet();

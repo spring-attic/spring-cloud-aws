@@ -16,11 +16,11 @@
 
 package org.springframework.cloud.aws.messaging.support.destination;
 
-import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.model.CreateTopicRequest;
-import com.amazonaws.services.sns.model.ListTopicsRequest;
-import com.amazonaws.services.sns.model.ListTopicsResult;
-import com.amazonaws.services.sns.model.Topic;
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.model.CreateTopicRequest;
+import software.amazon.awssdk.services.sns.model.ListTopicsRequest;
+import software.amazon.awssdk.services.sns.model.ListTopicsResponse;
+import software.amazon.awssdk.services.sns.model.Topic;
 
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.cloud.aws.core.naming.AmazonResourceName;
@@ -35,19 +35,19 @@ import org.springframework.util.StringUtils;
  */
 public class DynamicTopicDestinationResolver implements DestinationResolver<String> {
 
-	private final AmazonSNS amazonSns;
+	private final SnsClient amazonSns;
 
 	private final ResourceIdResolver resourceIdResolver;
 
 	private boolean autoCreate;
 
-	public DynamicTopicDestinationResolver(AmazonSNS amazonSns,
+	public DynamicTopicDestinationResolver(SnsClient amazonSns,
 			ResourceIdResolver resourceIdResolver) {
 		this.amazonSns = amazonSns;
 		this.resourceIdResolver = resourceIdResolver;
 	}
 
-	public DynamicTopicDestinationResolver(AmazonSNS amazonSns) {
+	public DynamicTopicDestinationResolver(SnsClient amazonSns) {
 		this(amazonSns, null);
 	}
 
@@ -58,7 +58,9 @@ public class DynamicTopicDestinationResolver implements DestinationResolver<Stri
 	@Override
 	public String resolveDestination(String name) throws DestinationResolutionException {
 		if (this.autoCreate) {
-			return this.amazonSns.createTopic(new CreateTopicRequest(name)).getTopicArn();
+			return this.amazonSns
+					.createTopic(CreateTopicRequest.builder().name(name).build())
+					.topicArn();
 		}
 		else {
 			String physicalTopicName = name;
@@ -83,18 +85,18 @@ public class DynamicTopicDestinationResolver implements DestinationResolver<Stri
 	}
 
 	private String getTopicResourceName(String marker, String topicName) {
-		ListTopicsResult listTopicsResult = this.amazonSns
-				.listTopics(new ListTopicsRequest(marker));
-		for (Topic topic : listTopicsResult.getTopics()) {
+		ListTopicsResponse listTopicsResult = this.amazonSns
+				.listTopics(ListTopicsRequest.builder().nextToken(marker).build());
+		for (Topic topic : listTopicsResult.topics()) {
 			AmazonResourceName resourceName = AmazonResourceName
-					.fromString(topic.getTopicArn());
+					.fromString(topic.topicArn());
 			if (resourceName.getResourceType().equals(topicName)) {
-				return topic.getTopicArn();
+				return topic.topicArn();
 			}
 		}
 
-		if (StringUtils.hasText(listTopicsResult.getNextToken())) {
-			return getTopicResourceName(listTopicsResult.getNextToken(), topicName);
+		if (StringUtils.hasText(listTopicsResult.nextToken())) {
+			return getTopicResourceName(listTopicsResult.nextToken(), topicName);
 		}
 		else {
 			throw new IllegalArgumentException(

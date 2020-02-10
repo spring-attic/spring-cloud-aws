@@ -19,8 +19,7 @@ package org.springframework.cloud.aws.messaging.config;
 import java.util.Arrays;
 import java.util.List;
 
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSAsync;
+import software.amazon.awssdk.services.sqs.SqsClient;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
@@ -47,7 +46,7 @@ public class QueueMessageHandlerFactory {
 
 	private DestinationResolvingMessageSendingOperations<?> sendToMessagingTemplate;
 
-	private AmazonSQSAsync amazonSqs;
+	private SqsClient amazonSqs;
 
 	private ResourceIdResolver resourceIdResolver;
 
@@ -78,26 +77,26 @@ public class QueueMessageHandlerFactory {
 		this.sendToMessagingTemplate = sendToMessagingTemplate;
 	}
 
-	public AmazonSQS getAmazonSqs() {
+	public SqsClient getAmazonSqs() {
 		return this.amazonSqs;
 	}
 
 	/**
 	 * <p>
-	 * Sets the {@link AmazonSQS} client that is going to be used to create a new
+	 * Sets the {@link SqsClient} client that is going to be used to create a new
 	 * {@link QueueMessagingTemplate} if {@code sendToMessagingTemplate} is {@code null}.
 	 * This template is used by the {@link SendToHandlerMethodReturnValueHandler} to send
 	 * the return values of handler methods annotated with
 	 * {@link org.springframework.messaging.handler.annotation.SendTo}.
 	 * </p>
 	 * <p>
-	 * An {@link AmazonSQS} client is only needed if {@code sendToMessagingTemplate} is
+	 * An {@link SqsClient} client is only needed if {@code sendToMessagingTemplate} is
 	 * {@code null}.
 	 * </p>
-	 * @param amazonSqs The {@link AmazonSQS} client that is going to be used by the
+	 * @param amazonSqs The {@link SqsClient} client that is going to be used by the
 	 * {@link SendToHandlerMethodReturnValueHandler} to send messages.
 	 */
-	public void setAmazonSqs(AmazonSQSAsync amazonSqs) {
+	public void setAmazonSqs(SqsClient amazonSqs) {
 		this.amazonSqs = amazonSqs;
 	}
 
@@ -157,7 +156,7 @@ public class QueueMessageHandlerFactory {
 	}
 
 	private QueueMessagingTemplate getDefaultSendToQueueMessagingTemplate(
-			AmazonSQSAsync amazonSqs, ResourceIdResolver resourceIdResolver) {
+			SqsClient amazonSqs, ResourceIdResolver resourceIdResolver) {
 		return new QueueMessagingTemplate(amazonSqs, resourceIdResolver,
 				getDefaultMappingJackson2MessageConverter());
 	}

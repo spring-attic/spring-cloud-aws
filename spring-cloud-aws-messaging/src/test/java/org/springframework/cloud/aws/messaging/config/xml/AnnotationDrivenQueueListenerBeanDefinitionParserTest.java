@@ -18,13 +18,15 @@ package org.springframework.cloud.aws.messaging.config.xml;
 
 import java.util.List;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.sqs.AmazonSQSAsync;
-import com.amazonaws.services.sqs.buffered.AmazonSQSBufferedAsyncClient;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import software.amazon.awssdk.core.client.config.SdkClientConfiguration;
+import software.amazon.awssdk.core.client.config.SdkClientOption;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.regions.ServiceMetadata;
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
+import software.amazon.awssdk.services.sqs.SqsClient;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -72,7 +74,7 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-minimal.xml", getClass());
 
 		// Assert
-		AmazonSQSAsync amazonSqsClient = applicationContext.getBean(AmazonSQSAsync.class);
+		SqsClient amazonSqsClient = applicationContext.getBean(SqsClient.class);
 		assertThat(amazonSqsClient).isNotNull();
 
 		SimpleMessageListenerContainer container = applicationContext
@@ -170,9 +172,8 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParserTest {
 				.getPropertyValue("taskExecutor").getValue()).getBeanName())
 						.isEqualTo("executor");
 
-		AmazonSQSBufferedAsyncClient bufferedAsyncClient = beanFactory
-				.getBean(AmazonSQSBufferedAsyncClient.class);
-		assertThat(bufferedAsyncClient).isNotNull();
+		SqsAsyncClient asyncClient = beanFactory.getBean(SqsAsyncClient.class);
+		assertThat(asyncClient).isNotNull();
 	}
 
 	@Test
@@ -288,15 +289,12 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-custom-region.xml", getClass()));
 
 		// Assert
-		AmazonSQSBufferedAsyncClient amazonSQSBufferedAsyncClient = registry
-				.getBean(AmazonSQSBufferedAsyncClient.class);
-		Object amazonSqsAsyncClient = ReflectionTestUtils
-				.getField(amazonSQSBufferedAsyncClient, "realSQS");
+		SqsAsyncClient amazonSqs = registry.getBean(SqsAsyncClient.class);
 
-		assertThat(
-				ReflectionTestUtils.getField(amazonSqsAsyncClient, "endpoint").toString())
-						.isEqualTo("https://" + Region.getRegion(Regions.EU_WEST_1)
-								.getServiceEndpoint("sqs"));
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
+		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
+			.isEqualTo(ServiceMetadata.of("sqs").endpointFor(Region.EU_WEST_1));
+
 	}
 
 	// @checkstyle:off
@@ -313,15 +311,11 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-custom-region-provider.xml", getClass()));
 
 		// Assert
-		AmazonSQSBufferedAsyncClient amazonSQSBufferedAsyncClient = registry
-				.getBean(AmazonSQSBufferedAsyncClient.class);
-		Object amazonSqsAsyncClient = ReflectionTestUtils
-				.getField(amazonSQSBufferedAsyncClient, "realSQS");
+		SqsAsyncClient amazonSqs = registry.getBean(SqsAsyncClient.class);
 
-		assertThat(
-				ReflectionTestUtils.getField(amazonSqsAsyncClient, "endpoint").toString())
-						.isEqualTo("https://" + Region.getRegion(Regions.AP_SOUTHEAST_2)
-								.getServiceEndpoint("sqs"));
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
+		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
+			.isEqualTo(ServiceMetadata.of("sqs").endpointFor(Region.AP_SOUTHEAST_2));
 	}
 
 	@Test
@@ -332,15 +326,10 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-context-region.xml", getClass());
 
 		// Assert
-		AmazonSQSBufferedAsyncClient amazonSQSBufferedAsyncClient = applicationContext
-				.getBean(AmazonSQSBufferedAsyncClient.class);
-		Object amazonSqsAsyncClient = ReflectionTestUtils
-				.getField(amazonSQSBufferedAsyncClient, "realSQS");
-
-		assertThat(
-				ReflectionTestUtils.getField(amazonSqsAsyncClient, "endpoint").toString())
-						.isEqualTo("https://" + Region.getRegion(Regions.AP_SOUTHEAST_1)
-								.getServiceEndpoint("sqs"));
+		SqsAsyncClient amazonSqs = applicationContext.getBean(SqsAsyncClient.class);
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
+		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
+			.isEqualTo(ServiceMetadata.of("sqs").endpointFor(Region.AP_SOUTHEAST_1));
 	}
 
 	@Test

@@ -18,7 +18,7 @@ package org.springframework.cloud.aws.messaging.core;
 
 import java.util.Collections;
 
-import com.amazonaws.services.sns.AmazonSNS;
+import software.amazon.awssdk.services.sns.SnsClient;
 
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.cloud.aws.messaging.core.support.AbstractMessageChannelMessagingSendingTemplate;
@@ -33,25 +33,25 @@ import org.springframework.messaging.core.DestinationResolver;
 public class NotificationMessagingTemplate
 		extends AbstractMessageChannelMessagingSendingTemplate<TopicMessageChannel> {
 
-	private final AmazonSNS amazonSns;
+	private final SnsClient amazonSns;
 
-	public NotificationMessagingTemplate(AmazonSNS amazonSns) {
+	public NotificationMessagingTemplate(SnsClient amazonSns) {
 		this(amazonSns, (ResourceIdResolver) null, null);
 	}
 
-	public NotificationMessagingTemplate(AmazonSNS amazonSns,
+	public NotificationMessagingTemplate(SnsClient amazonSns,
 			ResourceIdResolver resourceIdResolver) {
 		this(amazonSns, resourceIdResolver, null);
 	}
 
-	public NotificationMessagingTemplate(AmazonSNS amazonSns,
+	public NotificationMessagingTemplate(SnsClient amazonSns,
 			ResourceIdResolver resourceIdResolver, MessageConverter messageConverter) {
 		super(new DynamicTopicDestinationResolver(amazonSns, resourceIdResolver));
 		this.amazonSns = amazonSns;
 		initMessageConverter(messageConverter);
 	}
 
-	public NotificationMessagingTemplate(AmazonSNS amazonSns,
+	public NotificationMessagingTemplate(SnsClient amazonSns,
 			DestinationResolver<String> destinationResolver,
 			MessageConverter messageConverter) {
 		super(destinationResolver);

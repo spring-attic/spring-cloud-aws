@@ -21,7 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import com.amazonaws.services.sqs.model.MessageAttributeValue;
+import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
+import software.amazon.awssdk.services.sqs.model.MessageSystemAttributeName;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
@@ -45,32 +46,32 @@ public final class QueueMessageUtils {
 	}
 
 	public static Message<String> createMessage(
-			com.amazonaws.services.sqs.model.Message message) {
+			software.amazon.awssdk.services.sqs.model.Message message) {
 		return createMessage(message, Collections.emptyMap());
 	}
 
 	public static Message<String> createMessage(
-			com.amazonaws.services.sqs.model.Message message,
+			software.amazon.awssdk.services.sqs.model.Message message,
 			Map<String, Object> additionalHeaders) {
 		HashMap<String, Object> messageHeaders = new HashMap<>();
-		messageHeaders.put(MESSAGE_ID_MESSAGE_ATTRIBUTE_NAME, message.getMessageId());
+		messageHeaders.put(MESSAGE_ID_MESSAGE_ATTRIBUTE_NAME, message.messageId());
 		messageHeaders.put(RECEIPT_HANDLE_MESSAGE_ATTRIBUTE_NAME,
-				message.getReceiptHandle());
+				message.receiptHandle());
 
 		messageHeaders.putAll(additionalHeaders);
 		messageHeaders.putAll(getAttributesAsMessageHeaders(message));
 		messageHeaders.putAll(getMessageAttributesAsMessageHeaders(message));
 
-		return new GenericMessage<>(message.getBody(),
+		return new GenericMessage<>(message.body(),
 				new SqsMessageHeaders(messageHeaders));
 	}
 
 	private static Map<String, Object> getAttributesAsMessageHeaders(
-			com.amazonaws.services.sqs.model.Message message) {
+			software.amazon.awssdk.services.sqs.model.Message message) {
 		Map<String, Object> messageHeaders = new HashMap<>();
-		for (Map.Entry<String, String> attributeKeyValuePair : message.getAttributes()
-				.entrySet()) {
-			messageHeaders.put(attributeKeyValuePair.getKey(),
+		for (Map.Entry<MessageSystemAttributeName, String> attributeKeyValuePair : message
+				.attributes().entrySet()) {
+			messageHeaders.put(attributeKeyValuePair.getKey().name(),
 					attributeKeyValuePair.getValue());
 		}
 
@@ -78,24 +79,24 @@ public final class QueueMessageUtils {
 	}
 
 	private static Map<String, Object> getMessageAttributesAsMessageHeaders(
-			com.amazonaws.services.sqs.model.Message message) {
+			software.amazon.awssdk.services.sqs.model.Message message) {
 		Map<String, Object> messageHeaders = new HashMap<>();
 		for (Map.Entry<String, MessageAttributeValue> messageAttribute : message
-				.getMessageAttributes().entrySet()) {
+				.messageAttributes().entrySet()) {
 			if (MessageHeaders.CONTENT_TYPE.equals(messageAttribute.getKey())) {
 				messageHeaders.put(MessageHeaders.CONTENT_TYPE,
-						MimeType.valueOf(messageAttribute.getValue().getStringValue()));
+						MimeType.valueOf(messageAttribute.getValue().stringValue()));
 			}
 			else if (MessageHeaders.ID.equals(messageAttribute.getKey())) {
 				messageHeaders.put(MessageHeaders.ID,
-						UUID.fromString(messageAttribute.getValue().getStringValue()));
+						UUID.fromString(messageAttribute.getValue().stringValue()));
 			}
 			else if (MessageAttributeDataTypes.STRING
-					.equals(messageAttribute.getValue().getDataType())) {
+					.equals(messageAttribute.getValue().dataType())) {
 				messageHeaders.put(messageAttribute.getKey(),
-						messageAttribute.getValue().getStringValue());
+						messageAttribute.getValue().stringValue());
 			}
-			else if (messageAttribute.getValue().getDataType()
+			else if (messageAttribute.getValue().dataType()
 					.startsWith(MessageAttributeDataTypes.NUMBER)) {
 				Object numberValue = getNumberValue(messageAttribute.getValue());
 				if (numberValue != null) {
@@ -103,9 +104,9 @@ public final class QueueMessageUtils {
 				}
 			}
 			else if (MessageAttributeDataTypes.BINARY
-					.equals(messageAttribute.getValue().getDataType())) {
+					.equals(messageAttribute.getValue().dataType())) {
 				messageHeaders.put(messageAttribute.getKey(),
-						messageAttribute.getValue().getBinaryValue());
+						messageAttribute.getValue().binaryValue());
 			}
 		}
 
@@ -113,18 +114,18 @@ public final class QueueMessageUtils {
 	}
 
 	private static Object getNumberValue(MessageAttributeValue value) {
-		String numberType = value.getDataType()
+		String numberType = value.dataType()
 				.substring(MessageAttributeDataTypes.NUMBER.length() + 1);
 		try {
 			Class<? extends Number> numberTypeClass = Class.forName(numberType)
 					.asSubclass(Number.class);
-			return NumberUtils.parseNumber(value.getStringValue(), numberTypeClass);
+			return NumberUtils.parseNumber(value.stringValue(), numberTypeClass);
 		}
 		catch (ClassNotFoundException e) {
 			throw new MessagingException(String.format(
 					"Message attribute with value '%s' and data type '%s' could not be converted "
 							+ "into a Number because target class was not found.",
-					value.getStringValue(), value.getDataType()), e);
+					value.stringValue(), value.dataType()), e);
 		}
 	}
 

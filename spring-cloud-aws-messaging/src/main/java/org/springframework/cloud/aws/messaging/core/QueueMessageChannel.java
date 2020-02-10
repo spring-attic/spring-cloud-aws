@@ -20,18 +20,17 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.sqs.AmazonSQSAsync;
-import com.amazonaws.services.sqs.model.DeleteMessageRequest;
-import com.amazonaws.services.sqs.model.MessageAttributeValue;
-import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
-import com.amazonaws.services.sqs.model.ReceiveMessageResult;
-import com.amazonaws.services.sqs.model.SendMessageRequest;
-import com.amazonaws.services.sqs.model.SendMessageResult;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
+import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
+import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
+import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageDeliveryException;
@@ -52,15 +51,15 @@ import static org.springframework.cloud.aws.messaging.core.QueueMessageUtils.cre
 public class QueueMessageChannel extends AbstractMessageChannel
 		implements PollableChannel {
 
-	static final String ATTRIBUTE_NAMES = "All";
+	static final QueueAttributeName ATTRIBUTE_NAMES = QueueAttributeName.ALL;
 
 	private static final String MESSAGE_ATTRIBUTE_NAMES = "All";
 
-	private final AmazonSQSAsync amazonSqs;
+	private final SqsClient amazonSqs;
 
 	private final String queueUrl;
 
-	public QueueMessageChannel(AmazonSQSAsync amazonSqs, String queueUrl) {
+	public QueueMessageChannel(SqsClient amazonSqs, String queueUrl) {
 		this.amazonSqs = amazonSqs;
 		this.queueUrl = queueUrl;
 	}
@@ -76,7 +75,7 @@ public class QueueMessageChannel extends AbstractMessageChannel
 		try {
 			sendMessageAndWaitForResult(prepareSendMessageRequest(message), timeout);
 		}
-		catch (AmazonServiceException e) {
+		catch (AwsServiceException e) {
 			throw new MessageDeliveryException(message, e.getMessage(), e);
 		}
 		catch (ExecutionException e) {
@@ -90,46 +89,48 @@ public class QueueMessageChannel extends AbstractMessageChannel
 	}
 
 	private SendMessageRequest prepareSendMessageRequest(Message<?> message) {
-		SendMessageRequest sendMessageRequest = new SendMessageRequest(this.queueUrl,
-				String.valueOf(message.getPayload()));
+		SendMessageRequest.Builder sendMessageRequest = SendMessageRequest.builder()
+				.queueUrl(this.queueUrl)
+				.messageBody(String.valueOf(message.getPayload()));
 
 		if (message.getHeaders().containsKey(SqsMessageHeaders.SQS_GROUP_ID_HEADER)) {
-			sendMessageRequest.setMessageGroupId(message.getHeaders()
+			sendMessageRequest.messageGroupId(message.getHeaders()
 					.get(SqsMessageHeaders.SQS_GROUP_ID_HEADER, String.class));
 		}
 
 		if (message.getHeaders()
 				.containsKey(SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER)) {
-			sendMessageRequest.setMessageDeduplicationId(message.getHeaders()
+			sendMessageRequest.messageDeduplicationId(message.getHeaders()
 					.get(SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER, String.class));
 		}
 
 		if (message.getHeaders().containsKey(SqsMessageHeaders.SQS_DELAY_HEADER)) {
-			sendMessageRequest.setDelaySeconds(message.getHeaders()
+			sendMessageRequest.delaySeconds(message.getHeaders()
 					.get(SqsMessageHeaders.SQS_DELAY_HEADER, Integer.class));
 		}
 
 		Map<String, MessageAttributeValue> messageAttributes = getMessageAttributes(
 				message);
 		if (!messageAttributes.isEmpty()) {
-			sendMessageRequest.withMessageAttributes(messageAttributes);
+			sendMessageRequest.messageAttributes(messageAttributes);
 		}
 
-		return sendMessageRequest;
+		return sendMessageRequest.build();
 	}
 
 	private void sendMessageAndWaitForResult(SendMessageRequest sendMessageRequest,
 			long timeout) throws ExecutionException, TimeoutException {
 		if (timeout > 0) {
-			Future<SendMessageResult> sendMessageFuture = this.amazonSqs
-					.sendMessageAsync(sendMessageRequest);
-
-			try {
-				sendMessageFuture.get(timeout, TimeUnit.MILLISECONDS);
-			}
-			catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
+			// TODO SDK2 migration: solve issue with async and sync client
+			// Future<SendMessageResponse> sendMessageFuture = this.amazonSqsAsync
+			// .sendMessage(sendMessageRequest);
+			//
+			// try {
+			// sendMessageFuture.get(timeout, TimeUnit.MILLISECONDS);
+			// }
+			// catch (InterruptedException e) {
+			// Thread.currentThread().interrupt();
+			// }
 		}
 		else {
 			this.amazonSqs.sendMessage(sendMessageRequest);
@@ -182,28 +183,28 @@ public class QueueMessageChannel extends AbstractMessageChannel
 
 	private MessageAttributeValue getBinaryMessageAttribute(
 			ByteBuffer messageHeaderValue) {
-		return new MessageAttributeValue().withDataType(MessageAttributeDataTypes.BINARY)
-				.withBinaryValue(messageHeaderValue);
+		return MessageAttributeValue.builder().dataType(MessageAttributeDataTypes.BINARY)
+				.binaryValue(SdkBytes.fromByteBuffer(messageHeaderValue)).build();
 	}
 
 	private MessageAttributeValue getContentTypeMessageAttribute(
 			Object messageHeaderValue) {
 		if (messageHeaderValue instanceof MimeType) {
-			return new MessageAttributeValue()
-					.withDataType(MessageAttributeDataTypes.STRING)
-					.withStringValue(messageHeaderValue.toString());
+			return MessageAttributeValue.builder()
+					.dataType(MessageAttributeDataTypes.STRING)
+					.stringValue(messageHeaderValue.toString()).build();
 		}
 		else if (messageHeaderValue instanceof String) {
-			return new MessageAttributeValue()
-					.withDataType(MessageAttributeDataTypes.STRING)
-					.withStringValue((String) messageHeaderValue);
+			return MessageAttributeValue.builder()
+					.dataType(MessageAttributeDataTypes.STRING)
+					.stringValue((String) messageHeaderValue).build();
 		}
 		return null;
 	}
 
 	private MessageAttributeValue getStringMessageAttribute(String messageHeaderValue) {
-		return new MessageAttributeValue().withDataType(MessageAttributeDataTypes.STRING)
-				.withStringValue(messageHeaderValue);
+		return MessageAttributeValue.builder().dataType(MessageAttributeDataTypes.STRING)
+				.stringValue(messageHeaderValue).build();
 	}
 
 	private MessageAttributeValue getNumberMessageAttribute(Object messageHeaderValue) {
@@ -211,10 +212,10 @@ public class QueueMessageChannel extends AbstractMessageChannel
 				NumberUtils.STANDARD_NUMBER_TYPES.contains(messageHeaderValue.getClass()),
 				"Only standard number types are accepted as message header.");
 
-		return new MessageAttributeValue()
-				.withDataType(MessageAttributeDataTypes.NUMBER + "."
+		return MessageAttributeValue.builder()
+				.dataType(MessageAttributeDataTypes.NUMBER + "."
 						+ messageHeaderValue.getClass().getName())
-				.withStringValue(messageHeaderValue.toString());
+				.stringValue(messageHeaderValue.toString()).build();
 	}
 
 	@Override
@@ -224,19 +225,21 @@ public class QueueMessageChannel extends AbstractMessageChannel
 
 	@Override
 	public Message<String> receive(long timeout) {
-		ReceiveMessageResult receiveMessageResult = this.amazonSqs.receiveMessage(
-				new ReceiveMessageRequest(this.queueUrl).withMaxNumberOfMessages(1)
-						.withWaitTimeSeconds(Long.valueOf(timeout).intValue())
-						.withAttributeNames(ATTRIBUTE_NAMES)
-						.withMessageAttributeNames(MESSAGE_ATTRIBUTE_NAMES));
-		if (receiveMessageResult.getMessages().isEmpty()) {
+		ReceiveMessageResponse receiveMessageResult = this.amazonSqs
+				.receiveMessage(ReceiveMessageRequest.builder().queueUrl(this.queueUrl)
+						.maxNumberOfMessages(1)
+						.waitTimeSeconds(Long.valueOf(timeout).intValue())
+						.attributeNames(ATTRIBUTE_NAMES)
+						.messageAttributeNames(MESSAGE_ATTRIBUTE_NAMES).build());
+		if (receiveMessageResult.messages().isEmpty()) {
 			return null;
 		}
-		com.amazonaws.services.sqs.model.Message amazonMessage = receiveMessageResult
-				.getMessages().get(0);
+		software.amazon.awssdk.services.sqs.model.Message amazonMessage = receiveMessageResult
+				.messages().get(0);
 		Message<String> message = createMessage(amazonMessage);
-		this.amazonSqs.deleteMessage(new DeleteMessageRequest(this.queueUrl,
-				amazonMessage.getReceiptHandle()));
+		this.amazonSqs
+				.deleteMessage(DeleteMessageRequest.builder().queueUrl(this.queueUrl)
+						.receiptHandle(amazonMessage.receiptHandle()).build());
 		return message;
 	}
 

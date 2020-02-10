@@ -16,10 +16,11 @@
 
 package org.springframework.cloud.aws.messaging.endpoint;
 
-import com.amazonaws.services.sns.AmazonSNS;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.model.ConfirmSubscriptionRequest;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.io.ClassPathResource;
@@ -44,7 +45,7 @@ public class NotificationStatusHandlerMethodArgumentResolverTest {
 		this.expectedException.expect(IllegalArgumentException.class);
 		this.expectedException.expectMessage("NotificationStatus is only available");
 
-		AmazonSNS amazonSns = mock(AmazonSNS.class);
+		SnsClient amazonSns = mock(SnsClient.class);
 		NotificationStatusHandlerMethodArgumentResolver resolver = new NotificationStatusHandlerMethodArgumentResolver(
 				amazonSns);
 
@@ -70,7 +71,7 @@ public class NotificationStatusHandlerMethodArgumentResolverTest {
 	public void resolveArgument_subscriptionRequest_createsValidSubscriptionStatus()
 			throws Exception {
 		// Arrange
-		AmazonSNS amazonSns = mock(AmazonSNS.class);
+		SnsClient amazonSns = mock(SnsClient.class);
 		NotificationStatusHandlerMethodArgumentResolver resolver = new NotificationStatusHandlerMethodArgumentResolver(
 				amazonSns);
 
@@ -93,13 +94,14 @@ public class NotificationStatusHandlerMethodArgumentResolverTest {
 		// Assert
 		assertThat(resolvedArgument instanceof NotificationStatus).isTrue();
 		((NotificationStatus) resolvedArgument).confirmSubscription();
-		verify(amazonSns, times(1)).confirmSubscription(
-				"arn:aws:sns:eu-west-1:111111111111:mySampleTopic",
-				"1111111111111111111111111111111111111111111111"
+		verify(amazonSns, times(1)).confirmSubscription(ConfirmSubscriptionRequest
+				.builder().topicArn("arn:aws:sns:eu-west-1:111111111111:mySampleTopic")
+				.token("1111111111111111111111111111111111111111111111"
 						+ "1111111111111111111111111111111111111111111"
 						+ "1111111111111111111111111111111111111111111"
 						+ "1111111111111111111111111111111111111111111"
-						+ "11111111111111111111111111111111111");
+						+ "11111111111111111111111111111111111")
+				.build());
 	}
 
 }

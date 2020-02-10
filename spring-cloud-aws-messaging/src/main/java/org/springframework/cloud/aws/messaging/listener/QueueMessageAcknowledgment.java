@@ -18,8 +18,8 @@ package org.springframework.cloud.aws.messaging.listener;
 
 import java.util.concurrent.Future;
 
-import com.amazonaws.services.sqs.AmazonSQSAsync;
-import com.amazonaws.services.sqs.model.DeleteMessageRequest;
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
+import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
 
 /**
  * @author Alain Sahli
@@ -27,13 +27,13 @@ import com.amazonaws.services.sqs.model.DeleteMessageRequest;
  */
 public class QueueMessageAcknowledgment implements Acknowledgment {
 
-	private final AmazonSQSAsync amazonSqsAsync;
+	private final SqsAsyncClient amazonSqsAsync;
 
 	private final String queueUrl;
 
 	private final String receiptHandle;
 
-	public QueueMessageAcknowledgment(AmazonSQSAsync amazonSqsAsync, String queueUrl,
+	public QueueMessageAcknowledgment(SqsAsyncClient amazonSqsAsync, String queueUrl,
 			String receiptHandle) {
 		this.amazonSqsAsync = amazonSqsAsync;
 		this.queueUrl = queueUrl;
@@ -42,8 +42,8 @@ public class QueueMessageAcknowledgment implements Acknowledgment {
 
 	@Override
 	public Future<?> acknowledge() {
-		return this.amazonSqsAsync.deleteMessageAsync(
-				new DeleteMessageRequest(this.queueUrl, this.receiptHandle));
+		return this.amazonSqsAsync.deleteMessage(DeleteMessageRequest.builder()
+				.queueUrl(this.queueUrl).receiptHandle(this.receiptHandle).build());
 	}
 
 }

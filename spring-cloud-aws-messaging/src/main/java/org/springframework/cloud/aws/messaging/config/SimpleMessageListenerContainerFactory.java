@@ -16,8 +16,7 @@
 
 package org.springframework.cloud.aws.messaging.config;
 
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSAsync;
+import software.amazon.awssdk.services.sqs.SqsClient;
 
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.cloud.aws.messaging.listener.QueueMessageHandler;
@@ -43,7 +42,7 @@ public class SimpleMessageListenerContainerFactory {
 
 	private boolean autoStartup = true;
 
-	private AmazonSQSAsync amazonSqs;
+	private SqsClient amazonSqs;
 
 	private QueueMessageHandler queueMessageHandler;
 
@@ -105,16 +104,16 @@ public class SimpleMessageListenerContainerFactory {
 		this.autoStartup = autoStartup;
 	}
 
-	public AmazonSQS getAmazonSqs() {
+	public SqsClient getAmazonSqs() {
 		return this.amazonSqs;
 	}
 
 	/**
-	 * Sets the {@link AmazonSQSAsync} that is going to be used by the container to
-	 * interact with the messaging (SQS) API.
-	 * @param amazonSqs The {@link AmazonSQSAsync}, must not be {@code null}.
+	 * Sets the {@link SqsClient} that is going to be used by the container to interact
+	 * with the messaging (SQS) API.
+	 * @param amazonSqs The {@link SqsClient}, must not be {@code null}.
 	 */
-	public void setAmazonSqs(AmazonSQSAsync amazonSqs) {
+	public void setAmazonSqs(SqsClient amazonSqs) {
 		Assert.notNull(amazonSqs, "amazonSqs must not be null");
 		this.amazonSqs = amazonSqs;
 	}
@@ -188,6 +187,7 @@ public class SimpleMessageListenerContainerFactory {
 		Assert.notNull(this.amazonSqs, "amazonSqs must not be null");
 
 		SimpleMessageListenerContainer simpleMessageListenerContainer = new SimpleMessageListenerContainer();
+		// TODO SDK2 migration: solve the issue with the async and sync client
 		simpleMessageListenerContainer.setAmazonSqs(this.amazonSqs);
 		simpleMessageListenerContainer.setAutoStartup(this.autoStartup);
 

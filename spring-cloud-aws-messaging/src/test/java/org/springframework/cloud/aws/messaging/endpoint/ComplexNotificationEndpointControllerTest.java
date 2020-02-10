@@ -16,10 +16,11 @@
 
 package org.springframework.cloud.aws.messaging.endpoint;
 
-import com.amazonaws.services.sns.AmazonSNS;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.model.ConfirmSubscriptionRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -49,7 +50,7 @@ public class ComplexNotificationEndpointControllerTest {
 	private WebApplicationContext context;
 
 	@Autowired
-	private AmazonSNS amazonSnsMock;
+	private SnsClient amazonSnsMock;
 
 	@Autowired
 	private ComplexNotificationTestController notificationTestController;
@@ -77,12 +78,14 @@ public class ComplexNotificationEndpointControllerTest {
 				.andExpect(status().isNoContent());
 
 		// Assert
-		verify(this.amazonSnsMock, times(1)).confirmSubscription(
-				"arn:aws:sns:eu-west-1:111111111111:mySampleTopic",
-				"111111111111111111111111111111111111111111111111111111"
-						+ "1111111111111111111111111111111111111111111111111111"
-						+ "1111111111111111111111111111111111111111111111111111"
-						+ "1111111111111111111111111111111111111111111111111111");
+		verify(this.amazonSnsMock, times(1))
+				.confirmSubscription(ConfirmSubscriptionRequest.builder()
+						.topicArn("arn:aws:sns:eu-west-1:111111111111:mySampleTopic")
+						.token("111111111111111111111111111111111111111111111111111111"
+								+ "1111111111111111111111111111111111111111111111111111"
+								+ "1111111111111111111111111111111111111111111111111111"
+								+ "1111111111111111111111111111111111111111111111111111")
+						.build());
 	}
 
 	// @checkstyle:off
@@ -127,13 +130,15 @@ public class ComplexNotificationEndpointControllerTest {
 				.andExpect(status().isNoContent());
 
 		// Assert
-		verify(this.amazonSnsMock, times(1)).confirmSubscription(
-				"arn:aws:sns:eu-west-1:111111111111:mySampleTopic",
-				"2336412f37fb687f5d51e6e241d638b05824e9e2f6713b42abaeb86"
-						+ "07743f5ba91d34edd2b9dabe2f1616ed77c0f8801ee79911d34dc"
-						+ "a3d210c228af87bd5d9597bf0d6093a1464e03af6650e992ecf546"
-						+ "05e020f04ad3d47796045c9f24d902e72e811a1ad59852cad453f4"
-						+ "0bddfb45");
+		verify(this.amazonSnsMock, times(1))
+				.confirmSubscription(ConfirmSubscriptionRequest.builder()
+						.topicArn("arn:aws:sns:eu-west-1:111111111111:mySampleTopic")
+						.token("2336412f37fb687f5d51e6e241d638b05824e9e2f6713b42abaeb86"
+								+ "07743f5ba91d34edd2b9dabe2f1616ed77c0f8801ee79911d34dc"
+								+ "a3d210c228af87bd5d9597bf0d6093a1464e03af6650e992ecf546"
+								+ "05e020f04ad3d47796045c9f24d902e72e811a1ad59852cad453f4"
+								+ "0bddfb45")
+						.build());
 	}
 
 }

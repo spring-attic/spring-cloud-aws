@@ -16,9 +16,8 @@
 
 package org.springframework.cloud.aws.messaging.config.annotation;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.AmazonSNSClient;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.services.sns.SnsClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.aws.context.annotation.ConditionalOnMissingAmazonClient;
@@ -36,15 +35,15 @@ import org.springframework.context.annotation.Configuration;
 public class SnsConfiguration {
 
 	@Autowired(required = false)
-	private AWSCredentialsProvider awsCredentialsProvider;
+	private AwsCredentialsProvider awsCredentialsProvider;
 
 	@Autowired(required = false)
 	private RegionProvider regionProvider;
 
-	@ConditionalOnMissingAmazonClient(AmazonSNS.class)
+	@ConditionalOnMissingAmazonClient(SnsClient.class)
 	@Bean
-	public AmazonWebserviceClientFactoryBean<AmazonSNSClient> amazonSNS() {
-		return new AmazonWebserviceClientFactoryBean<>(AmazonSNSClient.class,
+	public AmazonWebserviceClientFactoryBean<SnsClient> amazonSNS() {
+		return new AmazonWebserviceClientFactoryBean<>(SnsClient.class,
 				this.awsCredentialsProvider, this.regionProvider);
 	}
 
