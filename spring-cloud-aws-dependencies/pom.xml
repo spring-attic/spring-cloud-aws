@@ -31,16 +31,17 @@
 	<name>Spring Cloud AWS Dependencies</name>
 	<description>Spring Cloud AWS Dependencies</description>
 	<properties>
-		<aws-java-sdk.version>1.11.415</aws-java-sdk.version>
+		<aws-java-sdk.version>2.9.12</aws-java-sdk.version>
 		<elasticache.version>1.1.1</elasticache.version>
 		<jmemcached.version>1.0.0</jmemcached.version>
 		<spring-cloud-context.version>1.3.2.RELEASE</spring-cloud-context.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
+			<!-- TODO SDK2 migration: check exclusions -->
 			<dependency>
-				<groupId>com.amazonaws</groupId>
-				<artifactId>aws-java-sdk-bom</artifactId>
+				<groupId>software.amazon.awssdk</groupId>
+				<artifactId>bom</artifactId>
 				<version>${aws-java-sdk.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
@@ -52,8 +53,8 @@
 				</exclusions>
 			</dependency>
 			<dependency>
-				<groupId>com.amazonaws</groupId>
-				<artifactId>aws-java-sdk-core</artifactId>
+				<groupId>software.amazon.awssdk</groupId>
+				<artifactId>core</artifactId>
 				<version>${aws-java-sdk.version}</version>
 				<exclusions>
 					<exclusion>
