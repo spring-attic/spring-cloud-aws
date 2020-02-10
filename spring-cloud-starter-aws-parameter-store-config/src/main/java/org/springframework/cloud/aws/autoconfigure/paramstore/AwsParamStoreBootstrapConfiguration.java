@@ -16,8 +16,7 @@
 
 package org.springframework.cloud.aws.autoconfigure.paramstore;
 
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
+import software.amazon.awssdk.services.ssm.SsmClient;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -37,22 +36,21 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(AwsParamStoreProperties.class)
-@ConditionalOnClass({ AWSSimpleSystemsManagement.class,
-		AwsParamStorePropertySourceLocator.class })
+@ConditionalOnClass({ SsmClient.class, AwsParamStorePropertySourceLocator.class })
 @ConditionalOnProperty(prefix = AwsParamStoreProperties.CONFIG_PREFIX, name = "enabled",
 		matchIfMissing = true)
 public class AwsParamStoreBootstrapConfiguration {
 
 	@Bean
 	AwsParamStorePropertySourceLocator awsParamStorePropertySourceLocator(
-			AWSSimpleSystemsManagement ssmClient, AwsParamStoreProperties properties) {
+			SsmClient ssmClient, AwsParamStoreProperties properties) {
 		return new AwsParamStorePropertySourceLocator(ssmClient, properties);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	AWSSimpleSystemsManagement ssmClient() {
-		return AWSSimpleSystemsManagementClientBuilder.defaultClient();
+	SsmClient ssmClient() {
+		return SsmClient.create();
 	}
 
 }
