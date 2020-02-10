@@ -21,9 +21,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 
 import org.springframework.cloud.bootstrap.config.PropertySourceLocator;
 import org.springframework.core.env.CompositePropertySource;
@@ -43,7 +43,7 @@ import org.springframework.util.ReflectionUtils;
  */
 public class AwsSecretsManagerPropertySourceLocator implements PropertySourceLocator {
 
-	private AWSSecretsManager smClient;
+	private SecretsManagerClient smClient;
 
 	private AwsSecretsManagerProperties properties;
 
@@ -51,7 +51,7 @@ public class AwsSecretsManagerPropertySourceLocator implements PropertySourceLoc
 
 	private Log logger = LogFactory.getLog(getClass());
 
-	public AwsSecretsManagerPropertySourceLocator(AWSSecretsManager smClient,
+	public AwsSecretsManagerPropertySourceLocator(SecretsManagerClient smClient,
 			AwsSecretsManagerProperties properties) {
 		this.smClient = smClient;
 		this.properties = properties;

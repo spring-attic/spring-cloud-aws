@@ -16,10 +16,10 @@
 
 package org.springframework.cloud.aws.secretsmanager;
 
-import com.amazonaws.services.secretsmanager.AWSSecretsManager;
-import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
-import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
 import org.junit.Test;
+import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
+import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
+import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,15 +28,15 @@ import static org.mockito.Mockito.when;
 
 public class AwsSecretsManagerPropertySourceTest {
 
-	private AWSSecretsManager smClient = mock(AWSSecretsManager.class);
+	private SecretsManagerClient smClient = mock(SecretsManagerClient.class);
 
 	private AwsSecretsManagerPropertySource propertySource = new AwsSecretsManagerPropertySource(
 			"/config/myservice", smClient);
 
 	@Test
 	public void shouldParseSecretValue() {
-		GetSecretValueResult secretValueResult = new GetSecretValueResult();
-		secretValueResult.setSecretString("{\"key1\": \"value1\", \"key2\": \"value2\"}");
+		GetSecretValueResponse secretValueResult = GetSecretValueResponse.builder()
+				.secretString("{\"key1\": \"value1\", \"key2\": \"value2\"}").build();
 
 		when(smClient.getSecretValue(any(GetSecretValueRequest.class)))
 				.thenReturn(secretValueResult);

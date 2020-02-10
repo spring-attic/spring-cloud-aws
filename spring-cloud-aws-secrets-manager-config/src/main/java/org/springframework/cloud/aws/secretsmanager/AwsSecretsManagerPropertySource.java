@@ -21,12 +21,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.amazonaws.services.secretsmanager.AWSSecretsManager;
-import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
-import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
-import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
+import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
+import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
+import software.amazon.awssdk.services.secretsmanager.model.ResourceNotFoundException;
 
 import org.springframework.core.env.EnumerablePropertySource;
 
@@ -38,7 +38,7 @@ import org.springframework.core.env.EnumerablePropertySource;
  * @since 2.0.0
  */
 public class AwsSecretsManagerPropertySource
-		extends EnumerablePropertySource<AWSSecretsManager> {
+		extends EnumerablePropertySource<SecretsManagerClient> {
 
 	private final ObjectMapper jsonMapper = new ObjectMapper();
 
@@ -46,14 +46,15 @@ public class AwsSecretsManagerPropertySource
 
 	private Map<String, Object> properties = new LinkedHashMap<>();
 
-	public AwsSecretsManagerPropertySource(String context, AWSSecretsManager smClient) {
+	public AwsSecretsManagerPropertySource(String context,
+			SecretsManagerClient smClient) {
 		super(context, smClient);
 		this.context = context;
 	}
 
 	public void init() {
-		GetSecretValueRequest secretValueRequest = new GetSecretValueRequest();
-		secretValueRequest.setSecretId(context);
+		GetSecretValueRequest secretValueRequest = GetSecretValueRequest.builder()
+				.secretId(context).build();
 		readSecretValue(secretValueRequest);
 	}
 
@@ -70,10 +71,10 @@ public class AwsSecretsManagerPropertySource
 
 	private void readSecretValue(GetSecretValueRequest secretValueRequest) {
 		try {
-			GetSecretValueResult secretValueResult = source
+			GetSecretValueResponse secretValueResult = source
 					.getSecretValue(secretValueRequest);
 			Map<String, Object> secretMap = jsonMapper.readValue(
-					secretValueResult.getSecretString(),
+					secretValueResult.secretString(),
 					new TypeReference<Map<String, Object>>() {
 					});
 
@@ -82,7 +83,7 @@ public class AwsSecretsManagerPropertySource
 			}
 		}
 		catch (ResourceNotFoundException e) {
-			logger.debug("AWS secret not found from " + secretValueRequest.getSecretId());
+			logger.debug("AWS secret not found from " + secretValueRequest.secretId());
 		}
 		catch (IOException e) {
 			throw new RuntimeException(e);
