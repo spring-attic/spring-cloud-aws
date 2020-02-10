@@ -30,13 +30,13 @@
 	<description>Spring Cloud AWS Actuator</description>
 
 	<properties>
-		<micrometer.version>1.0.4</micrometer.version>
+		<micrometer.version>1.3.3</micrometer.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>io.micrometer</groupId>
-			<artifactId>micrometer-registry-cloudwatch</artifactId>
+			<artifactId>micrometer-registry-cloudwatch2</artifactId>
 			<version>${micrometer.version}</version>
 		</dependency>
 		<dependency>
