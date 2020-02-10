@@ -18,10 +18,9 @@ package org.springframework.cloud.aws.jdbc.config.xml;
 
 import java.util.List;
 
-import com.amazonaws.services.rds.AmazonRDS;
-import com.amazonaws.services.rds.AmazonRDSClient;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.junit.Test;
+import software.amazon.awssdk.services.rds.RdsClient;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -59,7 +58,7 @@ public class AmazonRdsRetryInterceptorBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-customRegion.xml", getClass());
 
 		// Act
-		AmazonRDS amazonRDS = classPathXmlApplicationContext.getBean(AmazonRDS.class);
+		RdsClient amazonRDS = classPathXmlApplicationContext.getBean(RdsClient.class);
 
 		// Assert
 		assertThat(ReflectionTestUtils.getField(amazonRDS, "endpoint").toString())
@@ -74,7 +73,7 @@ public class AmazonRdsRetryInterceptorBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-customRegionProvider.xml", getClass());
 
 		// Act
-		AmazonRDS amazonRDS = classPathXmlApplicationContext.getBean(AmazonRDS.class);
+		RdsClient amazonRDS = classPathXmlApplicationContext.getBean(RdsClient.class);
 
 		// Assert
 		assertThat(ReflectionTestUtils.getField(amazonRDS, "endpoint").toString())
@@ -94,7 +93,7 @@ public class AmazonRdsRetryInterceptorBeanDefinitionParserTest {
 		// Assert
 		assertThat(classPathXmlApplicationContext
 				.containsBean(AmazonWebserviceClientConfigurationUtils
-						.getBeanName(AmazonRDSClient.class.getName()))).isFalse();
+						.getBeanName(RdsClient.class.getName()))).isFalse();
 	}
 
 	@Test

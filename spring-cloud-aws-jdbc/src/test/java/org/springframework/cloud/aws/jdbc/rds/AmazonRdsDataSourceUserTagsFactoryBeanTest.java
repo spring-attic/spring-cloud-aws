@@ -19,16 +19,15 @@ package org.springframework.cloud.aws.jdbc.rds;
 import java.util.Date;
 import java.util.Map;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
-import com.amazonaws.services.identitymanagement.model.GetUserResult;
-import com.amazonaws.services.identitymanagement.model.User;
-import com.amazonaws.services.rds.AmazonRDS;
-import com.amazonaws.services.rds.model.ListTagsForResourceRequest;
-import com.amazonaws.services.rds.model.ListTagsForResourceResult;
-import com.amazonaws.services.rds.model.Tag;
 import org.junit.Test;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.iam.IamClient;
+import software.amazon.awssdk.services.iam.model.GetUserResponse;
+import software.amazon.awssdk.services.iam.model.User;
+import software.amazon.awssdk.services.rds.RdsClient;
+import software.amazon.awssdk.services.rds.model.ListTagsForResourceRequest;
+import software.amazon.awssdk.services.rds.model.ListTagsForResourceResponse;
+import software.amazon.awssdk.services.rds.model.Tag;
 
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 
@@ -45,25 +44,28 @@ public class AmazonRdsDataSourceUserTagsFactoryBeanTest {
 	public void getObject_instanceWithTagsConfiguredWithCustomResourceResolverAndCustomRegion_mapWithTagsReturned()
 			throws Exception {
 		// Arrange
-		AmazonRDS amazonRds = mock(AmazonRDS.class);
+		RdsClient rdsClient = mock(RdsClient.class);
 		ResourceIdResolver resourceIdResolver = mock(ResourceIdResolver.class);
-		AmazonIdentityManagement amazonIdentityManagement = mock(
-				AmazonIdentityManagement.class);
+		IamClient amazonIdentityManagement = mock(IamClient.class);
 		AmazonRdsDataSourceUserTagsFactoryBean factoryBean = new AmazonRdsDataSourceUserTagsFactoryBean(
-				amazonRds, "test", amazonIdentityManagement);
+				rdsClient, "test", amazonIdentityManagement);
 		factoryBean.setResourceIdResolver(resourceIdResolver);
-		factoryBean.setRegion(Region.getRegion(Regions.EU_WEST_1));
+		factoryBean.setRegion(Region.EU_WEST_1);
 
 		when(resourceIdResolver.resolveToPhysicalResourceId("test"))
 				.thenReturn("stack-test");
-		when(amazonIdentityManagement.getUser()).thenReturn(
-				new GetUserResult().withUser(new User("/", "aemruli", "123456789012",
-						"arn:aws:iam::1234567890:user/aemruli", new Date())));
-		when(amazonRds.listTagsForResource(new ListTagsForResourceRequest()
-				.withResourceName("arn:aws:rds:eu-west-1:1234567890:db:stack-test")))
-						.thenReturn(new ListTagsForResourceResult().withTagList(
-								new Tag().withKey("key1").withValue("value1"),
-								new Tag().withKey("key2").withValue("value2")));
+		when(amazonIdentityManagement.getUser()).thenReturn(GetUserResponse.builder()
+				.user(User.builder().path("/").userName("aemruli").userId("123456789012")
+						.arn("arn:aws:iam::1234567890:user/aemruli")
+						.createDate(new Date().toInstant()).build())
+				.build());
+		when(rdsClient.listTagsForResource(ListTagsForResourceRequest.builder()
+				.resourceName("arn:aws:rds:eu-west-1:1234567890:db:stack-test").build()))
+						.thenReturn(ListTagsForResourceResponse.builder()
+								.tagList(
+										Tag.builder().key("key1").value("value1").build(),
+										Tag.builder().key("key2").value("value2").build())
+								.build());
 
 		// Act
 		factoryBean.afterPropertiesSet();
@@ -77,24 +79,25 @@ public class AmazonRdsDataSourceUserTagsFactoryBeanTest {
 	@Test
 	public void getObject_instanceWithOutTags_emptyMapReturned() throws Exception {
 		// Arrange
-		AmazonRDS amazonRds = mock(AmazonRDS.class);
+		RdsClient rdsClient = mock(RdsClient.class);
 		ResourceIdResolver resourceIdResolver = mock(ResourceIdResolver.class);
-		AmazonIdentityManagement amazonIdentityManagement = mock(
-				AmazonIdentityManagement.class);
+		IamClient amazonIdentityManagement = mock(IamClient.class);
 		AmazonRdsDataSourceUserTagsFactoryBean factoryBean = new AmazonRdsDataSourceUserTagsFactoryBean(
-				amazonRds, "test", amazonIdentityManagement);
+				rdsClient, "test", amazonIdentityManagement);
 		factoryBean.setResourceIdResolver(resourceIdResolver);
 		factoryBean.setResourceIdResolver(resourceIdResolver);
-		factoryBean.setRegion(Region.getRegion(Regions.EU_WEST_1));
+		factoryBean.setRegion(Region.EU_WEST_1);
 
 		when(resourceIdResolver.resolveToPhysicalResourceId("test"))
 				.thenReturn("stack-test");
-		when(amazonIdentityManagement.getUser()).thenReturn(
-				new GetUserResult().withUser(new User("/", "aemruli", "123456789012",
-						"arn:aws:iam::1234567890:user/aemruli", new Date())));
-		when(amazonRds.listTagsForResource(new ListTagsForResourceRequest()
-				.withResourceName("arn:aws:rds:eu-west-1:1234567890:db:stack-test")))
-						.thenReturn(new ListTagsForResourceResult());
+		when(amazonIdentityManagement.getUser()).thenReturn(GetUserResponse.builder()
+				.user(User.builder().path("/").userName("aemruli").userId("123456789012")
+						.arn("arn:aws:iam::1234567890:user/aemruli")
+						.createDate(new Date().toInstant()).build())
+				.build());
+		when(rdsClient.listTagsForResource(ListTagsForResourceRequest.builder()
+				.resourceName("arn:aws:rds:eu-west-1:1234567890:db:stack-test").build()))
+						.thenReturn(ListTagsForResourceResponse.builder().build());
 
 		// Act
 		factoryBean.afterPropertiesSet();
@@ -108,21 +111,24 @@ public class AmazonRdsDataSourceUserTagsFactoryBeanTest {
 	public void getObject_instanceWithTagsAndNoResourceIdResolverAndDefaultRegion_mapWithTagsReturned()
 			throws Exception {
 		// Arrange
-		AmazonRDS amazonRds = mock(AmazonRDS.class);
-		AmazonIdentityManagement amazonIdentityManagement = mock(
-				AmazonIdentityManagement.class);
+		RdsClient rdsClient = mock(RdsClient.class);
+		IamClient amazonIdentityManagement = mock(IamClient.class);
 
 		AmazonRdsDataSourceUserTagsFactoryBean factoryBean = new AmazonRdsDataSourceUserTagsFactoryBean(
-				amazonRds, "test", amazonIdentityManagement);
+				rdsClient, "test", amazonIdentityManagement);
 
-		when(amazonIdentityManagement.getUser()).thenReturn(
-				new GetUserResult().withUser(new User("/", "aemruli", "123456789012",
-						"arn:aws:iam::1234567890:user/aemruli", new Date())));
-		when(amazonRds.listTagsForResource(new ListTagsForResourceRequest()
-				.withResourceName("arn:aws:rds:us-west-2:1234567890:db:test")))
-						.thenReturn(new ListTagsForResourceResult().withTagList(
-								new Tag().withKey("key1").withValue("value1"),
-								new Tag().withKey("key2").withValue("value2")));
+		when(amazonIdentityManagement.getUser()).thenReturn(GetUserResponse.builder()
+				.user(User.builder().path("/").userName("aemruli").userId("123456789012")
+						.arn("arn:aws:iam::1234567890:user/aemruli")
+						.createDate(new Date().toInstant()).build())
+				.build());
+		when(rdsClient.listTagsForResource(ListTagsForResourceRequest.builder()
+				.resourceName("arn:aws:rds:us-west-2:1234567890:db:test").build()))
+						.thenReturn(ListTagsForResourceResponse.builder()
+								.tagList(
+										Tag.builder().key("key1").value("value1").build(),
+										Tag.builder().key("key2").value("value2").build())
+								.build());
 
 		// Act
 		factoryBean.afterPropertiesSet();

@@ -16,13 +16,13 @@
 
 package org.springframework.cloud.aws.jdbc.retry;
 
-import com.amazonaws.services.rds.AmazonRDS;
-import com.amazonaws.services.rds.model.DBInstance;
-import com.amazonaws.services.rds.model.DBInstanceNotFoundException;
-import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
-import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.services.rds.RdsClient;
+import software.amazon.awssdk.services.rds.model.DBInstance;
+import software.amazon.awssdk.services.rds.model.DbInstanceNotFoundException;
+import software.amazon.awssdk.services.rds.model.DescribeDbInstancesRequest;
+import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
 
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.retry.RetryContext;
@@ -62,9 +62,9 @@ public class DatabaseInstanceStatusRetryPolicy implements RetryPolicy {
 	private final String dbInstanceIdentifier;
 
 	/**
-	 * {@link AmazonRDS} client used to query the Amazon RDS service.
+	 * {@link RdsClient} client used to query the Amazon RDS service.
 	 */
-	private final AmazonRDS amazonRDS;
+	private final RdsClient amazonRDS;
 
 	private ResourceIdResolver resourceIdResolver;
 
@@ -75,7 +75,7 @@ public class DatabaseInstanceStatusRetryPolicy implements RetryPolicy {
 	 * @param dbInstanceIdentifier - database instance for which this class should check
 	 * the state.
 	 */
-	public DatabaseInstanceStatusRetryPolicy(AmazonRDS amazonRDS,
+	public DatabaseInstanceStatusRetryPolicy(RdsClient amazonRDS,
 			String dbInstanceIdentifier) {
 		Assert.notNull(amazonRDS, "amazonRDS must not be null.");
 		this.amazonRDS = amazonRDS;
@@ -137,13 +137,14 @@ public class DatabaseInstanceStatusRetryPolicy implements RetryPolicy {
 	}
 
 	private boolean isDatabaseAvailable(RetryContext context) {
-		DescribeDBInstancesResult describeDBInstancesResult;
+		DescribeDbInstancesResponse describeDBInstancesResult;
 		try {
 			describeDBInstancesResult = this.amazonRDS.describeDBInstances(
-					new DescribeDBInstancesRequest().withDBInstanceIdentifier(
-							(String) context.getAttribute(DB_INSTANCE_ATTRIBUTE_NAME)));
+					DescribeDbInstancesRequest.builder().dbInstanceIdentifier(
+							(String) context.getAttribute(DB_INSTANCE_ATTRIBUTE_NAME))
+							.build());
 		}
-		catch (DBInstanceNotFoundException e) {
+		catch (DbInstanceNotFoundException e) {
 			LOGGER.warn(
 					"Database Instance with name {} has been removed or is not configured correctly, no retry possible",
 					getDbInstanceIdentifier());
@@ -151,10 +152,10 @@ public class DatabaseInstanceStatusRetryPolicy implements RetryPolicy {
 			return false;
 		}
 
-		if (describeDBInstancesResult.getDBInstances().size() == 1) {
-			DBInstance dbInstance = describeDBInstancesResult.getDBInstances().get(0);
+		if (describeDBInstancesResult.dbInstances().size() == 1) {
+			DBInstance dbInstance = describeDBInstancesResult.dbInstances().get(0);
 			InstanceStatus instanceStatus = InstanceStatus
-					.fromDatabaseStatus(dbInstance.getDBInstanceStatus());
+					.fromDatabaseStatus(dbInstance.dbInstanceStatus());
 			if (LOGGER.isTraceEnabled()) {
 				LOGGER.trace("Status of database to be retried is {}", instanceStatus);
 			}

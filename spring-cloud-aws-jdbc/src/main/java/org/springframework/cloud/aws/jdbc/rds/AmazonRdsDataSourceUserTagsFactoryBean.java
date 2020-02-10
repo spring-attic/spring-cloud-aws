@@ -19,13 +19,12 @@ package org.springframework.cloud.aws.jdbc.rds;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
-import com.amazonaws.services.rds.AmazonRDS;
-import com.amazonaws.services.rds.model.ListTagsForResourceRequest;
-import com.amazonaws.services.rds.model.ListTagsForResourceResult;
-import com.amazonaws.services.rds.model.Tag;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.iam.IamClient;
+import software.amazon.awssdk.services.rds.RdsClient;
+import software.amazon.awssdk.services.rds.model.ListTagsForResourceRequest;
+import software.amazon.awssdk.services.rds.model.ListTagsForResourceResponse;
+import software.amazon.awssdk.services.rds.model.Tag;
 
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
@@ -37,18 +36,18 @@ import org.springframework.cloud.aws.core.naming.AmazonResourceName;
 public class AmazonRdsDataSourceUserTagsFactoryBean
 		extends AbstractFactoryBean<Map<String, String>> {
 
-	private final AmazonRDS amazonRds;
+	private final RdsClient amazonRds;
 
 	private final String dbInstanceIdentifier;
 
-	private final AmazonIdentityManagement identityManagement;
+	private final IamClient identityManagement;
 
 	private ResourceIdResolver resourceIdResolver;
 
 	private Region region;
 
-	public AmazonRdsDataSourceUserTagsFactoryBean(AmazonRDS amazonRds,
-			String dbInstanceIdentifier, AmazonIdentityManagement identityManagement) {
+	public AmazonRdsDataSourceUserTagsFactoryBean(RdsClient amazonRds,
+			String dbInstanceIdentifier, IamClient identityManagement) {
 		this.amazonRds = amazonRds;
 		this.dbInstanceIdentifier = dbInstanceIdentifier;
 		this.identityManagement = identityManagement;
@@ -62,11 +61,11 @@ public class AmazonRdsDataSourceUserTagsFactoryBean
 	@Override
 	protected Map<String, String> createInstance() throws Exception {
 		LinkedHashMap<String, String> userTags = new LinkedHashMap<>();
-		ListTagsForResourceResult tagsForResource = this.amazonRds
-				.listTagsForResource(new ListTagsForResourceRequest()
-						.withResourceName(getDbInstanceResourceName()));
-		for (Tag tag : tagsForResource.getTagList()) {
-			userTags.put(tag.getKey(), tag.getValue());
+		ListTagsForResourceResponse tagsForResource = this.amazonRds
+				.listTagsForResource(ListTagsForResourceRequest.builder()
+						.resourceName(getDbInstanceResourceName()).build());
+		for (Tag tag : tagsForResource.tagList()) {
+			userTags.put(tag.key(), tag.value());
 		}
 		return userTags;
 	}
@@ -85,7 +84,7 @@ public class AmazonRdsDataSourceUserTagsFactoryBean
 		if (this.region != null) {
 			return this.region;
 		}
-		return Region.getRegion(Regions.DEFAULT_REGION);
+		return Region.US_WEST_2;
 	}
 
 	public void setRegion(Region region) {
@@ -99,7 +98,7 @@ public class AmazonRdsDataSourceUserTagsFactoryBean
 	 * @return the arn string used to query the tags
 	 */
 	private String getDbInstanceResourceName() {
-		String userArn = this.identityManagement.getUser().getUser().getArn();
+		String userArn = this.identityManagement.getUser().user().arn();
 		AmazonResourceName userResourceName = AmazonResourceName.fromString(userArn);
 		AmazonResourceName dbResourceArn = new AmazonResourceName.Builder()
 				.withService("rds").withRegion(getRegion())

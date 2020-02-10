@@ -20,11 +20,11 @@ import java.text.MessageFormat;
 
 import javax.sql.DataSource;
 
-import com.amazonaws.services.rds.AmazonRDS;
-import com.amazonaws.services.rds.model.DBInstance;
-import com.amazonaws.services.rds.model.DBInstanceNotFoundException;
-import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
-import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
+import software.amazon.awssdk.services.rds.RdsClient;
+import software.amazon.awssdk.services.rds.model.DBInstance;
+import software.amazon.awssdk.services.rds.model.DbInstanceNotFoundException;
+import software.amazon.awssdk.services.rds.model.DescribeDbInstancesRequest;
+import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
 
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
@@ -39,7 +39,7 @@ import org.springframework.util.StringUtils;
  * {@link org.springframework.beans.factory.FactoryBean} implementation that creates a
  * datasource backed by an Amazon Relational Database service instance. This factory bean
  * retrieves all the metadata from the AWS RDS service in order to create and configure a
- * datasource. This class uses the {@link AmazonRDS} service to retrieve the metadata and
+ * datasource. This class uses the {@link RdsClient} service to retrieve the metadata and
  * the {@link DataSourceFactory} to actually create the datasource.
  *
  * @author Agim Emruli
@@ -47,7 +47,7 @@ import org.springframework.util.StringUtils;
  */
 public class AmazonRdsDataSourceFactoryBean extends AbstractFactoryBean<DataSource> {
 
-	private final AmazonRDS amazonRds;
+	private final RdsClient amazonRds;
 
 	private final String dbInstanceIdentifier;
 
@@ -74,7 +74,7 @@ public class AmazonRdsDataSourceFactoryBean extends AbstractFactoryBean<DataSour
 	 * reasons the password is not available in the metadata (in contrast to the user) so
 	 * it must be provided in order to connect to the database with JDBC.
 	 */
-	public AmazonRdsDataSourceFactoryBean(AmazonRDS amazonRds,
+	public AmazonRdsDataSourceFactoryBean(RdsClient amazonRds,
 			String dbInstanceIdentifier, String password) {
 		this.amazonRds = amazonRds;
 		this.dbInstanceIdentifier = dbInstanceIdentifier;
@@ -155,7 +155,7 @@ public class AmazonRdsDataSourceFactoryBean extends AbstractFactoryBean<DataSour
 	}
 
 	/**
-	 * Retrieves the {@link com.amazonaws.services.rds.model.DBInstance} information.
+	 * Retrieves the {@link DBInstance} information.
 	 * @param identifier - the database identifier used
 	 * @return - the db instance
 	 * @throws IllegalStateException if the db instance is not found
@@ -163,12 +163,12 @@ public class AmazonRdsDataSourceFactoryBean extends AbstractFactoryBean<DataSour
 	protected DBInstance getDbInstance(String identifier) throws IllegalStateException {
 		DBInstance instance;
 		try {
-			DescribeDBInstancesResult describeDBInstancesResult = this.amazonRds
-					.describeDBInstances(new DescribeDBInstancesRequest()
-							.withDBInstanceIdentifier(identifier));
-			instance = describeDBInstancesResult.getDBInstances().get(0);
+			DescribeDbInstancesResponse describeDBInstancesResult = this.amazonRds
+					.describeDBInstances(DescribeDbInstancesRequest.builder()
+							.dbInstanceIdentifier(identifier).build());
+			instance = describeDBInstancesResult.dbInstances().get(0);
 		}
-		catch (DBInstanceNotFoundException e) {
+		catch (DbInstanceNotFoundException e) {
 			throw new IllegalStateException(MessageFormat.format(
 					"No database instance with id:''{0}'' found. Please specify a valid db instance",
 					identifier));
@@ -184,14 +184,14 @@ public class AmazonRdsDataSourceFactoryBean extends AbstractFactoryBean<DataSour
 
 	private DataSourceInformation fromRdsInstance(DBInstance dbInstance) {
 		Assert.notNull(dbInstance, "DbInstance must not be null");
-		Assert.notNull(dbInstance.getEndpoint(),
+		Assert.notNull(dbInstance.endpoint(),
 				"The database instance has no endpoint available!");
-		return new DataSourceInformation(DatabaseType.fromEngine(dbInstance.getEngine()),
-				dbInstance.getEndpoint().getAddress(), dbInstance.getEndpoint().getPort(),
+		return new DataSourceInformation(DatabaseType.fromEngine(dbInstance.engine()),
+				dbInstance.endpoint().address(), dbInstance.endpoint().port(),
 				StringUtils.hasText(this.databaseName) ? this.databaseName
-						: dbInstance.getDBName(),
+						: dbInstance.dbName(),
 				StringUtils.hasText(this.username) ? this.username
-						: dbInstance.getMasterUsername(),
+						: dbInstance.masterUsername(),
 				this.password);
 	}
 

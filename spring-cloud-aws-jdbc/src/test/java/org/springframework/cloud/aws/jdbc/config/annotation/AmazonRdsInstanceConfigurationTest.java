@@ -20,15 +20,14 @@ import java.util.HashMap;
 
 import javax.sql.DataSource;
 
-import com.amazonaws.services.rds.AmazonRDS;
-import com.amazonaws.services.rds.AmazonRDSClient;
-import com.amazonaws.services.rds.model.DBInstance;
-import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
-import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
-import com.amazonaws.services.rds.model.Endpoint;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
+import software.amazon.awssdk.services.rds.RdsClient;
+import software.amazon.awssdk.services.rds.model.DBInstance;
+import software.amazon.awssdk.services.rds.model.DescribeDbInstancesRequest;
+import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
+import software.amazon.awssdk.services.rds.model.Endpoint;
 
 import org.springframework.cloud.aws.jdbc.datasource.TomcatJdbcDataSourceFactory;
 import org.springframework.cloud.aws.jdbc.rds.AmazonRdsDataSourceFactoryBean;
@@ -181,21 +180,18 @@ public class AmazonRdsInstanceConfigurationTest {
 	public static class ApplicationConfigurationWithoutReadReplica {
 
 		@Bean
-		public AmazonRDS amazonRDS() {
-			AmazonRDSClient client = Mockito.mock(AmazonRDSClient.class);
-			when(client.describeDBInstances(
-					new DescribeDBInstancesRequest().withDBInstanceIdentifier("test")))
-							.thenReturn(new DescribeDBInstancesResult().withDBInstances(
-									new DBInstance().withDBInstanceStatus("available")
-											.withDBName("test")
-											.withDBInstanceIdentifier("test")
-											.withEngine("mysql")
-											.withMasterUsername("admin")
-											.withEndpoint(new Endpoint()
-													.withAddress("localhost")
-													.withPort(3306))
-											.withReadReplicaDBInstanceIdentifiers(
-													"read1")));
+		public RdsClient amazonRDS() {
+			RdsClient client = Mockito.mock(RdsClient.class);
+			when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
+					.dbInstanceIdentifier("test").build())).thenReturn(
+							DescribeDbInstancesResponse.builder().dbInstances(DBInstance
+									.builder().dbInstanceStatus("available")
+									.dbName("test").dbInstanceIdentifier("test")
+									.engine("mysql").masterUsername("admin")
+									.endpoint(Endpoint.builder().address("localhost")
+											.port(3306).build())
+									.readReplicaDBInstanceIdentifiers("read1").build())
+									.build());
 			return client;
 		}
 
@@ -206,21 +202,18 @@ public class AmazonRdsInstanceConfigurationTest {
 	public static class ApplicationConfigurationWithoutReadReplicaAndCustomDbName {
 
 		@Bean
-		public AmazonRDS amazonRDS() {
-			AmazonRDSClient client = Mockito.mock(AmazonRDSClient.class);
-			when(client.describeDBInstances(
-					new DescribeDBInstancesRequest().withDBInstanceIdentifier("test")))
-							.thenReturn(new DescribeDBInstancesResult().withDBInstances(
-									new DBInstance().withDBInstanceStatus("available")
-											.withDBName("test")
-											.withDBInstanceIdentifier("test")
-											.withEngine("mysql")
-											.withMasterUsername("admin")
-											.withEndpoint(new Endpoint()
-													.withAddress("localhost")
-													.withPort(3306))
-											.withReadReplicaDBInstanceIdentifiers(
-													"read1")));
+		public RdsClient amazonRDS() {
+			RdsClient client = Mockito.mock(RdsClient.class);
+			when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
+					.dbInstanceIdentifier("test").build())).thenReturn(
+							DescribeDbInstancesResponse.builder().dbInstances(DBInstance
+									.builder().dbInstanceStatus("available")
+									.dbName("test").dbInstanceIdentifier("test")
+									.engine("mysql").masterUsername("admin")
+									.endpoint(Endpoint.builder().address("localhost")
+											.port(3306).build())
+									.readReplicaDBInstanceIdentifiers("read1").build())
+									.build());
 			return client;
 		}
 
@@ -230,21 +223,18 @@ public class AmazonRdsInstanceConfigurationTest {
 	public static class ApplicationConfigurationWithoutReadReplicaAndCustomDataSourceFactory {
 
 		@Bean
-		public AmazonRDS amazonRDS() {
-			AmazonRDSClient client = Mockito.mock(AmazonRDSClient.class);
-			when(client.describeDBInstances(
-					new DescribeDBInstancesRequest().withDBInstanceIdentifier("test")))
-							.thenReturn(new DescribeDBInstancesResult().withDBInstances(
-									new DBInstance().withDBInstanceStatus("available")
-											.withDBName("test")
-											.withDBInstanceIdentifier("test")
-											.withEngine("mysql")
-											.withMasterUsername("admin")
-											.withEndpoint(new Endpoint()
-													.withAddress("localhost")
-													.withPort(3306))
-											.withReadReplicaDBInstanceIdentifiers(
-													"read1")));
+		public RdsClient amazonRDS() {
+			RdsClient client = Mockito.mock(RdsClient.class);
+			when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
+					.dbInstanceIdentifier("test").build())).thenReturn(
+							DescribeDbInstancesResponse.builder().dbInstances(DBInstance
+									.builder().dbInstanceStatus("available")
+									.dbName("test").dbInstanceIdentifier("test")
+									.engine("mysql").masterUsername("admin")
+									.endpoint(Endpoint.builder().address("localhost")
+											.port(3306).build())
+									.readReplicaDBInstanceIdentifiers("read1").build())
+									.build());
 			return client;
 		}
 
@@ -268,21 +258,18 @@ public class AmazonRdsInstanceConfigurationTest {
 		// @checkstyle:on
 
 		@Bean
-		public AmazonRDS amazonRDS() {
-			AmazonRDSClient client = Mockito.mock(AmazonRDSClient.class);
-			when(client.describeDBInstances(
-					new DescribeDBInstancesRequest().withDBInstanceIdentifier("test")))
-							.thenReturn(new DescribeDBInstancesResult().withDBInstances(
-									new DBInstance().withDBInstanceStatus("available")
-											.withDBName("test")
-											.withDBInstanceIdentifier("test")
-											.withEngine("mysql")
-											.withMasterUsername("admin")
-											.withEndpoint(new Endpoint()
-													.withAddress("localhost")
-													.withPort(3306))
-											.withReadReplicaDBInstanceIdentifiers(
-													"read1")));
+		public RdsClient amazonRDS() {
+			RdsClient client = Mockito.mock(RdsClient.class);
+			when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
+					.dbInstanceIdentifier("test").build())).thenReturn(
+							DescribeDbInstancesResponse.builder().dbInstances(DBInstance
+									.builder().dbInstanceStatus("available")
+									.dbName("test").dbInstanceIdentifier("test")
+									.engine("mysql").masterUsername("admin")
+									.endpoint(Endpoint.builder().address("localhost")
+											.port(3306).build())
+									.readReplicaDBInstanceIdentifiers("read1").build())
+									.build());
 			return client;
 		}
 
@@ -301,21 +288,18 @@ public class AmazonRdsInstanceConfigurationTest {
 		}
 
 		@Bean
-		public AmazonRDS amazonRDS() {
-			AmazonRDSClient client = Mockito.mock(AmazonRDSClient.class);
-			when(client.describeDBInstances(
-					new DescribeDBInstancesRequest().withDBInstanceIdentifier("test")))
-							.thenReturn(new DescribeDBInstancesResult().withDBInstances(
-									new DBInstance().withDBInstanceStatus("available")
-											.withDBName("test")
-											.withDBInstanceIdentifier("test")
-											.withEngine("mysql")
-											.withMasterUsername("admin")
-											.withEndpoint(new Endpoint()
-													.withAddress("localhost")
-													.withPort(3306))
-											.withReadReplicaDBInstanceIdentifiers(
-													"read1")));
+		public RdsClient amazonRDS() {
+			RdsClient client = Mockito.mock(RdsClient.class);
+			when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
+					.dbInstanceIdentifier("test").build())).thenReturn(
+							DescribeDbInstancesResponse.builder().dbInstances(DBInstance
+									.builder().dbInstanceStatus("available")
+									.dbName("test").dbInstanceIdentifier("test")
+									.engine("mysql").masterUsername("admin")
+									.endpoint(Endpoint.builder().address("localhost")
+											.port(3306).build())
+									.readReplicaDBInstanceIdentifiers("read1").build())
+									.build());
 			return client;
 		}
 
@@ -326,32 +310,30 @@ public class AmazonRdsInstanceConfigurationTest {
 	public static class ApplicationConfigurationWithReadReplica {
 
 		@Bean
-		public AmazonRDS amazonRDS() {
-			AmazonRDSClient client = Mockito.mock(AmazonRDSClient.class);
-			when(client.describeDBInstances(
-					new DescribeDBInstancesRequest().withDBInstanceIdentifier("test")))
-							.thenReturn(new DescribeDBInstancesResult().withDBInstances(
-									new DBInstance().withDBInstanceStatus("available")
-											.withDBName("test")
-											.withDBInstanceIdentifier("test")
-											.withEngine("mysql")
-											.withMasterUsername("admin")
-											.withEndpoint(new Endpoint()
-													.withAddress("localhost")
-													.withPort(3306))
-											.withReadReplicaDBInstanceIdentifiers(
-													"read1")));
-			when(client.describeDBInstances(
-					new DescribeDBInstancesRequest().withDBInstanceIdentifier("read1")))
-							.thenReturn(new DescribeDBInstancesResult().withDBInstances(
-									new DBInstance().withDBInstanceStatus("available")
-											.withDBName("read1")
-											.withDBInstanceIdentifier("read1")
-											.withEngine("mysql")
-											.withMasterUsername("admin")
-											.withEndpoint(new Endpoint()
-													.withAddress("localhost")
-													.withPort(3306))));
+		public RdsClient amazonRDS() {
+			RdsClient client = Mockito.mock(RdsClient.class);
+			when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
+					.dbInstanceIdentifier("test").build())).thenReturn(
+							DescribeDbInstancesResponse.builder().dbInstances(DBInstance
+									.builder().dbInstanceStatus("available")
+									.dbName("test").dbInstanceIdentifier("test")
+									.engine("mysql").masterUsername("admin")
+									.endpoint(Endpoint.builder().address("localhost")
+											.port(3306).build())
+									.readReplicaDBInstanceIdentifiers("read1").build())
+									.build());
+			when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
+					.dbInstanceIdentifier("read1").build()))
+							.thenReturn(DescribeDbInstancesResponse.builder()
+									.dbInstances(DBInstance.builder()
+											.dbInstanceStatus("available").dbName("read1")
+											.dbInstanceIdentifier("read1").engine("mysql")
+											.masterUsername("admin")
+											.endpoint(Endpoint.builder()
+													.address("localhost").port(3306)
+													.build())
+											.build())
+									.build());
 			return client;
 		}
 

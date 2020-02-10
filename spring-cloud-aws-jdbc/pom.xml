@@ -48,12 +48,12 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-rds</artifactId>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>rds</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-iam</artifactId>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>iam</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>

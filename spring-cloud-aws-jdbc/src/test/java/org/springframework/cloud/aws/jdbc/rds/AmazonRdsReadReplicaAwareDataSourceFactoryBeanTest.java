@@ -20,12 +20,12 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
-import com.amazonaws.services.rds.AmazonRDS;
-import com.amazonaws.services.rds.model.DBInstance;
-import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
-import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
-import com.amazonaws.services.rds.model.Endpoint;
 import org.junit.Test;
+import software.amazon.awssdk.services.rds.RdsClient;
+import software.amazon.awssdk.services.rds.model.DBInstance;
+import software.amazon.awssdk.services.rds.model.DescribeDbInstancesRequest;
+import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
+import software.amazon.awssdk.services.rds.model.Endpoint;
 
 import org.springframework.cloud.aws.jdbc.datasource.DataSourceFactory;
 import org.springframework.cloud.aws.jdbc.datasource.DataSourceInformation;
@@ -48,19 +48,20 @@ public class AmazonRdsReadReplicaAwareDataSourceFactoryBeanTest {
 	public void afterPropertiesSet_instanceWithoutReadReplica_createsNoDataSourceRouter()
 			throws Exception {
 		// Arrange
-		AmazonRDS amazonRDS = mock(AmazonRDS.class);
+		RdsClient rdsClient = mock(RdsClient.class);
 		DataSourceFactory dataSourceFactory = mock(DataSourceFactory.class);
 
-		when(amazonRDS.describeDBInstances(new DescribeDBInstancesRequest()
-				.withDBInstanceIdentifier("test"))).thenReturn(
-						new DescribeDBInstancesResult().withDBInstances(new DBInstance()
-								.withDBInstanceStatus("available").withDBName("test")
-								.withDBInstanceIdentifier("test").withEngine("mysql")
-								.withMasterUsername("admin").withEndpoint(new Endpoint()
-										.withAddress("localhost").withPort(3306))));
+		when(rdsClient.describeDBInstances(DescribeDbInstancesRequest.builder()
+				.dbInstanceIdentifier("test").build())).thenReturn(
+						DescribeDbInstancesResponse.builder().dbInstances(DBInstance
+								.builder().dbInstanceStatus("available").dbName("test")
+								.dbInstanceIdentifier("test").engine("mysql")
+								.masterUsername("admin").endpoint(Endpoint.builder()
+										.address("localhost").port(3306).build())
+								.build()).build());
 
 		AmazonRdsReadReplicaAwareDataSourceFactoryBean factoryBean = new AmazonRdsReadReplicaAwareDataSourceFactoryBean(
-				amazonRDS, "test", "secret");
+				rdsClient, "test", "secret");
 		factoryBean.setDataSourceFactory(dataSourceFactory);
 		when(dataSourceFactory.createDataSource(new DataSourceInformation(
 				DatabaseType.MYSQL, "localhost", 3306, "test", "admin", "secret")))
@@ -81,36 +82,37 @@ public class AmazonRdsReadReplicaAwareDataSourceFactoryBeanTest {
 	public void afterPropertiesSet_instanceWithReadReplica_createsDataSourceRouter()
 			throws Exception {
 		// Arrange
-		AmazonRDS amazonRDS = mock(AmazonRDS.class);
+		RdsClient rdsClient = mock(RdsClient.class);
 		DataSourceFactory dataSourceFactory = mock(DataSourceFactory.class);
 
-		when(amazonRDS.describeDBInstances(
-				new DescribeDBInstancesRequest().withDBInstanceIdentifier("test")))
-						.thenReturn(new DescribeDBInstancesResult().withDBInstances(
-								new DBInstance().withDBInstanceStatus("available")
-										.withDBName("test")
-										.withDBInstanceIdentifier("test")
-										.withEngine("mysql").withMasterUsername("admin")
-										.withEndpoint(new Endpoint()
-												.withAddress("localhost").withPort(3306))
-										.withReadReplicaDBInstanceIdentifiers("read1",
-												"read2")));
+		when(rdsClient.describeDBInstances(DescribeDbInstancesRequest.builder()
+				.dbInstanceIdentifier("test").build())).thenReturn(
+						DescribeDbInstancesResponse.builder().dbInstances(DBInstance
+								.builder().dbInstanceStatus("available").dbName("test")
+								.dbInstanceIdentifier("test").engine("mysql")
+								.masterUsername("admin")
+								.endpoint(Endpoint.builder().address("localhost")
+										.port(3306).build())
+								.readReplicaDBInstanceIdentifiers("read1", "read2")
+								.build()).build());
 
-		when(amazonRDS.describeDBInstances(new DescribeDBInstancesRequest()
-				.withDBInstanceIdentifier("read1"))).thenReturn(
-						new DescribeDBInstancesResult().withDBInstances(new DBInstance()
-								.withDBInstanceStatus("available").withDBName("read1")
-								.withDBInstanceIdentifier("read1").withEngine("mysql")
-								.withMasterUsername("admin").withEndpoint(new Endpoint()
-										.withAddress("localhost").withPort(3306))));
+		when(rdsClient.describeDBInstances(DescribeDbInstancesRequest.builder()
+				.dbInstanceIdentifier("read1").build())).thenReturn(
+						DescribeDbInstancesResponse.builder().dbInstances(DBInstance
+								.builder().dbInstanceStatus("available").dbName("read1")
+								.dbInstanceIdentifier("read1").engine("mysql")
+								.masterUsername("admin").endpoint(Endpoint.builder()
+										.address("localhost").port(3306).build())
+								.build()).build());
 
-		when(amazonRDS.describeDBInstances(new DescribeDBInstancesRequest()
-				.withDBInstanceIdentifier("read2"))).thenReturn(
-						new DescribeDBInstancesResult().withDBInstances(new DBInstance()
-								.withDBInstanceStatus("available").withDBName("read2")
-								.withDBInstanceIdentifier("read2").withEngine("mysql")
-								.withMasterUsername("admin").withEndpoint(new Endpoint()
-										.withAddress("localhost").withPort(3306))));
+		when(rdsClient.describeDBInstances(DescribeDbInstancesRequest.builder()
+				.dbInstanceIdentifier("read2").build())).thenReturn(
+						DescribeDbInstancesResponse.builder().dbInstances(DBInstance
+								.builder().dbInstanceStatus("available").dbName("read2")
+								.dbInstanceIdentifier("read2").engine("mysql")
+								.masterUsername("admin").endpoint(Endpoint.builder()
+										.address("localhost").port(3306).build())
+								.build()).build());
 
 		DataSource createdDataSource = mock(DataSource.class);
 		Connection connection = mock(Connection.class);
@@ -127,7 +129,7 @@ public class AmazonRdsReadReplicaAwareDataSourceFactoryBeanTest {
 		when(createdDataSource.getConnection()).thenReturn(connection);
 
 		AmazonRdsReadReplicaAwareDataSourceFactoryBean factoryBean = new AmazonRdsReadReplicaAwareDataSourceFactoryBean(
-				amazonRDS, "test", "secret");
+				rdsClient, "test", "secret");
 		factoryBean.setDataSourceFactory(dataSourceFactory);
 
 		// Act

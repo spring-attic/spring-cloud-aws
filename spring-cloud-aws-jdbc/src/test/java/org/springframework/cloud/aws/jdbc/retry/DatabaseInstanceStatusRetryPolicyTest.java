@@ -16,14 +16,14 @@
 
 package org.springframework.cloud.aws.jdbc.retry;
 
-import com.amazonaws.services.rds.AmazonRDS;
-import com.amazonaws.services.rds.model.DBInstance;
-import com.amazonaws.services.rds.model.DBInstanceNotFoundException;
-import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
-import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import software.amazon.awssdk.services.rds.RdsClient;
+import software.amazon.awssdk.services.rds.model.DBInstance;
+import software.amazon.awssdk.services.rds.model.DbInstanceNotFoundException;
+import software.amazon.awssdk.services.rds.model.DescribeDbInstancesRequest;
+import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
 
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.dao.TransientDataAccessResourceException;
@@ -49,14 +49,17 @@ public class DatabaseInstanceStatusRetryPolicyTest {
 	public void canRetry_retryPossibleDueToAvailableDatabase_returnsTrue()
 			throws Exception {
 		// Arrange
-		AmazonRDS amazonRDS = mock(AmazonRDS.class);
+		RdsClient rdsClient = mock(RdsClient.class);
 
 		DatabaseInstanceStatusRetryPolicy policy = new DatabaseInstanceStatusRetryPolicy(
-				amazonRDS, "test");
-		when(amazonRDS.describeDBInstances(
-				new DescribeDBInstancesRequest().withDBInstanceIdentifier("test")))
-						.thenReturn(new DescribeDBInstancesResult().withDBInstances(
-								new DBInstance().withDBInstanceStatus("available")));
+				rdsClient, "test");
+		when(rdsClient.describeDBInstances(DescribeDbInstancesRequest.builder()
+				.dbInstanceIdentifier("test").build()))
+						.thenReturn(
+								DescribeDbInstancesResponse.builder()
+										.dbInstances(DBInstance.builder()
+												.dbInstanceStatus("available").build())
+										.build());
 
 		RetryContext retryContext = policy.open(new RetryContextSupport(null));
 
@@ -72,15 +75,18 @@ public class DatabaseInstanceStatusRetryPolicyTest {
 	@Test
 	public void canRetry_withResourceIdResolver_returnsTrue() throws Exception {
 		// Arrange
-		AmazonRDS amazonRDS = mock(AmazonRDS.class);
+		RdsClient rdsClient = mock(RdsClient.class);
 		ResourceIdResolver resourceIdResolver = mock(ResourceIdResolver.class);
 
 		DatabaseInstanceStatusRetryPolicy policy = new DatabaseInstanceStatusRetryPolicy(
-				amazonRDS, "foo");
-		when(amazonRDS.describeDBInstances(
-				new DescribeDBInstancesRequest().withDBInstanceIdentifier("test")))
-						.thenReturn(new DescribeDBInstancesResult().withDBInstances(
-								new DBInstance().withDBInstanceStatus("available")));
+				rdsClient, "foo");
+		when(rdsClient.describeDBInstances(DescribeDbInstancesRequest.builder()
+				.dbInstanceIdentifier("test").build()))
+						.thenReturn(
+								DescribeDbInstancesResponse.builder()
+										.dbInstances(DBInstance.builder()
+												.dbInstanceStatus("available").build())
+										.build());
 
 		when(resourceIdResolver.resolveToPhysicalResourceId("foo")).thenReturn("test");
 
@@ -100,14 +106,14 @@ public class DatabaseInstanceStatusRetryPolicyTest {
 	@Test
 	public void canRetry_retryNotPossibleDueToNoDatabase_returnsFalse() throws Exception {
 		// Arrange
-		AmazonRDS amazonRDS = mock(AmazonRDS.class);
+		RdsClient rdsClient = mock(RdsClient.class);
 
 		DatabaseInstanceStatusRetryPolicy policy = new DatabaseInstanceStatusRetryPolicy(
-				amazonRDS, "test");
+				rdsClient, "test");
 
-		when(amazonRDS.describeDBInstances(
-				new DescribeDBInstancesRequest().withDBInstanceIdentifier("test")))
-						.thenThrow(new DBInstanceNotFoundException("test"));
+		when(rdsClient.describeDBInstances(DescribeDbInstancesRequest.builder()
+				.dbInstanceIdentifier("test").build())).thenThrow(
+						DbInstanceNotFoundException.builder().message("test").build());
 
 		RetryContext retryContext = policy.open(new RetryContextSupport(null));
 
@@ -128,16 +134,18 @@ public class DatabaseInstanceStatusRetryPolicyTest {
 		this.expectedException
 				.expectMessage("Multiple databases found for same identifier");
 
-		AmazonRDS amazonRDS = mock(AmazonRDS.class);
+		RdsClient rdsClient = mock(RdsClient.class);
 
 		DatabaseInstanceStatusRetryPolicy policy = new DatabaseInstanceStatusRetryPolicy(
-				amazonRDS, "test");
+				rdsClient, "test");
 
-		DescribeDBInstancesResult describeDBInstancesResult = new DescribeDBInstancesResult()
-				.withDBInstances(new DBInstance(), new DBInstance());
-		when(amazonRDS.describeDBInstances(
-				new DescribeDBInstancesRequest().withDBInstanceIdentifier("test")))
-						.thenReturn(describeDBInstancesResult);
+		DescribeDbInstancesResponse describeDbInstancesResponse = DescribeDbInstancesResponse
+				.builder()
+				.dbInstances(DBInstance.builder().build(), DBInstance.builder().build())
+				.build();
+		when(rdsClient.describeDBInstances(DescribeDbInstancesRequest.builder()
+				.dbInstanceIdentifier("test").build()))
+						.thenReturn(describeDbInstancesResponse);
 
 		RetryContext retryContext = policy.open(new RetryContextSupport(null));
 
@@ -152,10 +160,10 @@ public class DatabaseInstanceStatusRetryPolicyTest {
 	@Test
 	public void canRetry_noExceptionRegistered_returnsTrue() throws Exception {
 		// Arrange
-		AmazonRDS amazonRDS = mock(AmazonRDS.class);
+		RdsClient rdsClient = mock(RdsClient.class);
 
 		DatabaseInstanceStatusRetryPolicy policy = new DatabaseInstanceStatusRetryPolicy(
-				amazonRDS, "test");
+				rdsClient, "test");
 
 		RetryContext retryContext = new RetryContextSupport(null);
 

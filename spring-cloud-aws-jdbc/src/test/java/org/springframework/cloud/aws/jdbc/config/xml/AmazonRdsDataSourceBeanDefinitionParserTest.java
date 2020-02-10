@@ -21,23 +21,22 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
-import com.amazonaws.services.identitymanagement.model.GetUserResult;
-import com.amazonaws.services.identitymanagement.model.User;
-import com.amazonaws.services.rds.AmazonRDS;
-import com.amazonaws.services.rds.AmazonRDSClient;
-import com.amazonaws.services.rds.model.DBInstance;
-import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
-import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
-import com.amazonaws.services.rds.model.Endpoint;
-import com.amazonaws.services.rds.model.ListTagsForResourceRequest;
-import com.amazonaws.services.rds.model.ListTagsForResourceResult;
-import com.amazonaws.services.rds.model.Tag;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
+import software.amazon.awssdk.services.iam.IamClient;
+import software.amazon.awssdk.services.iam.model.GetUserResponse;
+import software.amazon.awssdk.services.iam.model.User;
+import software.amazon.awssdk.services.rds.RdsClient;
+import software.amazon.awssdk.services.rds.model.DBInstance;
+import software.amazon.awssdk.services.rds.model.DescribeDbInstancesRequest;
+import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
+import software.amazon.awssdk.services.rds.model.Endpoint;
+import software.amazon.awssdk.services.rds.model.ListTagsForResourceRequest;
+import software.amazon.awssdk.services.rds.model.ListTagsForResourceResponse;
+import software.amazon.awssdk.services.rds.model.Tag;
 
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
@@ -77,10 +76,10 @@ public class AmazonRdsDataSourceBeanDefinitionParserTest {
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(Mockito.class);
 		beanDefinitionBuilder.setFactoryMethod("mock");
-		beanDefinitionBuilder.addConstructorArgValue(AmazonRDS.class);
+		beanDefinitionBuilder.addConstructorArgValue(RdsClient.class);
 		beanFactory.registerBeanDefinition(
 				AmazonWebserviceClientConfigurationUtils
-						.getBeanName(AmazonRDSClient.class.getName()),
+						.getBeanName(RdsClient.class.getName()),
 				beanDefinitionBuilder.getBeanDefinition());
 
 		XmlBeanDefinitionReader xmlBeanDefinitionReader = new XmlBeanDefinitionReader(
@@ -88,19 +87,19 @@ public class AmazonRdsDataSourceBeanDefinitionParserTest {
 		xmlBeanDefinitionReader.loadBeanDefinitions(new ClassPathResource(
 				getClass().getSimpleName() + "-minimal.xml", getClass()));
 
-		AmazonRDS client = beanFactory.getBean(AmazonWebserviceClientConfigurationUtils
-				.getBeanName(AmazonRDSClient.class.getName()), AmazonRDS.class);
+		RdsClient client = beanFactory.getBean(AmazonWebserviceClientConfigurationUtils
+				.getBeanName(RdsClient.class.getName()), RdsClient.class);
 
-		when(client.describeDBInstances(
-				new DescribeDBInstancesRequest().withDBInstanceIdentifier("test")))
-						.thenReturn(new DescribeDBInstancesResult().withDBInstances(
-								new DBInstance().withDBInstanceStatus("available")
-										.withDBName("test")
-										.withDBInstanceIdentifier("test")
-										.withEngine("mysql").withMasterUsername("admin")
-										.withEndpoint(new Endpoint()
-												.withAddress("localhost").withPort(3306))
-										.withReadReplicaDBInstanceIdentifiers("read1")));
+		when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
+				.dbInstanceIdentifier("test").build())).thenReturn(
+						DescribeDbInstancesResponse.builder().dbInstances(DBInstance
+								.builder().dbInstanceStatus("available").dbName("test")
+								.dbInstanceIdentifier("test").engine("mysql")
+								.masterUsername("admin")
+								.endpoint(Endpoint.builder().address("localhost")
+										.port(3306).build())
+								.readReplicaDBInstanceIdentifiers("read1").build())
+								.build());
 
 		// Act
 		DataSource dataSource = beanFactory.getBean(DataSource.class);
@@ -119,10 +118,10 @@ public class AmazonRdsDataSourceBeanDefinitionParserTest {
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(Mockito.class);
 		beanDefinitionBuilder.setFactoryMethod("mock");
-		beanDefinitionBuilder.addConstructorArgValue(AmazonRDS.class);
+		beanDefinitionBuilder.addConstructorArgValue(RdsClient.class);
 		beanFactory.registerBeanDefinition(
 				AmazonWebserviceClientConfigurationUtils
-						.getBeanName(AmazonRDSClient.class.getName()),
+						.getBeanName(RdsClient.class.getName()),
 				beanDefinitionBuilder.getBeanDefinition());
 
 		XmlBeanDefinitionReader xmlBeanDefinitionReader = new XmlBeanDefinitionReader(
@@ -147,10 +146,10 @@ public class AmazonRdsDataSourceBeanDefinitionParserTest {
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(Mockito.class);
 		beanDefinitionBuilder.setFactoryMethod("mock");
-		beanDefinitionBuilder.addConstructorArgValue(AmazonRDS.class);
+		beanDefinitionBuilder.addConstructorArgValue(RdsClient.class);
 		beanFactory.registerBeanDefinition(
 				AmazonWebserviceClientConfigurationUtils
-						.getBeanName(AmazonRDSClient.class.getName()),
+						.getBeanName(RdsClient.class.getName()),
 				beanDefinitionBuilder.getBeanDefinition());
 
 		XmlBeanDefinitionReader xmlBeanDefinitionReader = new XmlBeanDefinitionReader(
@@ -158,19 +157,19 @@ public class AmazonRdsDataSourceBeanDefinitionParserTest {
 		xmlBeanDefinitionReader.loadBeanDefinitions(new ClassPathResource(
 				getClass().getSimpleName() + "-noCredentials.xml", getClass()));
 
-		AmazonRDS client = beanFactory.getBean(AmazonWebserviceClientConfigurationUtils
-				.getBeanName(AmazonRDSClient.class.getName()), AmazonRDS.class);
+		RdsClient client = beanFactory.getBean(AmazonWebserviceClientConfigurationUtils
+				.getBeanName(RdsClient.class.getName()), RdsClient.class);
 
-		when(client.describeDBInstances(
-				new DescribeDBInstancesRequest().withDBInstanceIdentifier("test")))
-						.thenReturn(new DescribeDBInstancesResult().withDBInstances(
-								new DBInstance().withDBInstanceStatus("available")
-										.withDBName("test")
-										.withDBInstanceIdentifier("test")
-										.withEngine("mysql").withMasterUsername("admin")
-										.withEndpoint(new Endpoint()
-												.withAddress("localhost").withPort(3306))
-										.withReadReplicaDBInstanceIdentifiers("read1")));
+		when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
+				.dbInstanceIdentifier("test").build())).thenReturn(
+						DescribeDbInstancesResponse.builder().dbInstances(DBInstance
+								.builder().dbInstanceStatus("available").dbName("test")
+								.dbInstanceIdentifier("test").engine("mysql")
+								.masterUsername("admin")
+								.endpoint(Endpoint.builder().address("localhost")
+										.port(3306).build())
+								.readReplicaDBInstanceIdentifiers("read1").build())
+								.build());
 
 		// Act
 		DataSource dataSource = beanFactory.getBean(DataSource.class);
@@ -189,10 +188,10 @@ public class AmazonRdsDataSourceBeanDefinitionParserTest {
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(Mockito.class);
 		beanDefinitionBuilder.setFactoryMethod("mock");
-		beanDefinitionBuilder.addConstructorArgValue(AmazonRDS.class);
+		beanDefinitionBuilder.addConstructorArgValue(RdsClient.class);
 		beanFactory.registerBeanDefinition(
 				AmazonWebserviceClientConfigurationUtils
-						.getBeanName(AmazonRDSClient.class.getName()),
+						.getBeanName(RdsClient.class.getName()),
 				beanDefinitionBuilder.getBeanDefinition());
 
 		XmlBeanDefinitionReader xmlBeanDefinitionReader = new XmlBeanDefinitionReader(
@@ -200,20 +199,19 @@ public class AmazonRdsDataSourceBeanDefinitionParserTest {
 		xmlBeanDefinitionReader.loadBeanDefinitions(new ClassPathResource(
 				getClass().getSimpleName() + "-fullConfiguration.xml", getClass()));
 
-		AmazonRDS client = beanFactory.getBean(AmazonWebserviceClientConfigurationUtils
-				.getBeanName(AmazonRDSClient.class.getName()), AmazonRDS.class);
+		RdsClient client = beanFactory.getBean(AmazonWebserviceClientConfigurationUtils
+				.getBeanName(RdsClient.class.getName()), RdsClient.class);
 
-		when(client.describeDBInstances(
-				new DescribeDBInstancesRequest().withDBInstanceIdentifier("test")))
-						.thenReturn(
-								new DescribeDBInstancesResult().withDBInstances(
-										new DBInstance().withDBInstanceStatus("available")
-												.withDBName("test")
-												.withDBInstanceIdentifier("test")
-												.withEngine("mysql")
-												.withEndpoint(new Endpoint()
-														.withAddress("localhost")
-														.withPort(3306))));
+		when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
+				.dbInstanceIdentifier("test").build()))
+						.thenReturn(DescribeDbInstancesResponse.builder()
+								.dbInstances(DBInstance
+										.builder().dbInstanceStatus("available")
+										.dbName("test").dbInstanceIdentifier("test")
+										.engine("mysql").endpoint(Endpoint.builder()
+												.address("localhost").port(3306).build())
+										.build())
+								.build());
 
 		BeanDefinition definition = beanFactory.getBeanDefinition("test");
 		assertThat(definition.getConstructorArgumentValues()
@@ -344,7 +342,7 @@ public class AmazonRdsDataSourceBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-customRegion.xml", getClass()));
 
 		// Act
-		AmazonRDS amazonRDS = beanFactory.getBean(AmazonRDS.class);
+		RdsClient amazonRDS = beanFactory.getBean(RdsClient.class);
 
 		// Assert
 		// have to use reflection utils
@@ -365,7 +363,7 @@ public class AmazonRdsDataSourceBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-customRegionProvider.xml", getClass()));
 
 		// Act
-		AmazonRDS amazonRDS = beanFactory.getBean(AmazonRDS.class);
+		RdsClient amazonRDS = beanFactory.getBean(RdsClient.class);
 
 		// Assert
 		// have to use reflection utils
@@ -399,40 +397,44 @@ public class AmazonRdsDataSourceBeanDefinitionParserTest {
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(Mockito.class);
 		beanDefinitionBuilder.setFactoryMethod("mock");
-		beanDefinitionBuilder.addConstructorArgValue(AmazonRDS.class);
+		beanDefinitionBuilder.addConstructorArgValue(RdsClient.class);
 		beanFactory.registerBeanDefinition(
 				AmazonWebserviceClientConfigurationUtils
-						.getBeanName(AmazonRDSClient.class.getName()),
+						.getBeanName(RdsClient.class.getName()),
 				beanDefinitionBuilder.getBeanDefinition());
 
 		BeanDefinitionBuilder identityBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(Mockito.class);
 		identityBuilder.setFactoryMethod("mock");
-		identityBuilder.addConstructorArgValue(AmazonIdentityManagement.class);
-		beanFactory.registerBeanDefinition(
-				AmazonWebserviceClientConfigurationUtils
-						.getBeanName(AmazonIdentityManagement.class.getName()),
-				identityBuilder.getBeanDefinition());
+		identityBuilder.addConstructorArgValue(IamClient.class);
+		beanFactory
+				.registerBeanDefinition(
+						AmazonWebserviceClientConfigurationUtils
+								.getBeanName(IamClient.class.getName()),
+						identityBuilder.getBeanDefinition());
 
 		XmlBeanDefinitionReader xmlBeanDefinitionReader = new XmlBeanDefinitionReader(
 				beanFactory);
 		xmlBeanDefinitionReader.loadBeanDefinitions(new ClassPathResource(
 				getClass().getSimpleName() + "-userTags.xml", getClass()));
 
-		AmazonRDS client = beanFactory.getBean(AmazonWebserviceClientConfigurationUtils
-				.getBeanName(AmazonRDSClient.class.getName()), AmazonRDS.class);
-		AmazonIdentityManagement amazonIdentityManagement = beanFactory.getBean(
-				AmazonWebserviceClientConfigurationUtils
-						.getBeanName(AmazonIdentityManagement.class.getName()),
-				AmazonIdentityManagement.class);
+		RdsClient client = beanFactory.getBean(AmazonWebserviceClientConfigurationUtils
+				.getBeanName(RdsClient.class.getName()), RdsClient.class);
+		IamClient amazonIdentityManagement = beanFactory
+				.getBean(AmazonWebserviceClientConfigurationUtils
+						.getBeanName(IamClient.class.getName()), IamClient.class);
 
-		when(amazonIdentityManagement.getUser()).thenReturn(
-				new GetUserResult().withUser(new User("/", "aemruli", "123456789012",
-						"arn:aws:iam::1234567890:user/aemruli", new Date())));
-		when(client.listTagsForResource(new ListTagsForResourceRequest()
-				.withResourceName("arn:aws:rds:us-west-2:1234567890:db:test")))
-						.thenReturn(new ListTagsForResourceResult().withTagList(
-								new Tag().withKey("key1").withValue("value2")));
+		when(amazonIdentityManagement.getUser()).thenReturn(GetUserResponse.builder()
+				.user(User.builder().path("/").userName("aemruli").userId("123456789012")
+						.arn("arn:aws:iam::1234567890:user/aemruli")
+						.createDate(new Date().toInstant()).build())
+				.build());
+		when(client.listTagsForResource(ListTagsForResourceRequest.builder()
+				.resourceName("arn:aws:rds:us-west-2:1234567890:db:test").build()))
+						.thenReturn(ListTagsForResourceResponse.builder()
+								.tagList(
+										Tag.builder().key("key1").value("value2").build())
+								.build());
 
 		// Act
 		Map<?, ?> dsTags = beanFactory.getBean("dsTags", Map.class);
@@ -453,29 +455,33 @@ public class AmazonRdsDataSourceBeanDefinitionParserTest {
 		xmlBeanDefinitionReader.loadBeanDefinitions(new ClassPathResource(
 				getClass().getSimpleName() + "-customRdsInstance.xml", getClass()));
 
-		AmazonRDS clientMock = beanFactory.getBean("amazonRds", AmazonRDS.class);
+		RdsClient clientMock = beanFactory.getBean("amazonRds", RdsClient.class);
 
-		when(clientMock.describeDBInstances(
-				new DescribeDBInstancesRequest().withDBInstanceIdentifier("test")))
-						.thenReturn(new DescribeDBInstancesResult().withDBInstances(
-								new DBInstance().withDBInstanceStatus("available")
-										.withDBName("test")
-										.withDBInstanceIdentifier("test")
-										.withEngine("mysql").withMasterUsername("admin")
-										.withEndpoint(new Endpoint()
-												.withAddress("localhost").withPort(3306))
-										.withReadReplicaDBInstanceIdentifiers("read1")));
+		when(clientMock.describeDBInstances(DescribeDbInstancesRequest.builder()
+				.dbInstanceIdentifier("test").build())).thenReturn(
+						DescribeDbInstancesResponse.builder().dbInstances(DBInstance
+								.builder().dbInstanceStatus("available").dbName("test")
+								.dbInstanceIdentifier("test").engine("mysql")
+								.masterUsername("admin")
+								.endpoint(Endpoint.builder().address("localhost")
+										.port(3306).build())
+								.readReplicaDBInstanceIdentifiers("read1").build())
+								.build());
 
-		AmazonIdentityManagement amazonIdentityManagement = beanFactory
-				.getBean("myIdentityService", AmazonIdentityManagement.class);
+		IamClient amazonIdentityManagement = beanFactory.getBean("myIdentityService",
+				IamClient.class);
 
-		when(amazonIdentityManagement.getUser()).thenReturn(
-				new GetUserResult().withUser(new User("/", "aemruli", "123456789012",
-						"arn:aws:iam::1234567890:user/aemruli", new Date())));
-		when(clientMock.listTagsForResource(new ListTagsForResourceRequest()
-				.withResourceName("arn:aws:rds:us-west-2:1234567890:db:test")))
-						.thenReturn(new ListTagsForResourceResult().withTagList(
-								new Tag().withKey("key1").withValue("value2")));
+		when(amazonIdentityManagement.getUser()).thenReturn(GetUserResponse.builder()
+				.user(User.builder().path("/").userName("aemruli").userId("123456789012")
+						.arn("arn:aws:iam::1234567890:user/aemruli")
+						.createDate(new Date().toInstant()).build())
+				.build());
+		when(clientMock.listTagsForResource(ListTagsForResourceRequest.builder()
+				.resourceName("arn:aws:rds:us-west-2:1234567890:db:test").build()))
+						.thenReturn(ListTagsForResourceResponse.builder()
+								.tagList(
+										Tag.builder().key("key1").value("value2").build())
+								.build());
 
 		// Act
 		Map<?, ?> dsTags = beanFactory.getBean("dsTags", Map.class);

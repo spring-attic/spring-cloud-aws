@@ -21,8 +21,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import com.amazonaws.services.rds.AmazonRDS;
-import com.amazonaws.services.rds.model.DBInstance;
+import software.amazon.awssdk.services.rds.RdsClient;
+import software.amazon.awssdk.services.rds.model.DBInstance;
 
 import org.springframework.cloud.aws.jdbc.datasource.ReadOnlyRoutingDataSource;
 import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
@@ -49,7 +49,7 @@ public class AmazonRdsReadReplicaAwareDataSourceFactoryBean
 	 * @param password - The password used to connect to the datasource. For security
 	 * reasons the password is not available in the
 	 */
-	public AmazonRdsReadReplicaAwareDataSourceFactoryBean(AmazonRDS amazonRDS,
+	public AmazonRdsReadReplicaAwareDataSourceFactoryBean(RdsClient amazonRDS,
 			String dbInstanceIdentifier, String password) {
 		super(amazonRDS, dbInstanceIdentifier, password);
 	}
@@ -74,14 +74,14 @@ public class AmazonRdsReadReplicaAwareDataSourceFactoryBean
 		DBInstance dbInstance = getDbInstance(getDbInstanceIdentifier());
 
 		// If there is no read replica available, delegate to super class
-		if (dbInstance.getReadReplicaDBInstanceIdentifiers().isEmpty()) {
+		if (dbInstance.readReplicaDBInstanceIdentifiers().isEmpty()) {
 			return super.createInstance();
 		}
 
 		HashMap<Object, Object> replicaMap = new HashMap<>(
-				dbInstance.getReadReplicaDBInstanceIdentifiers().size());
+				dbInstance.readReplicaDBInstanceIdentifiers().size());
 
-		for (String replicaName : dbInstance.getReadReplicaDBInstanceIdentifiers()) {
+		for (String replicaName : dbInstance.readReplicaDBInstanceIdentifiers()) {
 			replicaMap.put(replicaName, createDataSourceInstance(replicaName));
 		}
 
