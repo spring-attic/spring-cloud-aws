@@ -23,14 +23,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Bucket;
+import software.amazon.awssdk.services.s3.model.CommonPrefix;
+import software.amazon.awssdk.services.s3.model.GetBucketLocationRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -61,7 +63,7 @@ public class PathMatchingSimpleStorageResourcePatternResolver
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(PathMatchingSimpleStorageResourcePatternResolver.class);
 
-	private final AmazonS3 amazonS3;
+	private final S3Client amazonS3;
 
 	private final ResourcePatternResolver resourcePatternResolverDelegate;
 
@@ -77,7 +79,7 @@ public class PathMatchingSimpleStorageResourcePatternResolver
 	 * @param resourcePatternResolverDelegate - delegate resolver used to resolve common
 	 * path (file, classpath, servlet etc.)
 	 */
-	public PathMatchingSimpleStorageResourcePatternResolver(AmazonS3 amazonS3,
+	public PathMatchingSimpleStorageResourcePatternResolver(S3Client amazonS3,
 			ResourcePatternResolver resourcePatternResolverDelegate) {
 		Assert.notNull(amazonS3, "Amazon S3 must not be null");
 		this.amazonS3 = AmazonS3ProxyFactory.createProxy(amazonS3);
@@ -192,26 +194,30 @@ public class PathMatchingSimpleStorageResourcePatternResolver
 
 	private void findAllResourcesThatMatches(String bucketName, Set<Resource> resources,
 			String prefix, String keyPattern) {
-		ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
-				.withBucketName(bucketName).withPrefix(prefix);
-		ObjectListing objectListing = null;
+		ListObjectsV2Request listObjectsRequest = ListObjectsV2Request.builder()
+				.bucket(bucketName).prefix(prefix).build();
+		ListObjectsV2Response objectListing = null;
 
 		do {
 			try {
 				if (objectListing == null) {
-					objectListing = this.amazonS3.listObjects(listObjectsRequest);
+					objectListing = this.amazonS3.listObjectsV2(listObjectsRequest);
 				}
 				else {
-					objectListing = this.amazonS3.listNextBatchOfObjects(objectListing);
+					objectListing = this.amazonS3
+							.listObjectsV2(listObjectsRequest.toBuilder()
+									.continuationToken(
+											objectListing.nextContinuationToken())
+									.build());
 				}
 				Set<Resource> newResources = getResourcesFromObjectSummaries(bucketName,
-						keyPattern, objectListing.getObjectSummaries());
+						keyPattern, objectListing.contents());
 				if (!newResources.isEmpty()) {
 					resources.addAll(newResources);
 				}
 			}
-			catch (AmazonS3Exception e) {
-				if (301 != e.getStatusCode()) {
+			catch (S3Exception e) {
+				if (301 != e.statusCode()) {
 					throw e;
 				}
 			}
@@ -232,28 +238,30 @@ public class PathMatchingSimpleStorageResourcePatternResolver
 	 */
 	private void findProgressivelyWithPartialMatch(String bucketName,
 			Set<Resource> resources, String prefix, String keyPattern) {
-		ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
-				.withBucketName(bucketName).withDelimiter("/").withPrefix(prefix);
-		ObjectListing objectListing = null;
+		ListObjectsV2Request listObjectsRequest = ListObjectsV2Request.builder()
+				.bucket(bucketName).delimiter("/").prefix(prefix).build();
+		ListObjectsV2Response objectListing = null;
 
 		do {
 			if (objectListing == null) {
-				objectListing = this.amazonS3.listObjects(listObjectsRequest);
+				objectListing = this.amazonS3.listObjectsV2(listObjectsRequest);
 			}
 			else {
-				objectListing = this.amazonS3.listNextBatchOfObjects(objectListing);
+				objectListing = this.amazonS3.listObjectsV2(listObjectsRequest.toBuilder()
+						.continuationToken(objectListing.nextContinuationToken())
+						.build());
 			}
 
 			Set<Resource> newResources = getResourcesFromObjectSummaries(bucketName,
-					keyPattern, objectListing.getObjectSummaries());
+					keyPattern, objectListing.contents());
 			if (!newResources.isEmpty()) {
 				resources.addAll(newResources);
 			}
 
-			for (String commonPrefix : objectListing.getCommonPrefixes()) {
-				if (isKeyPathMatchesPartially(keyPattern, commonPrefix)) {
-					findPathMatchingKeyInBucket(bucketName, resources, commonPrefix,
-							keyPattern);
+			for (CommonPrefix commonPrefix : objectListing.commonPrefixes()) {
+				if (isKeyPathMatchesPartially(keyPattern, commonPrefix.prefix())) {
+					findPathMatchingKeyInBucket(bucketName, resources,
+							commonPrefix.prefix(), keyPattern);
 				}
 			}
 		}
@@ -295,12 +303,12 @@ public class PathMatchingSimpleStorageResourcePatternResolver
 	}
 
 	private Set<Resource> getResourcesFromObjectSummaries(String bucketName,
-			String keyPattern, List<S3ObjectSummary> objectSummaries) {
+			String keyPattern, List<S3Object> objects) {
 		Set<Resource> resources = new HashSet<>();
-		for (S3ObjectSummary objectSummary : objectSummaries) {
+		for (S3Object object : objects) {
 			String keyPath = SimpleStorageNameUtils
-					.getLocationForBucketAndObject(bucketName, objectSummary.getKey());
-			if (this.pathMatcher.match(keyPattern, objectSummary.getKey())) {
+					.getLocationForBucketAndObject(bucketName, object.key());
+			if (this.pathMatcher.match(keyPattern, object.key())) {
 				Resource resource = this.resourcePatternResolverDelegate
 						.getResource(keyPath);
 				resources.add(resource);
@@ -311,12 +319,13 @@ public class PathMatchingSimpleStorageResourcePatternResolver
 	}
 
 	private List<String> findMatchingBuckets(String bucketPattern) {
-		List<Bucket> buckets = this.amazonS3.listBuckets();
+		List<Bucket> buckets = this.amazonS3.listBuckets().buckets();
 		List<String> matchingBuckets = new ArrayList<>();
 		for (Bucket bucket : buckets) {
-			this.amazonS3.getBucketLocation(bucket.getName());
-			if (this.pathMatcher.match(bucketPattern, bucket.getName())) {
-				matchingBuckets.add(bucket.getName());
+			this.amazonS3.getBucketLocation(
+					GetBucketLocationRequest.builder().bucket(bucket.name()).build());
+			if (this.pathMatcher.match(bucketPattern, bucket.name())) {
+				matchingBuckets.add(bucket.name());
 			}
 		}
 		return matchingBuckets;

@@ -16,11 +16,9 @@
 
 package org.springframework.cloud.aws.core.region;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.RegionUtils;
-import com.amazonaws.util.EC2MetadataUtils;
-import com.amazonaws.util.EC2MetadataUtils.InstanceInfo;
+import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
 
 import org.springframework.util.Assert;
 
@@ -45,11 +43,12 @@ public class Ec2MetadataRegionProvider implements RegionProvider {
 
 	protected Region getCurrentRegion() {
 		try {
-			InstanceInfo instanceInfo = EC2MetadataUtils.getInstanceInfo();
+			EC2MetadataUtils.InstanceInfo instanceInfo = EC2MetadataUtils
+					.getInstanceInfo();
 			return instanceInfo != null && instanceInfo.getRegion() != null
-					? RegionUtils.getRegion(instanceInfo.getRegion()) : null;
+					? Region.of(instanceInfo.getRegion()) : null;
 		}
-		catch (AmazonClientException e) {
+		catch (SdkClientException e) {
 			return null;
 		}
 

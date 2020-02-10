@@ -16,16 +16,15 @@
 
 package org.springframework.cloud.aws.core.env.ec2;
 
-import java.util.Collections;
 import java.util.Map;
 
-import com.amazonaws.services.ec2.AmazonEC2;
-import com.amazonaws.services.ec2.model.DescribeTagsRequest;
-import com.amazonaws.services.ec2.model.DescribeTagsResult;
-import com.amazonaws.services.ec2.model.Filter;
-import com.amazonaws.services.ec2.model.ResourceType;
-import com.amazonaws.services.ec2.model.TagDescription;
 import org.junit.Test;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.DescribeTagsRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeTagsResponse;
+import software.amazon.awssdk.services.ec2.model.Filter;
+import software.amazon.awssdk.services.ec2.model.ResourceType;
+import software.amazon.awssdk.services.ec2.model.TagDescription;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -40,20 +39,23 @@ public class AmazonEc2InstanceUserTagsFactoryBeanTest {
 	public void getObject_userTagDataAvailable_objectContainsAllAvailableKeys()
 			throws Exception {
 		// Arrange
-		AmazonEC2 amazonEC2 = mock(AmazonEC2.class);
+		Ec2Client amazonEC2 = mock(Ec2Client.class);
 
 		InstanceIdProvider instanceIdProvider = mock(InstanceIdProvider.class);
 		when(instanceIdProvider.getCurrentInstanceId()).thenReturn("1234567890");
 
-		DescribeTagsRequest describeTagsRequest = new DescribeTagsRequest().withFilters(
-				new Filter("resource-id", Collections.singletonList("1234567890")),
-				new Filter("resource-type", Collections.singletonList("instance")));
+		DescribeTagsRequest describeTagsRequest = DescribeTagsRequest.builder()
+				.filters(
+						Filter.builder().name("resource-id").values("1234567890").build(),
+						Filter.builder().name("resource-type").values("instance").build())
+				.build();
 
-		DescribeTagsResult describeTagsResult = new DescribeTagsResult().withTags(
-				new TagDescription().withKey("keyA")
-						.withResourceType(ResourceType.Instance).withValue("valueA"),
-				new TagDescription().withKey("keyB")
-						.withResourceType(ResourceType.Instance).withValue("valueB"));
+		DescribeTagsResponse describeTagsResult = DescribeTagsResponse.builder().tags(
+				TagDescription.builder().key("keyA").resourceType(ResourceType.INSTANCE)
+						.value("valueA").build(),
+				TagDescription.builder().key("keyB").resourceType(ResourceType.INSTANCE)
+						.value("keyB").build())
+				.build();
 
 		when(amazonEC2.describeTags(describeTagsRequest)).thenReturn(describeTagsResult);
 

@@ -22,18 +22,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.amazonaws.services.cloudformation.AmazonCloudFormation;
-import com.amazonaws.services.cloudformation.model.ListStackResourcesRequest;
-import com.amazonaws.services.cloudformation.model.ListStackResourcesResult;
-import com.amazonaws.services.cloudformation.model.StackResourceSummary;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
+import software.amazon.awssdk.services.cloudformation.CloudFormationClient;
+import software.amazon.awssdk.services.cloudformation.model.ListStackResourcesRequest;
+import software.amazon.awssdk.services.cloudformation.model.ListStackResourcesResponse;
+import software.amazon.awssdk.services.cloudformation.model.StackResourceSummary;
 
 import org.springframework.cloud.aws.core.env.stack.ListableStackResourceFactory;
 import org.springframework.cloud.aws.core.env.stack.StackResource;
 import org.springframework.cloud.aws.core.env.stack.StackResourceRegistry;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -46,7 +46,7 @@ public class StackResourceRegistryFactoryBeanTest {
 
 	private static StackResourceRegistryFactoryBean makeStackResourceRegistryFactoryBean(
 			String stackName, Map<String, String> resourceIdMappings) {
-		AmazonCloudFormation amazonCloudFormationClient = makeAmazonCloudFormationClient(
+		CloudFormationClient amazonCloudFormationClient = makeAmazonCloudFormationClient(
 				resourceIdMappings);
 		StackNameProvider stackNameProvider = makeStackNameProvider(stackName);
 
@@ -61,7 +61,7 @@ public class StackResourceRegistryFactoryBeanTest {
 		return stackNameProvider;
 	}
 
-	private static AmazonCloudFormation makeAmazonCloudFormationClient(
+	private static CloudFormationClient makeAmazonCloudFormationClient(
 			Map<String, String> resourceIdMappings) {
 		Map<String, List<StackResourceSummary>> stackResourceSummaries = new HashMap<>();
 		stackResourceSummaries.put(STACK_NAME, new ArrayList<>()); // allow stack with no
@@ -88,21 +88,22 @@ public class StackResourceRegistryFactoryBeanTest {
 			list.add(makeStackResourceSummary(logicalResourceId, physicalResourceId));
 		}
 
-		AmazonCloudFormation amazonCloudFormationClient = mock(
-				AmazonCloudFormation.class);
+		CloudFormationClient amazonCloudFormationClient = mock(
+				CloudFormationClient.class);
 
 		for (Map.Entry<String, List<StackResourceSummary>> entry : stackResourceSummaries
 				.entrySet()) {
 			String stackName = entry.getKey();
 
-			ListStackResourcesResult listStackResourcesResult = mock(
-					ListStackResourcesResult.class);
-			when(listStackResourcesResult.getStackResourceSummaries())
+			ListStackResourcesResponse listStackResourcesResult = mock(
+					ListStackResourcesResponse.class);
+			when(listStackResourcesResult.stackResourceSummaries())
 					.thenReturn(entry.getValue());
 
-			when(amazonCloudFormationClient.listStackResources(argThat(
-					item -> item != null && stackName.equals((item).getStackName()))))
-							.thenReturn(listStackResourcesResult);
+			when(amazonCloudFormationClient.listStackResources(
+					ArgumentMatchers.<ListStackResourcesRequest>argThat(
+							item -> item != null && stackName.equals(item.stackName()))))
+									.thenReturn(listStackResourcesResult);
 		}
 
 		return amazonCloudFormationClient;
@@ -111,9 +112,9 @@ public class StackResourceRegistryFactoryBeanTest {
 	private static StackResourceSummary makeStackResourceSummary(String logicalResourceId,
 			String physicalResourceId) {
 		StackResourceSummary stackResourceSummary = mock(StackResourceSummary.class);
-		when(stackResourceSummary.getLogicalResourceId()).thenReturn(logicalResourceId);
-		when(stackResourceSummary.getPhysicalResourceId()).thenReturn(physicalResourceId);
-		when(stackResourceSummary.getResourceType())
+		when(stackResourceSummary.logicalResourceId()).thenReturn(logicalResourceId);
+		when(stackResourceSummary.physicalResourceId()).thenReturn(physicalResourceId);
+		when(stackResourceSummary.resourceType())
 				.thenReturn(logicalResourceId.endsWith("Stack")
 						? "AWS::CloudFormation::Stack" : "Amazon::SES::Test");
 		return stackResourceSummary;
@@ -145,20 +146,22 @@ public class StackResourceRegistryFactoryBeanTest {
 	public void createInstance_stackWithNextTag_returnsStackResourceRegistryBuildWithTwoPages()
 			throws Exception {
 		// Arrange
-		AmazonCloudFormation cloudFormationClient = mock(AmazonCloudFormation.class);
+		CloudFormationClient cloudFormationClient = mock(CloudFormationClient.class);
 		StackResourceRegistryFactoryBean stackResourceRegistryFactoryBean = new StackResourceRegistryFactoryBean(
 				cloudFormationClient, new StaticStackNameProvider(STACK_NAME));
 
 		when(cloudFormationClient.listStackResources(
-				new ListStackResourcesRequest().withStackName(STACK_NAME)))
-						.thenReturn(new ListStackResourcesResult().withNextToken("2")
-								.withStackResourceSummaries(new StackResourceSummary()
-										.withLogicalResourceId("log1")));
-		when(cloudFormationClient.listStackResources(new ListStackResourcesRequest()
-				.withStackName(STACK_NAME).withNextToken("2")))
-						.thenReturn(new ListStackResourcesResult()
-								.withStackResourceSummaries(new StackResourceSummary()
-										.withLogicalResourceId("log2")));
+				ListStackResourcesRequest.builder().stackName(STACK_NAME).build()))
+						.thenReturn(ListStackResourcesResponse.builder().nextToken("2")
+								.stackResourceSummaries(StackResourceSummary.builder()
+										.logicalResourceId("log1").build())
+								.build());
+		when(cloudFormationClient.listStackResources(ListStackResourcesRequest.builder()
+				.stackName(STACK_NAME).nextToken("2").build()))
+						.thenReturn(ListStackResourcesResponse
+								.builder().stackResourceSummaries(StackResourceSummary
+										.builder().logicalResourceId("log2").build())
+								.build());
 
 		// Act
 		ListableStackResourceFactory stackResourceFactory = stackResourceRegistryFactoryBean

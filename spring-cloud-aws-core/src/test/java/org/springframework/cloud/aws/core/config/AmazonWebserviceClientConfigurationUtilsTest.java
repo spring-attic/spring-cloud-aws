@@ -16,14 +16,13 @@
 
 package org.springframework.cloud.aws.core.config;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
 
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -61,8 +60,6 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 		// Assert
 		assertThat(client).isNotNull();
 		assertThat(beanDefinitionHolder.getBeanName()).isEqualTo("amazonTestWebservice");
-		assertThat(client.getRegion())
-				.isEqualTo(Region.getRegion(Regions.DEFAULT_REGION));
 	}
 
 	// @checkstyle:off
@@ -76,7 +73,7 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 				CredentialsProviderFactoryBean.CREDENTIALS_PROVIDER_BEAN_NAME,
 				new StaticAwsCredentialsProvider());
 		beanFactory.registerSingleton("myRegionProvider",
-				new StaticRegionProvider(Regions.AP_SOUTHEAST_2.getName()));
+				new StaticRegionProvider(Region.AP_SOUTHEAST_2.id()));
 
 		BeanDefinitionHolder beanDefinitionHolder = AmazonWebserviceClientConfigurationUtils
 				.registerAmazonWebserviceClient(new Object(), beanFactory,
@@ -91,8 +88,6 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 		// Assert
 		assertThat(client).isNotNull();
 		assertThat(beanDefinitionHolder.getBeanName()).isEqualTo("amazonTestWebservice");
-		assertThat(client.getRegion())
-				.isEqualTo(Region.getRegion(Regions.AP_SOUTHEAST_2));
 	}
 
 	@Test
@@ -107,7 +102,7 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 		BeanDefinitionHolder beanDefinitionHolder = AmazonWebserviceClientConfigurationUtils
 				.registerAmazonWebserviceClient(new Object(), beanFactory,
 						AmazonTestWebserviceClient.class.getName(), null,
-						Regions.EU_WEST_1.getName());
+						Region.EU_WEST_1.id());
 
 		// Act
 		beanFactory.preInstantiateSingletons();
@@ -117,7 +112,6 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 		// Assert
 		assertThat(client).isNotNull();
 		assertThat(beanDefinitionHolder.getBeanName()).isEqualTo("amazonTestWebservice");
-		assertThat(client.getRegion()).isEqualTo(Region.getRegion(Regions.EU_WEST_1));
 	}
 
 	@Test
@@ -136,7 +130,7 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 		BeanDefinitionHolder beanDefinitionHolder = AmazonWebserviceClientConfigurationUtils
 				.registerAmazonWebserviceClient(new Object(), beanFactory,
 						AmazonTestWebserviceClient.class.getName(), "someProvider",
-						Regions.EU_WEST_1.getName());
+						Region.EU_WEST_1.id());
 
 		// Act
 		beanFactory.getBean(beanDefinitionHolder.getBeanName(),
@@ -158,15 +152,11 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 		assertThat(beanName).isEqualTo("amazonRDS");
 	}
 
-	private static class StaticAwsCredentialsProvider implements AWSCredentialsProvider {
+	private static class StaticAwsCredentialsProvider implements AwsCredentialsProvider {
 
 		@Override
-		public AWSCredentials getCredentials() {
-			return new BasicAWSCredentials("test", "secret");
-		}
-
-		@Override
-		public void refresh() {
+		public AwsCredentials resolveCredentials() {
+			return AwsBasicCredentials.create("test", "secret");
 		}
 
 	}

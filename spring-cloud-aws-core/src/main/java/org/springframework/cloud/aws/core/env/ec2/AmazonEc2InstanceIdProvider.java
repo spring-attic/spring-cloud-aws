@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.aws.core.env.ec2;
 
-import com.amazonaws.util.EC2MetadataUtils;
+import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
 
 /**
  * Provides the instance id of the current Amazon EC2 instance.

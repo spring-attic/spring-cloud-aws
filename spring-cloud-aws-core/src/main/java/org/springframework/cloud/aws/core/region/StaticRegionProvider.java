@@ -16,8 +16,7 @@
 
 package org.springframework.cloud.aws.core.region;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
+import software.amazon.awssdk.regions.Region;
 
 import org.springframework.cloud.aws.core.support.documentation.RuntimeUse;
 
@@ -41,7 +40,7 @@ public class StaticRegionProvider implements RegionProvider {
 	@RuntimeUse
 	public StaticRegionProvider(String configuredRegion) {
 		try {
-			this.configuredRegion = Region.getRegion(Regions.fromName(configuredRegion));
+			this.configuredRegion = Region.of(configuredRegion);
 		}
 		catch (IllegalArgumentException e) {
 			throw new IllegalArgumentException(

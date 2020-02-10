@@ -18,7 +18,7 @@ package org.springframework.cloud.aws.core.naming;
 
 import java.util.Arrays;
 
-import com.amazonaws.regions.Region;
+import software.amazon.awssdk.regions.Region;
 
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -254,7 +254,7 @@ public final class AmazonResourceName {
 		}
 
 		public Builder withRegion(Region region) {
-			this.region = region.getName();
+			this.region = region.id();
 			return this;
 		}
 

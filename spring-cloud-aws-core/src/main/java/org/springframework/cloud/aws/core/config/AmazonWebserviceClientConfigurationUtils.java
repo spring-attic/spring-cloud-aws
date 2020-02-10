@@ -18,7 +18,7 @@ package org.springframework.cloud.aws.core.config;
 
 import java.beans.Introspector;
 
-import com.amazonaws.regions.Regions;
+import software.amazon.awssdk.regions.Region;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -140,7 +140,7 @@ public final class AmazonWebserviceClientConfigurationUtils {
 		if (!registry.containsBeanDefinition(REGION_PROVIDER_BEAN_NAME)) {
 			BeanDefinitionBuilder builder = BeanDefinitionBuilder
 					.genericBeanDefinition(StaticRegionProvider.class);
-			builder.addConstructorArgValue(Regions.DEFAULT_REGION.getName());
+			builder.addConstructorArgValue(Region.US_WEST_2.id());
 			builder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 			registry.registerBeanDefinition(REGION_PROVIDER_BEAN_NAME,
 					builder.getBeanDefinition());

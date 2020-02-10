@@ -19,14 +19,13 @@ package org.springframework.cloud.aws.core.config;
 import java.lang.reflect.Method;
 import java.util.concurrent.ExecutorService;
 
-import com.amazonaws.AmazonWebServiceClient;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.client.builder.AwsAsyncClientBuilder;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.client.builder.ExecutorFactory;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.RegionUtils;
-import com.amazonaws.regions.Regions;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.awscore.client.builder.AwsAsyncClientBuilder;
+import software.amazon.awssdk.awscore.client.builder.AwsClientBuilder;
+import software.amazon.awssdk.core.SdkClient;
+import software.amazon.awssdk.core.client.config.ClientAsyncConfiguration;
+import software.amazon.awssdk.core.client.config.SdkAdvancedAsyncClientOption;
+import software.amazon.awssdk.regions.Region;
 
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.cloud.aws.core.region.RegionProvider;
@@ -35,36 +34,34 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * {@link org.springframework.beans.factory.FactoryBean} class to create
- * {@link AmazonWebServiceClient} instances. This class is responsible to create the
- * respective AmazonWebServiceClient classes because the configuration through Springs's
- * BeanFactory fails due to invalid properties inside the Webservice client classes (see
+ * {@link org.springframework.beans.factory.FactoryBean} class to create {@link SdkClient}
+ * instances. This class is responsible to create the respective AmazonWebServiceClient
+ * classes because the configuration through Springs's BeanFactory fails due to invalid
+ * properties inside the Webservice client classes (see
  * https://github.com/aws/aws-sdk-java/issues/325)
  *
- * @param <T> implementation of the {@link AmazonWebServiceClient}
+ * @param <T> implementation of the {@link SdkClient}
  * @author Agim Emruli
  */
-public class AmazonWebserviceClientFactoryBean<T extends AmazonWebServiceClient>
+public class AmazonWebserviceClientFactoryBean<T extends SdkClient>
 		extends AbstractFactoryBean<T> {
 
-	private final Class<? extends AmazonWebServiceClient> clientClass;
+	private final Class<? extends SdkClient> clientClass;
 
-	private final AWSCredentialsProvider credentialsProvider;
+	private final AwsCredentialsProvider credentialsProvider;
 
 	private RegionProvider regionProvider;
-
-	private Region customRegion;
 
 	private ExecutorService executor;
 
 	public AmazonWebserviceClientFactoryBean(Class<T> clientClass,
-			AWSCredentialsProvider credentialsProvider) {
+			AwsCredentialsProvider credentialsProvider) {
 		this.clientClass = clientClass;
 		this.credentialsProvider = credentialsProvider;
 	}
 
 	public AmazonWebserviceClientFactoryBean(Class<T> clientClass,
-			AWSCredentialsProvider credentialsProvider, RegionProvider regionProvider) {
+			AwsCredentialsProvider credentialsProvider, RegionProvider regionProvider) {
 		this(clientClass, credentialsProvider);
 		setRegionProvider(regionProvider);
 	}
@@ -78,34 +75,31 @@ public class AmazonWebserviceClientFactoryBean<T extends AmazonWebServiceClient>
 	@Override
 	protected T createInstance() throws Exception {
 
-		String builderName = this.clientClass.getName() + "Builder";
-		Class<?> className = ClassUtils.resolveClassName(builderName,
-				ClassUtils.getDefaultClassLoader());
-
-		Method method = ClassUtils.getStaticMethod(className, "standard");
-		Assert.notNull(method, "Could not find standard() method in class:'"
-				+ className.getName() + "'");
+		Method builderMethod = ClassUtils.getStaticMethod(clientClass, "builder");
+		Assert.notNull(builderMethod, "Could not find builder() method in class:'"
+				+ clientClass.getName() + "'");
 
 		AwsClientBuilder<?, T> builder = (AwsClientBuilder<?, T>) ReflectionUtils
-				.invokeMethod(method, null);
+				.invokeMethod(builderMethod, null);
 
 		if (this.executor != null) {
 			AwsAsyncClientBuilder<?, T> asyncBuilder = (AwsAsyncClientBuilder<?, T>) builder;
-			asyncBuilder.withExecutorFactory((ExecutorFactory) () -> this.executor);
+			asyncBuilder.asyncConfiguration(ClientAsyncConfiguration.builder()
+					.advancedOption(
+							SdkAdvancedAsyncClientOption.FUTURE_COMPLETION_EXECUTOR,
+							executor)
+					.build());
 		}
 
 		if (this.credentialsProvider != null) {
-			builder.withCredentials(this.credentialsProvider);
+			builder.credentialsProvider(this.credentialsProvider);
 		}
 
-		if (this.customRegion != null) {
-			builder.withRegion(this.customRegion.getName());
-		}
 		else if (this.regionProvider != null) {
-			builder.withRegion(this.regionProvider.getRegion().getName());
+			builder.region(this.regionProvider.getRegion());
 		}
 		else {
-			builder.withRegion(Regions.DEFAULT_REGION);
+			builder.region(Region.US_WEST_2);
 		}
 		return builder.build();
 	}
@@ -114,17 +108,13 @@ public class AmazonWebserviceClientFactoryBean<T extends AmazonWebServiceClient>
 		this.regionProvider = regionProvider;
 	}
 
-	public void setCustomRegion(String customRegionName) {
-		this.customRegion = RegionUtils.getRegion(customRegionName);
-	}
-
 	public void setExecutor(ExecutorService executor) {
 		this.executor = executor;
 	}
 
 	@Override
 	protected void destroyInstance(T instance) throws Exception {
-		instance.shutdown();
+		instance.close();
 	}
 
 }

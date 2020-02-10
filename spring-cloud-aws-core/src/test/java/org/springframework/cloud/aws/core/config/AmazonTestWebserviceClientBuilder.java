@@ -16,27 +16,33 @@
 
 package org.springframework.cloud.aws.core.config;
 
-import com.amazonaws.ClientConfigurationFactory;
-import com.amazonaws.client.AwsSyncClientParams;
-import com.amazonaws.client.builder.AwsSyncClientBuilder;
+import software.amazon.awssdk.awscore.client.builder.AwsDefaultClientBuilder;
+import software.amazon.awssdk.awscore.client.config.AwsClientOption;
+import software.amazon.awssdk.regions.Region;
 
-/**
- * @author Agim Emruli
- */
-public final class AmazonTestWebserviceClientBuilder extends
-		AwsSyncClientBuilder<AmazonTestWebserviceClientBuilder, AmazonTestWebserviceClient> {
+public class AmazonTestWebserviceClientBuilder extends
+		AwsDefaultClientBuilder<AmazonTestWebserviceClientBuilder, AmazonTestWebserviceClient> {
 
-	private AmazonTestWebserviceClientBuilder() {
-		super(new ClientConfigurationFactory());
-	}
-
-	public static AmazonTestWebserviceClientBuilder standard() {
-		return new AmazonTestWebserviceClientBuilder();
+	@Override
+	protected String serviceEndpointPrefix() {
+		return null;
 	}
 
 	@Override
-	protected AmazonTestWebserviceClient build(AwsSyncClientParams clientParams) {
-		return new AmazonTestWebserviceClient(getCredentials());
+	protected String signingName() {
+		return null;
+	}
+
+	@Override
+	protected String serviceName() {
+		return null;
+	}
+
+	@Override
+	protected AmazonTestWebserviceClient buildClient() {
+		final Region region = super.clientConfiguration.build()
+				.option(AwsClientOption.AWS_REGION);
+		return new DefaultAmazonTestWebserviceClient(region);
 	}
 
 }

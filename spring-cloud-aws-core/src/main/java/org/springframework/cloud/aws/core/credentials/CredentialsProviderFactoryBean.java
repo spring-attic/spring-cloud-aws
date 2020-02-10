@@ -19,57 +19,58 @@ package org.springframework.cloud.aws.core.credentials;
 import java.util.Collections;
 import java.util.List;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSCredentialsProviderChain;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProviderChain;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.util.Assert;
 
 /**
  * {@link org.springframework.beans.factory.FactoryBean} that creates a composite
- * {@link AWSCredentialsProvider} based on the delegates.
+ * {@link AwsCredentialsProvider} based on the delegates.
  *
  * @author Agim Emruli
  * @since 1.0
  */
 public class CredentialsProviderFactoryBean
-		extends AbstractFactoryBean<AWSCredentialsProvider> {
+		extends AbstractFactoryBean<AwsCredentialsProvider> {
 
 	/**
 	 * Name of the credentials provider bean.
 	 */
 	public static final String CREDENTIALS_PROVIDER_BEAN_NAME = "credentialsProvider";
 
-	private final List<AWSCredentialsProvider> delegates;
+	private final List<AwsCredentialsProvider> delegates;
 
 	public CredentialsProviderFactoryBean() {
 		this(Collections.emptyList());
 	}
 
-	public CredentialsProviderFactoryBean(List<AWSCredentialsProvider> delegates) {
+	public CredentialsProviderFactoryBean(List<AwsCredentialsProvider> delegates) {
 		Assert.notNull(delegates, "Delegates must not be null");
 		this.delegates = delegates;
 	}
 
 	@Override
 	public Class<?> getObjectType() {
-		return AWSCredentialsProvider.class;
+		return AwsCredentialsProvider.class;
 	}
 
 	@Override
-	protected AWSCredentialsProvider createInstance() throws Exception {
-		AWSCredentialsProviderChain awsCredentialsProviderChain;
+	protected AwsCredentialsProvider createInstance() throws Exception {
+		AwsCredentialsProviderChain.Builder awsCredentialsProviderChainBuilder;
 		if (this.delegates.isEmpty()) {
-			awsCredentialsProviderChain = new DefaultAWSCredentialsProviderChain();
+			awsCredentialsProviderChainBuilder = AwsCredentialsProviderChain.builder()
+					.credentialsProviders(DefaultCredentialsProvider.create());
 		}
 		else {
-			awsCredentialsProviderChain = new AWSCredentialsProviderChain(this.delegates
-					.toArray(new AWSCredentialsProvider[this.delegates.size()]));
+			awsCredentialsProviderChainBuilder = AwsCredentialsProviderChain.builder()
+					.credentialsProviders(this.delegates);
 		}
 
-		awsCredentialsProviderChain.setReuseLastProvider(false);
-		return awsCredentialsProviderChain;
+		awsCredentialsProviderChainBuilder.reuseLastProviderEnabled(false);
+		return awsCredentialsProviderChainBuilder.build();
 	}
 
 }

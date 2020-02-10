@@ -16,19 +16,29 @@
 
 package org.springframework.cloud.aws.core.config;
 
-import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.regions.Region;
 
-/**
- * @author Agim Emruli Test stub used by
- * {@link AmazonWebserviceClientConfigurationUtilsTest}
- */
-public interface AmazonTestWebserviceClient extends SdkClient {
+public class DefaultAmazonTestWebserviceClient implements AmazonTestWebserviceClient {
 
-	static AmazonTestWebserviceClientBuilder builder() {
-		return new AmazonTestWebserviceClientBuilder();
+	private final Region region;
+
+	public DefaultAmazonTestWebserviceClient(Region region) {
+		this.region = region;
 	}
 
-	Region getRegion();
+	@Override
+	public String serviceName() {
+		return "test";
+	}
+
+	@Override
+	public void close() {
+
+	}
+
+	@Override
+	public Region getRegion() {
+		return region;
+	}
 
 }

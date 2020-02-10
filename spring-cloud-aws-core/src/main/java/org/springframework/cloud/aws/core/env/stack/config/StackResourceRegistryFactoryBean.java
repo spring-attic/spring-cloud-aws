@@ -22,10 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.amazonaws.services.cloudformation.AmazonCloudFormation;
-import com.amazonaws.services.cloudformation.model.ListStackResourcesRequest;
-import com.amazonaws.services.cloudformation.model.ListStackResourcesResult;
-import com.amazonaws.services.cloudformation.model.StackResourceSummary;
+import software.amazon.awssdk.services.cloudformation.CloudFormationClient;
+import software.amazon.awssdk.services.cloudformation.model.ListStackResourcesRequest;
+import software.amazon.awssdk.services.cloudformation.model.ListStackResourcesResponse;
+import software.amazon.awssdk.services.cloudformation.model.StackResourceSummary;
 
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.cloud.aws.core.env.stack.ListableStackResourceFactory;
@@ -45,12 +45,12 @@ import org.springframework.util.StringUtils;
 public class StackResourceRegistryFactoryBean
 		extends AbstractFactoryBean<ListableStackResourceFactory> {
 
-	private final AmazonCloudFormation amazonCloudFormationClient;
+	private final CloudFormationClient amazonCloudFormationClient;
 
 	private final StackNameProvider stackNameProvider;
 
 	public StackResourceRegistryFactoryBean(
-			AmazonCloudFormation amazonCloudFormationClient,
+			CloudFormationClient amazonCloudFormationClient,
 			StackNameProvider stackNameProvider) {
 		this.amazonCloudFormationClient = amazonCloudFormationClient;
 		this.stackNameProvider = stackNameProvider;
@@ -91,21 +91,21 @@ public class StackResourceRegistryFactoryBean
 	}
 
 	private List<StackResourceSummary> getStackResourceSummaries(String stackName) {
-		ListStackResourcesResult listStackResourcesResult = this.amazonCloudFormationClient
+		ListStackResourcesResponse listStackResourcesResult = this.amazonCloudFormationClient
 				.listStackResources(
-						new ListStackResourcesRequest().withStackName(stackName));
-		if (!StringUtils.hasText(listStackResourcesResult.getNextToken())) {
-			return listStackResourcesResult.getStackResourceSummaries();
+						ListStackResourcesRequest.builder().stackName(stackName).build());
+		if (!StringUtils.hasText(listStackResourcesResult.nextToken())) {
+			return listStackResourcesResult.stackResourceSummaries();
 		}
 		else {
 			List<StackResourceSummary> result = new ArrayList<>(
-					listStackResourcesResult.getStackResourceSummaries());
-			while (StringUtils.hasText(listStackResourcesResult.getNextToken())) {
+					listStackResourcesResult.stackResourceSummaries());
+			while (StringUtils.hasText(listStackResourcesResult.nextToken())) {
 				listStackResourcesResult = this.amazonCloudFormationClient
-						.listStackResources(new ListStackResourcesRequest()
-								.withStackName(stackName)
-								.withNextToken(listStackResourcesResult.getNextToken()));
-				result.addAll(listStackResourcesResult.getStackResourceSummaries());
+						.listStackResources(ListStackResourcesRequest.builder()
+								.stackName(stackName)
+								.nextToken(listStackResourcesResult.nextToken()).build());
+				result.addAll(listStackResourcesResult.stackResourceSummaries());
 			}
 			return result;
 		}
@@ -117,11 +117,11 @@ public class StackResourceRegistryFactoryBean
 
 		for (StackResourceSummary stackResourceSummary : stackResourceSummaries) {
 			String logicalResourceId = toNestedResourceId(prefix,
-					stackResourceSummary.getLogicalResourceId());
+					stackResourceSummary.logicalResourceId());
 			stackResourceMappings.put(logicalResourceId,
 					new StackResource(logicalResourceId,
-							stackResourceSummary.getPhysicalResourceId(),
-							stackResourceSummary.getResourceType()));
+							stackResourceSummary.physicalResourceId(),
+							stackResourceSummary.resourceType()));
 		}
 
 		return stackResourceMappings;

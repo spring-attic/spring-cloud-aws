@@ -16,15 +16,14 @@
 
 package org.springframework.cloud.aws.core.env.ec2;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.amazonaws.services.ec2.AmazonEC2;
-import com.amazonaws.services.ec2.model.DescribeTagsRequest;
-import com.amazonaws.services.ec2.model.DescribeTagsResult;
-import com.amazonaws.services.ec2.model.Filter;
-import com.amazonaws.services.ec2.model.TagDescription;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.DescribeTagsRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeTagsResponse;
+import software.amazon.awssdk.services.ec2.model.Filter;
+import software.amazon.awssdk.services.ec2.model.TagDescription;
 
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.cloud.aws.core.support.documentation.RuntimeUse;
@@ -35,16 +34,16 @@ import org.springframework.cloud.aws.core.support.documentation.RuntimeUse;
 public class AmazonEc2InstanceUserTagsFactoryBean
 		extends AbstractFactoryBean<Map<String, String>> {
 
-	private final AmazonEC2 amazonEc2;
+	private final Ec2Client amazonEc2;
 
 	private final InstanceIdProvider idProvider;
 
 	@RuntimeUse
-	public AmazonEc2InstanceUserTagsFactoryBean(AmazonEC2 amazonEc2) {
+	public AmazonEc2InstanceUserTagsFactoryBean(Ec2Client amazonEc2) {
 		this(amazonEc2, new AmazonEc2InstanceIdProvider());
 	}
 
-	public AmazonEc2InstanceUserTagsFactoryBean(AmazonEC2 amazonEc2,
+	public AmazonEc2InstanceUserTagsFactoryBean(Ec2Client amazonEc2,
 			InstanceIdProvider idProvider) {
 		this.amazonEc2 = amazonEc2;
 		this.idProvider = idProvider;
@@ -58,17 +57,19 @@ public class AmazonEc2InstanceUserTagsFactoryBean
 	@Override
 	protected Map<String, String> createInstance() throws Exception {
 		LinkedHashMap<String, String> properties = new LinkedHashMap<>();
-		DescribeTagsResult tags = this.amazonEc2
+		DescribeTagsResponse tags = this.amazonEc2
 				.describeTags(
-						new DescribeTagsRequest()
-								.withFilters(
-										new Filter("resource-id",
-												Collections.singletonList(this.idProvider
-														.getCurrentInstanceId())),
-										new Filter("resource-type",
-												Collections.singletonList("instance"))));
-		for (TagDescription tag : tags.getTags()) {
-			properties.put(tag.getKey(), tag.getValue());
+						DescribeTagsRequest.builder()
+								.filters(
+										Filter.builder().name("resource-id")
+												.values(this.idProvider
+														.getCurrentInstanceId())
+												.build(),
+										Filter.builder().name("resource-type")
+												.values("instance").build())
+								.build());
+		for (TagDescription tag : tags.tags()) {
+			properties.put(tag.key(), tag.value());
 		}
 		return properties;
 	}

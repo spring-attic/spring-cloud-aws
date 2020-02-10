@@ -18,12 +18,12 @@ package org.springframework.cloud.aws.core.env.stack.config;
 
 import java.util.Map;
 
-import com.amazonaws.services.cloudformation.AmazonCloudFormation;
-import com.amazonaws.services.cloudformation.model.DescribeStacksRequest;
-import com.amazonaws.services.cloudformation.model.DescribeStacksResult;
-import com.amazonaws.services.cloudformation.model.Stack;
-import com.amazonaws.services.cloudformation.model.Tag;
 import org.junit.Test;
+import software.amazon.awssdk.services.cloudformation.CloudFormationClient;
+import software.amazon.awssdk.services.cloudformation.model.DescribeStacksRequest;
+import software.amazon.awssdk.services.cloudformation.model.DescribeStacksResponse;
+import software.amazon.awssdk.services.cloudformation.model.Stack;
+import software.amazon.awssdk.services.cloudformation.model.Tag;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -37,15 +37,18 @@ public class StackResourceUserTagsFactoryBeanTest {
 	@Test
 	public void getObject_stackWithTagsDefined_createTagsMap() throws Exception {
 		// Arrange
-		AmazonCloudFormation cloudFormation = mock(AmazonCloudFormation.class);
+		CloudFormationClient cloudFormation = mock(CloudFormationClient.class);
 		StackNameProvider stackNameProvider = mock(StackNameProvider.class);
 
 		when(stackNameProvider.getStackName()).thenReturn("testStack");
-		when(cloudFormation
-				.describeStacks(new DescribeStacksRequest().withStackName("testStack")))
-						.thenReturn(new DescribeStacksResult().withStacks(new Stack()
-								.withTags(new Tag().withKey("key1").withValue("value1"),
-										new Tag().withKey("key2").withValue("value2"))));
+		when(cloudFormation.describeStacks(DescribeStacksRequest.builder()
+				.stackName("testStack").build())).thenReturn(DescribeStacksResponse
+						.builder()
+						.stacks(Stack.builder()
+								.tags(Tag.builder().key("key1").value("value1").build(),
+										Tag.builder().key("key2").value("value2").build())
+								.build())
+						.build());
 
 		StackResourceUserTagsFactoryBean factoryBean = new StackResourceUserTagsFactoryBean(
 				cloudFormation, stackNameProvider);

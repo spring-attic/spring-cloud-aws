@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.aws.core.io.s3;
 
-import com.amazonaws.services.s3.AmazonS3;
+import software.amazon.awssdk.services.s3.S3Client;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cloud.aws.core.support.documentation.RuntimeUse;
@@ -33,7 +33,7 @@ import org.springframework.core.task.TaskExecutor;
  */
 public class SimpleStorageProtocolResolver implements ProtocolResolver, InitializingBean {
 
-	private final AmazonS3 amazonS3;
+	private final S3Client amazonS3;
 
 	/**
 	 * <b>IMPORTANT:</b> If a task executor is set with an unbounded queue there will be a
@@ -42,7 +42,7 @@ public class SimpleStorageProtocolResolver implements ProtocolResolver, Initiali
 	 */
 	private TaskExecutor taskExecutor;
 
-	public SimpleStorageProtocolResolver(AmazonS3 amazonS3) {
+	public SimpleStorageProtocolResolver(S3Client amazonS3) {
 		this.amazonS3 = AmazonS3ProxyFactory.createProxy(amazonS3);
 	}
 
@@ -72,7 +72,7 @@ public class SimpleStorageProtocolResolver implements ProtocolResolver, Initiali
 		}
 	}
 
-	public AmazonS3 getAmazonS3() {
+	public S3Client getAmazonS3() {
 		return this.amazonS3;
 	}
 

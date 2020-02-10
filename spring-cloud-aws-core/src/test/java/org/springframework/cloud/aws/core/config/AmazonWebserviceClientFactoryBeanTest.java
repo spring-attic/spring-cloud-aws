@@ -16,9 +16,9 @@
 
 package org.springframework.cloud.aws.core.config;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
 import org.junit.Test;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 
 import org.springframework.cloud.aws.core.region.StaticRegionProvider;
 
@@ -30,32 +30,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AmazonWebserviceClientFactoryBeanTest {
 
 	@Test
-	public void getObject_withCustomRegion_returnsClientWithCustomRegion()
-			throws Exception {
-
-		// Arrange
-		AmazonWebserviceClientFactoryBean<AmazonTestWebserviceClient> factoryBean = new AmazonWebserviceClientFactoryBean<>(
-				AmazonTestWebserviceClient.class,
-				new AWSStaticCredentialsProvider(new BasicAWSCredentials("aaa", "bbb")));
-		factoryBean.setCustomRegion("eu-west-1");
-
-		// Act
-		factoryBean.afterPropertiesSet();
-		AmazonTestWebserviceClient webserviceClient = factoryBean.getObject();
-
-		// Assert
-		assertThat(webserviceClient.getRegion().getName()).isEqualTo("eu-west-1");
-
-	}
-
-	@Test
 	public void getObject_withRegionProvider_returnsClientWithRegionReturnedByProvider()
 			throws Exception {
 
 		// Arrange
 		AmazonWebserviceClientFactoryBean<AmazonTestWebserviceClient> factoryBean = new AmazonWebserviceClientFactoryBean<>(
-				AmazonTestWebserviceClient.class,
-				new AWSStaticCredentialsProvider(new BasicAWSCredentials("aaa", "bbb")));
+				AmazonTestWebserviceClient.class, StaticCredentialsProvider
+						.create(AwsBasicCredentials.create("aaa", "bbb")));
 		factoryBean.setRegionProvider(new StaticRegionProvider("eu-west-1"));
 
 		// Act
@@ -63,7 +44,7 @@ public class AmazonWebserviceClientFactoryBeanTest {
 		AmazonTestWebserviceClient webserviceClient = factoryBean.getObject();
 
 		// Assert
-		assertThat(webserviceClient.getRegion().getName()).isEqualTo("eu-west-1");
+		assertThat(webserviceClient.getRegion().id()).isEqualTo("eu-west-1");
 
 	}
 

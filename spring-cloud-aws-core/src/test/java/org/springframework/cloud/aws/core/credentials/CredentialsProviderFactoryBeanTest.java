@@ -18,12 +18,12 @@ package org.springframework.cloud.aws.core.credentials;
 
 import java.util.Arrays;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -56,35 +56,34 @@ public class CredentialsProviderFactoryBeanTest {
 		credentialsProviderFactoryBean.afterPropertiesSet();
 
 		// Act
-		AWSCredentialsProvider credentialsProvider = credentialsProviderFactoryBean
+		AwsCredentialsProvider credentialsProvider = credentialsProviderFactoryBean
 				.getObject();
 
 		// Assert
 		assertThat(credentialsProvider).isNotNull();
-		assertThat(
-				DefaultAWSCredentialsProviderChain.class.isInstance(credentialsProvider))
-						.isTrue();
+		assertThat(DefaultCredentialsProvider.class.isInstance(credentialsProvider))
+				.isTrue();
 	}
 
 	@Test
 	public void testCreateWithMultiple() throws Exception {
-		AWSCredentialsProvider first = mock(AWSCredentialsProvider.class);
-		AWSCredentialsProvider second = mock(AWSCredentialsProvider.class);
+		AwsCredentialsProvider first = mock(AwsCredentialsProvider.class);
+		AwsCredentialsProvider second = mock(AwsCredentialsProvider.class);
 
 		CredentialsProviderFactoryBean credentialsProviderFactoryBean = new CredentialsProviderFactoryBean(
 				Arrays.asList(first, second));
 		credentialsProviderFactoryBean.afterPropertiesSet();
 
-		AWSCredentialsProvider provider = credentialsProviderFactoryBean.getObject();
+		AwsCredentialsProvider provider = credentialsProviderFactoryBean.getObject();
 
-		BasicAWSCredentials foo = new BasicAWSCredentials("foo", "foo");
-		BasicAWSCredentials bar = new BasicAWSCredentials("bar", "bar");
+		AwsBasicCredentials foo = AwsBasicCredentials.create("foo", "foo");
+		AwsBasicCredentials bar = AwsBasicCredentials.create("bar", "bar");
 
-		when(first.getCredentials()).thenReturn(null, foo);
-		when(second.getCredentials()).thenReturn(bar);
+		when(first.resolveCredentials()).thenReturn(null, foo);
+		when(second.resolveCredentials()).thenReturn(bar);
 
-		assertThat(provider.getCredentials()).isEqualTo(bar);
-		assertThat(provider.getCredentials()).isEqualTo(foo);
+		assertThat(provider.resolveCredentials()).isEqualTo(bar);
+		assertThat(provider.resolveCredentials()).isEqualTo(foo);
 	}
 
 }

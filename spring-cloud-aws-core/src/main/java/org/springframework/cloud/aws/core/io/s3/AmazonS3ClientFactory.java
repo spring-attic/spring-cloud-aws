@@ -17,16 +17,12 @@
 package org.springframework.cloud.aws.core.io.s3;
 
 import java.lang.reflect.Field;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.AmazonS3URI;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3ClientBuilder;
 
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
@@ -34,7 +30,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * {@link AmazonS3} client factory that create clients for other regions based on the
+ * {@link S3Client} client factory that create clients for other regions based on the
  * source client and a endpoint url. Caches clients per region to enable re-use on a
  * region base.
  *
@@ -45,13 +41,13 @@ public class AmazonS3ClientFactory {
 
 	private static final String CREDENTIALS_PROVIDER_FIELD_NAME = "awsCredentialsProvider";
 
-	private final ConcurrentHashMap<String, AmazonS3> clientCache = new ConcurrentHashMap<>(
-			Regions.values().length);
+	private final ConcurrentHashMap<String, S3Client> clientCache = new ConcurrentHashMap<>(
+			Region.regions().size());
 
 	private final Field credentialsProviderField;
 
 	public AmazonS3ClientFactory() {
-		this.credentialsProviderField = ReflectionUtils.findField(AmazonS3Client.class,
+		this.credentialsProviderField = ReflectionUtils.findField(S3Client.class,
 				CREDENTIALS_PROVIDER_FIELD_NAME);
 		Assert.notNull(this.credentialsProviderField,
 				"Credentials Provider field not found, this class does not work with the current "
@@ -59,23 +55,7 @@ public class AmazonS3ClientFactory {
 		ReflectionUtils.makeAccessible(this.credentialsProviderField);
 	}
 
-	private static String getRegion(String endpointUrl) {
-		Assert.notNull(endpointUrl, "Endpoint Url must not be null");
-		try {
-			URI uri = new URI(endpointUrl);
-			if ("s3.amazonaws.com".equals(uri.getHost())) {
-				return Regions.DEFAULT_REGION.getName();
-			}
-			else {
-				return new AmazonS3URI(endpointUrl).getRegion();
-			}
-		}
-		catch (URISyntaxException e) {
-			throw new RuntimeException("Malformed URL received for endpoint", e);
-		}
-	}
-
-	private static AmazonS3Client getAmazonS3ClientFromProxy(AmazonS3 amazonS3) {
+	private static S3Client getAmazonS3ClientFromProxy(S3Client amazonS3) {
 		if (AopUtils.isAopProxy(amazonS3)) {
 			Advised advised = (Advised) amazonS3;
 			Object target = null;
@@ -85,42 +65,38 @@ public class AmazonS3ClientFactory {
 			catch (Exception e) {
 				return null;
 			}
-			return target instanceof AmazonS3Client ? (AmazonS3Client) target : null;
+			return target instanceof S3Client ? (S3Client) target : null;
 		}
 		else {
-			return amazonS3 instanceof AmazonS3Client ? (AmazonS3Client) amazonS3 : null;
+			return amazonS3 instanceof S3Client ? (S3Client) amazonS3 : null;
 		}
 	}
 
-	public AmazonS3 createClientForEndpointUrl(AmazonS3 prototype, String endpointUrl) {
+	public S3Client createClientForRegion(S3Client prototype, String region) {
 		Assert.notNull(prototype, "AmazonS3 must not be null");
-		Assert.notNull(endpointUrl, "Endpoint Url must not be null");
-
-		String region = getRegion(endpointUrl);
-		Assert.notNull(region,
-				"Error detecting region from endpoint url:'" + endpointUrl + "'");
+		Assert.notNull(region, "Region must not be null");
 
 		if (!this.clientCache.containsKey(region)) {
-			AmazonS3ClientBuilder amazonS3ClientBuilder = buildAmazonS3ForRegion(
-					prototype, region);
+			S3ClientBuilder amazonS3ClientBuilder = buildAmazonS3ForRegion(prototype,
+					Region.of(region));
 			this.clientCache.putIfAbsent(region, amazonS3ClientBuilder.build());
 		}
 
 		return this.clientCache.get(region);
 	}
 
-	private AmazonS3ClientBuilder buildAmazonS3ForRegion(AmazonS3 prototype,
-			String region) {
-		AmazonS3ClientBuilder clientBuilder = AmazonS3ClientBuilder.standard();
+	// TODO SDK2 migration: find a different solution to use the same credentials provider.
+	private S3ClientBuilder buildAmazonS3ForRegion(S3Client prototype, Region region) {
+		S3ClientBuilder clientBuilder = S3Client.builder();
 
-		AmazonS3Client target = getAmazonS3ClientFromProxy(prototype);
+		S3Client target = getAmazonS3ClientFromProxy(prototype);
 		if (target != null) {
-			AWSCredentialsProvider awsCredentialsProvider = (AWSCredentialsProvider) ReflectionUtils
+			AwsCredentialsProvider awsCredentialsProvider = (AwsCredentialsProvider) ReflectionUtils
 					.getField(this.credentialsProviderField, target);
-			clientBuilder.withCredentials(awsCredentialsProvider);
+			clientBuilder.credentialsProvider(awsCredentialsProvider);
 		}
 
-		return clientBuilder.withRegion(region);
+		return clientBuilder.region(region);
 	}
 
 }

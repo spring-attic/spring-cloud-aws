@@ -23,10 +23,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.util.EC2MetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
 
 import org.springframework.beans.factory.config.PlaceholderConfigurerSupport;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -104,7 +104,7 @@ public class AmazonEc2InstanceDataPropertySource
 		try {
 			return EC2MetadataUtils.getData(EC2_METADATA_ROOT + "/" + name);
 		}
-		catch (AmazonClientException e) {
+		catch (SdkClientException e) {
 			// Suppress exception if we are not able to contact the service,
 			// because that is quite often the case if we run in unit tests outside the
 			// environment.
@@ -122,7 +122,7 @@ public class AmazonEc2InstanceDataPropertySource
 			try {
 				userData = EC2MetadataUtils.getUserData();
 			}
-			catch (AmazonClientException e) {
+			catch (SdkClientException e) {
 				// Suppress exception if we are not able to contact the service,
 				// because that is quite often the case if we run in unit tests outside
 				// the environment.

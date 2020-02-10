@@ -16,15 +16,13 @@
 
 package org.springframework.cloud.aws.core.env.stack.config;
 
-import java.util.Collections;
-
-import com.amazonaws.services.cloudformation.AmazonCloudFormation;
-import com.amazonaws.services.cloudformation.model.DescribeStackResourcesRequest;
-import com.amazonaws.services.cloudformation.model.DescribeStackResourcesResult;
-import com.amazonaws.services.ec2.AmazonEC2;
-import com.amazonaws.services.ec2.model.DescribeTagsRequest;
-import com.amazonaws.services.ec2.model.DescribeTagsResult;
-import com.amazonaws.services.ec2.model.Filter;
+import software.amazon.awssdk.services.cloudformation.CloudFormationClient;
+import software.amazon.awssdk.services.cloudformation.model.DescribeStackResourcesRequest;
+import software.amazon.awssdk.services.cloudformation.model.DescribeStackResourcesResponse;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.DescribeTagsRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeTagsResponse;
+import software.amazon.awssdk.services.ec2.model.Filter;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cloud.aws.core.env.ec2.AmazonEc2InstanceIdProvider;
@@ -41,16 +39,16 @@ import org.springframework.util.Assert;
 public class AutoDetectingStackNameProvider
 		implements StackNameProvider, InitializingBean {
 
-	private final AmazonCloudFormation amazonCloudFormationClient;
+	private final CloudFormationClient amazonCloudFormationClient;
 
-	private final AmazonEC2 amazonEc2Client;
+	private final Ec2Client amazonEc2Client;
 
 	private final InstanceIdProvider instanceIdProvider;
 
 	private String stackName;
 
 	private AutoDetectingStackNameProvider(
-			AmazonCloudFormation amazonCloudFormationClient, AmazonEC2 amazonEc2Client,
+			CloudFormationClient amazonCloudFormationClient, Ec2Client amazonEc2Client,
 			InstanceIdProvider instanceIdProvider) {
 		this.amazonCloudFormationClient = amazonCloudFormationClient;
 		this.amazonEc2Client = amazonEc2Client;
@@ -58,8 +56,8 @@ public class AutoDetectingStackNameProvider
 		afterPropertiesSet();
 	}
 
-	public AutoDetectingStackNameProvider(AmazonCloudFormation amazonCloudFormationClient,
-			AmazonEC2 amazonEc2Client) {
+	public AutoDetectingStackNameProvider(CloudFormationClient amazonCloudFormationClient,
+			Ec2Client amazonEc2Client) {
 		this(amazonCloudFormationClient, amazonEc2Client,
 				new AmazonEc2InstanceIdProvider());
 	}
@@ -83,29 +81,29 @@ public class AutoDetectingStackNameProvider
 	private String autoDetectStackName(String instanceId) {
 
 		Assert.notNull(instanceId, "No valid instance id defined");
-		DescribeStackResourcesResult describeStackResourcesResult = this.amazonCloudFormationClient
-				.describeStackResources(new DescribeStackResourcesRequest()
-						.withPhysicalResourceId(instanceId));
+		DescribeStackResourcesResponse describeStackResourcesResult = this.amazonCloudFormationClient
+				.describeStackResources(DescribeStackResourcesRequest.builder()
+						.physicalResourceId(instanceId).build());
 
 		if (describeStackResourcesResult != null
-				&& describeStackResourcesResult.getStackResources() != null
-				&& !describeStackResourcesResult.getStackResources().isEmpty()) {
-			return describeStackResourcesResult.getStackResources().get(0).getStackName();
+				&& describeStackResourcesResult.stackResources() != null
+				&& !describeStackResourcesResult.stackResources().isEmpty()) {
+			return describeStackResourcesResult.stackResources().get(0).stackName();
 		}
 
 		if (this.amazonEc2Client != null) {
-			DescribeTagsResult describeTagsResult = this.amazonEc2Client
-					.describeTags(new DescribeTagsRequest().withFilters(
-							new Filter("resource-id",
-									Collections.singletonList(instanceId)),
-							new Filter("resource-type",
-									Collections.singletonList("instance")),
-							new Filter("key", Collections
-									.singletonList("aws:cloudformation:stack-name"))));
+			DescribeTagsResponse describeTagsResult = this.amazonEc2Client
+					.describeTags(DescribeTagsRequest.builder().filters(
+							Filter.builder().name("resource-id").build(),
+							Filter.builder().name("resource-type").values("instance")
+									.build(),
+							Filter.builder().name("key")
+									.values("aws:cloudformation:stack-name").build())
+							.build());
 
-			if (describeTagsResult != null && describeTagsResult.getTags() != null
-					&& !describeTagsResult.getTags().isEmpty()) {
-				return describeTagsResult.getTags().get(0).getValue();
+			if (describeTagsResult != null && describeTagsResult.tags() != null
+					&& !describeTagsResult.tags().isEmpty()) {
+				return describeTagsResult.tags().get(0).value();
 			}
 		}
 

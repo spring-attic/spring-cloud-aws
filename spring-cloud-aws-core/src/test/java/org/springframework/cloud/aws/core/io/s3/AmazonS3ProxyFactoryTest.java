@@ -19,13 +19,11 @@ package org.springframework.cloud.aws.core.io.s3;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
 
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
@@ -43,10 +41,10 @@ public class AmazonS3ProxyFactoryTest {
 	@Test
 	public void verifyBasicAdvice() throws Exception {
 
-		AmazonS3 amazonS3 = mock(AmazonS3.class);
+		S3Client amazonS3 = mock(S3Client.class);
 		assertThat(AopUtils.isAopProxy(amazonS3)).isFalse();
 
-		AmazonS3 proxy = AmazonS3ProxyFactory.createProxy(amazonS3);
+		S3Client proxy = AmazonS3ProxyFactory.createProxy(amazonS3);
 		assertThat(AopUtils.isAopProxy(proxy)).isTrue();
 
 		Advised advised = (Advised) proxy;
@@ -59,9 +57,9 @@ public class AmazonS3ProxyFactoryTest {
 	@Test
 	public void verifyDoubleWrappingHandled() throws Exception {
 
-		AmazonS3 amazonS3 = mock(AmazonS3.class);
+		S3Client amazonS3 = mock(S3Client.class);
 
-		AmazonS3 proxy = AmazonS3ProxyFactory
+		S3Client proxy = AmazonS3ProxyFactory
 				.createProxy(AmazonS3ProxyFactory.createProxy(amazonS3));
 		assertThat(AopUtils.isAopProxy(proxy)).isTrue();
 
@@ -75,32 +73,31 @@ public class AmazonS3ProxyFactoryTest {
 	@Test
 	public void verifyPolymorphicHandling() {
 
-		AmazonS3 amazonS3 = mock(AmazonS3.class);
-		AmazonS3 proxy1 = AmazonS3ProxyFactory.createProxy(amazonS3);
+		S3Client amazonS3 = mock(S3Client.class);
+		S3Client proxy1 = AmazonS3ProxyFactory.createProxy(amazonS3);
 
-		assertThat(AmazonS3.class.isAssignableFrom(proxy1.getClass())).isTrue();
-		assertThat(AmazonS3Client.class.isAssignableFrom(proxy1.getClass())).isFalse();
+		assertThat(S3Client.class.isAssignableFrom(proxy1.getClass())).isTrue();
+		assertThat(S3Client.class.isAssignableFrom(proxy1.getClass())).isFalse();
 
-		AmazonS3 amazonS3Client = AmazonS3ClientBuilder.standard()
-				.withRegion(Regions.DEFAULT_REGION).build();
-		AmazonS3 proxy2 = AmazonS3ProxyFactory.createProxy(amazonS3Client);
+		S3Client amazonS3Client = S3Client.builder().region(Region.US_WEST_2).build();
+		S3Client proxy2 = AmazonS3ProxyFactory.createProxy(amazonS3Client);
 
-		assertThat(AmazonS3.class.isAssignableFrom(proxy2.getClass())).isTrue();
+		assertThat(S3Client.class.isAssignableFrom(proxy2.getClass())).isTrue();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void verifyAddingRedirectAdviceToExistingProxy() {
 
-		AmazonS3 amazonS3 = mock(AmazonS3.class);
+		S3Client amazonS3 = mock(S3Client.class);
 
 		ProxyFactory factory = new ProxyFactory(amazonS3);
 		factory.addAdvice(new TestAdvice());
-		AmazonS3 proxy1 = (AmazonS3) factory.getProxy();
+		S3Client proxy1 = (S3Client) factory.getProxy();
 
 		assertThat(((Advised) proxy1).getAdvisors().length).isEqualTo(1);
 
-		AmazonS3 proxy2 = AmazonS3ProxyFactory.createProxy(proxy1);
+		S3Client proxy2 = AmazonS3ProxyFactory.createProxy(proxy1);
 		Advised advised = (Advised) proxy2;
 
 		assertThat(advised.getAdvisors().length).isEqualTo(2);

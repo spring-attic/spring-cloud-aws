@@ -16,11 +16,10 @@
 
 package org.springframework.cloud.aws.core.naming;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import software.amazon.awssdk.regions.Region;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.aws.core.naming.AmazonResourceName.Builder;
@@ -84,7 +83,7 @@ public class AmazonResourceNameTest {
 	public void testDynamoDbBuilder() {
 		Builder builder = new Builder();
 		builder.withService("dynamodb");
-		builder.withRegion(Region.getRegion(Regions.US_EAST_1));
+		builder.withRegion(Region.US_EAST_1);
 		builder.withAccount("123456789012");
 		builder.withResourceType("table");
 		builder.withResourceName("books_table");
@@ -97,7 +96,7 @@ public class AmazonResourceNameTest {
 	public void testElasticBeansTalkBuilder() {
 		Builder builder = new Builder();
 		builder.withService("elasticbeanstalk");
-		builder.withRegion(Region.getRegion(Regions.US_EAST_1));
+		builder.withRegion(Region.US_EAST_1);
 		builder.withResourceType("solutionstack");
 		builder.withResourceName("32bit Amazon Linux running Tomcat 7");
 		builder.withResourceTypeDelimiter("/");

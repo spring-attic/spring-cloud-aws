@@ -16,11 +16,10 @@
 
 package org.springframework.cloud.aws.core.region;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import software.amazon.awssdk.regions.Region;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,7 +39,7 @@ public class Ec2MetadataRegionProviderTest {
 
 			@Override
 			protected Region getCurrentRegion() {
-				return Region.getRegion(Regions.EU_WEST_1);
+				return Region.EU_WEST_1;
 			}
 		};
 
@@ -48,7 +47,7 @@ public class Ec2MetadataRegionProviderTest {
 		Region region = regionProvider.getRegion();
 
 		// Assert
-		assertThat(region).isEqualTo(Region.getRegion(Regions.EU_WEST_1));
+		assertThat(region).isEqualTo(Region.EU_WEST_1);
 	}
 
 	@Test

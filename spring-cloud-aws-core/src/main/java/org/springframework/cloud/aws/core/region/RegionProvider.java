@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.aws.core.region;
 
-import com.amazonaws.regions.Region;
+import software.amazon.awssdk.regions.Region;
 
 /**
  * Provider that can be used to retrieve the configured {@link Region}. A region can be

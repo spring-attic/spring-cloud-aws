@@ -19,11 +19,11 @@ package org.springframework.cloud.aws.core.env.stack.config;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.amazonaws.services.cloudformation.AmazonCloudFormation;
-import com.amazonaws.services.cloudformation.model.DescribeStacksRequest;
-import com.amazonaws.services.cloudformation.model.DescribeStacksResult;
-import com.amazonaws.services.cloudformation.model.Stack;
-import com.amazonaws.services.cloudformation.model.Tag;
+import software.amazon.awssdk.services.cloudformation.CloudFormationClient;
+import software.amazon.awssdk.services.cloudformation.model.DescribeStacksRequest;
+import software.amazon.awssdk.services.cloudformation.model.DescribeStacksResponse;
+import software.amazon.awssdk.services.cloudformation.model.Stack;
+import software.amazon.awssdk.services.cloudformation.model.Tag;
 
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
@@ -33,11 +33,11 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 public class StackResourceUserTagsFactoryBean
 		extends AbstractFactoryBean<Map<String, String>> {
 
-	private final AmazonCloudFormation amazonCloudFormation;
+	private final CloudFormationClient amazonCloudFormation;
 
 	private final StackNameProvider stackNameProvider;
 
-	public StackResourceUserTagsFactoryBean(AmazonCloudFormation amazonCloudFormation,
+	public StackResourceUserTagsFactoryBean(CloudFormationClient amazonCloudFormation,
 			StackNameProvider stackNameProvider) {
 		this.amazonCloudFormation = amazonCloudFormation;
 		this.stackNameProvider = stackNameProvider;
@@ -51,12 +51,12 @@ public class StackResourceUserTagsFactoryBean
 	@Override
 	protected Map<String, String> createInstance() throws Exception {
 		LinkedHashMap<String, String> userTags = new LinkedHashMap<>();
-		DescribeStacksResult stacksResult = this.amazonCloudFormation
-				.describeStacks(new DescribeStacksRequest()
-						.withStackName(this.stackNameProvider.getStackName()));
-		for (Stack stack : stacksResult.getStacks()) {
-			for (Tag tag : stack.getTags()) {
-				userTags.put(tag.getKey(), tag.getValue());
+		DescribeStacksResponse stacksResult = this.amazonCloudFormation
+				.describeStacks(DescribeStacksRequest.builder()
+						.stackName(this.stackNameProvider.getStackName()).build());
+		for (Stack stack : stacksResult.stacks()) {
+			for (Tag tag : stack.tags()) {
+				userTags.put(tag.key(), tag.value());
 			}
 		}
 		return userTags;
