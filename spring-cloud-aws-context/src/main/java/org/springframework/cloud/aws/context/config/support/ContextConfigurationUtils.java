@@ -16,11 +16,11 @@
 
 package org.springframework.cloud.aws.context.config.support;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.auth.EC2ContainerCredentialsProviderWrapper;
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -89,7 +89,7 @@ public final class ContextConfigurationUtils {
 	public static void registerDefaultAWSCredentialsProvider(
 			BeanDefinitionRegistry registry) {
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder
-				.rootBeanDefinition(DefaultAWSCredentialsProviderChain.class);
+				.rootBeanDefinition(DefaultCredentialsProvider.class);
 		registry.registerBeanDefinition(
 				CredentialsProviderFactoryBean.CREDENTIALS_PROVIDER_BEAN_NAME,
 				builder.getBeanDefinition());
@@ -107,12 +107,12 @@ public final class ContextConfigurationUtils {
 
 		if (StringUtils.hasText(accessKey)) {
 			BeanDefinitionBuilder credentials = BeanDefinitionBuilder
-					.rootBeanDefinition(BasicAWSCredentials.class);
+					.rootBeanDefinition(AwsBasicCredentials.class);
 			credentials.addConstructorArgValue(accessKey);
 			credentials.addConstructorArgValue(secretKey);
 
 			BeanDefinitionBuilder provider = BeanDefinitionBuilder
-					.rootBeanDefinition(AWSStaticCredentialsProvider.class);
+					.rootBeanDefinition(StaticCredentialsProvider.class);
 			provider.addConstructorArgValue(credentials.getBeanDefinition());
 
 			awsCredentialsProviders.add(provider.getBeanDefinition());
@@ -120,7 +120,7 @@ public final class ContextConfigurationUtils {
 
 		if (instanceProfile) {
 			awsCredentialsProviders.add(BeanDefinitionBuilder
-					.rootBeanDefinition(EC2ContainerCredentialsProviderWrapper.class)
+					.rootBeanDefinition(InstanceProfileCredentialsProvider.class)
 					.getBeanDefinition());
 		}
 

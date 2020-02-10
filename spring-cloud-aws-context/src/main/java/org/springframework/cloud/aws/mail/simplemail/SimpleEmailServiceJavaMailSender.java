@@ -20,7 +20,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -30,12 +29,13 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
-import com.amazonaws.services.simpleemail.model.RawMessage;
-import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
-import com.amazonaws.services.simpleemail.model.SendRawEmailResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.services.ses.SesClient;
+import software.amazon.awssdk.services.ses.model.RawMessage;
+import software.amazon.awssdk.services.ses.model.SendRawEmailRequest;
+import software.amazon.awssdk.services.ses.model.SendRawEmailResponse;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.mail.MailException;
@@ -73,8 +73,7 @@ public class SimpleEmailServiceJavaMailSender extends SimpleEmailServiceMailSend
 
 	private FileTypeMap defaultFileTypeMap;
 
-	public SimpleEmailServiceJavaMailSender(
-			AmazonSimpleEmailService amazonSimpleEmailService) {
+	public SimpleEmailServiceJavaMailSender(SesClient amazonSimpleEmailService) {
 		super(amazonSimpleEmailService);
 	}
 
@@ -205,13 +204,13 @@ public class SimpleEmailServiceJavaMailSender extends SimpleEmailServiceMailSend
 		for (MimeMessage mimeMessage : mimeMessages) {
 			try {
 				RawMessage rm = createRawMessage(mimeMessage);
-				SendRawEmailResult sendRawEmailResult = getEmailService()
-						.sendRawEmail(new SendRawEmailRequest(rm));
+				SendRawEmailResponse sendRawEmailResult = getEmailService().sendRawEmail(
+						SendRawEmailRequest.builder().rawMessage(rm).build());
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Message with id: {} successfully send",
-							sendRawEmailResult.getMessageId());
+							sendRawEmailResult.messageId());
 				}
-				mimeMessage.setHeader("Message-ID", sendRawEmailResult.getMessageId());
+				mimeMessage.setHeader("Message-ID", sendRawEmailResult.messageId());
 			}
 			catch (Exception e) {
 				// Ignore Exception because we are collecting and throwing all if any
@@ -258,7 +257,8 @@ public class SimpleEmailServiceJavaMailSender extends SimpleEmailServiceMailSend
 		catch (MessagingException e) {
 			throw new MailParseException(e);
 		}
-		return new RawMessage(ByteBuffer.wrap(out.toByteArray()));
+		return RawMessage.builder().data(SdkBytes.fromByteArray(out.toByteArray()))
+				.build();
 	}
 
 }

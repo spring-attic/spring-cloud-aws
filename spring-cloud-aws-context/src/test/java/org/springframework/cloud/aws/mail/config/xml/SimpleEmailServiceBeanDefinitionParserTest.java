@@ -19,8 +19,8 @@ package org.springframework.cloud.aws.mail.config.xml;
 import java.lang.reflect.Field;
 import java.net.URI;
 
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
 import org.junit.Test;
+import software.amazon.awssdk.services.ses.SesClient;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.mail.MailSender;
@@ -37,9 +37,9 @@ import static org.springframework.util.ReflectionUtils.makeAccessible;
  */
 public class SimpleEmailServiceBeanDefinitionParserTest {
 
-	private static String getEndpointUrlFromWebserviceClient(
-			AmazonSimpleEmailServiceClient client) throws Exception {
-		Field field = findField(AmazonSimpleEmailServiceClient.class, "endpoint");
+	private static String getEndpointUrlFromWebserviceClient(SesClient client)
+			throws Exception {
+		Field field = findField(SesClient.class, "endpoint");
 		makeAccessible(field);
 		URI endpointUri = (URI) field.get(client);
 		return endpointUri.toASCIIString();
@@ -53,9 +53,8 @@ public class SimpleEmailServiceBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-context.xml", getClass());
 
 		// Act
-		AmazonSimpleEmailServiceClient emailService = context.getBean(
-				getBeanName(AmazonSimpleEmailServiceClient.class.getName()),
-				AmazonSimpleEmailServiceClient.class);
+		SesClient emailService = context.getBean(getBeanName(SesClient.class.getName()),
+				SesClient.class);
 
 		MailSender mailSender = context.getBean(MailSender.class);
 
@@ -74,9 +73,8 @@ public class SimpleEmailServiceBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-region.xml", getClass());
 
 		// Act
-		AmazonSimpleEmailServiceClient emailService = context.getBean(
-				getBeanName(AmazonSimpleEmailServiceClient.class.getName()),
-				AmazonSimpleEmailServiceClient.class);
+		SesClient emailService = context.getBean(getBeanName(SesClient.class.getName()),
+				SesClient.class);
 
 		MailSender mailSender = context.getBean(MailSender.class);
 
@@ -95,9 +93,8 @@ public class SimpleEmailServiceBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-regionProvider.xml", getClass());
 
 		// Act
-		AmazonSimpleEmailServiceClient emailService = context.getBean(
-				getBeanName(AmazonSimpleEmailServiceClient.class.getName()),
-				AmazonSimpleEmailServiceClient.class);
+		SesClient emailService = context.getBean(getBeanName(SesClient.class.getName()),
+				SesClient.class);
 
 		MailSender mailSender = context.getBean(MailSender.class);
 
@@ -116,8 +113,7 @@ public class SimpleEmailServiceBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-ses-client.xml", getClass());
 
 		// Act
-		AmazonSimpleEmailServiceClient emailService = context
-				.getBean("emailServiceClient", AmazonSimpleEmailServiceClient.class);
+		SesClient emailService = context.getBean("emailServiceClient", SesClient.class);
 
 		MailSender mailSender = context.getBean(MailSender.class);
 

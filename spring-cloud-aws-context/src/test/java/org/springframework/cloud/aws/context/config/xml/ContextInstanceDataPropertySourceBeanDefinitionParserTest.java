@@ -18,12 +18,12 @@ package org.springframework.cloud.aws.context.config.xml;
 
 import java.lang.reflect.Field;
 
-import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import software.amazon.awssdk.services.ec2.Ec2Client;
 
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanReference;
@@ -107,7 +107,7 @@ public class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
 		assertThat(beanFactory.containsBeanDefinition("myUserTags")).isTrue();
 		assertThat(beanFactory
 				.containsBeanDefinition(AmazonWebserviceClientConfigurationUtils
-						.getBeanName(AmazonEC2Client.class.getName()))).isTrue();
+						.getBeanName(Ec2Client.class.getName()))).isTrue();
 	}
 
 	@Test
@@ -131,7 +131,7 @@ public class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
 		assertThat(beanReference.getBeanName()).isEqualTo("amazonEC2Client");
 		assertThat(beanFactory
 				.containsBeanDefinition(AmazonWebserviceClientConfigurationUtils
-						.getBeanName(AmazonEC2Client.class.getName()))).isFalse();
+						.getBeanName(Ec2Client.class.getName()))).isFalse();
 	}
 
 	// @checkstyle:off

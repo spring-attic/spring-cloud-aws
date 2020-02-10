@@ -16,8 +16,8 @@
 
 package org.springframework.cloud.aws.context.support.io;
 
-import com.amazonaws.services.s3.AmazonS3;
 import org.junit.Test;
+import software.amazon.awssdk.services.s3.S3Client;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -40,7 +40,7 @@ public class SimpleStorageProtocolResolverConfigurerTest {
 
 	private static void configureApplicationContext(
 			StaticApplicationContext staticApplicationContext) {
-		AmazonS3 amazonS3Mock = mock(AmazonS3.class);
+		S3Client amazonS3Mock = mock(S3Client.class);
 
 		AnnotationConfigUtils
 				.registerAnnotationConfigProcessors(staticApplicationContext);

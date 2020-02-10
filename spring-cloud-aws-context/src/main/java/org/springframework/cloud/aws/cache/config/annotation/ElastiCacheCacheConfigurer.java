@@ -19,7 +19,7 @@ package org.springframework.cloud.aws.cache.config.annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.amazonaws.services.elasticache.AmazonElastiCache;
+import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -34,7 +34,7 @@ import org.springframework.cloud.aws.core.env.ResourceIdResolver;
  */
 public class ElastiCacheCacheConfigurer extends CachingConfigurerSupport {
 
-	private final AmazonElastiCache amazonElastiCache;
+	private final ElastiCacheClient amazonElastiCache;
 
 	private final ResourceIdResolver resourceIdResolver;
 
@@ -42,7 +42,7 @@ public class ElastiCacheCacheConfigurer extends CachingConfigurerSupport {
 
 	private final List<CacheFactory> cacheFactories;
 
-	public ElastiCacheCacheConfigurer(AmazonElastiCache amazonElastiCache,
+	public ElastiCacheCacheConfigurer(ElastiCacheClient amazonElastiCache,
 			ResourceIdResolver resourceIdResolver, List<String> cacheNames,
 			List<CacheFactory> cacheFactories) {
 		this.cacheNames = cacheNames;

@@ -18,13 +18,13 @@ package org.springframework.cloud.aws.cache;
 
 import java.util.List;
 
-import com.amazonaws.services.elasticache.AmazonElastiCache;
-import com.amazonaws.services.elasticache.model.CacheCluster;
-import com.amazonaws.services.elasticache.model.DescribeCacheClustersRequest;
-import com.amazonaws.services.elasticache.model.DescribeCacheClustersResult;
-import com.amazonaws.services.elasticache.model.Endpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
+import software.amazon.awssdk.services.elasticache.model.CacheCluster;
+import software.amazon.awssdk.services.elasticache.model.DescribeCacheClustersRequest;
+import software.amazon.awssdk.services.elasticache.model.DescribeCacheClustersResponse;
+import software.amazon.awssdk.services.elasticache.model.Endpoint;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
@@ -39,7 +39,7 @@ public class ElastiCacheFactoryBean extends AbstractFactoryBean<Cache> {
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(ElastiCacheFactoryBean.class);
 
-	private final AmazonElastiCache amazonElastiCache;
+	private final ElastiCacheClient amazonElastiCache;
 
 	private final String cacheClusterId;
 
@@ -47,7 +47,7 @@ public class ElastiCacheFactoryBean extends AbstractFactoryBean<Cache> {
 
 	private final List<? extends CacheFactory> cacheFactories;
 
-	public ElastiCacheFactoryBean(AmazonElastiCache amazonElastiCache,
+	public ElastiCacheFactoryBean(ElastiCacheClient amazonElastiCache,
 			String cacheClusterId, ResourceIdResolver resourceIdResolver,
 			List<? extends CacheFactory> cacheFactories) {
 		this.amazonElastiCache = amazonElastiCache;
@@ -56,24 +56,24 @@ public class ElastiCacheFactoryBean extends AbstractFactoryBean<Cache> {
 		this.cacheFactories = cacheFactories;
 	}
 
-	public ElastiCacheFactoryBean(AmazonElastiCache amazonElastiCache,
+	public ElastiCacheFactoryBean(ElastiCacheClient amazonElastiCache,
 			String cacheClusterId, List<CacheFactory> cacheFactories) {
 		this(amazonElastiCache, cacheClusterId, null, cacheFactories);
 	}
 
 	private static Endpoint getEndpointForCache(CacheCluster cacheCluster) {
-		if (cacheCluster.getConfigurationEndpoint() != null) {
-			return cacheCluster.getConfigurationEndpoint();
+		if (cacheCluster.configurationEndpoint() != null) {
+			return cacheCluster.configurationEndpoint();
 		}
 
-		if (!cacheCluster.getCacheNodes().isEmpty()) {
-			return cacheCluster.getCacheNodes().get(0).getEndpoint();
+		if (!cacheCluster.cacheNodes().isEmpty()) {
+			return cacheCluster.cacheNodes().get(0).endpoint();
 		}
 
 		throw new IllegalArgumentException(
 				"No Configuration Endpoint or Cache Node available to "
 						+ "receive address information for cluster:'"
-						+ cacheCluster.getCacheClusterId() + "'");
+						+ cacheCluster.cacheClusterId() + "'");
 	}
 
 	@Override
@@ -83,32 +83,31 @@ public class ElastiCacheFactoryBean extends AbstractFactoryBean<Cache> {
 
 	@Override
 	protected Cache createInstance() throws Exception {
-		DescribeCacheClustersRequest describeCacheClustersRequest = new DescribeCacheClustersRequest()
-				.withCacheClusterId(getCacheClusterName());
-		describeCacheClustersRequest.setShowCacheNodeInfo(true);
+		DescribeCacheClustersRequest describeCacheClustersRequest = DescribeCacheClustersRequest
+				.builder().cacheClusterId(getCacheClusterName()).showCacheNodeInfo(true)
+				.build();
 
-		DescribeCacheClustersResult describeCacheClustersResult = this.amazonElastiCache
+		DescribeCacheClustersResponse describeCacheClustersResult = this.amazonElastiCache
 				.describeCacheClusters(describeCacheClustersRequest);
 
-		CacheCluster cacheCluster = describeCacheClustersResult.getCacheClusters().get(0);
-		if (!"available".equals(cacheCluster.getCacheClusterStatus())) {
+		CacheCluster cacheCluster = describeCacheClustersResult.cacheClusters().get(0);
+		if (!"available".equals(cacheCluster.cacheClusterStatus())) {
 			LOGGER.warn(
 					"Cache cluster is not available now. Connection may fail during cache access. Current status is {}",
-					cacheCluster.getCacheClusterStatus());
+					cacheCluster.cacheClusterStatus());
 		}
 
 		Endpoint configurationEndpoint = getEndpointForCache(cacheCluster);
 
 		for (CacheFactory cacheFactory : this.cacheFactories) {
-			if (cacheFactory.isSupportingCacheArchitecture(cacheCluster.getEngine())) {
+			if (cacheFactory.isSupportingCacheArchitecture(cacheCluster.engine())) {
 				return cacheFactory.createCache(this.cacheClusterId,
-						configurationEndpoint.getAddress(),
-						configurationEndpoint.getPort());
+						configurationEndpoint.address(), configurationEndpoint.port());
 			}
 		}
 
 		throw new IllegalArgumentException(
-				"No CacheFactory configured for engine: " + cacheCluster.getEngine());
+				"No CacheFactory configured for engine: " + cacheCluster.engine());
 	}
 
 	@Override

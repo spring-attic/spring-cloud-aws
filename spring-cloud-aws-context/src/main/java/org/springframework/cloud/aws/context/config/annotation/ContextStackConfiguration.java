@@ -16,10 +16,9 @@
 
 package org.springframework.cloud.aws.context.config.annotation;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.services.cloudformation.AmazonCloudFormation;
-import com.amazonaws.services.cloudformation.AmazonCloudFormationClient;
-import com.amazonaws.services.ec2.AmazonEC2;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.services.cloudformation.CloudFormationClient;
+import software.amazon.awssdk.services.ec2.Ec2Client;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.aws.context.annotation.ConditionalOnMissingAmazonClient;
@@ -50,10 +49,10 @@ public class ContextStackConfiguration implements ImportAware {
 	private RegionProvider regionProvider;
 
 	@Autowired(required = false)
-	private AWSCredentialsProvider credentialsProvider;
+	private AwsCredentialsProvider credentialsProvider;
 
 	@Autowired(required = false)
-	private AmazonEC2 amazonEc2;
+	private Ec2Client amazonEc2;
 
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
@@ -67,7 +66,7 @@ public class ContextStackConfiguration implements ImportAware {
 
 	@Bean
 	public StackResourceRegistryFactoryBean stackResourceRegistryFactoryBean(
-			AmazonCloudFormation amazonCloudFormation) {
+			CloudFormationClient amazonCloudFormation) {
 		if (StringUtils.hasText(this.annotationAttributes.getString("stackName"))) {
 			return new StackResourceRegistryFactoryBean(amazonCloudFormation,
 					new StaticStackNameProvider(
@@ -81,9 +80,9 @@ public class ContextStackConfiguration implements ImportAware {
 	}
 
 	@Bean
-	@ConditionalOnMissingAmazonClient(AmazonCloudFormation.class)
-	public AmazonWebserviceClientFactoryBean<AmazonCloudFormationClient> amazonCloudFormation() {
-		return new AmazonWebserviceClientFactoryBean<>(AmazonCloudFormationClient.class,
+	@ConditionalOnMissingAmazonClient(CloudFormationClient.class)
+	public AmazonWebserviceClientFactoryBean<CloudFormationClient> amazonCloudFormation() {
+		return new AmazonWebserviceClientFactoryBean<>(CloudFormationClient.class,
 				this.credentialsProvider, this.regionProvider);
 	}
 

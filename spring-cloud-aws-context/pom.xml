@@ -54,13 +54,13 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-elasticache</artifactId>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>elasticache</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-ses</artifactId>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>ses</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<dependency>

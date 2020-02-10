@@ -19,16 +19,16 @@ package org.springframework.cloud.aws.mail.simplemail;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
-import com.amazonaws.services.simpleemail.model.Body;
-import com.amazonaws.services.simpleemail.model.Content;
-import com.amazonaws.services.simpleemail.model.Destination;
-import com.amazonaws.services.simpleemail.model.Message;
-import com.amazonaws.services.simpleemail.model.SendEmailRequest;
-import com.amazonaws.services.simpleemail.model.SendEmailResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.services.ses.SesClient;
+import software.amazon.awssdk.services.ses.model.Body;
+import software.amazon.awssdk.services.ses.model.Content;
+import software.amazon.awssdk.services.ses.model.Destination;
+import software.amazon.awssdk.services.ses.model.Message;
+import software.amazon.awssdk.services.ses.model.SendEmailRequest;
+import software.amazon.awssdk.services.ses.model.SendEmailResponse;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.mail.MailException;
@@ -50,10 +50,9 @@ public class SimpleEmailServiceMailSender implements MailSender, DisposableBean 
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(SimpleEmailServiceMailSender.class);
 
-	private final AmazonSimpleEmailService emailService;
+	private final SesClient emailService;
 
-	public SimpleEmailServiceMailSender(
-			AmazonSimpleEmailService amazonSimpleEmailService) {
+	public SimpleEmailServiceMailSender(SesClient amazonSimpleEmailService) {
 		this.emailService = amazonSimpleEmailService;
 	}
 
@@ -70,14 +69,14 @@ public class SimpleEmailServiceMailSender implements MailSender, DisposableBean 
 
 		for (SimpleMailMessage simpleMessage : simpleMailMessages) {
 			try {
-				SendEmailResult sendEmailResult = getEmailService()
+				SendEmailResponse sendEmailResult = getEmailService()
 						.sendEmail(prepareMessage(simpleMessage));
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Message with id: {} successfully send",
-							sendEmailResult.getMessageId());
+							sendEmailResult.messageId());
 				}
 			}
-			catch (AmazonClientException e) {
+			catch (SdkClientException e) {
 				// Ignore Exception because we are collecting and throwing all if any
 				// noinspection ThrowableResultOfMethodCallIgnored
 				failedMessages.put(simpleMessage, e);
@@ -91,36 +90,40 @@ public class SimpleEmailServiceMailSender implements MailSender, DisposableBean 
 
 	@Override
 	public final void destroy() throws Exception {
-		getEmailService().shutdown();
+		getEmailService().close();
 	}
 
-	protected AmazonSimpleEmailService getEmailService() {
+	protected SesClient getEmailService() {
 		return this.emailService;
 	}
 
 	private SendEmailRequest prepareMessage(SimpleMailMessage simpleMailMessage) {
-		Destination destination = new Destination();
-		destination.withToAddresses(simpleMailMessage.getTo());
+		Destination.Builder destination = Destination.builder();
+		destination.toAddresses(simpleMailMessage.getTo());
 
 		if (simpleMailMessage.getCc() != null) {
-			destination.withCcAddresses(simpleMailMessage.getCc());
+			destination.ccAddresses(simpleMailMessage.getCc());
 		}
 
 		if (simpleMailMessage.getBcc() != null) {
-			destination.withBccAddresses(simpleMailMessage.getBcc());
+			destination.bccAddresses(simpleMailMessage.getBcc());
 		}
 
-		Content subject = new Content(simpleMailMessage.getSubject());
-		Body body = new Body(new Content(simpleMailMessage.getText()));
+		Content subject = Content.builder().data(simpleMailMessage.getSubject()).build();
+		Body body = Body.builder()
+				.text(Content.builder().data(simpleMailMessage.getText()).build())
+				.build();
 
-		SendEmailRequest emailRequest = new SendEmailRequest(simpleMailMessage.getFrom(),
-				destination, new Message(subject, body));
+		SendEmailRequest.Builder emailRequest = SendEmailRequest.builder()
+				.destination(destination.build())
+				.message(Message.builder().subject(subject).body(body).build())
+				.source(simpleMailMessage.getFrom());
 
 		if (StringUtils.hasText(simpleMailMessage.getReplyTo())) {
-			emailRequest.withReplyToAddresses(simpleMailMessage.getReplyTo());
+			emailRequest.replyToAddresses(simpleMailMessage.getReplyTo());
 		}
 
-		return emailRequest;
+		return emailRequest.build();
 	}
 
 }

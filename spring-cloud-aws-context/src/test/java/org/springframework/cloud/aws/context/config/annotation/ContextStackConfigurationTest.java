@@ -18,17 +18,17 @@ package org.springframework.cloud.aws.context.config.annotation;
 
 import java.util.Collections;
 
-import com.amazonaws.services.cloudformation.AmazonCloudFormation;
-import com.amazonaws.services.cloudformation.model.DescribeStackResourcesRequest;
-import com.amazonaws.services.cloudformation.model.DescribeStackResourcesResult;
-import com.amazonaws.services.cloudformation.model.ListStackResourcesRequest;
-import com.amazonaws.services.cloudformation.model.ListStackResourcesResult;
-import com.amazonaws.services.cloudformation.model.StackResource;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
+import software.amazon.awssdk.services.cloudformation.CloudFormationClient;
+import software.amazon.awssdk.services.cloudformation.model.DescribeStackResourcesRequest;
+import software.amazon.awssdk.services.cloudformation.model.DescribeStackResourcesResponse;
+import software.amazon.awssdk.services.cloudformation.model.ListStackResourcesRequest;
+import software.amazon.awssdk.services.cloudformation.model.ListStackResourcesResponse;
+import software.amazon.awssdk.services.cloudformation.model.StackResource;
 
 import org.springframework.cloud.aws.context.MetaDataServer;
 import org.springframework.cloud.aws.core.env.stack.StackResourceRegistry;
@@ -96,17 +96,19 @@ public class ContextStackConfigurationTest {
 	static class ApplicationConfigurationWithEmptyStackName {
 
 		@Bean
-		public AmazonCloudFormation amazonCloudFormation() {
-			AmazonCloudFormation amazonCloudFormation = Mockito
-					.mock(AmazonCloudFormation.class);
-			Mockito.when(amazonCloudFormation.describeStackResources(
-					new DescribeStackResourcesRequest().withPhysicalResourceId("test")))
-					.thenReturn(new DescribeStackResourcesResult().withStackResources(
-							new StackResource().withStackName("testStack")));
+		public CloudFormationClient amazonCloudFormation() {
+			CloudFormationClient amazonCloudFormation = Mockito
+					.mock(CloudFormationClient.class);
+			Mockito.when(amazonCloudFormation
+					.describeStackResources(DescribeStackResourcesRequest.builder()
+							.physicalResourceId("test").build()))
+					.thenReturn(DescribeStackResourcesResponse.builder().stackResources(
+							StackResource.builder().stackName("testStack").build())
+							.build());
 			Mockito.when(amazonCloudFormation.listStackResources(
-					new ListStackResourcesRequest().withStackName("testStack")))
-					.thenReturn(new ListStackResourcesResult()
-							.withStackResourceSummaries(Collections.emptyList()));
+					ListStackResourcesRequest.builder().stackName("testStack").build()))
+					.thenReturn(ListStackResourcesResponse.builder()
+							.stackResourceSummaries(Collections.emptyList()).build());
 			return amazonCloudFormation;
 		}
 
@@ -117,13 +119,13 @@ public class ContextStackConfigurationTest {
 	static class ManualConfigurationStackRegistryTestConfiguration {
 
 		@Bean
-		public AmazonCloudFormation amazonCloudFormation() {
-			AmazonCloudFormation amazonCloudFormation = Mockito
-					.mock(AmazonCloudFormation.class);
-			Mockito.when(amazonCloudFormation.listStackResources(
-					new ListStackResourcesRequest().withStackName("manualStackName")))
-					.thenReturn(new ListStackResourcesResult()
-							.withStackResourceSummaries(Collections.emptyList()));
+		public CloudFormationClient amazonCloudFormation() {
+			CloudFormationClient amazonCloudFormation = Mockito
+					.mock(CloudFormationClient.class);
+			Mockito.when(amazonCloudFormation.listStackResources(ListStackResourcesRequest
+					.builder().stackName("manualStackName").build()))
+					.thenReturn(ListStackResourcesResponse.builder()
+							.stackResourceSummaries(Collections.emptyList()).build());
 			return amazonCloudFormation;
 		}
 

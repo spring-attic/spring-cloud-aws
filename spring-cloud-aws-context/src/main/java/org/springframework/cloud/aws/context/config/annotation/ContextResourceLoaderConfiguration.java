@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.aws.context.config.annotation;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import software.amazon.awssdk.services.s3.S3Client;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -48,7 +48,7 @@ public class ContextResourceLoaderConfiguration {
 				BeanDefinitionRegistry registry) {
 			BeanDefinitionHolder client = AmazonWebserviceClientConfigurationUtils
 					.registerAmazonWebserviceClient(this, registry,
-							AmazonS3Client.class.getName(), null, null);
+							S3Client.class.getName(), null, null);
 
 			BeanDefinitionBuilder configurer = BeanDefinitionBuilder
 					.genericBeanDefinition(SimpleStorageProtocolResolverConfigurer.class);

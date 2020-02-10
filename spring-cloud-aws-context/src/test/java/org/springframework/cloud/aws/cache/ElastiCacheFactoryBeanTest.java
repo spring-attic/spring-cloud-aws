@@ -18,16 +18,15 @@ package org.springframework.cloud.aws.cache;
 
 import java.util.Collections;
 
-import com.amazonaws.services.elasticache.AmazonElastiCache;
-import com.amazonaws.services.elasticache.AmazonElastiCacheClient;
-import com.amazonaws.services.elasticache.model.CacheCluster;
-import com.amazonaws.services.elasticache.model.CacheNode;
-import com.amazonaws.services.elasticache.model.DescribeCacheClustersRequest;
-import com.amazonaws.services.elasticache.model.DescribeCacheClustersResult;
-import com.amazonaws.services.elasticache.model.Endpoint;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
+import software.amazon.awssdk.services.elasticache.model.CacheCluster;
+import software.amazon.awssdk.services.elasticache.model.CacheNode;
+import software.amazon.awssdk.services.elasticache.model.DescribeCacheClustersRequest;
+import software.amazon.awssdk.services.elasticache.model.DescribeCacheClustersResponse;
+import software.amazon.awssdk.services.elasticache.model.Endpoint;
 
 import org.springframework.cache.Cache;
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
@@ -45,17 +44,19 @@ public class ElastiCacheFactoryBeanTest {
 	public void getObject_availableCluster_returnsConfiguredMemcachedClient()
 			throws Exception {
 		// Arrange
-		AmazonElastiCache amazonElastiCache = mock(AmazonElastiCacheClient.class);
+		ElastiCacheClient amazonElastiCache = mock(ElastiCacheClient.class);
 
-		DescribeCacheClustersRequest testCache = new DescribeCacheClustersRequest()
-				.withCacheClusterId("testCache");
-		testCache.setShowCacheNodeInfo(true);
+		DescribeCacheClustersRequest testCache = DescribeCacheClustersRequest.builder()
+				.cacheClusterId("testCache").showCacheNodeInfo(true).build();
 
-		when(amazonElastiCache.describeCacheClusters(testCache)).thenReturn(
-				new DescribeCacheClustersResult().withCacheClusters(new CacheCluster()
-						.withConfigurationEndpoint(
-								new Endpoint().withAddress("localhost").withPort(45678))
-						.withCacheClusterStatus("available").withEngine("memcached")));
+		when(amazonElastiCache.describeCacheClusters(testCache))
+				.thenReturn(DescribeCacheClustersResponse.builder()
+						.cacheClusters(CacheCluster.builder()
+								.configurationEndpoint(Endpoint.builder()
+										.address("localhost").port(45678).build())
+								.cacheClusterStatus("available").engine("memcached")
+								.build())
+						.build());
 		ElastiCacheFactoryBean elasticCacheFactoryBean = new ElastiCacheFactoryBean(
 				amazonElastiCache, "testCache", Collections.singletonList(
 						new TestCacheFactory("testCache", "localhost", 45678)));
@@ -72,16 +73,18 @@ public class ElastiCacheFactoryBeanTest {
 	public void getObject_availableClusterWithLogicalName_returnsConfigurationMemcachedClientWithPhysicalName()
 			throws Exception {
 		// Arrange
-		AmazonElastiCache amazonElastiCache = mock(AmazonElastiCacheClient.class);
-		DescribeCacheClustersRequest testCache = new DescribeCacheClustersRequest()
-				.withCacheClusterId("testCache");
-		testCache.setShowCacheNodeInfo(true);
+		ElastiCacheClient amazonElastiCache = mock(ElastiCacheClient.class);
+		DescribeCacheClustersRequest testCache = DescribeCacheClustersRequest.builder()
+				.cacheClusterId("testCache").showCacheNodeInfo(true).build();
 
-		when(amazonElastiCache.describeCacheClusters(testCache)).thenReturn(
-				new DescribeCacheClustersResult().withCacheClusters(new CacheCluster()
-						.withConfigurationEndpoint(
-								new Endpoint().withAddress("localhost").withPort(45678))
-						.withCacheClusterStatus("available").withEngine("memcached")));
+		when(amazonElastiCache.describeCacheClusters(testCache))
+				.thenReturn(DescribeCacheClustersResponse.builder()
+						.cacheClusters(CacheCluster.builder()
+								.configurationEndpoint(Endpoint.builder()
+										.address("localhost").port(45678).build())
+								.cacheClusterStatus("available").engine("memcached")
+								.build())
+						.build());
 
 		ResourceIdResolver resourceIdResolver = mock(ResourceIdResolver.class);
 		when(resourceIdResolver.resolveToPhysicalResourceId("test"))
@@ -107,16 +110,19 @@ public class ElastiCacheFactoryBeanTest {
 		this.expectedException.expect(IllegalArgumentException.class);
 		this.expectedException.expectMessage("engine");
 
-		AmazonElastiCache amazonElastiCache = mock(AmazonElastiCacheClient.class);
-		DescribeCacheClustersRequest memcached = new DescribeCacheClustersRequest()
-				.withCacheClusterId("memcached");
-		memcached.setShowCacheNodeInfo(true);
+		ElastiCacheClient amazonElastiCache = mock(ElastiCacheClient.class);
+		DescribeCacheClustersRequest memcached = DescribeCacheClustersRequest.builder()
+				.cacheClusterId("memcached").showCacheNodeInfo(true).build();
 
 		when(amazonElastiCache.describeCacheClusters(memcached))
-				.thenReturn(new DescribeCacheClustersResult().withCacheClusters(
-						new CacheCluster().withEngine("redis").withCacheNodes(
-								new CacheNode().withEndpoint(new Endpoint()
-										.withAddress("localhost").withPort(45678)))));
+				.thenReturn(DescribeCacheClustersResponse.builder()
+						.cacheClusters(CacheCluster.builder().engine("redis")
+								.cacheNodes(CacheNode.builder()
+										.endpoint(Endpoint.builder().address("localhost")
+												.port(45678).build())
+										.build())
+								.build())
+						.build());
 
 		ElastiCacheFactoryBean elastiCacheFactoryBean = new ElastiCacheFactoryBean(
 				amazonElastiCache, "memcached", Collections.singletonList(

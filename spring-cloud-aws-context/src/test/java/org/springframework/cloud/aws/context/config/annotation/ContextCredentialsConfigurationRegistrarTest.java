@@ -20,14 +20,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.auth.EC2ContainerCredentialsProviderWrapper;
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
-import org.apache.http.client.CredentialsProvider;
 import org.junit.After;
 import org.junit.Test;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -56,13 +55,13 @@ public class ContextCredentialsConfigurationRegistrarTest {
 				ApplicationConfigurationWithDefaultCredentialsProvider.class);
 
 		// Act
-		AWSCredentialsProvider awsCredentialsProvider = this.context
-				.getBean(AWSCredentialsProvider.class);
+		AwsCredentialsProvider awsCredentialsProvider = this.context
+				.getBean(AwsCredentialsProvider.class);
 
 		// Assert
 		assertThat(awsCredentialsProvider).isNotNull();
-		assertThat(DefaultAWSCredentialsProviderChain.class
-				.isInstance(awsCredentialsProvider)).isTrue();
+		assertThat(DefaultCredentialsProvider.class.isInstance(awsCredentialsProvider))
+				.isTrue();
 	}
 
 	@Test
@@ -73,22 +72,23 @@ public class ContextCredentialsConfigurationRegistrarTest {
 				ApplicationConfigurationWithAccessKeyAndSecretKey.class);
 
 		// Act
-		AWSCredentialsProvider awsCredentialsProvider = this.context
-				.getBean(AWSCredentialsProvider.class);
+		AwsCredentialsProvider awsCredentialsProvider = this.context
+				.getBean(AwsCredentialsProvider.class);
 
 		// Assert
 		assertThat(awsCredentialsProvider).isNotNull();
 
 		@SuppressWarnings("unchecked")
-		List<CredentialsProvider> credentialsProviders = (List<CredentialsProvider>) ReflectionTestUtils
+		List<AwsCredentialsProvider> credentialsProviders = (List<AwsCredentialsProvider>) ReflectionTestUtils
 				.getField(awsCredentialsProvider, "credentialsProviders");
 		assertThat(credentialsProviders.size()).isEqualTo(1);
-		assertThat(AWSStaticCredentialsProvider.class
-				.isInstance(credentialsProviders.get(0))).isTrue();
+		assertThat(
+				StaticCredentialsProvider.class.isInstance(credentialsProviders.get(0)))
+						.isTrue();
 
-		assertThat(awsCredentialsProvider.getCredentials().getAWSAccessKeyId())
+		assertThat(awsCredentialsProvider.resolveCredentials().accessKeyId())
 				.isEqualTo("accessTest");
-		assertThat(awsCredentialsProvider.getCredentials().getAWSSecretKey())
+		assertThat(awsCredentialsProvider.resolveCredentials().secretAccessKey())
 				.isEqualTo("testSecret");
 	}
 
@@ -111,22 +111,23 @@ public class ContextCredentialsConfigurationRegistrarTest {
 				ApplicationConfigurationWithAccessKeyAndSecretKeyAsExpressions.class);
 		this.context.refresh();
 		// Act
-		AWSCredentialsProvider awsCredentialsProvider = this.context
-				.getBean(AWSCredentialsProvider.class);
+		AwsCredentialsProvider awsCredentialsProvider = this.context
+				.getBean(AwsCredentialsProvider.class);
 
 		// Assert
 		assertThat(awsCredentialsProvider).isNotNull();
 
 		@SuppressWarnings("unchecked")
-		List<CredentialsProvider> credentialsProviders = (List<CredentialsProvider>) ReflectionTestUtils
+		List<AwsCredentialsProvider> credentialsProviders = (List<AwsCredentialsProvider>) ReflectionTestUtils
 				.getField(awsCredentialsProvider, "credentialsProviders");
 		assertThat(credentialsProviders.size()).isEqualTo(1);
-		assertThat(AWSStaticCredentialsProvider.class
-				.isInstance(credentialsProviders.get(0))).isTrue();
+		assertThat(
+				StaticCredentialsProvider.class.isInstance(credentialsProviders.get(0)))
+						.isTrue();
 
-		assertThat(awsCredentialsProvider.getCredentials().getAWSAccessKeyId())
+		assertThat(awsCredentialsProvider.resolveCredentials().accessKeyId())
 				.isEqualTo("accessTest");
-		assertThat(awsCredentialsProvider.getCredentials().getAWSSecretKey())
+		assertThat(awsCredentialsProvider.resolveCredentials().secretAccessKey())
 				.isEqualTo("testSecret");
 	}
 
@@ -152,22 +153,23 @@ public class ContextCredentialsConfigurationRegistrarTest {
 				ApplicationConfigurationWithAccessKeyAndSecretKeyAsPlaceHolder.class);
 		this.context.refresh();
 		// Act
-		AWSCredentialsProvider awsCredentialsProvider = this.context
-				.getBean(AWSCredentialsProvider.class);
+		AwsCredentialsProvider awsCredentialsProvider = this.context
+				.getBean(AwsCredentialsProvider.class);
 
 		// Assert
 		assertThat(awsCredentialsProvider).isNotNull();
 
 		@SuppressWarnings("unchecked")
-		List<CredentialsProvider> credentialsProviders = (List<CredentialsProvider>) ReflectionTestUtils
+		List<AwsCredentialsProvider> credentialsProviders = (List<AwsCredentialsProvider>) ReflectionTestUtils
 				.getField(awsCredentialsProvider, "credentialsProviders");
 		assertThat(credentialsProviders.size()).isEqualTo(1);
-		assertThat(AWSStaticCredentialsProvider.class
-				.isInstance(credentialsProviders.get(0))).isTrue();
+		assertThat(
+				StaticCredentialsProvider.class.isInstance(credentialsProviders.get(0)))
+						.isTrue();
 
-		assertThat(awsCredentialsProvider.getCredentials().getAWSAccessKeyId())
+		assertThat(awsCredentialsProvider.resolveCredentials().accessKeyId())
 				.isEqualTo("accessTest");
-		assertThat(awsCredentialsProvider.getCredentials().getAWSSecretKey())
+		assertThat(awsCredentialsProvider.resolveCredentials().secretAccessKey())
 				.isEqualTo("testSecret");
 	}
 
@@ -181,19 +183,20 @@ public class ContextCredentialsConfigurationRegistrarTest {
 				ApplicationConfigurationWithAccessKeyAndSecretKeyAndInstanceProfile.class);
 
 		// Act
-		AWSCredentialsProvider awsCredentialsProvider = this.context
-				.getBean(AWSCredentialsProvider.class);
+		AwsCredentialsProvider awsCredentialsProvider = this.context
+				.getBean(AwsCredentialsProvider.class);
 
 		// Assert
 		assertThat(awsCredentialsProvider).isNotNull();
 
 		@SuppressWarnings("unchecked")
-		List<CredentialsProvider> credentialsProviders = (List<CredentialsProvider>) ReflectionTestUtils
+		List<AwsCredentialsProvider> credentialsProviders = (List<AwsCredentialsProvider>) ReflectionTestUtils
 				.getField(awsCredentialsProvider, "credentialsProviders");
 		assertThat(credentialsProviders.size()).isEqualTo(2);
-		assertThat(AWSStaticCredentialsProvider.class
-				.isInstance(credentialsProviders.get(0))).isTrue();
-		assertThat(EC2ContainerCredentialsProviderWrapper.class
+		assertThat(
+				StaticCredentialsProvider.class.isInstance(credentialsProviders.get(0)))
+						.isTrue();
+		assertThat(InstanceProfileCredentialsProvider.class
 				.isInstance(credentialsProviders.get(1))).isTrue();
 	}
 
@@ -205,17 +208,17 @@ public class ContextCredentialsConfigurationRegistrarTest {
 				ApplicationConfigurationWithInstanceProfileOnly.class);
 
 		// Act
-		AWSCredentialsProvider awsCredentialsProvider = this.context
-				.getBean(AWSCredentialsProvider.class);
+		AwsCredentialsProvider awsCredentialsProvider = this.context
+				.getBean(AwsCredentialsProvider.class);
 
 		// Assert
 		assertThat(awsCredentialsProvider).isNotNull();
 
 		@SuppressWarnings("unchecked")
-		List<CredentialsProvider> credentialsProviders = (List<CredentialsProvider>) ReflectionTestUtils
+		List<AwsCredentialsProvider> credentialsProviders = (List<AwsCredentialsProvider>) ReflectionTestUtils
 				.getField(awsCredentialsProvider, "credentialsProviders");
 		assertThat(credentialsProviders.size()).isEqualTo(1);
-		assertThat(EC2ContainerCredentialsProviderWrapper.class
+		assertThat(InstanceProfileCredentialsProvider.class
 				.isInstance(credentialsProviders.get(0))).isTrue();
 	}
 
@@ -227,14 +230,14 @@ public class ContextCredentialsConfigurationRegistrarTest {
 				ApplicationConfigurationWithProfileAndDefaultProfilePath.class);
 
 		// Act
-		AWSCredentialsProvider awsCredentialsProvider = this.context
-				.getBean(AWSCredentialsProvider.class);
+		AwsCredentialsProvider awsCredentialsProvider = this.context
+				.getBean(AwsCredentialsProvider.class);
 
 		// Assert
 		assertThat(awsCredentialsProvider).isNotNull();
 
 		@SuppressWarnings("unchecked")
-		List<CredentialsProvider> credentialsProviders = (List<CredentialsProvider>) ReflectionTestUtils
+		List<AwsCredentialsProvider> credentialsProviders = (List<AwsCredentialsProvider>) ReflectionTestUtils
 				.getField(awsCredentialsProvider, "credentialsProviders");
 		assertThat(credentialsProviders.size()).isEqualTo(1);
 		assertThat(
@@ -269,14 +272,14 @@ public class ContextCredentialsConfigurationRegistrarTest {
 		this.context.refresh();
 
 		// Act
-		AWSCredentialsProvider awsCredentialsProvider = this.context
-				.getBean(AWSCredentialsProvider.class);
+		AwsCredentialsProvider awsCredentialsProvider = this.context
+				.getBean(AwsCredentialsProvider.class);
 
 		// Assert
 		assertThat(awsCredentialsProvider).isNotNull();
 
 		@SuppressWarnings("unchecked")
-		List<CredentialsProvider> credentialsProviders = (List<CredentialsProvider>) ReflectionTestUtils
+		List<AwsCredentialsProvider> credentialsProviders = (List<AwsCredentialsProvider>) ReflectionTestUtils
 				.getField(awsCredentialsProvider, "credentialsProviders");
 		assertThat(credentialsProviders.size()).isEqualTo(1);
 		assertThat(
@@ -285,9 +288,9 @@ public class ContextCredentialsConfigurationRegistrarTest {
 
 		ProfileCredentialsProvider provider = (ProfileCredentialsProvider) credentialsProviders
 				.get(0);
-		assertThat(provider.getCredentials().getAWSAccessKeyId())
+		assertThat(provider.resolveCredentials().accessKeyId())
 				.isEqualTo("testAccessKey");
-		assertThat(provider.getCredentials().getAWSSecretKey())
+		assertThat(provider.resolveCredentials().secretAccessKey())
 				.isEqualTo("testSecretKey");
 	}
 
@@ -299,19 +302,20 @@ public class ContextCredentialsConfigurationRegistrarTest {
 				ApplicationConfigurationWithAllProviders.class);
 
 		// Act
-		AWSCredentialsProvider awsCredentialsProvider = this.context
-				.getBean(AWSCredentialsProvider.class);
+		AwsCredentialsProvider awsCredentialsProvider = this.context
+				.getBean(AwsCredentialsProvider.class);
 
 		// Assert
 		assertThat(awsCredentialsProvider).isNotNull();
 
 		@SuppressWarnings("unchecked")
-		List<CredentialsProvider> credentialsProviders = (List<CredentialsProvider>) ReflectionTestUtils
+		List<AwsCredentialsProvider> credentialsProviders = (List<AwsCredentialsProvider>) ReflectionTestUtils
 				.getField(awsCredentialsProvider, "credentialsProviders");
 		assertThat(credentialsProviders.size()).isEqualTo(3);
-		assertThat(AWSStaticCredentialsProvider.class
-				.isInstance(credentialsProviders.get(0))).isTrue();
-		assertThat(EC2ContainerCredentialsProviderWrapper.class
+		assertThat(
+				StaticCredentialsProvider.class.isInstance(credentialsProviders.get(0)))
+						.isTrue();
+		assertThat(InstanceProfileCredentialsProvider.class
 				.isInstance(credentialsProviders.get(1))).isTrue();
 		assertThat(
 				ProfileCredentialsProvider.class.isInstance(credentialsProviders.get(2)))

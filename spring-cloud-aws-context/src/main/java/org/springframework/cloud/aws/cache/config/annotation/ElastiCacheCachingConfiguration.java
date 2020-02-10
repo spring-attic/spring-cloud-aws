@@ -21,9 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.services.elasticache.AmazonElastiCache;
-import com.amazonaws.services.elasticache.AmazonElastiCacheClient;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachingConfigurer;
@@ -64,7 +63,7 @@ public class ElastiCacheCachingConfiguration implements ImportAware {
 	private RegionProvider regionProvider;
 
 	@Autowired(required = false)
-	private AWSCredentialsProvider credentialsProvider;
+	private AwsCredentialsProvider credentialsProvider;
 
 	@Autowired(required = false)
 	private ListableStackResourceFactory stackResourceFactory;
@@ -79,14 +78,14 @@ public class ElastiCacheCachingConfiguration implements ImportAware {
 	}
 
 	@Bean
-	@ConditionalOnMissingAmazonClient(AmazonElastiCache.class)
-	public AmazonWebserviceClientFactoryBean<AmazonElastiCacheClient> amazonElastiCache() {
-		return new AmazonWebserviceClientFactoryBean<>(AmazonElastiCacheClient.class,
+	@ConditionalOnMissingAmazonClient(ElastiCacheClient.class)
+	public AmazonWebserviceClientFactoryBean<ElastiCacheClient> amazonElastiCache() {
+		return new AmazonWebserviceClientFactoryBean<>(ElastiCacheClient.class,
 				this.credentialsProvider, this.regionProvider);
 	}
 
 	@Bean
-	public CachingConfigurer cachingConfigurer(AmazonElastiCache amazonElastiCache,
+	public CachingConfigurer cachingConfigurer(ElastiCacheClient amazonElastiCache,
 			ResourceIdResolver resourceIdResolver, List<CacheFactory> cacheFactories) {
 		if (this.annotationAttributes != null
 				&& this.annotationAttributes.getAnnotationArray("value").length > 0) {

@@ -16,11 +16,10 @@
 
 package org.springframework.cloud.aws.context.config.xml;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import software.amazon.awssdk.regions.Region;
 
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.cloud.aws.core.region.Ec2MetadataRegionProvider;
@@ -51,8 +50,7 @@ public class ContextRegionBeanDefinitionParserTest {
 
 		// Assert
 		assertThat(myRegionProvider).isNotNull();
-		assertThat(myRegionProvider.getRegion())
-				.isEqualTo(Region.getRegion(Regions.SA_EAST_1));
+		assertThat(myRegionProvider.getRegion()).isEqualTo(Region.SA_EAST_1);
 	}
 
 	@Test
@@ -69,8 +67,7 @@ public class ContextRegionBeanDefinitionParserTest {
 
 		// Assert
 		assertThat(myRegionProvider).isNotNull();
-		assertThat(myRegionProvider.getRegion())
-				.isEqualTo(Region.getRegion(Regions.SA_EAST_1));
+		assertThat(myRegionProvider.getRegion()).isEqualTo(Region.SA_EAST_1);
 	}
 
 	@Test
@@ -87,8 +84,7 @@ public class ContextRegionBeanDefinitionParserTest {
 
 		// Assert
 		assertThat(myRegionProvider).isNotNull();
-		assertThat(myRegionProvider.getRegion())
-				.isEqualTo(Region.getRegion(Regions.SA_EAST_1));
+		assertThat(myRegionProvider.getRegion()).isEqualTo(Region.SA_EAST_1);
 	}
 
 	@Test

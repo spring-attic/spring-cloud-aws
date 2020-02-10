@@ -16,8 +16,8 @@
 
 package org.springframework.cloud.aws.context.annotation;
 
-import com.amazonaws.services.s3.AmazonS3;
 import org.junit.Test;
+import software.amazon.awssdk.services.s3.S3Client;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -56,8 +56,8 @@ public class OnMissingAmazonClientConditionTest {
 	protected static class ConfigWithDummyS3Client {
 
 		@Bean
-		public AmazonS3 amazonS3() {
-			return mock(AmazonS3.class);
+		public S3Client amazonS3() {
+			return mock(S3Client.class);
 		}
 
 	}
@@ -66,7 +66,7 @@ public class OnMissingAmazonClientConditionTest {
 	protected static class ConfigWithMissingAmazonClientCondition {
 
 		@Bean
-		@ConditionalOnMissingAmazonClient(AmazonS3.class)
+		@ConditionalOnMissingAmazonClient(S3Client.class)
 		public String foo() {
 			return "foo";
 		}

@@ -18,12 +18,11 @@ package org.springframework.cloud.aws.context.config.annotation;
 
 import java.util.Collections;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import software.amazon.awssdk.regions.Region;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.cloud.aws.core.region.Ec2MetadataRegionProvider;
@@ -63,8 +62,7 @@ public class ContextRegionConfigurationRegistrarTest {
 
 		// Assert
 		assertThat(staticRegionProvider).isNotNull();
-		assertThat(staticRegionProvider.getRegion())
-				.isEqualTo(Region.getRegion(Regions.EU_WEST_1));
+		assertThat(staticRegionProvider.getRegion()).isEqualTo(Region.EU_WEST_1);
 	}
 
 	@Test
@@ -88,7 +86,7 @@ public class ContextRegionConfigurationRegistrarTest {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.getEnvironment().getPropertySources().addLast(new MapPropertySource(
-				"test", Collections.singletonMap("region", Regions.EU_WEST_1.getName())));
+				"test", Collections.singletonMap("region", Region.EU_WEST_1.id())));
 		this.context.register(ApplicationConfigurationWithExpressionRegion.class);
 
 		// Act
@@ -98,8 +96,7 @@ public class ContextRegionConfigurationRegistrarTest {
 
 		// Assert
 		assertThat(staticRegionProvider).isNotNull();
-		assertThat(staticRegionProvider.getRegion())
-				.isEqualTo(Region.getRegion(Regions.EU_WEST_1));
+		assertThat(staticRegionProvider.getRegion()).isEqualTo(Region.EU_WEST_1);
 	}
 
 	@Test
@@ -108,7 +105,7 @@ public class ContextRegionConfigurationRegistrarTest {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.getEnvironment().getPropertySources().addLast(new MapPropertySource(
-				"test", Collections.singletonMap("region", Regions.EU_WEST_1.getName())));
+				"test", Collections.singletonMap("region", Region.EU_WEST_1.id())));
 		this.context.register(ApplicationConfigurationWithPlaceHolderRegion.class);
 
 		// Act
@@ -118,8 +115,7 @@ public class ContextRegionConfigurationRegistrarTest {
 
 		// Assert
 		assertThat(staticRegionProvider).isNotNull();
-		assertThat(staticRegionProvider.getRegion())
-				.isEqualTo(Region.getRegion(Regions.EU_WEST_1));
+		assertThat(staticRegionProvider.getRegion()).isEqualTo(Region.EU_WEST_1);
 	}
 
 	@Test

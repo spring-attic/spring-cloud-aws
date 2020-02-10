@@ -21,16 +21,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSCredentialsProviderChain;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.InstanceProfileCredentialsProvider;
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import org.apache.http.client.CredentialsProvider;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -61,17 +61,17 @@ public class ContextCredentialsBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-context.xml", getClass());
 
 		// Check that the result of the factory bean is available
-		AWSCredentialsProvider awsCredentialsProvider = applicationContext
-				.getBean(AWSCredentialsProvider.class);
+		AwsCredentialsProvider awsCredentialsProvider = applicationContext
+				.getBean(AwsCredentialsProvider.class);
 
-		assertThat(AWSCredentialsProviderChain.class.isInstance(awsCredentialsProvider))
+		assertThat(DefaultCredentialsProvider.class.isInstance(awsCredentialsProvider))
 				.isTrue();
 
 		// Using reflection to really test if the chain is stable
-		AWSCredentialsProviderChain awsCredentialsProviderChain = (AWSCredentialsProviderChain) awsCredentialsProvider;
+		DefaultCredentialsProvider awsCredentialsProviderChain = (DefaultCredentialsProvider) awsCredentialsProvider;
 
 		@SuppressWarnings("unchecked")
-		List<AWSCredentialsProvider> providerChain = (List<AWSCredentialsProvider>) ReflectionTestUtils
+		List<AwsCredentialsProvider> providerChain = (List<AwsCredentialsProvider>) ReflectionTestUtils
 				.getField(awsCredentialsProviderChain, "credentialsProviders");
 
 		assertThat(providerChain).isNotNull();
@@ -80,14 +80,14 @@ public class ContextCredentialsBeanDefinitionParserTest {
 		assertThat(
 				InstanceProfileCredentialsProvider.class.isInstance(providerChain.get(0)))
 						.isTrue();
-		assertThat(AWSStaticCredentialsProvider.class.isInstance(providerChain.get(1)))
+		assertThat(StaticCredentialsProvider.class.isInstance(providerChain.get(1)))
 				.isTrue();
 
-		AWSStaticCredentialsProvider staticCredentialsProvider = (AWSStaticCredentialsProvider) providerChain
+		StaticCredentialsProvider staticCredentialsProvider = (StaticCredentialsProvider) providerChain
 				.get(1);
-		assertThat(staticCredentialsProvider.getCredentials().getAWSAccessKeyId())
+		assertThat(staticCredentialsProvider.resolveCredentials().accessKeyId())
 				.isEqualTo("staticAccessKey");
-		assertThat(staticCredentialsProvider.getCredentials().getAWSSecretKey())
+		assertThat(staticCredentialsProvider.resolveCredentials().secretAccessKey())
 				.isEqualTo("staticSecretKey");
 
 	}
@@ -127,11 +127,11 @@ public class ContextCredentialsBeanDefinitionParserTest {
 		ApplicationContext applicationContext = new ClassPathXmlApplicationContext(
 				getClass().getSimpleName() + "-testWithPlaceHolder.xml", getClass());
 
-		AWSCredentialsProvider awsCredentialsProvider = applicationContext
-				.getBean(AWSCredentialsProvider.class);
-		AWSCredentials credentials = awsCredentialsProvider.getCredentials();
-		assertThat(credentials.getAWSAccessKeyId()).isEqualTo("foo");
-		assertThat(credentials.getAWSSecretKey()).isEqualTo("bar");
+		AwsCredentialsProvider awsCredentialsProvider = applicationContext
+				.getBean(AwsCredentialsProvider.class);
+		AwsCredentials credentials = awsCredentialsProvider.resolveCredentials();
+		assertThat(credentials.accessKeyId()).isEqualTo("foo");
+		assertThat(credentials.secretAccessKey()).isEqualTo("bar");
 	}
 
 	@Test
@@ -139,11 +139,11 @@ public class ContextCredentialsBeanDefinitionParserTest {
 		ApplicationContext applicationContext = new ClassPathXmlApplicationContext(
 				getClass().getSimpleName() + "-testWithExpressions.xml", getClass());
 
-		AWSCredentialsProvider awsCredentialsProvider = applicationContext
-				.getBean(AWSCredentialsProvider.class);
-		AWSCredentials credentials = awsCredentialsProvider.getCredentials();
-		assertThat(credentials.getAWSAccessKeyId()).isEqualTo("foo");
-		assertThat(credentials.getAWSSecretKey()).isEqualTo("bar");
+		AwsCredentialsProvider awsCredentialsProvider = applicationContext
+				.getBean(AwsCredentialsProvider.class);
+		AwsCredentials credentials = awsCredentialsProvider.resolveCredentials();
+		assertThat(credentials.accessKeyId()).isEqualTo("foo");
+		assertThat(credentials.secretAccessKey()).isEqualTo("bar");
 	}
 
 	@Test
@@ -152,9 +152,9 @@ public class ContextCredentialsBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-profileCredentialsProvider.xml",
 				getClass());
 
-		AWSCredentialsProvider awsCredentialsProvider = applicationContext.getBean(
+		AwsCredentialsProvider awsCredentialsProvider = applicationContext.getBean(
 				AmazonWebserviceClientConfigurationUtils.CREDENTIALS_PROVIDER_BEAN_NAME,
-				AWSCredentialsProvider.class);
+				AwsCredentialsProvider.class);
 		assertThat(awsCredentialsProvider).isNotNull();
 
 		@SuppressWarnings("unchecked")
@@ -193,14 +193,14 @@ public class ContextCredentialsBeanDefinitionParserTest {
 
 		applicationContext.refresh();
 
-		AWSCredentialsProvider provider = applicationContext.getBean(
+		AwsCredentialsProvider provider = applicationContext.getBean(
 				AmazonWebserviceClientConfigurationUtils.CREDENTIALS_PROVIDER_BEAN_NAME,
-				AWSCredentialsProvider.class);
+				AwsCredentialsProvider.class);
 		assertThat(provider).isNotNull();
 
-		assertThat(provider.getCredentials().getAWSAccessKeyId())
+		assertThat(provider.resolveCredentials().accessKeyId())
 				.isEqualTo("testAccessKey");
-		assertThat(provider.getCredentials().getAWSSecretKey())
+		assertThat(provider.resolveCredentials().secretAccessKey())
 				.isEqualTo("testSecretKey");
 	}
 

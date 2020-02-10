@@ -16,8 +16,8 @@
 
 package org.springframework.cloud.aws.context.support.env;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.util.EC2MetadataUtils;
+import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
 
 /**
  * @author Lukasz Luszczynski
@@ -37,7 +37,7 @@ public final class AwsCloudEnvironmentCheckUtils {
 				isCloudEnvironment = EC2MetadataUtils
 						.getData(EC2_METADATA_ROOT + "/instance-id", 1) != null;
 			}
-			catch (AmazonClientException e) {
+			catch (SdkClientException e) {
 				isCloudEnvironment = false;
 			}
 		}
