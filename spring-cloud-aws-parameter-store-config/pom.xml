@@ -46,8 +46,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-ssm</artifactId>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>ssm</artifactId>
 		</dependency>
 
 		<dependency>

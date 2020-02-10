@@ -20,10 +20,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
-import com.amazonaws.services.simplesystemsmanagement.model.GetParametersByPathRequest;
-import com.amazonaws.services.simplesystemsmanagement.model.GetParametersByPathResult;
-import com.amazonaws.services.simplesystemsmanagement.model.Parameter;
+import software.amazon.awssdk.services.ssm.SsmClient;
+import software.amazon.awssdk.services.ssm.model.GetParametersByPathRequest;
+import software.amazon.awssdk.services.ssm.model.GetParametersByPathResponse;
+import software.amazon.awssdk.services.ssm.model.Parameter;
 
 import org.springframework.core.env.EnumerablePropertySource;
 
@@ -34,22 +34,20 @@ import org.springframework.core.env.EnumerablePropertySource;
  * @author Joris Kuipers
  * @since 2.0.0
  */
-public class AwsParamStorePropertySource
-		extends EnumerablePropertySource<AWSSimpleSystemsManagement> {
+public class AwsParamStorePropertySource extends EnumerablePropertySource<SsmClient> {
 
 	private String context;
 
 	private Map<String, Object> properties = new LinkedHashMap<>();
 
-	public AwsParamStorePropertySource(String context,
-			AWSSimpleSystemsManagement ssmClient) {
+	public AwsParamStorePropertySource(String context, SsmClient ssmClient) {
 		super(context, ssmClient);
 		this.context = context;
 	}
 
 	public void init() {
-		GetParametersByPathRequest paramsRequest = new GetParametersByPathRequest()
-				.withPath(context).withRecursive(true).withWithDecryption(true);
+		GetParametersByPathRequest paramsRequest = GetParametersByPathRequest.builder()
+				.path(context).recursive(true).withDecryption(true).build();
 		getParameters(paramsRequest);
 	}
 
@@ -65,14 +63,15 @@ public class AwsParamStorePropertySource
 	}
 
 	private void getParameters(GetParametersByPathRequest paramsRequest) {
-		GetParametersByPathResult paramsResult = source
+		GetParametersByPathResponse paramsResult = source
 				.getParametersByPath(paramsRequest);
-		for (Parameter parameter : paramsResult.getParameters()) {
-			String key = parameter.getName().replace(context, "").replace('/', '.');
-			properties.put(key, parameter.getValue());
+		for (Parameter parameter : paramsResult.parameters()) {
+			String key = parameter.name().replace(context, "").replace('/', '.');
+			properties.put(key, parameter.value());
 		}
-		if (paramsResult.getNextToken() != null) {
-			getParameters(paramsRequest.withNextToken(paramsResult.getNextToken()));
+		if (paramsResult.nextToken() != null) {
+			getParameters(paramsRequest.toBuilder().nextToken(paramsResult.nextToken())
+					.build());
 		}
 	}
 

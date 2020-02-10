@@ -16,11 +16,11 @@
 
 package org.springframework.cloud.aws.paramstore;
 
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
-import com.amazonaws.services.simplesystemsmanagement.model.GetParametersByPathRequest;
-import com.amazonaws.services.simplesystemsmanagement.model.GetParametersByPathResult;
-import com.amazonaws.services.simplesystemsmanagement.model.Parameter;
 import org.junit.Test;
+import software.amazon.awssdk.services.ssm.SsmClient;
+import software.amazon.awssdk.services.ssm.model.GetParametersByPathRequest;
+import software.amazon.awssdk.services.ssm.model.GetParametersByPathResponse;
+import software.amazon.awssdk.services.ssm.model.Parameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,26 +29,29 @@ import static org.mockito.Mockito.when;
 
 public class AwsParamStorePropertySourceTest {
 
-	private AWSSimpleSystemsManagement ssmClient = mock(AWSSimpleSystemsManagement.class);
+	private SsmClient ssmClient = mock(SsmClient.class);
 
 	private AwsParamStorePropertySource propertySource = new AwsParamStorePropertySource(
 			"/config/myservice/", ssmClient);
 
 	@Test
 	public void followsNextToken() {
-		GetParametersByPathResult firstResult = new GetParametersByPathResult()
-				.withNextToken("next").withParameters(
-						new Parameter().withName("/config/myservice/key1")
-								.withValue("value1"),
-						new Parameter().withName("/config/myservice/key2")
-								.withValue("value2"));
+		GetParametersByPathResponse firstResult = GetParametersByPathResponse.builder()
+				.nextToken("next")
+				.parameters(
+						Parameter.builder().name("/config/myservice/key1").value("value1")
+								.build(),
+						Parameter.builder().name("/config/myservice/key2").value("value2")
+								.build())
+				.build();
 
-		GetParametersByPathResult nextResult = new GetParametersByPathResult()
-				.withParameters(
-						new Parameter().withName("/config/myservice/key3")
-								.withValue("value3"),
-						new Parameter().withName("/config/myservice/key4")
-								.withValue("value4"));
+		GetParametersByPathResponse nextResult = GetParametersByPathResponse.builder()
+				.parameters(
+						Parameter.builder().name("/config/myservice/key3").value("value3")
+								.build(),
+						Parameter.builder().name("/config/myservice/key4").value("value4")
+								.build())
+				.build();
 
 		when(ssmClient.getParametersByPath(any(GetParametersByPathRequest.class)))
 				.thenReturn(firstResult, nextResult);

@@ -21,9 +21,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import software.amazon.awssdk.services.ssm.SsmClient;
 
 import org.springframework.cloud.bootstrap.config.PropertySourceLocator;
 import org.springframework.core.env.CompositePropertySource;
@@ -45,7 +45,7 @@ import org.springframework.util.ReflectionUtils;
  */
 public class AwsParamStorePropertySourceLocator implements PropertySourceLocator {
 
-	private AWSSimpleSystemsManagement ssmClient;
+	private SsmClient ssmClient;
 
 	private AwsParamStoreProperties properties;
 
@@ -53,7 +53,7 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 
 	private Log logger = LogFactory.getLog(getClass());
 
-	public AwsParamStorePropertySourceLocator(AWSSimpleSystemsManagement ssmClient,
+	public AwsParamStorePropertySourceLocator(SsmClient ssmClient,
 			AwsParamStoreProperties properties) {
 		this.ssmClient = ssmClient;
 		this.properties = properties;
