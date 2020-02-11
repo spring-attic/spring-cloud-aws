@@ -59,18 +59,15 @@ public class CredentialsProviderFactoryBean
 
 	@Override
 	protected AwsCredentialsProvider createInstance() throws Exception {
-		AwsCredentialsProviderChain.Builder awsCredentialsProviderChainBuilder;
 		if (this.delegates.isEmpty()) {
-			awsCredentialsProviderChainBuilder = AwsCredentialsProviderChain.builder()
-					.credentialsProviders(DefaultCredentialsProvider.create());
+			return DefaultCredentialsProvider.builder().reuseLastProviderEnabled(false)
+					.build();
 		}
 		else {
-			awsCredentialsProviderChainBuilder = AwsCredentialsProviderChain.builder()
-					.credentialsProviders(this.delegates);
+			return AwsCredentialsProviderChain.builder()
+					.credentialsProviders(this.delegates).reuseLastProviderEnabled(false)
+					.build();
 		}
-
-		awsCredentialsProviderChainBuilder.reuseLastProviderEnabled(false);
-		return awsCredentialsProviderChainBuilder.build();
 	}
 
 }

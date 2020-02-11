@@ -29,6 +29,7 @@ import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -72,12 +73,14 @@ public class AmazonS3ProxyFactoryTest {
 
 	@Test
 	public void verifyPolymorphicHandling() {
+		Class<?> defaultS3ClientClass = ClassUtils.resolveClassName(
+				"software.amazon.awssdk.services.s3.DefaultS3Client", null);
 
 		S3Client amazonS3 = mock(S3Client.class);
 		S3Client proxy1 = AmazonS3ProxyFactory.createProxy(amazonS3);
 
 		assertThat(S3Client.class.isAssignableFrom(proxy1.getClass())).isTrue();
-		assertThat(S3Client.class.isAssignableFrom(proxy1.getClass())).isFalse();
+		assertThat(defaultS3ClientClass.isAssignableFrom(proxy1.getClass())).isFalse();
 
 		S3Client amazonS3Client = S3Client.builder().region(Region.US_WEST_2).build();
 		S3Client proxy2 = AmazonS3ProxyFactory.createProxy(amazonS3Client);

@@ -95,7 +95,7 @@ public class AmazonWebserviceClientFactoryBean<T extends SdkClient>
 			builder.credentialsProvider(this.credentialsProvider);
 		}
 
-		else if (this.regionProvider != null) {
+		if (this.regionProvider != null) {
 			builder.region(this.regionProvider.getRegion());
 		}
 		else {

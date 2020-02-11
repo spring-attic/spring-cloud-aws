@@ -38,6 +38,7 @@ import org.springframework.util.ReflectionUtils;
  *
  * @author Greg Turnquist
  * @author Agim Emruli
+ * @author Kristine Jetzke
  * @since 1.1
  */
 public final class AmazonS3ProxyFactory {
@@ -135,6 +136,7 @@ public final class AmazonS3ProxyFactory {
 		private S3Client buildAmazonS3ForRedirectLocation(S3Client prototype,
 				S3Exception e) {
 			try {
+				// TODO SDK2 migration: add integration test
 				final String region = e.awsErrorDetails().sdkHttpResponse()
 						.firstMatchingHeader("x-amx-bucket-region")
 						.orElseThrow(() -> new RuntimeException(

@@ -48,7 +48,7 @@ public class ContextResourceLoaderConfiguration {
 				BeanDefinitionRegistry registry) {
 			BeanDefinitionHolder client = AmazonWebserviceClientConfigurationUtils
 					.registerAmazonWebserviceClient(this, registry,
-							S3Client.class.getName(), null, null);
+							S3Client.class.getName(), null);
 
 			BeanDefinitionBuilder configurer = BeanDefinitionBuilder
 					.genericBeanDefinition(SimpleStorageProtocolResolverConfigurer.class);

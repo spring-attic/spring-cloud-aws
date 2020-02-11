@@ -60,7 +60,7 @@ public final class AmazonWebserviceClientConfigurationUtils {
 
 	public static BeanDefinitionHolder registerAmazonWebserviceClient(Object source,
 			BeanDefinitionRegistry registry, String serviceNameClassName,
-			String customRegionProvider, String customRegion) {
+			String customRegionProvider) {
 
 		String beanName = getBeanName(serviceNameClassName);
 
@@ -70,7 +70,7 @@ public final class AmazonWebserviceClientConfigurationUtils {
 		}
 
 		BeanDefinition definition = getAmazonWebserviceClientBeanDefinition(source,
-				serviceNameClassName, customRegionProvider, customRegion, registry);
+				serviceNameClassName, customRegionProvider, registry);
 		BeanDefinitionHolder holder = new BeanDefinitionHolder(definition, beanName);
 		BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
 
@@ -79,13 +79,7 @@ public final class AmazonWebserviceClientConfigurationUtils {
 
 	public static AbstractBeanDefinition getAmazonWebserviceClientBeanDefinition(
 			Object source, String serviceNameClassName, String customRegionProvider,
-			String customRegion, BeanDefinitionRegistry beanDefinitionRegistry) {
-
-		if (StringUtils.hasText(customRegionProvider)
-				&& StringUtils.hasText(customRegion)) {
-			throw new IllegalArgumentException(
-					"Only region or regionProvider can be configured, but not both");
-		}
+			BeanDefinitionRegistry beanDefinitionRegistry) {
 
 		registerCredentialsProviderIfNeeded(beanDefinitionRegistry);
 
@@ -99,12 +93,9 @@ public final class AmazonWebserviceClientConfigurationUtils {
 		// Configure source of the bean definition
 		builder.getRawBeanDefinition().setSource(source);
 
-		// Configure region properties (either custom region provider or custom region)
+		// Configure region properties
 		if (StringUtils.hasText(customRegionProvider)) {
 			builder.addPropertyReference("regionProvider", customRegionProvider);
-		}
-		else if (StringUtils.hasText(customRegion)) {
-			builder.addPropertyValue("customRegion", customRegion);
 		}
 		else {
 			registerRegionProviderBeanIfNeeded(beanDefinitionRegistry);

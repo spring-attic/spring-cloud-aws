@@ -79,7 +79,8 @@ public class CredentialsProviderFactoryBeanTest {
 		AwsBasicCredentials foo = AwsBasicCredentials.create("foo", "foo");
 		AwsBasicCredentials bar = AwsBasicCredentials.create("bar", "bar");
 
-		when(first.resolveCredentials()).thenReturn(null, foo);
+		when(first.resolveCredentials())
+				.thenThrow(new RuntimeException("first call fails")).thenReturn(foo);
 		when(second.resolveCredentials()).thenReturn(bar);
 
 		assertThat(provider.resolveCredentials()).isEqualTo(bar);

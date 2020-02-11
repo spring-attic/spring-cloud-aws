@@ -19,7 +19,6 @@ package org.springframework.cloud.aws.core.io.s3;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.time.Instant;
@@ -27,11 +26,13 @@ import java.time.Instant;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.stubbing.Answer;
+import org.mockito.ArgumentCaptor;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.http.AbortableInputStream;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Utilities;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
@@ -44,6 +45,7 @@ import org.springframework.core.task.SyncTaskExecutor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -171,7 +173,7 @@ public class SimpleStorageResourceTest {
 			throws Exception {
 		// Arrange
 		S3Client amazonS3 = mock(S3Client.class);
-		HeadObjectResponse headObjectResponse = mock(HeadObjectResponse.class);
+		HeadObjectResponse headObjectResponse = HeadObjectResponse.builder().build();
 		when(amazonS3.headObject(any(HeadObjectRequest.class)))
 				.thenReturn(headObjectResponse);
 
@@ -209,8 +211,9 @@ public class SimpleStorageResourceTest {
 
 	@Test
 	public void getUrl_existingObject_returnsUrlWithS3Prefix() throws Exception {
-
 		S3Client amazonS3 = mock(S3Client.class);
+		when(amazonS3.utilities())
+				.thenReturn(S3Utilities.builder().region(Region.EU_WEST_1).build());
 
 		// Act
 		SimpleStorageResource simpleStorageResource = new SimpleStorageResource(amazonS3,
@@ -218,7 +221,7 @@ public class SimpleStorageResourceTest {
 
 		// Assert
 		assertThat(simpleStorageResource.getURL())
-				.isEqualTo(new URL("https://s3.eu-west-1.amazonaws.com/bucket/object"));
+				.isEqualTo(new URL("https://bucket.s3.eu-west-1.amazonaws.com/object"));
 
 	}
 
@@ -245,7 +248,6 @@ public class SimpleStorageResourceTest {
 
 		// Arrange
 		S3Client amazonS3 = mock(S3Client.class);
-		HeadObjectResponse headObjectResponse = mock(HeadObjectResponse.class);
 		when(amazonS3.headObject(any(HeadObjectRequest.class)))
 				.thenReturn(HeadObjectResponse.builder().build());
 		SimpleStorageResource simpleStorageResource = new SimpleStorageResource(amazonS3,
@@ -262,21 +264,17 @@ public class SimpleStorageResourceTest {
 	@Test
 	public void writeFile_forNewFile_writesFileContent() throws Exception {
 		// Arrange
+		ArgumentCaptor<PutObjectRequest> putObjectRequestArgumentCaptor = ArgumentCaptor
+				.forClass(PutObjectRequest.class);
+		ArgumentCaptor<RequestBody> requestBodyArgumentCaptor = ArgumentCaptor
+				.forClass(RequestBody.class);
 		S3Client amazonS3 = mock(S3Client.class);
 		SimpleStorageResource simpleStorageResource = new SimpleStorageResource(amazonS3,
 				"bucketName", "objectName", new SyncTaskExecutor());
 		String messageContext = "myFileContent";
-		// TODO SDK2 migration: assert passed in bucket and key
+
 		when(amazonS3.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
-				.thenAnswer((Answer<PutObjectResponse>) invocation -> {
-					assertThat(invocation.getArguments()[0]).isEqualTo("bucketName");
-					assertThat(invocation.getArguments()[1]).isEqualTo("objectName");
-					byte[] content = new byte[messageContext.length()];
-					assertThat(((InputStream) invocation.getArguments()[2]).read(content))
-							.isEqualTo(content.length);
-					assertThat(new String(content)).isEqualTo(messageContext);
-					return PutObjectResponse.builder().build();
-				});
+				.thenReturn(PutObjectResponse.builder().build());
 		OutputStream outputStream = simpleStorageResource.getOutputStream();
 
 		// Act
@@ -285,6 +283,18 @@ public class SimpleStorageResourceTest {
 		outputStream.close();
 
 		// Assert
+		verify(amazonS3).putObject(putObjectRequestArgumentCaptor.capture(),
+				requestBodyArgumentCaptor.capture());
+
+		PutObjectRequest putObjectRequest = putObjectRequestArgumentCaptor.getValue();
+		assertThat(putObjectRequest.bucket()).isEqualTo("bucketName");
+		assertThat(putObjectRequest.key()).isEqualTo("objectName");
+
+		RequestBody requestBody = requestBodyArgumentCaptor.getValue();
+		byte[] content = new byte[messageContext.length()];
+		assertThat(requestBody.contentStreamProvider().newStream().read(content))
+				.isEqualTo(content.length);
+		assertThat(new String(content)).isEqualTo(messageContext);
 	}
 
 }

@@ -139,7 +139,7 @@ public class SimpleStorageResource extends AbstractResource implements WritableR
 	}
 
 	@Override
-	public URL getURL() throws IOException {
+	public URL getURL() {
 		return this.amazonS3.utilities().getUrl(GetUrlRequest.builder()
 				.bucket(this.bucketName).key(this.objectName).build());
 	}

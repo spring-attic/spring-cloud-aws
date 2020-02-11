@@ -95,10 +95,8 @@ public class StackResourceRegistryFactoryBeanTest {
 				.entrySet()) {
 			String stackName = entry.getKey();
 
-			ListStackResourcesResponse listStackResourcesResult = mock(
-					ListStackResourcesResponse.class);
-			when(listStackResourcesResult.stackResourceSummaries())
-					.thenReturn(entry.getValue());
+			ListStackResourcesResponse listStackResourcesResult = ListStackResourcesResponse
+					.builder().stackResourceSummaries(entry.getValue()).build();
 
 			when(amazonCloudFormationClient.listStackResources(
 					ArgumentMatchers.<ListStackResourcesRequest>argThat(
@@ -111,12 +109,12 @@ public class StackResourceRegistryFactoryBeanTest {
 
 	private static StackResourceSummary makeStackResourceSummary(String logicalResourceId,
 			String physicalResourceId) {
-		StackResourceSummary stackResourceSummary = mock(StackResourceSummary.class);
-		when(stackResourceSummary.logicalResourceId()).thenReturn(logicalResourceId);
-		when(stackResourceSummary.physicalResourceId()).thenReturn(physicalResourceId);
-		when(stackResourceSummary.resourceType())
-				.thenReturn(logicalResourceId.endsWith("Stack")
-						? "AWS::CloudFormation::Stack" : "Amazon::SES::Test");
+		StackResourceSummary stackResourceSummary = StackResourceSummary.builder()
+				.logicalResourceId(logicalResourceId)
+				.physicalResourceId(physicalResourceId)
+				.resourceType(logicalResourceId.endsWith("Stack")
+						? "AWS::CloudFormation::Stack" : "Amazon::SES::Test")
+				.build();
 		return stackResourceSummary;
 	}
 

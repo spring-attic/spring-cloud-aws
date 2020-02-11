@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -44,10 +45,6 @@ public class SimpleStorageProtocolResolverTest {
 
 		DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
 		resourceLoader.addProtocolResolver(new SimpleStorageProtocolResolver(amazonS3));
-
-		HeadObjectResponse headObjectResponse = HeadObjectResponse.builder().build();
-		when(amazonS3.headObject(any(HeadObjectRequest.class)))
-				.thenReturn(headObjectResponse);
 
 		String resourceName = "s3://bucket/object/";
 		Resource resource = resourceLoader.getResource(resourceName);
@@ -99,8 +96,7 @@ public class SimpleStorageProtocolResolverTest {
 		assertThat(resourceLoader.getResource("s3://prefix.bucket/object.suffix"))
 				.isNotNull();
 
-		// TODO SDK2 migration: update and uncomment
-		// verify(amazonS3, times(0)).getObjectMetadata("bucket", "object");
+		verifyNoInteractions(amazonS3);
 	}
 
 	@Test
@@ -119,8 +115,7 @@ public class SimpleStorageProtocolResolverTest {
 			assertThat(e.getMessage().contains("valid bucket name")).isTrue();
 		}
 
-		// TODO SDK2 migration: update and uncomment
-		// verify(amazonS3, times(0)).getObjectMetadata("bucket", "object");
+		verifyNoInteractions(amazonS3);
 	}
 
 	@Test

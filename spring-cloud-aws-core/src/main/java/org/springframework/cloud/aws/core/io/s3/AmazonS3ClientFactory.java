@@ -20,6 +20,8 @@ import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentHashMap;
 
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.awscore.client.config.AwsClientOption;
+import software.amazon.awssdk.core.client.config.SdkClientConfiguration;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
@@ -27,6 +29,7 @@ import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
 /**
@@ -39,20 +42,22 @@ import org.springframework.util.ReflectionUtils;
  */
 public class AmazonS3ClientFactory {
 
-	private static final String CREDENTIALS_PROVIDER_FIELD_NAME = "awsCredentialsProvider";
+	private static final String CLIENT_CONFIGURATION_FIELD_NAME = "clientConfiguration";
 
 	private final ConcurrentHashMap<String, S3Client> clientCache = new ConcurrentHashMap<>(
 			Region.regions().size());
 
-	private final Field credentialsProviderField;
+	private final Field clientConfigurationField;
 
 	public AmazonS3ClientFactory() {
-		this.credentialsProviderField = ReflectionUtils.findField(S3Client.class,
-				CREDENTIALS_PROVIDER_FIELD_NAME);
-		Assert.notNull(this.credentialsProviderField,
-				"Credentials Provider field not found, this class does not work with the current "
+		Class<?> s3ClientClass = ClassUtils.resolveClassName(
+				"software.amazon.awssdk.services.s3.DefaultS3Client", null);
+		this.clientConfigurationField = ReflectionUtils.findField(s3ClientClass,
+				CLIENT_CONFIGURATION_FIELD_NAME);
+		Assert.notNull(this.clientConfigurationField,
+				"Client Configuration field not found, this class does not work with the current "
 						+ "AWS SDK release");
-		ReflectionUtils.makeAccessible(this.credentialsProviderField);
+		ReflectionUtils.makeAccessible(this.clientConfigurationField);
 	}
 
 	private static S3Client getAmazonS3ClientFromProxy(S3Client amazonS3) {
@@ -85,14 +90,15 @@ public class AmazonS3ClientFactory {
 		return this.clientCache.get(region);
 	}
 
-	// TODO SDK2 migration: find a different solution to use the same credentials provider.
 	private S3ClientBuilder buildAmazonS3ForRegion(S3Client prototype, Region region) {
 		S3ClientBuilder clientBuilder = S3Client.builder();
 
 		S3Client target = getAmazonS3ClientFromProxy(prototype);
 		if (target != null) {
-			AwsCredentialsProvider awsCredentialsProvider = (AwsCredentialsProvider) ReflectionUtils
-					.getField(this.credentialsProviderField, target);
+			SdkClientConfiguration sdkClientConfiguration = (SdkClientConfiguration) ReflectionUtils
+					.getField(this.clientConfigurationField, target);
+			AwsCredentialsProvider awsCredentialsProvider = sdkClientConfiguration
+					.option(AwsClientOption.CREDENTIALS_PROVIDER);
 			clientBuilder.credentialsProvider(awsCredentialsProvider);
 		}
 

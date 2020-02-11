@@ -54,7 +54,7 @@ public class AmazonEc2InstanceUserTagsFactoryBeanTest {
 				TagDescription.builder().key("keyA").resourceType(ResourceType.INSTANCE)
 						.value("valueA").build(),
 				TagDescription.builder().key("keyB").resourceType(ResourceType.INSTANCE)
-						.value("keyB").build())
+						.value("valueB").build())
 				.build();
 
 		when(amazonEC2.describeTags(describeTagsRequest)).thenReturn(describeTagsResult);

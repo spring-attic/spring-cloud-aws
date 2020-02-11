@@ -19,15 +19,18 @@ package org.springframework.cloud.aws.core.io.s3;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import software.amazon.awssdk.awscore.client.config.AwsClientOption;
+import software.amazon.awssdk.core.client.config.SdkClientConfiguration;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Agim Emruli
  */
-// TODO SDK2 migration: test for missing header
 public class AmazonS3ClientFactoryTest {
 
 	@Rule
@@ -40,7 +43,7 @@ public class AmazonS3ClientFactoryTest {
 		S3Client amazonS3 = S3Client.builder().region(Region.US_WEST_2).build();
 
 		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("Endpoint Url must not be null");
+		this.expectedException.expectMessage("Region must not be null");
 
 		// Act
 		amazonS3ClientFactory.createClientForRegion(amazonS3, null);
@@ -75,8 +78,10 @@ public class AmazonS3ClientFactoryTest {
 				"us-west-1");
 
 		// Prepare
-		// TODO SDK2 migration: update and uncomment
-		// assertThat(newClient.getRegionName()).isEqualTo(Region.US_WEST_1);
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(newClient, "clientConfiguration");
+		assertThat(clientConfiguration.option(AwsClientOption.AWS_REGION))
+				.isEqualTo(Region.US_WEST_1);
 	}
 
 	@Test
@@ -90,8 +95,10 @@ public class AmazonS3ClientFactoryTest {
 				"eu-central-1");
 
 		// Prepare
-		// TODO SDK2 migration: update and uncomment
-		// assertThat(newClient.getRegionName()).isEqualTo(Regions.EU_CENTRAL_1.getName());
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(newClient, "clientConfiguration");
+		assertThat(clientConfiguration.option(AwsClientOption.AWS_REGION))
+				.isEqualTo(Region.EU_CENTRAL_1);
 	}
 
 	@Test
