@@ -38,38 +38,17 @@
 	</properties>
 	<dependencyManagement>
 		<dependencies>
-			<!-- TODO SDK2 migration: check exclusions -->
 			<dependency>
 				<groupId>software.amazon.awssdk</groupId>
 				<artifactId>bom</artifactId>
 				<version>${aws-java-sdk.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
-				<exclusions>
-					<exclusion>
-						<groupId>com.github.tomakehurst</groupId>
-						<artifactId>wiremock</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>software.amazon.awssdk</groupId>
 				<artifactId>core</artifactId>
 				<version>${aws-java-sdk.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>stax</groupId>
-						<artifactId>stax-api</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>activation</groupId>
-						<artifactId>activation</artifactId>
-					</exclusion>
-					<exclusion>
-						<artifactId>commons-logging</artifactId>
-						<groupId>commons-logging</groupId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>com.thimbleware.jmemcached</groupId>
