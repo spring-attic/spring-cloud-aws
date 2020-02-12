@@ -42,7 +42,7 @@ import static org.springframework.cloud.aws.core.config.xml.XmlWebserviceConfigu
  * {@link org.springframework.beans.factory.xml.BeanDefinitionParser} parser
  * implementation for the datasource element. Parses the element and constructs a fully
  * configured {@link AmazonRdsDataSourceFactoryBean} bean definition. Also creates a bean
- * definition for the {@link com.amazonaws.services.rds.AmazonRDSClient} if there is not
+ * definition for the {@link software.amazon.awssdk.services.rds.RdsClient} if there is not
  * already an existing one this application context.
  *
  * @author Agim Emruli
@@ -52,10 +52,10 @@ class AmazonRdsDataSourceBeanDefinitionParser extends AbstractBeanDefinitionPars
 
 	static final String DB_INSTANCE_IDENTIFIER = "db-instance-identifier";
 
-	private static final String AMAZON_RDS_CLIENT_CLASS_NAME = "com.amazonaws.services.rds.AmazonRDSClient";
+	private static final String AMAZON_RDS_CLIENT_CLASS_NAME = "software.amazon.awssdk.services.rds.RdsClient";
 
 	// @checkstyle:off
-	private static final String IDENTITY_MANAGEMENT_CLIENT_CLASS_NAME = "com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient";
+	private static final String IDENTITY_MANAGEMENT_CLIENT_CLASS_NAME = "software.amazon.awssdk.services.iam.IamClient";
 
 	// @checkstyle:on
 

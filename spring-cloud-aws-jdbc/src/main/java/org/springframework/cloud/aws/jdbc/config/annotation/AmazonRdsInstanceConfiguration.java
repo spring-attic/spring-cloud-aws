@@ -168,7 +168,7 @@ public class AmazonRdsInstanceConfiguration {
 							+ importingClassMetadata.getClassName());
 			String amazonRdsClientBeanName = AmazonWebserviceClientConfigurationUtils
 					.registerAmazonWebserviceClient(this, registry,
-							"com.amazonaws.services.rds.AmazonRDSClient", null, null)
+							"software.amazon.awssdk.services.rds.RdsClient", null, null)
 					.getBeanName();
 			registerDataSource(registry, amazonRdsClientBeanName,
 					annotationAttributes.getString("dbInstanceIdentifier"),

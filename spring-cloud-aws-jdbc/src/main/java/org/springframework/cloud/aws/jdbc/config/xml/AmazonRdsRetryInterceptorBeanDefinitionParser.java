@@ -68,7 +68,7 @@ class AmazonRdsRetryInterceptorBeanDefinitionParser
 	 */
 	private static final String BACK_OFF_POLICY = "back-off-policy";
 
-	private static final String AMAZON_RDS_CLIENT_CLASS_NAME = "com.amazonaws.services.rds.AmazonRDSClient";
+	private static final String AMAZON_RDS_CLIENT_CLASS_NAME = "software.amazon.awssdk.services.rds.RdsClient";
 
 	/**
 	 * Builds the RetryOperation {@link BeanDefinition} with its collaborators.

@@ -35,6 +35,6 @@
 							amazon-rds="customRdsClient"/>
 
 	<bean id="customRdsClient" class="org.mockito.Mockito" factory-method="mock">
-		<constructor-arg value="com.amazonaws.services.rds.AmazonRDS"/>
+		<constructor-arg value="software.amazon.awssdk.services.rds.RdsClient"/>
 	</bean>
 </beans>

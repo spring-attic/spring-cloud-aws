@@ -20,6 +20,8 @@ import java.util.List;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.junit.Test;
+import software.amazon.awssdk.core.client.config.SdkClientConfiguration;
+import software.amazon.awssdk.core.client.config.SdkClientOption;
 import software.amazon.awssdk.services.rds.RdsClient;
 
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -61,7 +63,8 @@ public class AmazonRdsRetryInterceptorBeanDefinitionParserTest {
 		RdsClient amazonRDS = classPathXmlApplicationContext.getBean(RdsClient.class);
 
 		// Assert
-		assertThat(ReflectionTestUtils.getField(amazonRDS, "endpoint").toString())
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonRDS, "clientConfiguration");
+		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
 				.isEqualTo("https://rds.eu-west-1.amazonaws.com");
 	}
 
@@ -76,7 +79,8 @@ public class AmazonRdsRetryInterceptorBeanDefinitionParserTest {
 		RdsClient amazonRDS = classPathXmlApplicationContext.getBean(RdsClient.class);
 
 		// Assert
-		assertThat(ReflectionTestUtils.getField(amazonRDS, "endpoint").toString())
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonRDS, "clientConfiguration");
+		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
 				.isEqualTo("https://rds.eu-west-1.amazonaws.com");
 	}
 

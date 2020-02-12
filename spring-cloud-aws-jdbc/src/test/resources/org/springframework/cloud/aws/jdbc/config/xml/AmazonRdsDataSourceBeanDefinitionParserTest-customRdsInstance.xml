@@ -37,11 +37,11 @@
 					  amazon-identity-management="myIdentityService"/>
 
 	<bean id="amazonRds" class="org.mockito.Mockito" factory-method="mock">
-		<constructor-arg value="com.amazonaws.services.rds.AmazonRDS"/>
+		<constructor-arg value="software.amazon.awssdk.services.rds.RdsClient"/>
 	</bean>
 
 	<bean id="myIdentityService" class="org.mockito.Mockito" factory-method="mock">
 		<constructor-arg
-			value="com.amazonaws.services.identitymanagement.AmazonIdentityManagement"/>
+			value="software.amazon.awssdk.services.iam.IamClient"/>
 	</bean>
 </beans>

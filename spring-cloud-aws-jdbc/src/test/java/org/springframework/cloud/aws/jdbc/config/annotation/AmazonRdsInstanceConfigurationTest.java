@@ -180,7 +180,7 @@ public class AmazonRdsInstanceConfigurationTest {
 	public static class ApplicationConfigurationWithoutReadReplica {
 
 		@Bean
-		public RdsClient amazonRDS() {
+		public RdsClient amazonRds() {
 			RdsClient client = Mockito.mock(RdsClient.class);
 			when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
 					.dbInstanceIdentifier("test").build())).thenReturn(
@@ -202,7 +202,7 @@ public class AmazonRdsInstanceConfigurationTest {
 	public static class ApplicationConfigurationWithoutReadReplicaAndCustomDbName {
 
 		@Bean
-		public RdsClient amazonRDS() {
+		public RdsClient amazonRds() {
 			RdsClient client = Mockito.mock(RdsClient.class);
 			when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
 					.dbInstanceIdentifier("test").build())).thenReturn(
@@ -223,7 +223,7 @@ public class AmazonRdsInstanceConfigurationTest {
 	public static class ApplicationConfigurationWithoutReadReplicaAndCustomDataSourceFactory {
 
 		@Bean
-		public RdsClient amazonRDS() {
+		public RdsClient amazonRds() {
 			RdsClient client = Mockito.mock(RdsClient.class);
 			when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
 					.dbInstanceIdentifier("test").build())).thenReturn(
@@ -258,7 +258,7 @@ public class AmazonRdsInstanceConfigurationTest {
 		// @checkstyle:on
 
 		@Bean
-		public RdsClient amazonRDS() {
+		public RdsClient amazonRds() {
 			RdsClient client = Mockito.mock(RdsClient.class);
 			when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
 					.dbInstanceIdentifier("test").build())).thenReturn(
@@ -288,7 +288,7 @@ public class AmazonRdsInstanceConfigurationTest {
 		}
 
 		@Bean
-		public RdsClient amazonRDS() {
+		public RdsClient amazonRds() {
 			RdsClient client = Mockito.mock(RdsClient.class);
 			when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
 					.dbInstanceIdentifier("test").build())).thenReturn(
@@ -310,7 +310,7 @@ public class AmazonRdsInstanceConfigurationTest {
 	public static class ApplicationConfigurationWithReadReplica {
 
 		@Bean
-		public RdsClient amazonRDS() {
+		public RdsClient amazonRds() {
 			RdsClient client = Mockito.mock(RdsClient.class);
 			when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
 					.dbInstanceIdentifier("test").build())).thenReturn(

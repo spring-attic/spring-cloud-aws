@@ -26,6 +26,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
+import software.amazon.awssdk.core.client.config.SdkClientConfiguration;
+import software.amazon.awssdk.core.client.config.SdkClientOption;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.GetUserResponse;
 import software.amazon.awssdk.services.iam.model.User;
@@ -346,7 +348,8 @@ public class AmazonRdsDataSourceBeanDefinitionParserTest {
 
 		// Assert
 		// have to use reflection utils
-		assertThat(ReflectionTestUtils.getField(amazonRDS, "endpoint").toString())
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonRDS, "clientConfiguration");
+		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
 				.isEqualTo("https://rds.eu-west-1.amazonaws.com");
 	}
 
@@ -367,7 +370,8 @@ public class AmazonRdsDataSourceBeanDefinitionParserTest {
 
 		// Assert
 		// have to use reflection utils
-		assertThat(ReflectionTestUtils.getField(amazonRDS, "endpoint").toString())
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonRDS, "clientConfiguration");
+		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
 				.isEqualTo("https://rds.eu-west-1.amazonaws.com");
 
 	}
