@@ -31,6 +31,8 @@ import static org.springframework.cloud.aws.core.config.AmazonWebserviceClientCo
  */
 public final class XmlWebserviceConfigurationUtils {
 
+	private static final String REGION_ATTRIBUTE_NAME = "region";
+
 	private static final String REGION_PROVIDER_ATTRIBUTE_NAME = "region-provider";
 
 	private XmlWebserviceConfigurationUtils() {
@@ -55,6 +57,7 @@ public final class XmlWebserviceConfigurationUtils {
 		try {
 			return getAmazonWebserviceClientBeanDefinition(source, serviceClassName,
 					element.getAttribute(REGION_PROVIDER_ATTRIBUTE_NAME),
+					element.getAttribute(REGION_ATTRIBUTE_NAME),
 					parserContext.getRegistry());
 		}
 		catch (Exception e) {
@@ -69,7 +72,8 @@ public final class XmlWebserviceConfigurationUtils {
 		try {
 			return registerAmazonWebserviceClient(source, parserContext.getRegistry(),
 					serviceClassName,
-					element.getAttribute(REGION_PROVIDER_ATTRIBUTE_NAME));
+					element.getAttribute(REGION_PROVIDER_ATTRIBUTE_NAME),
+					element.getAttribute(REGION_ATTRIBUTE_NAME));
 		}
 		catch (Exception e) {
 			parserContext.getReaderContext().error(e.getMessage(), source, e);

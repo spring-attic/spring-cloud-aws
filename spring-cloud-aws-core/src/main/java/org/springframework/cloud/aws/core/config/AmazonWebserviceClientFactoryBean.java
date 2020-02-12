@@ -52,6 +52,8 @@ public class AmazonWebserviceClientFactoryBean<T extends SdkClient>
 
 	private RegionProvider regionProvider;
 
+	private Region customRegion;
+
 	private ExecutorService executor;
 
 	public AmazonWebserviceClientFactoryBean(Class<T> clientClass,
@@ -82,6 +84,7 @@ public class AmazonWebserviceClientFactoryBean<T extends SdkClient>
 		AwsClientBuilder<?, T> builder = (AwsClientBuilder<?, T>) ReflectionUtils
 				.invokeMethod(builderMethod, null);
 
+		// TODO SDK2 migration: does this still work?
 		if (this.executor != null) {
 			AwsAsyncClientBuilder<?, T> asyncBuilder = (AwsAsyncClientBuilder<?, T>) builder;
 			asyncBuilder.asyncConfiguration(ClientAsyncConfiguration.builder()
@@ -95,7 +98,10 @@ public class AmazonWebserviceClientFactoryBean<T extends SdkClient>
 			builder.credentialsProvider(this.credentialsProvider);
 		}
 
-		if (this.regionProvider != null) {
+		if (this.customRegion != null) {
+			builder.region(this.customRegion);
+		}
+		else if (this.regionProvider != null) {
 			builder.region(this.regionProvider.getRegion());
 		}
 		else {
@@ -106,6 +112,10 @@ public class AmazonWebserviceClientFactoryBean<T extends SdkClient>
 
 	public void setRegionProvider(RegionProvider regionProvider) {
 		this.regionProvider = regionProvider;
+	}
+
+	public void setCustomRegion(String customRegionName) {
+		this.customRegion = Region.of(customRegionName);
 	}
 
 	public void setExecutor(ExecutorService executor) {

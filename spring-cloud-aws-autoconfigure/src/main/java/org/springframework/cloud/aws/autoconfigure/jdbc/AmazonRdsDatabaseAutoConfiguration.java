@@ -72,7 +72,7 @@ public class AmazonRdsDatabaseAutoConfiguration {
 				BeanDefinitionRegistry registry) {
 			String amazonRdsClientBeanName = AmazonWebserviceClientConfigurationUtils
 					.registerAmazonWebserviceClient(this, registry,
-							"com.amazonaws.services.rds.AmazonRDSClient", null)
+							"com.amazonaws.services.rds.AmazonRDSClient", null, null)
 					.getBeanName();
 			Map<String, Map<String, String>> dbInstanceConfigurations = getDbInstanceConfigurations();
 			for (Map.Entry<String, Map<String, String>> dbInstanceEntry : dbInstanceConfigurations

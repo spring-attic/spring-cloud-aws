@@ -19,6 +19,7 @@ package org.springframework.cloud.aws.core.config;
 import org.junit.Test;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
 
 import org.springframework.cloud.aws.core.region.StaticRegionProvider;
 
@@ -29,6 +30,25 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AmazonWebserviceClientFactoryBeanTest {
 
+	@Test
+	public void getObject_withCustomRegion_returnsClientWithCustomRegion()
+		throws Exception {
+
+		// Arrange
+		AmazonWebserviceClientFactoryBean<AmazonTestWebserviceClient> factoryBean = new AmazonWebserviceClientFactoryBean<>(
+			AmazonTestWebserviceClient.class,
+			StaticCredentialsProvider
+				.create(AwsBasicCredentials.create("aaa", "bbb")));
+		factoryBean.setCustomRegion("eu-west-1");
+
+		// Act
+		factoryBean.afterPropertiesSet();
+		AmazonTestWebserviceClient webserviceClient = factoryBean.getObject();
+
+		// Assert
+		assertThat(webserviceClient.getRegion()).isEqualTo(Region.EU_WEST_1);
+
+	}
 	@Test
 	public void getObject_withRegionProvider_returnsClientWithRegionReturnedByProvider()
 			throws Exception {
