@@ -40,7 +40,7 @@ import static org.springframework.cloud.aws.core.config.xml.XmlWebserviceConfigu
 public class ContextResourceLoaderBeanDefinitionParser
 		extends AbstractSimpleBeanDefinitionParser {
 
-	private static final String AMAZON_S3_CLIENT_CLASS_NAME = "com.amazonaws.services.s3.AmazonS3Client";
+	private static final String AMAZON_S3_CLIENT_CLASS_NAME = "software.amazon.awssdk.services.s3.S3Client";
 
 	// @checkstyle:off
 	private static final String RESOURCE_LOADER_BEAN_POST_PROCESSOR = "org.springframework.cloud.aws.context.support.io.SimpleStorageProtocolResolverConfigurer";

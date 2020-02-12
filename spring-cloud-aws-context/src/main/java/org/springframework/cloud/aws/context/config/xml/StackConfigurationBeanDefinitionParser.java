@@ -48,11 +48,11 @@ class StackConfigurationBeanDefinitionParser extends AbstractSimpleBeanDefinitio
 
 	private static final String INSTANCE_ID_PROVIDER_CLASS_NAME = "org.springframework.cloud.aws.core.env.ec2.AmazonEc2InstanceIdProvider";
 
-	private static final String CLOUD_FORMATION_CLIENT_CLASS_NAME = "com.amazonaws.services.cloudformation.AmazonCloudFormationClient";
+	private static final String CLOUD_FORMATION_CLIENT_CLASS_NAME = "software.amazon.awssdk.services.cloudformation.CloudFormationClient";
 
 	// @checkstyle:on
 
-	private static final String EC2_CLIENT_CLASS_NAME = "com.amazonaws.services.ec2.AmazonEC2Client";
+	private static final String EC2_CLIENT_CLASS_NAME = "software.amazon.awssdk.services.ec2.Ec2Client";
 
 	private static final String STACK_NAME_ATTRIBUTE_NAME = "stack-name";
 

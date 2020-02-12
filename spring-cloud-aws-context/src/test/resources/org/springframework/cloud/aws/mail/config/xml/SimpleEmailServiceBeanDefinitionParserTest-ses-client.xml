@@ -29,7 +29,7 @@
 	<aws-mail:mail-sender id="test" amazon-ses="emailServiceClient"/>
 
 	<bean id="emailServiceClient"
-		  class="com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient"/>
+		  class="software.amazon.awssdk.services.ses.SesClient" factory-method="create"/>
 
 	<aws-context:context-credentials>
 		<aws-context:simple-credentials access-key="test" secret-key="abc"/>

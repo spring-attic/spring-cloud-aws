@@ -41,7 +41,7 @@ class ContextInstanceDataPropertySourceBeanDefinitionParser
 
 	// @checkstyle:on
 
-	private static final String EC2_CLIENT_CLASS_NAME = "com.amazonaws.services.ec2.AmazonEC2Client";
+	private static final String EC2_CLIENT_CLASS_NAME = "software.amazon.awssdk.services.ec2.Ec2Client";
 
 	@Override
 	protected AbstractBeanDefinition parseInternal(Element element,

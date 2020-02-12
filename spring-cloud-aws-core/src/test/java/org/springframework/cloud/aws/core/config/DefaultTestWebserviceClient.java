@@ -18,11 +18,11 @@ package org.springframework.cloud.aws.core.config;
 
 import software.amazon.awssdk.regions.Region;
 
-public class DefaultAmazonTestWebserviceClient implements AmazonTestWebserviceClient {
+public class DefaultTestWebserviceClient implements TestWebserviceClient {
 
 	private final Region region;
 
-	public DefaultAmazonTestWebserviceClient(Region region) {
+	public DefaultTestWebserviceClient(Region region) {
 		this.region = region;
 	}
 

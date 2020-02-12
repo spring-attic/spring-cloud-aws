@@ -19,6 +19,7 @@ package org.springframework.cloud.aws.core.region;
 import software.amazon.awssdk.regions.Region;
 
 import org.springframework.cloud.aws.core.support.documentation.RuntimeUse;
+import org.springframework.util.Assert;
 
 /**
  * Static {@link RegionProvider} implementation that can used to statically configure a
@@ -39,13 +40,9 @@ public class StaticRegionProvider implements RegionProvider {
 	 */
 	@RuntimeUse
 	public StaticRegionProvider(String configuredRegion) {
-		try {
-			this.configuredRegion = Region.of(configuredRegion);
-		}
-		catch (IllegalArgumentException e) {
-			throw new IllegalArgumentException(
-					"The region '" + configuredRegion + "' is not a valid region!", e);
-		}
+		this.configuredRegion = Region.of(configuredRegion);
+		Assert.isTrue(Region.regions().contains(this.configuredRegion),
+				"The region '" + configuredRegion + "' is not a valid region!");
 	}
 
 	/**

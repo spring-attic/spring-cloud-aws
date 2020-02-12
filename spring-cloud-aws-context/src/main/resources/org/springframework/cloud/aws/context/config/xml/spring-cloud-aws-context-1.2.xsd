@@ -35,7 +35,7 @@
 			]]></xsd:documentation>
 			<xsd:appinfo>
 				<tool:annotation>
-					<tool:exports type="com.amazonaws.auth.AWSCredentialsProvider"/>
+					<tool:exports type="software.amazon.awssdk.auth.credentials.AwsCredentialsProvider"/>
 				</tool:annotation>
 			</xsd:appinfo>
 		</xsd:annotation>

@@ -16,11 +16,14 @@
 
 package org.springframework.cloud.aws.context.config.support;
 
+import java.nio.file.Paths;
+
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.profiles.ProfileFile;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -89,7 +92,8 @@ public final class ContextConfigurationUtils {
 	public static void registerDefaultAWSCredentialsProvider(
 			BeanDefinitionRegistry registry) {
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder
-				.rootBeanDefinition(DefaultCredentialsProvider.class);
+				.rootBeanDefinition(DefaultCredentialsProvider.class)
+				.setFactoryMethod("create");
 		registry.registerBeanDefinition(
 				CredentialsProviderFactoryBean.CREDENTIALS_PROVIDER_BEAN_NAME,
 				builder.getBeanDefinition());
@@ -121,17 +125,31 @@ public final class ContextConfigurationUtils {
 		if (instanceProfile) {
 			awsCredentialsProviders.add(BeanDefinitionBuilder
 					.rootBeanDefinition(InstanceProfileCredentialsProvider.class)
-					.getBeanDefinition());
+					.setFactoryMethod("create").getBeanDefinition());
 		}
 
 		if (StringUtils.hasText(profileName)) {
-			BeanDefinitionBuilder builder = BeanDefinitionBuilder
-					.genericBeanDefinition(ProfileCredentialsProvider.class);
+			BeanDefinitionBuilder credentialsProviderBuilderBuilder = BeanDefinitionBuilder
+					.genericBeanDefinition(
+							"software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider.BuilderImpl");
 			if (StringUtils.hasText(profilePath)) {
-				builder.addConstructorArgValue(profilePath);
+				// TODO SDK2 migration: placeholder replacement does not work this way, s. failing unit tests
+				credentialsProviderBuilderBuilder.addPropertyValue("profileFile",
+						ProfileFile.builder().content(Paths.get(profilePath))
+								// TODO SDK2 migration: make type configurable?
+								.type(ProfileFile.Type.CREDENTIALS).build());
 			}
 
-			builder.addConstructorArgValue(profileName);
+			credentialsProviderBuilderBuilder.addPropertyValue("profileName",
+					profileName);
+			registry.registerBeanDefinition(
+					CredentialsProviderFactoryBean.CREDENTIALS_PROVIDER_BUILDER_BEAN_NAME,
+					credentialsProviderBuilderBuilder.getBeanDefinition());
+
+			BeanDefinitionBuilder builder = BeanDefinitionBuilder
+					.genericBeanDefinition(ProfileCredentialsProvider.class);
+			builder.setFactoryMethodOnBean("build",
+					CredentialsProviderFactoryBean.CREDENTIALS_PROVIDER_BUILDER_BEAN_NAME);
 			awsCredentialsProviders.add(builder.getBeanDefinition());
 		}
 

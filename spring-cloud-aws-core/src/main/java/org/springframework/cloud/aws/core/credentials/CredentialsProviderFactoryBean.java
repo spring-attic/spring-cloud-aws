@@ -41,6 +41,11 @@ public class CredentialsProviderFactoryBean
 	 */
 	public static final String CREDENTIALS_PROVIDER_BEAN_NAME = "credentialsProvider";
 
+	/**
+	 * Name of the credentials provider builder bean.
+	 */
+	public static final String CREDENTIALS_PROVIDER_BUILDER_BEAN_NAME = "credentialsProviderBuilder";
+
 	private final List<AwsCredentialsProvider> delegates;
 
 	public CredentialsProviderFactoryBean() {

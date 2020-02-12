@@ -29,7 +29,7 @@
 
 	<aws-context:context-resource-loader amazon-s3="customS3Client"/>
 
-	<bean id="customS3Client" class="com.amazonaws.services.s3.AmazonS3Client"/>
+	<bean id="customS3Client" class="software.amazon.awssdk.services.s3.S3Client" factory-method="create"/>
 
 	<bean
 		class="org.springframework.cloud.aws.context.config.xml.ContextResourceLoaderBeanDefinitionParserTest$ResourceLoaderBean"/>

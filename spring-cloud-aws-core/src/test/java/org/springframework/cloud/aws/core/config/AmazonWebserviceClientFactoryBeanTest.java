@@ -32,36 +32,36 @@ public class AmazonWebserviceClientFactoryBeanTest {
 
 	@Test
 	public void getObject_withCustomRegion_returnsClientWithCustomRegion()
-		throws Exception {
+			throws Exception {
 
 		// Arrange
-		AmazonWebserviceClientFactoryBean<AmazonTestWebserviceClient> factoryBean = new AmazonWebserviceClientFactoryBean<>(
-			AmazonTestWebserviceClient.class,
-			StaticCredentialsProvider
-				.create(AwsBasicCredentials.create("aaa", "bbb")));
+		AmazonWebserviceClientFactoryBean<TestWebserviceClient> factoryBean = new AmazonWebserviceClientFactoryBean<>(
+				TestWebserviceClient.class, StaticCredentialsProvider
+						.create(AwsBasicCredentials.create("aaa", "bbb")));
 		factoryBean.setCustomRegion("eu-west-1");
 
 		// Act
 		factoryBean.afterPropertiesSet();
-		AmazonTestWebserviceClient webserviceClient = factoryBean.getObject();
+		TestWebserviceClient webserviceClient = factoryBean.getObject();
 
 		// Assert
 		assertThat(webserviceClient.getRegion()).isEqualTo(Region.EU_WEST_1);
 
 	}
+
 	@Test
 	public void getObject_withRegionProvider_returnsClientWithRegionReturnedByProvider()
 			throws Exception {
 
 		// Arrange
-		AmazonWebserviceClientFactoryBean<AmazonTestWebserviceClient> factoryBean = new AmazonWebserviceClientFactoryBean<>(
-				AmazonTestWebserviceClient.class, StaticCredentialsProvider
+		AmazonWebserviceClientFactoryBean<TestWebserviceClient> factoryBean = new AmazonWebserviceClientFactoryBean<>(
+				TestWebserviceClient.class, StaticCredentialsProvider
 						.create(AwsBasicCredentials.create("aaa", "bbb")));
 		factoryBean.setRegionProvider(new StaticRegionProvider("eu-west-1"));
 
 		// Act
 		factoryBean.afterPropertiesSet();
-		AmazonTestWebserviceClient webserviceClient = factoryBean.getObject();
+		TestWebserviceClient webserviceClient = factoryBean.getObject();
 
 		// Assert
 		assertThat(webserviceClient.getRegion().id()).isEqualTo("eu-west-1");

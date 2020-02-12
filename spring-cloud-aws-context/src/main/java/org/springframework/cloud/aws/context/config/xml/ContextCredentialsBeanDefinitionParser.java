@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.w3c.dom.Element;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -44,17 +45,17 @@ import static org.springframework.cloud.aws.core.config.AmazonWebserviceClientCo
 class ContextCredentialsBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
 	// @checkstyle:off
-	private static final String STATIC_CREDENTIALS_PROVIDER_BEAN_CLASS_NAME = "com.amazonaws.auth.AWSStaticCredentialsProvider";
+	private static final String STATIC_CREDENTIALS_PROVIDER_BEAN_CLASS_NAME = "software.amazon.awssdk.auth.credentials.StaticCredentialsProvider";
 
 	// @checkstyle:on
 
 	// @checkstyle:off
-	private static final String INSTANCE_CREDENTIALS_PROVIDER_BEAN_CLASS_NAME = "com.amazonaws.auth.InstanceProfileCredentialsProvider";
+	private static final String INSTANCE_CREDENTIALS_PROVIDER_BEAN_CLASS_NAME = "software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider";
 
 	// @checkstyle:on
 
 	// @checkstyle:off
-	private static final String PROFILE_CREDENTIALS_PROVIDER_BEAN_CLASS_NAME = "com.amazonaws.auth.profile.ProfileCredentialsProvider";
+	private static final String PROFILE_CREDENTIALS_PROVIDER_BEAN_CLASS_NAME = "software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider";
 
 	// @checkstyle:on
 
@@ -66,6 +67,7 @@ class ContextCredentialsBeanDefinitionParser extends AbstractSingleBeanDefinitio
 			String credentialsProviderClassName, Object... constructorArg) {
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(credentialsProviderClassName);
+		beanDefinitionBuilder.setFactoryMethod("create");
 		for (Object o : constructorArg) {
 			beanDefinitionBuilder.addConstructorArgValue(o);
 		}
@@ -81,13 +83,12 @@ class ContextCredentialsBeanDefinitionParser extends AbstractSingleBeanDefinitio
 	 * attributes ACCESS_KEY_ATTRIBUTE_NAME and SECRET_KEY_ATTRIBUTE_NAME
 	 * @param parserContext - Used to report any errors if there is no
 	 * ACCESS_KEY_ATTRIBUTE_NAME or SECRET_KEY_ATTRIBUTE_NAME available with a valid value
-	 * @return - the bean definition with an
-	 * {@link com.amazonaws.auth.BasicAWSCredentials} class
+	 * @return - the bean definition with an {@link AwsBasicCredentials} class
 	 */
 	private static BeanDefinition getCredentials(Element credentialsProviderElement,
 			ParserContext parserContext) {
-		BeanDefinitionBuilder builder = BeanDefinitionBuilder
-				.rootBeanDefinition("com.amazonaws.auth.BasicAWSCredentials");
+		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(
+				"software.amazon.awssdk.auth.credentials.AwsBasicCredentials");
 		builder.addConstructorArgValue(getAttributeValue(ACCESS_KEY_ATTRIBUTE_NAME,
 				credentialsProviderElement, parserContext));
 		builder.addConstructorArgValue(getAttributeValue(SECRET_KEY_ATTRIBUTE_NAME,

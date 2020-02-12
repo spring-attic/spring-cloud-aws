@@ -19,6 +19,9 @@ package org.springframework.cloud.aws.context.config.xml;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import software.amazon.awssdk.awscore.client.config.AwsClientOption;
+import software.amazon.awssdk.core.client.config.SdkClientConfiguration;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
 import org.springframework.aop.framework.Advised;
@@ -74,9 +77,10 @@ public class ContextResourceLoaderBeanDefinitionParserTest {
 		S3Client webServiceClient = applicationContext.getBean(S3Client.class);
 
 		// Assert
-		// TODO SDK2 migration: adapt
-		// assertThat(webServiceClient.getRegion().toAWSRegion())
-		// .isEqualTo(Region.EU_WEST_1);
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(webServiceClient, "clientConfiguration");
+		assertThat(clientConfiguration.option(AwsClientOption.AWS_REGION))
+				.isEqualTo(Region.EU_WEST_1);
 
 		assertThat(DefaultResourceLoader.class.isInstance(resourceLoader)).isTrue();
 		DefaultResourceLoader defaultResourceLoader = (DefaultResourceLoader) resourceLoader;
@@ -96,9 +100,10 @@ public class ContextResourceLoaderBeanDefinitionParserTest {
 		S3Client webServiceClient = applicationContext.getBean(S3Client.class);
 
 		// Assert
-		// TODO SDK2 migration: adapt
-		// assertThat(webServiceClient.getRegion().toAWSRegion())
-		// .isEqualTo(Region.EU_WEST_2);
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(webServiceClient, "clientConfiguration");
+		assertThat(clientConfiguration.option(AwsClientOption.AWS_REGION))
+				.isEqualTo(Region.US_WEST_2);
 
 		assertThat(DefaultResourceLoader.class.isInstance(resourceLoader)).isTrue();
 		DefaultResourceLoader defaultResourceLoader = (DefaultResourceLoader) resourceLoader;

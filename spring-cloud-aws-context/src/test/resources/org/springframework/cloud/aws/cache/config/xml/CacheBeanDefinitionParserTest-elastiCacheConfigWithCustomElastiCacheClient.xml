@@ -29,6 +29,6 @@
 	</aws-cache:cache-manager>
 
 	<bean id="customClient" class="org.mockito.Mockito" factory-method="mock">
-		<constructor-arg value="com.amazonaws.services.elasticache.AmazonElastiCache"/>
+		<constructor-arg value="software.amazon.awssdk.services.elasticache.ElastiCacheClient"/>
 	</bean>
 </beans>

@@ -16,10 +16,11 @@
 
 package org.springframework.cloud.aws.mail.config.xml;
 
-import java.lang.reflect.Field;
 import java.net.URI;
 
 import org.junit.Test;
+import software.amazon.awssdk.core.client.config.SdkClientConfiguration;
+import software.amazon.awssdk.core.client.config.SdkClientOption;
 import software.amazon.awssdk.services.ses.SesClient;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -29,8 +30,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils.getBeanName;
-import static org.springframework.util.ReflectionUtils.findField;
-import static org.springframework.util.ReflectionUtils.makeAccessible;
 
 /**
  * @author Agim Emruli
@@ -39,9 +38,9 @@ public class SimpleEmailServiceBeanDefinitionParserTest {
 
 	private static String getEndpointUrlFromWebserviceClient(SesClient client)
 			throws Exception {
-		Field field = findField(SesClient.class, "endpoint");
-		makeAccessible(field);
-		URI endpointUri = (URI) field.get(client);
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(client, "clientConfiguration");
+		URI endpointUri = clientConfiguration.option(SdkClientOption.ENDPOINT);
 		return endpointUri.toASCIIString();
 	}
 

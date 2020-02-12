@@ -53,7 +53,7 @@ class CacheBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 	private static final String ELASTICACHE_FACTORY_BEAN = "org.springframework.cloud.aws.cache.ElastiCacheFactoryBean";
 
 	// @checkstyle:off
-	private static final String ELASTI_CACHE_CLIENT_CLASS_NAME = "com.amazonaws.services.elasticache.AmazonElastiCacheClient";
+	private static final String ELASTI_CACHE_CLIENT_CLASS_NAME = "software.amazon.awssdk.services.elasticache.ElastiCacheClient";
 
 	// @checkstyle:on
 

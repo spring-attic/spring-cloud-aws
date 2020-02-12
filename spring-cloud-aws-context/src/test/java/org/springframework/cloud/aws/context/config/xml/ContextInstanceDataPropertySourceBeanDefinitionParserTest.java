@@ -111,6 +111,7 @@ public class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
 	}
 
 	@Test
+	// TODO SDK2 migration: this test shouldn't pass now... find out why it does
 	public void parseInternal_singleElementWithCustomAmazonEc2Client_userTagMapCreatedWithCustomEc2Client()
 			throws Exception {
 		// Arrange

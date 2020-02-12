@@ -50,12 +50,12 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 
 		BeanDefinitionHolder beanDefinitionHolder = AmazonWebserviceClientConfigurationUtils
 				.registerAmazonWebserviceClient(new Object(), beanFactory,
-						AmazonTestWebserviceClient.class.getName(), null, null);
+						TestWebserviceClient.class.getName(), null, null);
 
 		// Act
 		beanFactory.preInstantiateSingletons();
-		AmazonTestWebserviceClient client = beanFactory.getBean(
-				beanDefinitionHolder.getBeanName(), AmazonTestWebserviceClient.class);
+		TestWebserviceClient client = beanFactory
+				.getBean(beanDefinitionHolder.getBeanName(), TestWebserviceClient.class);
 
 		// Assert
 		assertThat(client).isNotNull();
@@ -77,13 +77,12 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 
 		BeanDefinitionHolder beanDefinitionHolder = AmazonWebserviceClientConfigurationUtils
 				.registerAmazonWebserviceClient(new Object(), beanFactory,
-						AmazonTestWebserviceClient.class.getName(), "myRegionProvider",
-						null);
+						TestWebserviceClient.class.getName(), "myRegionProvider", null);
 
 		// Act
 		beanFactory.preInstantiateSingletons();
-		AmazonTestWebserviceClient client = beanFactory.getBean(
-				beanDefinitionHolder.getBeanName(), AmazonTestWebserviceClient.class);
+		TestWebserviceClient client = beanFactory
+				.getBean(beanDefinitionHolder.getBeanName(), TestWebserviceClient.class);
 
 		// Assert
 		assertThat(client).isNotNull();
@@ -101,13 +100,13 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 
 		BeanDefinitionHolder beanDefinitionHolder = AmazonWebserviceClientConfigurationUtils
 				.registerAmazonWebserviceClient(new Object(), beanFactory,
-						AmazonTestWebserviceClient.class.getName(), null,
+						TestWebserviceClient.class.getName(), null,
 						Region.EU_WEST_1.id());
 
 		// Act
 		beanFactory.preInstantiateSingletons();
-		AmazonTestWebserviceClient client = beanFactory.getBean(
-				beanDefinitionHolder.getBeanName(), AmazonTestWebserviceClient.class);
+		TestWebserviceClient client = beanFactory
+				.getBean(beanDefinitionHolder.getBeanName(), TestWebserviceClient.class);
 
 		// Assert
 		assertThat(client).isNotNull();
@@ -129,12 +128,12 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 
 		BeanDefinitionHolder beanDefinitionHolder = AmazonWebserviceClientConfigurationUtils
 				.registerAmazonWebserviceClient(new Object(), beanFactory,
-						AmazonTestWebserviceClient.class.getName(), "someProvider",
+						TestWebserviceClient.class.getName(), "someProvider",
 						Region.EU_WEST_1.id());
 
 		// Act
 		beanFactory.getBean(beanDefinitionHolder.getBeanName(),
-				AmazonTestWebserviceClient.class);
+				TestWebserviceClient.class);
 
 		// Assert
 	}
@@ -146,10 +145,14 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 
 		// Act
 		String beanName = AmazonWebserviceClientConfigurationUtils
-				.getBeanName("com.amazonaws.services.rds.AmazonRDS");
+				.getBeanName("software.amazon.awssdk.services.rds.RdsClient");
 
 		// Assert
-		assertThat(beanName).isEqualTo("amazonRDS");
+		// TODO SDK2 migration: should it stay this way? See
+		// org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils.getBeanName
+		// as well.
+		// This is also a breaking change because before it was amazonRDS (upper case)
+		assertThat(beanName).isEqualTo("amazonRds");
 	}
 
 	private static class StaticAwsCredentialsProvider implements AwsCredentialsProvider {

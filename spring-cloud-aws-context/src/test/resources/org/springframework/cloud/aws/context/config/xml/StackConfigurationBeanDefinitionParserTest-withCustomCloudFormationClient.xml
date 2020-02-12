@@ -30,6 +30,6 @@
 	<bean id="customCloudFormationClient" class="org.mockito.Mockito"
 		  factory-method="mock">
 		<constructor-arg
-			value="com.amazonaws.services.cloudformation.AmazonCloudFormation"/>
+			value="software.amazon.awssdk.services.cloudformation.CloudFormationClient"/>
 	</bean>
 </beans>

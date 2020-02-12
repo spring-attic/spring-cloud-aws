@@ -27,6 +27,7 @@ import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.profiles.ProfileFileSystemSetting;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -42,6 +43,8 @@ public class ContextCredentialsConfigurationRegistrarTest {
 
 	@After
 	public void tearDown() throws Exception {
+		System.clearProperty(
+				ProfileFileSystemSetting.AWS_SHARED_CREDENTIALS_FILE.property());
 		if (this.context != null) {
 			this.context.close();
 		}
@@ -226,6 +229,10 @@ public class ContextCredentialsConfigurationRegistrarTest {
 	public void credentialsProvider_configWithProfileNameAndNoProfilePath_profileCredentialsProviderConfigured()
 			throws Exception {
 		// Arrange
+		System.setProperty(
+				ProfileFileSystemSetting.AWS_SHARED_CREDENTIALS_FILE.property(),
+				new ClassPathResource(getClass().getSimpleName() + "-profile", getClass())
+						.getFile().getAbsolutePath());
 		this.context = new AnnotationConfigApplicationContext(
 				ApplicationConfigurationWithProfileAndDefaultProfilePath.class);
 
@@ -247,7 +254,7 @@ public class ContextCredentialsConfigurationRegistrarTest {
 		ProfileCredentialsProvider provider = (ProfileCredentialsProvider) credentialsProviders
 				.get(0);
 		assertThat(ReflectionTestUtils.getField(provider, "profileName"))
-				.isEqualTo("test");
+				.isEqualTo("customProfile");
 	}
 
 	@Test
@@ -354,7 +361,7 @@ public class ContextCredentialsConfigurationRegistrarTest {
 
 	}
 
-	@EnableContextCredentials(profileName = "test")
+	@EnableContextCredentials(profileName = "customProfile")
 	public static class ApplicationConfigurationWithProfileAndDefaultProfilePath {
 
 	}

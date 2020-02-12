@@ -42,8 +42,8 @@ public @interface EnableContextRegion {
 
 	/**
 	 * Configures the region as a String value. The value must match to an enum defined in
-	 * {@link com.amazonaws.regions.Regions}. This attribute is a String value allowing
-	 * expressions and placeholders to be used for the region configuration.
+	 * {@link software.amazon.awssdk.regions.Region}. This attribute is a String value
+	 * allowing expressions and placeholders to be used for the region configuration.
 	 * @return - the region a constant definition, SpEL expression or placeholder
 	 * definition
 	 */

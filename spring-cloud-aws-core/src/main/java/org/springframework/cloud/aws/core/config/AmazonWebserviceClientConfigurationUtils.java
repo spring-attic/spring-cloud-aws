@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.aws.core.config;
 
-import java.beans.Introspector;
-
 import software.amazon.awssdk.regions.Region;
 
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -118,7 +116,10 @@ public final class AmazonWebserviceClientConfigurationUtils {
 		String clientClassName = ClassUtils.getShortName(serviceClassName);
 		String shortenedClassName = StringUtils.delete(clientClassName,
 				SERVICE_IMPLEMENTATION_SUFFIX);
-		return Introspector.decapitalize(shortenedClassName);
+		// TODO SDK2 migration: backwards-compatible this way. find a better solution?
+		// Note not completely backwards-
+		// compatible since it used to be amazonRDS and now it is amazonRds (lower case).
+		return "amazon" + shortenedClassName;
 	}
 
 	public static String getRegionProviderBeanName(

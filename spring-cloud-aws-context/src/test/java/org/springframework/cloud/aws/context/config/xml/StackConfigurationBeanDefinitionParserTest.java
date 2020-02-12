@@ -21,6 +21,8 @@ import com.sun.net.httpserver.HttpServer;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
+import software.amazon.awssdk.core.client.config.SdkClientConfiguration;
+import software.amazon.awssdk.core.client.config.SdkClientOption;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.regions.ServiceMetadata;
 import software.amazon.awssdk.services.cloudformation.CloudFormationClient;
@@ -111,10 +113,11 @@ public class StackConfigurationBeanDefinitionParserTest {
 		// Assert
 		CloudFormationClient amazonCloudFormation = registry
 				.getBean(CloudFormationClient.class);
-		assertThat(
-				ReflectionTestUtils.getField(amazonCloudFormation, "endpoint").toString())
-						.isEqualTo("https://" + ServiceMetadata.of("cloudformation")
-								.endpointFor(Region.SA_EAST_1));
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonCloudFormation, "clientConfiguration");
+		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
+				.isEqualTo("https://" + ServiceMetadata.of("cloudformation")
+						.endpointFor(Region.SA_EAST_1));
 	}
 
 	@Test
@@ -131,10 +134,11 @@ public class StackConfigurationBeanDefinitionParserTest {
 		// Assert
 		CloudFormationClient amazonCloudFormation = registry
 				.getBean(CloudFormationClient.class);
-		assertThat(
-				ReflectionTestUtils.getField(amazonCloudFormation, "endpoint").toString())
-						.isEqualTo("https://" + ServiceMetadata.of("cloudformation")
-								.endpointFor(Region.AP_SOUTHEAST_2));
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonCloudFormation, "clientConfiguration");
+		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
+				.isEqualTo("https://" + ServiceMetadata.of("cloudformation")
+						.endpointFor(Region.AP_SOUTHEAST_2));
 	}
 
 	@Test

@@ -21,7 +21,7 @@ import software.amazon.awssdk.awscore.client.config.AwsClientOption;
 import software.amazon.awssdk.regions.Region;
 
 public class AmazonTestWebserviceClientBuilder extends
-		AwsDefaultClientBuilder<AmazonTestWebserviceClientBuilder, AmazonTestWebserviceClient> {
+		AwsDefaultClientBuilder<AmazonTestWebserviceClientBuilder, TestWebserviceClient> {
 
 	@Override
 	protected String serviceEndpointPrefix() {
@@ -39,10 +39,10 @@ public class AmazonTestWebserviceClientBuilder extends
 	}
 
 	@Override
-	protected AmazonTestWebserviceClient buildClient() {
+	protected TestWebserviceClient buildClient() {
 		final Region region = super.clientConfiguration.build()
 				.option(AwsClientOption.AWS_REGION);
-		return new DefaultAmazonTestWebserviceClient(region);
+		return new DefaultTestWebserviceClient(region);
 	}
 
 }

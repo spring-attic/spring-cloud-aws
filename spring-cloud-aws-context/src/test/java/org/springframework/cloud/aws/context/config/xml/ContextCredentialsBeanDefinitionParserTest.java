@@ -22,15 +22,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.http.client.CredentialsProvider;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProviderChain;
 import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.profiles.ProfileFileSystemSetting;
 
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -55,6 +57,12 @@ public class ContextCredentialsBeanDefinitionParserTest {
 	@Rule
 	public final ExpectedException expectedException = ExpectedException.none();
 
+	@After
+	public void tearDown() throws Exception {
+		System.clearProperty(
+				ProfileFileSystemSetting.AWS_SHARED_CREDENTIALS_FILE.property());
+	}
+
 	@Test
 	public void testCreateBeanDefinition() throws Exception {
 		ApplicationContext applicationContext = new ClassPathXmlApplicationContext(
@@ -64,11 +72,11 @@ public class ContextCredentialsBeanDefinitionParserTest {
 		AwsCredentialsProvider awsCredentialsProvider = applicationContext
 				.getBean(AwsCredentialsProvider.class);
 
-		assertThat(DefaultCredentialsProvider.class.isInstance(awsCredentialsProvider))
+		assertThat(AwsCredentialsProviderChain.class.isInstance(awsCredentialsProvider))
 				.isTrue();
 
 		// Using reflection to really test if the chain is stable
-		DefaultCredentialsProvider awsCredentialsProviderChain = (DefaultCredentialsProvider) awsCredentialsProvider;
+		AwsCredentialsProviderChain awsCredentialsProviderChain = (AwsCredentialsProviderChain) awsCredentialsProvider;
 
 		@SuppressWarnings("unchecked")
 		List<AwsCredentialsProvider> providerChain = (List<AwsCredentialsProvider>) ReflectionTestUtils
@@ -147,7 +155,12 @@ public class ContextCredentialsBeanDefinitionParserTest {
 	}
 
 	@Test
-	public void parseBean_withProfileCredentialsProvider_createProfileCredentialsProvider() {
+	public void parseBean_withProfileCredentialsProvider_createProfileCredentialsProvider()
+			throws Exception {
+		System.setProperty(
+				ProfileFileSystemSetting.AWS_SHARED_CREDENTIALS_FILE.property(),
+				new ClassPathResource(getClass().getSimpleName() + "-profile", getClass())
+						.getFile().getAbsolutePath());
 		ApplicationContext applicationContext = new ClassPathXmlApplicationContext(
 				getClass().getSimpleName() + "-profileCredentialsProvider.xml",
 				getClass());
@@ -167,7 +180,7 @@ public class ContextCredentialsBeanDefinitionParserTest {
 
 		assertThat(
 				ReflectionTestUtils.getField(credentialsProviders.get(0), "profileName"))
-						.isEqualTo("test");
+						.isEqualTo("customProfile");
 	}
 
 	@Test

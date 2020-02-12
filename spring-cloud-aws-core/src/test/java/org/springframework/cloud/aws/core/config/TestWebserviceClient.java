@@ -23,7 +23,7 @@ import software.amazon.awssdk.regions.Region;
  * @author Agim Emruli Test stub used by
  * {@link AmazonWebserviceClientConfigurationUtilsTest}
  */
-public interface AmazonTestWebserviceClient extends SdkClient {
+public interface TestWebserviceClient extends SdkClient {
 
 	static AmazonTestWebserviceClientBuilder builder() {
 		return new AmazonTestWebserviceClientBuilder();

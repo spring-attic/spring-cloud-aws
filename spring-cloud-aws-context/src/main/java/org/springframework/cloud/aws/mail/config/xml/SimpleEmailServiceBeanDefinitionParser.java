@@ -35,7 +35,7 @@ class SimpleEmailServiceBeanDefinitionParser extends AbstractSingleBeanDefinitio
 			SimpleEmailServiceBeanDefinitionParser.class.getClassLoader());
 
 	// @checkstyle:off
-	private static final String SIMPLE_EMAIL_CLIENT_CLASS_NAME = "com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient";
+	private static final String SIMPLE_EMAIL_CLIENT_CLASS_NAME = "software.amazon.awssdk.services.ses.SesClient";
 
 	// @checkstyle:on
 
