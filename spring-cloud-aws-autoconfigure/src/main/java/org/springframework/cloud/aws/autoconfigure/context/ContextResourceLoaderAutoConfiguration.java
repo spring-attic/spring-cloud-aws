@@ -34,7 +34,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  */
 @Configuration(proxyBeanMethods = false)
 @Import(ContextResourceLoaderAutoConfiguration.Registrar.class)
-@ConditionalOnClass(name = "com.amazonaws.services.s3.AmazonS3Client")
+@ConditionalOnClass(name = "software.amazon.awssdk.services.s3.S3Client")
 public class ContextResourceLoaderAutoConfiguration {
 
 	/**

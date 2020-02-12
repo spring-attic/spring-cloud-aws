@@ -45,7 +45,7 @@ public class MessagingAutoConfiguration {
 	/**
 	 * Auto configuration for SNS.
 	 */
-	@ConditionalOnClass(name = "com.amazonaws.services.sns.AmazonSNS")
+	@ConditionalOnClass(name = "software.amazon.awssdk.services.sns.SnsClient")
 	@EnableSns
 	@Configuration(proxyBeanMethods = false)
 	public static class SnsAutoConfiguration {

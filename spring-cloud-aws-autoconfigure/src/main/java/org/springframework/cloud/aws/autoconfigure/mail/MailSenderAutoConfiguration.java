@@ -42,7 +42,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureAfter(org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration.class)
 @ConditionalOnClass(name = { "org.springframework.mail.MailSender",
-		"com.amazonaws.services.simpleemail.AmazonSimpleEmailService" })
+		"software.amazon.awssdk.services.ses.SesClient" })
 @ConditionalOnMissingBean(MailSender.class)
 @Import(ContextCredentialsAutoConfiguration.class)
 public class MailSenderAutoConfiguration {

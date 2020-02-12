@@ -45,7 +45,7 @@ import org.springframework.util.StringUtils;
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureBefore(DataSourceAutoConfiguration.class)
 @Import(AmazonRdsDatabaseAutoConfiguration.Registrar.class)
-@ConditionalOnClass(name = { "com.amazonaws.services.rds.AmazonRDSClient",
+@ConditionalOnClass(name = { "software.amazon.awssdk.services.rds.RdsClient",
 		"org.springframework.cloud.aws.jdbc.config.annotation.AmazonRdsInstanceConfiguration" })
 @ConditionalOnMissingBean(AmazonRdsInstanceConfiguration.class)
 public class AmazonRdsDatabaseAutoConfiguration {
@@ -72,7 +72,7 @@ public class AmazonRdsDatabaseAutoConfiguration {
 				BeanDefinitionRegistry registry) {
 			String amazonRdsClientBeanName = AmazonWebserviceClientConfigurationUtils
 					.registerAmazonWebserviceClient(this, registry,
-							"com.amazonaws.services.rds.AmazonRDSClient", null, null)
+							"software.amazon.awssdk.services.rds.RdsClient", null, null)
 					.getBeanName();
 			Map<String, Map<String, String>> dbInstanceConfigurations = getDbInstanceConfigurations();
 			for (Map.Entry<String, Map<String, String>> dbInstanceEntry : dbInstanceConfigurations

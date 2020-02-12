@@ -29,7 +29,8 @@ import org.springframework.context.annotation.Import;
 @Configuration(proxyBeanMethods = false)
 @Import(ContextCredentialsAutoConfiguration.class)
 @EnableElastiCache
-@ConditionalOnClass(name = "com.amazonaws.services.elasticache.AmazonElastiCache")
+@ConditionalOnClass(
+		name = "software.amazon.awssdk.services.elasticache.ElastiCacheClient")
 @ConditionalOnAwsCloudEnvironment
 public class ElastiCacheAutoConfiguration {
 

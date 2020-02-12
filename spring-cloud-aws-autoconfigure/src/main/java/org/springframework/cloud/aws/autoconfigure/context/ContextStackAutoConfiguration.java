@@ -43,7 +43,8 @@ import org.springframework.util.StringUtils;
 @Configuration(proxyBeanMethods = false)
 @Import({ ContextCredentialsAutoConfiguration.class,
 		ContextDefaultConfigurationRegistrar.class })
-@ConditionalOnClass(name = "com.amazonaws.services.cloudformation.AmazonCloudFormation")
+@ConditionalOnClass(
+		name = "software.amazon.awssdk.services.cloudformation.CloudFormationClient")
 public class ContextStackAutoConfiguration {
 
 	@Autowired

@@ -42,7 +42,8 @@ import static org.springframework.cloud.aws.context.config.support.ContextConfig
 @Configuration(proxyBeanMethods = false)
 @Import({ ContextDefaultConfigurationRegistrar.class,
 		ContextCredentialsAutoConfiguration.Registrar.class })
-@ConditionalOnClass(name = "com.amazonaws.auth.AWSCredentialsProvider")
+@ConditionalOnClass(
+		name = "software.amazon.awssdk.auth.credentials.AwsCredentialsProvider")
 public class ContextCredentialsAutoConfiguration {
 
 	/**

@@ -140,7 +140,7 @@ public class AmazonRdsDatabaseAutoConfigurationTest {
 	public static class ApplicationConfigurationWithoutReadReplica {
 
 		@Bean
-		public RdsClient amazonRDS() {
+		public RdsClient amazonRds() {
 			RdsClient client = Mockito.mock(RdsClient.class);
 			when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
 					.dbInstanceIdentifier("test").build())).thenReturn(
@@ -160,7 +160,7 @@ public class AmazonRdsDatabaseAutoConfigurationTest {
 	public static class ApplicationConfigurationWithMultipleDatabases {
 
 		@Bean
-		public RdsClient amazonRDS() {
+		public RdsClient amazonRds() {
 			RdsClient client = Mockito.mock(RdsClient.class);
 			when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
 					.dbInstanceIdentifier("test").build()))
@@ -194,7 +194,7 @@ public class AmazonRdsDatabaseAutoConfigurationTest {
 	public static class ApplicationConfigurationWithReadReplica {
 
 		@Bean
-		public RdsClient amazonRDS() {
+		public RdsClient amazonRds() {
 			RdsClient client = Mockito.mock(RdsClient.class);
 			when(client.describeDBInstances(DescribeDbInstancesRequest.builder()
 					.dbInstanceIdentifier("test").build())).thenReturn(

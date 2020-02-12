@@ -27,6 +27,7 @@ import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.profiles.ProfileFileSystemSetting;
 
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils;
@@ -45,6 +46,8 @@ public class ContextCredentialsAutoConfigurationTest {
 
 	@After
 	public void tearDown() throws Exception {
+		System.clearProperty(
+				ProfileFileSystemSetting.AWS_SHARED_CREDENTIALS_FILE.property());
 		if (this.context != null) {
 			this.context.close();
 		}
@@ -176,10 +179,15 @@ public class ContextCredentialsAutoConfigurationTest {
 	}
 
 	@Test
-	public void credentialsProvider_profileNameConfigured_configuresProfileCredentialsProvider() {
+	public void credentialsProvider_profileNameConfigured_configuresProfileCredentialsProvider()
+			throws Exception {
+		System.setProperty(
+				ProfileFileSystemSetting.AWS_SHARED_CREDENTIALS_FILE.property(),
+				new ClassPathResource(getClass().getSimpleName() + "-profile", getClass())
+						.getFile().getAbsolutePath());
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextCredentialsAutoConfiguration.class);
-		TestPropertyValues.of("cloud.aws.credentials.profileName:test")
+		TestPropertyValues.of("cloud.aws.credentials.profileName:customProfile")
 				.applyTo(this.context);
 		this.context.refresh();
 		AwsCredentialsProvider awsCredentialsProvider = this.context.getBean(
@@ -199,7 +207,7 @@ public class ContextCredentialsAutoConfigurationTest {
 
 		assertThat(
 				ReflectionTestUtils.getField(credentialsProviders.get(1), "profileName"))
-						.isEqualTo("test");
+						.isEqualTo("customProfile");
 	}
 
 	@Test
