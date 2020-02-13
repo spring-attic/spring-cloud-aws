@@ -20,7 +20,6 @@
 
 package org.springframework.cloud.aws.context.support.io;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,11 +33,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.aws.core.env.stack.StackResourceRegistry;
@@ -70,7 +71,7 @@ public abstract class ResourceLoaderAwsTest {
 
 	@SuppressWarnings("SpringJavaAutowiringInspection")
 	@Autowired
-	private AmazonS3 amazonS3;
+	private S3Client amazonS3;
 
 	@SuppressWarnings("SpringJavaAutowiringInspection")
 	@Autowired
@@ -123,10 +124,8 @@ public abstract class ResourceLoaderAwsTest {
 
 	private void uploadFileTestFile(String bucketName, String objectKey, String content)
 			throws UnsupportedEncodingException {
-		ObjectMetadata objectMetadata = new ObjectMetadata();
-		objectMetadata.setContentLength(content.length());
-		this.amazonS3.putObject(bucketName, objectKey,
-				new ByteArrayInputStream(content.getBytes("UTF-8")), objectMetadata);
+		this.amazonS3.putObject(PutObjectRequest.builder().bucket(bucketName).key(objectKey).contentLength((long) content.length()).build(),
+				RequestBody.fromBytes(content.getBytes("UTF-8")));
 		this.createdObjects.add(objectKey);
 	}
 
@@ -217,7 +216,7 @@ public abstract class ResourceLoaderAwsTest {
 		String bucketName = this.stackResourceRegistry
 				.lookupPhysicalResourceId("EmptyBucket");
 		for (String createdObject : this.createdObjects) {
-			this.amazonS3.deleteObject(bucketName, createdObject);
+			this.amazonS3.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(createdObject).build());
 		}
 
 	}

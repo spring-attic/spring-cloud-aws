@@ -24,22 +24,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.amazonaws.SDKGlobalConfiguration;
-import com.amazonaws.services.cloudformation.AmazonCloudFormation;
-import com.amazonaws.services.cloudformation.model.DescribeStacksRequest;
-import com.amazonaws.services.cloudformation.model.DescribeStacksResult;
-import com.amazonaws.services.cloudformation.model.Output;
-import com.amazonaws.services.cloudformation.model.Stack;
-import com.amazonaws.util.EC2MetadataUtils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import software.amazon.awssdk.core.SdkSystemSetting;
+import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
+import software.amazon.awssdk.services.cloudformation.CloudFormationClient;
+import software.amazon.awssdk.services.cloudformation.model.DescribeStacksRequest;
+import software.amazon.awssdk.services.cloudformation.model.DescribeStacksResponse;
+import software.amazon.awssdk.services.cloudformation.model.Output;
+import software.amazon.awssdk.services.cloudformation.model.Stack;
 
 /**
  * Retrieves the instance id output value from the configured stack and exposes it via a
  * local metadata service. In addition, sets the AWS SDK internal system property for
  * overwriting the service endpoint url used by the
- * {@link com.amazonaws.util.EC2MetadataUtils} to the url of the local metadata service.
+ * {@link software.amazon.awssdk.regions.internal.util.EC2MetadataUtils} to the url of the local metadata service.
+ * {@link software.amazon.awssdk.regions.internal.util.EC2MetadataUtils} to the url of the local metadata service.
  *
  * @author Christian Stettler
  */
@@ -58,7 +59,7 @@ public class TestStackInstanceIdService {
 	}
 
 	public static TestStackInstanceIdService fromStackOutputKey(String stackName,
-			String outputKey, AmazonCloudFormation amazonCloudFormationClient) {
+			String outputKey, CloudFormationClient amazonCloudFormationClient) {
 		return new TestStackInstanceIdService(new AmazonStackOutputBasedInstanceIdSource(
 				stackName, outputKey, amazonCloudFormationClient));
 	}
@@ -70,13 +71,13 @@ public class TestStackInstanceIdService {
 	private static void overwriteMetadataEndpointUrl(
 			String localMetadataServiceEndpointUrl) {
 		System.setProperty(
-				SDKGlobalConfiguration.EC2_METADATA_SERVICE_OVERRIDE_SYSTEM_PROPERTY,
+				SdkSystemSetting.AWS_EC2_METADATA_SERVICE_ENDPOINT.property(),
 				localMetadataServiceEndpointUrl);
 	}
 
 	private static void resetMetadataEndpointUrlOverwrite() {
 		System.clearProperty(
-				SDKGlobalConfiguration.EC2_METADATA_SERVICE_OVERRIDE_SYSTEM_PROPERTY);
+			SdkSystemSetting.AWS_EC2_METADATA_SERVICE_ENDPOINT.property());
 	}
 
 	private static void clearMetadataCache() {
@@ -189,19 +190,19 @@ public class TestStackInstanceIdService {
 
 		private final String outputKey;
 
-		private final AmazonCloudFormation amazonCloudFormationClient;
+		private final CloudFormationClient amazonCloudFormationClient;
 
 		private AmazonStackOutputBasedInstanceIdSource(String stackName, String outputKey,
-				AmazonCloudFormation amazonCloudFormationClient) {
+			CloudFormationClient amazonCloudFormationClient) {
 			this.stackName = stackName;
 			this.outputKey = outputKey;
 			this.amazonCloudFormationClient = amazonCloudFormationClient;
 		}
 
-		private static Stack getStack(DescribeStacksResult describeStacksResult,
+		private static Stack getStack(DescribeStacksResponse describeStacksResult,
 				String stackName) {
-			for (Stack stack : describeStacksResult.getStacks()) {
-				if (stack.getStackName().equals(stackName)) {
+			for (Stack stack : describeStacksResult.stacks()) {
+				if (stack.stackName().equals(stackName)) {
 					return stack;
 				}
 			}
@@ -212,22 +213,22 @@ public class TestStackInstanceIdService {
 		}
 
 		private static String getOutputValue(Stack stack, String outputKey) {
-			for (Output output : stack.getOutputs()) {
-				if (output.getOutputKey().equals(outputKey)) {
-					return output.getOutputValue();
+			for (Output output : stack.outputs()) {
+				if (output.outputKey().equals(outputKey)) {
+					return output.outputValue();
 				}
 			}
 
 			throw new IllegalStateException("No output '" + outputKey
-					+ "' defined in stack '" + stack.getStackName() + "'");
+					+ "' defined in stack '" + stack.stackName() + "'");
 		}
 
 		private static List<String> allStackNames(
-				DescribeStacksResult describeStacksResult) {
+				DescribeStacksResponse describeStacksResult) {
 			List<String> allStackNames = new ArrayList<>();
 
-			for (Stack stack : describeStacksResult.getStacks()) {
-				allStackNames.add(stack.getStackName());
+			for (Stack stack : describeStacksResult.stacks()) {
+				allStackNames.add(stack.stackName());
 			}
 
 			return allStackNames;
@@ -235,8 +236,8 @@ public class TestStackInstanceIdService {
 
 		@Override
 		public String getInstanceId() {
-			DescribeStacksResult describeStacksResult = this.amazonCloudFormationClient
-					.describeStacks(new DescribeStacksRequest());
+			DescribeStacksResponse describeStacksResult = this.amazonCloudFormationClient
+					.describeStacks(DescribeStacksRequest.builder().build());
 			Stack stack = getStack(describeStacksResult, this.stackName);
 
 			return getOutputValue(stack, this.outputKey);

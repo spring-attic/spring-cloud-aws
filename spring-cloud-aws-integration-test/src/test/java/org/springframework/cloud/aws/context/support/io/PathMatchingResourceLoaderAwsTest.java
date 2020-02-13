@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.aws.context.support.io;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,10 +23,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.aws.core.env.stack.StackResourceRegistry;
@@ -56,13 +57,13 @@ public abstract class PathMatchingResourceLoaderAwsTest {
 	private ResourcePatternResolver resourceLoader;
 
 	@Autowired
-	private AmazonS3 amazonS3;
+	private S3Client amazonS3;
 
 	@Autowired
 	private StackResourceRegistry stackResourceRegistry;
 
 	@Autowired
-	public void setupResolver(ApplicationContext applicationContext, AmazonS3 amazonS3) {
+	public void setupResolver(ApplicationContext applicationContext, S3Client amazonS3) {
 		this.resourceLoader = new PathMatchingSimpleStorageResourcePatternResolver(
 				amazonS3, applicationContext);
 	}
@@ -143,12 +144,12 @@ public abstract class PathMatchingResourceLoaderAwsTest {
 
 		private final String fileName;
 
-		private final AmazonS3 amazonS3;
+		private final S3Client amazonS3;
 
 		private final String bucketName;
 
 		private CreateFileCallable(String bucketName, String fileName,
-				AmazonS3 amazonS3) {
+			S3Client amazonS3) {
 			this.fileName = fileName;
 			this.amazonS3 = amazonS3;
 			this.bucketName = bucketName;
@@ -156,9 +157,10 @@ public abstract class PathMatchingResourceLoaderAwsTest {
 
 		@Override
 		public String call() {
-			this.amazonS3.putObject(this.bucketName, this.fileName,
-					new ByteArrayInputStream(this.fileName.getBytes()),
-					new ObjectMetadata());
+			this.amazonS3.putObject(PutObjectRequest.builder()
+				.bucket(this.bucketName)
+				.key(this.fileName)
+				.build(), RequestBody.fromBytes(this.fileName.getBytes()));
 			return this.fileName;
 		}
 
@@ -168,12 +170,12 @@ public abstract class PathMatchingResourceLoaderAwsTest {
 
 		private final String fileName;
 
-		private final AmazonS3 amazonS3;
+		private final S3Client amazonS3;
 
 		private final String bucketName;
 
 		private DeleteFileCallable(String bucketName, String fileName,
-				AmazonS3 amazonS3) {
+			S3Client amazonS3) {
 			this.fileName = fileName;
 			this.amazonS3 = amazonS3;
 			this.bucketName = bucketName;
@@ -181,7 +183,7 @@ public abstract class PathMatchingResourceLoaderAwsTest {
 
 		@Override
 		public String call() {
-			this.amazonS3.deleteObject(this.bucketName, this.fileName);
+			this.amazonS3.deleteObject(DeleteObjectRequest.builder().bucket(this.bucketName).key(this.fileName).build());
 			return this.fileName;
 		}
 

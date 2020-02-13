@@ -21,13 +21,12 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSAsync;
-import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
-import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequest;
+import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequestEntry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.aws.core.env.stack.StackResourceRegistry;
@@ -50,7 +49,7 @@ public abstract class MessageListenerContainerAwsTest extends AbstractContainerT
 
 	@SuppressWarnings("SpringJavaAutowiringInspection")
 	@Autowired
-	private AmazonSQSAsync amazonSqsClient;
+	private SqsClient amazonSqsClient;
 
 	@Autowired
 	private TaskExecutor taskExecutor;
@@ -101,11 +100,11 @@ public abstract class MessageListenerContainerAwsTest extends AbstractContainerT
 
 		private final String queueUrl;
 
-		private final AmazonSQS amazonSqs;
+		private final SqsClient amazonSqs;
 
 		private final CountDownLatch countDownLatch;
 
-		private QueueMessageSender(String queueUrl, AmazonSQS amazonSqs,
+		private QueueMessageSender(String queueUrl, SqsClient amazonSqs,
 				CountDownLatch countDownLatch) {
 			this.queueUrl = queueUrl;
 			this.amazonSqs = amazonSqs;
@@ -116,11 +115,11 @@ public abstract class MessageListenerContainerAwsTest extends AbstractContainerT
 		public void run() {
 			List<SendMessageBatchRequestEntry> messages = new ArrayList<>();
 			for (int i = 0; i < BATCH_MESSAGE_SIZE; i++) {
-				messages.add(new SendMessageBatchRequestEntry(Integer.toString(i),
-						new StringBuilder().append("message_").append(i).toString()));
+				messages.add(SendMessageBatchRequestEntry.builder().id(Integer.toString(i))
+						.messageBody(new StringBuilder().append("message_").append(i).toString()).build());
 			}
 			this.amazonSqs.sendMessageBatch(
-					new SendMessageBatchRequest(this.queueUrl, messages));
+					SendMessageBatchRequest.builder().queueUrl(this.queueUrl).entries(messages).build());
 			this.countDownLatch.countDown();
 		}
 

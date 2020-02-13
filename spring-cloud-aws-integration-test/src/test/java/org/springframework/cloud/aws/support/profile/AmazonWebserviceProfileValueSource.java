@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.aws.support.profile;
 
-import com.amazonaws.util.EC2MetadataUtils;
+import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
 
 import org.springframework.test.annotation.ProfileValueSource;
 

@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.aws.messaging;
 
-import com.amazonaws.services.sns.AmazonSNS;
+import software.amazon.awssdk.services.sns.SnsClient;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,7 +41,7 @@ public class BootNotificationMessagingTemplateIntegrationTest
 
 		@Bean
 		public NotificationMessagingTemplate notificationMessagingTemplate(
-				AmazonSNS amazonSns, ResourceIdResolver resourceIdResolver) {
+				SnsClient amazonSns, ResourceIdResolver resourceIdResolver) {
 			NotificationMessagingTemplate notificationMessagingTemplate = new NotificationMessagingTemplate(
 					amazonSns, resourceIdResolver);
 			notificationMessagingTemplate

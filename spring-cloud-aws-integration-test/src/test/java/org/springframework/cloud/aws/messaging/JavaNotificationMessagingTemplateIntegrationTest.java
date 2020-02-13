@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.aws.messaging;
 
-import com.amazonaws.services.sns.AmazonSNS;
+import software.amazon.awssdk.services.sns.SnsClient;
 
 import org.springframework.cloud.aws.IntegrationTestConfig;
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
@@ -43,7 +43,7 @@ public class JavaNotificationMessagingTemplateIntegrationTest
 
 		@Bean
 		public NotificationMessagingTemplate notificationMessagingTemplate(
-				AmazonSNS amazonSns, ResourceIdResolver resourceIdResolver) {
+				SnsClient amazonSns, ResourceIdResolver resourceIdResolver) {
 			NotificationMessagingTemplate notificationMessagingTemplate = new NotificationMessagingTemplate(
 					amazonSns, resourceIdResolver);
 			notificationMessagingTemplate

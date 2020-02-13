@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.aws;
 
-import com.amazonaws.services.cloudformation.AmazonCloudFormation;
+import software.amazon.awssdk.services.cloudformation.CloudFormationClient;
 
 import org.springframework.cloud.aws.context.config.annotation.EnableContextCredentials;
 import org.springframework.cloud.aws.context.config.annotation.EnableContextRegion;
@@ -45,13 +45,13 @@ public class IntegrationTestConfig {
 
 	@Bean
 	public TestStackEnvironment testStackEnvironment(
-			AmazonCloudFormation amazonCloudFormation) {
+			CloudFormationClient amazonCloudFormation) {
 		return new TestStackEnvironment(amazonCloudFormation);
 	}
 
 	@Bean
 	public TestStackInstanceIdService testStackInstanceIdService(
-			AmazonCloudFormation amazonCloudFormation) {
+		CloudFormationClient amazonCloudFormation) {
 		return TestStackInstanceIdService.fromStackOutputKey(
 				TestStackEnvironment.DEFAULT_STACK_NAME,
 				TestStackEnvironment.INSTANCE_ID_STACK_OUTPUT_KEY, amazonCloudFormation);

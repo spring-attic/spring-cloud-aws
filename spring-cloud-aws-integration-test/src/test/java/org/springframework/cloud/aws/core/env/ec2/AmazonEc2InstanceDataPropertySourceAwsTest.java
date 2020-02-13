@@ -21,7 +21,6 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 
-import com.amazonaws.SDKGlobalConfiguration;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -30,6 +29,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import software.amazon.awssdk.core.SdkSystemSetting;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.aws.context.support.env.AwsCloudEnvironmentCheckUtils;
@@ -77,13 +77,13 @@ public abstract class AmazonEc2InstanceDataPropertySourceAwsTest {
 	private static void overwriteMetadataEndpointUrl(
 			String localMetadataServiceEndpointUrl) {
 		System.setProperty(
-				SDKGlobalConfiguration.EC2_METADATA_SERVICE_OVERRIDE_SYSTEM_PROPERTY,
+				SdkSystemSetting.AWS_EC2_METADATA_SERVICE_ENDPOINT.property(),
 				localMetadataServiceEndpointUrl);
 	}
 
 	private static void resetMetadataEndpointUrlOverwrite() {
 		System.clearProperty(
-				SDKGlobalConfiguration.EC2_METADATA_SERVICE_OVERRIDE_SYSTEM_PROPERTY);
+			SdkSystemSetting.AWS_EC2_METADATA_SERVICE_ENDPOINT.property());
 	}
 
 	private static void restContextInstanceDataCondition() throws IllegalAccessException {

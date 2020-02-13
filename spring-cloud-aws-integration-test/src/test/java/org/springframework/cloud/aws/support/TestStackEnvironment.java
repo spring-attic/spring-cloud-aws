@@ -19,19 +19,20 @@ package org.springframework.cloud.aws.support;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.services.cloudformation.AmazonCloudFormation;
-import com.amazonaws.services.cloudformation.model.CreateStackRequest;
-import com.amazonaws.services.cloudformation.model.DeleteStackRequest;
-import com.amazonaws.services.cloudformation.model.DescribeStackResourcesRequest;
-import com.amazonaws.services.cloudformation.model.DescribeStackResourcesResult;
-import com.amazonaws.services.cloudformation.model.DescribeStacksRequest;
-import com.amazonaws.services.cloudformation.model.DescribeStacksResult;
-import com.amazonaws.services.cloudformation.model.OnFailure;
-import com.amazonaws.services.cloudformation.model.Parameter;
-import com.amazonaws.services.cloudformation.model.Stack;
-import com.amazonaws.services.cloudformation.model.StackResource;
-import com.amazonaws.services.cloudformation.model.Tag;
+import software.amazon.awssdk.core.exception.SdkException;
+import software.amazon.awssdk.services.cloudformation.CloudFormationClient;
+import software.amazon.awssdk.services.cloudformation.model.CreateStackRequest;
+import software.amazon.awssdk.services.cloudformation.model.DeleteStackRequest;
+import software.amazon.awssdk.services.cloudformation.model.DescribeStackResourcesRequest;
+import software.amazon.awssdk.services.cloudformation.model.DescribeStackResourcesResponse;
+import software.amazon.awssdk.services.cloudformation.model.DescribeStacksRequest;
+import software.amazon.awssdk.services.cloudformation.model.DescribeStacksResponse;
+import software.amazon.awssdk.services.cloudformation.model.OnFailure;
+import software.amazon.awssdk.services.cloudformation.model.Parameter;
+import software.amazon.awssdk.services.cloudformation.model.Stack;
+import software.amazon.awssdk.services.cloudformation.model.StackResource;
+import software.amazon.awssdk.services.cloudformation.model.StackStatus;
+import software.amazon.awssdk.services.cloudformation.model.Tag;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -54,20 +55,20 @@ public class TestStackEnvironment
 	private static final String EC2_INSTANCE_NAME = "UserTagAndUserDataInstance";
 
 	private static final String TEMPLATE_PATH = "IntegrationTestStack.yaml";
-	private final AmazonCloudFormation amazonCloudFormationClient;
+	private final CloudFormationClient amazonCloudFormationClient;
 	@Value("${rdsPassword}")
 	private String rdsPassword;
-	private DescribeStackResourcesResult stackResources;
+	private DescribeStackResourcesResponse stackResources;
 
 	private boolean stackCreatedByThisInstance;
 
 	@Autowired
-	public TestStackEnvironment(AmazonCloudFormation amazonCloudFormationClient) {
+	public TestStackEnvironment(CloudFormationClient amazonCloudFormationClient) {
 		this.amazonCloudFormationClient = amazonCloudFormationClient;
 	}
 
 	private static boolean isInProgress(Stack stack) {
-		return stack.getStackStatus().endsWith("_PROGRESS");
+		return stack.stackStatus().toString().endsWith("_PROGRESS");
 	}
 
 	@Override
@@ -80,23 +81,23 @@ public class TestStackEnvironment
 		return getByLogicalId(EC2_INSTANCE_NAME);
 	}
 
-	private DescribeStackResourcesResult getStackResources(String stackName)
+	private DescribeStackResourcesResponse getStackResources(String stackName)
 			throws InterruptedException, IOException {
 		try {
-			DescribeStacksResult describeStacksResult = this.amazonCloudFormationClient
-					.describeStacks(new DescribeStacksRequest().withStackName(stackName));
-			for (Stack stack : describeStacksResult.getStacks()) {
+			DescribeStacksResponse describeStacksResult = this.amazonCloudFormationClient
+					.describeStacks(DescribeStacksRequest.builder().stackName(stackName).build());
+			for (Stack stack : describeStacksResult.stacks()) {
 				if (isAvailable(stack)) {
 					return this.amazonCloudFormationClient
-							.describeStackResources(new DescribeStackResourcesRequest()
-									.withStackName(stack.getStackName()));
+							.describeStackResources(DescribeStackResourcesRequest.builder()
+									.stackName(stack.stackName()).build());
 				}
 				if (isError(stack)) {
 					if (this.stackCreatedByThisInstance) {
 						throw new IllegalArgumentException("Could not create stack");
 					}
 					this.amazonCloudFormationClient.deleteStack(
-							new DeleteStackRequest().withStackName(stack.getStackName()));
+							DeleteStackRequest.builder().stackName(stack.stackName()).build());
 					return getStackResources(stackName);
 				}
 				if (isInProgress(stack)) {
@@ -106,15 +107,16 @@ public class TestStackEnvironment
 				}
 			}
 		}
-		catch (AmazonClientException e) {
+		catch (SdkException e) {
 			String templateBody = FileCopyUtils.copyToString(new InputStreamReader(
 					new ClassPathResource(TEMPLATE_PATH).getInputStream()));
-			this.amazonCloudFormationClient.createStack(new CreateStackRequest()
-					.withTemplateBody(templateBody).withOnFailure(OnFailure.DELETE)
-					.withStackName(stackName)
-					.withTags(new Tag().withKey("tag1").withValue("value1"))
-					.withParameters(new Parameter().withParameterKey("RdsPassword")
-							.withParameterValue(this.rdsPassword)));
+			this.amazonCloudFormationClient.createStack(CreateStackRequest.builder()
+					.templateBody(templateBody).onFailure(OnFailure.DELETE)
+					.stackName(stackName)
+					.tags(Tag.builder().key("tag1").value("value1").build())
+					.parameters(
+							Parameter.builder().parameterKey("RdsPassword")
+							.parameterValue(this.rdsPassword).build()).build());
 			this.stackCreatedByThisInstance = true;
 		}
 
@@ -122,28 +124,28 @@ public class TestStackEnvironment
 	}
 
 	protected String getByLogicalId(String id) {
-		for (StackResource stackResource : this.stackResources.getStackResources()) {
-			if (stackResource.getLogicalResourceId().equals(id)) {
-				return stackResource.getPhysicalResourceId();
+		for (StackResource stackResource : this.stackResources.stackResources()) {
+			if (stackResource.logicalResourceId().equals(id)) {
+				return stackResource.physicalResourceId();
 			}
 		}
 		return null;
 	}
 
 	private boolean isAvailable(Stack stack) {
-		return stack.getStackStatus().endsWith("_COMPLETE")
-				&& !"DELETE_COMPLETE".equals(stack.getStackStatus());
+		return stack.stackStatus().toString().endsWith("_COMPLETE")
+				&& !StackStatus.DELETE_COMPLETE.equals(stack.stackStatus());
 	}
 
 	private boolean isError(Stack stack) {
-		return stack.getStackStatus().endsWith("_FAILED");
+		return stack.stackStatus().toString().endsWith("_FAILED");
 	}
 
 	@Override
 	public void destroy() throws Exception {
 		if (this.stackCreatedByThisInstance) {
 			this.amazonCloudFormationClient.deleteStack(
-					new DeleteStackRequest().withStackName(DEFAULT_STACK_NAME));
+					DeleteStackRequest.builder().stackName(DEFAULT_STACK_NAME).build());
 		}
 	}
 
