@@ -84,10 +84,9 @@ public class AmazonWebserviceClientFactoryBean<T extends SdkClient>
 		AwsClientBuilder<?, T> builder = (AwsClientBuilder<?, T>) ReflectionUtils
 				.invokeMethod(builderMethod, null);
 
-		// TODO SDK2 migration: does this still work?
 		if (this.executor != null) {
-			AwsAsyncClientBuilder<?, T> asyncBuilder = (AwsAsyncClientBuilder<?, T>) builder;
-			asyncBuilder.asyncConfiguration(ClientAsyncConfiguration.builder()
+			Assert.isAssignable(AwsAsyncClientBuilder.class, builder.getClass(), "Client must be async if executor is set.");
+			((AwsAsyncClientBuilder<?, T>) builder).asyncConfiguration(ClientAsyncConfiguration.builder()
 					.advancedOption(
 							SdkAdvancedAsyncClientOption.FUTURE_COMPLETION_EXECUTOR,
 							executor)
