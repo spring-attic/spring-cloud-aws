@@ -19,6 +19,8 @@ package org.springframework.cloud.aws.messaging.config.xml;
 import java.util.List;
 
 import org.junit.Test;
+import software.amazon.awssdk.core.client.config.SdkClientConfiguration;
+import software.amazon.awssdk.core.client.config.SdkClientOption;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.regions.ServiceMetadata;
 import software.amazon.awssdk.services.sns.SnsClient;
@@ -151,9 +153,9 @@ public class NotificationMessagingTemplateBeanDefinitionParserTest {
 
 		// Assert
 		SnsClient amazonSns = registry.getBean(SnsClient.class);
-		assertThat(ReflectionTestUtils.getField(amazonSns, "endpoint").toString())
-				.isEqualTo("https://"
-						+ ServiceMetadata.of("sns").endpointFor(Region.EU_WEST_1));
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSns, "clientConfiguration");
+		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
+			.isEqualTo("https://" + ServiceMetadata.of("sns").endpointFor(Region.EU_WEST_1));
 	}
 
 	@Test
@@ -169,9 +171,9 @@ public class NotificationMessagingTemplateBeanDefinitionParserTest {
 
 		// Assert
 		SnsClient amazonSns = registry.getBean(SnsClient.class);
-		assertThat(ReflectionTestUtils.getField(amazonSns, "endpoint").toString())
-				.isEqualTo("https://"
-						+ ServiceMetadata.of("sns").endpointFor(Region.CN_NORTH_1));
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSns, "clientConfiguration");
+		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
+			.isEqualTo("https://" + ServiceMetadata.of("sns").endpointFor(Region.CN_NORTH_1));
 	}
 
 }

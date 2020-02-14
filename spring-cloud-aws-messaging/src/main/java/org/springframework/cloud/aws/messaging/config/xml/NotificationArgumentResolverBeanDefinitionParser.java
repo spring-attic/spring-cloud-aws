@@ -40,7 +40,7 @@ class NotificationArgumentResolverBeanDefinitionParser
 			BeanDefinitionBuilder builder) {
 		builder.addConstructorArgReference(
 				getCustomClientOrDefaultClientBeanName(element, parserContext,
-						"amazon-sns", "com.amazonaws.services.sns.AmazonSNSClient"));
+						"amazon-sns", "software.amazon.awssdk.services.sns.SnsClient"));
 	}
 
 }

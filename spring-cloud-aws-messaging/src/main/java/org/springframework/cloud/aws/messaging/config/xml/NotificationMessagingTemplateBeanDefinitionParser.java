@@ -35,7 +35,7 @@ public class NotificationMessagingTemplateBeanDefinitionParser
 
 	private static final String DEFAULT_DESTINATION_ATTRIBUTE = "default-destination";
 
-	private static final String SNS_CLIENT_CLASS_NAME = "com.amazonaws.services.sns.AmazonSNSClient";
+	private static final String SNS_CLIENT_CLASS_NAME = "software.amazon.awssdk.services.sns.SnsClient";
 
 	@Override
 	protected Class<?> getBeanClass(Element element) {

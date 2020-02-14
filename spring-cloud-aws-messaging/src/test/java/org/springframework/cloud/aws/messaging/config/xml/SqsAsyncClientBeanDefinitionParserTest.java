@@ -16,9 +16,11 @@
 
 package org.springframework.cloud.aws.messaging.config.xml;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.junit.Test;
+import software.amazon.awssdk.core.client.config.SdkAdvancedAsyncClientOption;
 import software.amazon.awssdk.core.client.config.SdkClientConfiguration;
 import software.amazon.awssdk.core.client.config.SdkClientOption;
 import software.amazon.awssdk.regions.Region;
@@ -49,9 +51,10 @@ public class SqsAsyncClientBeanDefinitionParserTest {
 		// Assert
 		SqsAsyncClient asyncClient = beanFactory.getBean("customClient", SqsAsyncClient.class);
 		assertThat(asyncClient).isNotNull();
-		ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) ReflectionTestUtils.getField(asyncClient,
-				"executorService");
-		assertThat(threadPoolExecutor.getCorePoolSize()).isEqualTo(50);
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(asyncClient, "clientConfiguration");
+		ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) clientConfiguration.option(SdkAdvancedAsyncClientOption.FUTURE_COMPLETION_EXECUTOR);
+		// //TODO SDK2 migration: default value is now 8, s. SdkDefaultClientBuilder.resolveAsyncFutureCompletionExecutor() Check of it used to be 50
+		assertThat(threadPoolExecutor.getCorePoolSize()).isEqualTo(8);
 	}
 
 
@@ -87,9 +90,10 @@ public class SqsAsyncClientBeanDefinitionParserTest {
 		// Assert
 		SqsAsyncClient asyncClient = beanFactory.getBean("customClient", SqsAsyncClient.class);
 		assertThat(asyncClient).isNotNull();
-		ShutdownSuppressingExecutorServiceAdapter executor = (ShutdownSuppressingExecutorServiceAdapter) ReflectionTestUtils
-				.getField(asyncClient, "executorService");
-		assertThat(ReflectionTestUtils.getField(executor, "taskExecutor"))
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(asyncClient, "clientConfiguration");
+		Executor executor = clientConfiguration.option(SdkAdvancedAsyncClientOption.FUTURE_COMPLETION_EXECUTOR);
+		ShutdownSuppressingExecutorServiceAdapter customExecutor = (ShutdownSuppressingExecutorServiceAdapter) ReflectionTestUtils.getField(executor, "executor");
+		assertThat(ReflectionTestUtils.getField(customExecutor, "taskExecutor"))
 				.isSameAs(beanFactory.getBean("myThreadPoolTaskExecutor"));
 	}
 
@@ -108,7 +112,7 @@ public class SqsAsyncClientBeanDefinitionParserTest {
 		SqsAsyncClient amazonSqs = registry.getBean(SqsAsyncClient.class);
 		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
-			.isEqualTo(ServiceMetadata.of("sqs").endpointFor(Region.EU_WEST_1));
+			.isEqualTo("https://" + ServiceMetadata.of("sqs").endpointFor(Region.EU_WEST_1));
 	}
 
 	@Test
@@ -126,7 +130,7 @@ public class SqsAsyncClientBeanDefinitionParserTest {
 		SqsAsyncClient amazonSqs = registry.getBean(SqsAsyncClient.class);
 		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
-			.isEqualTo(ServiceMetadata.of("sqs").endpointFor(Region.AP_SOUTHEAST_2));
+			.isEqualTo("https://" + ServiceMetadata.of("sqs").endpointFor(Region.AP_SOUTHEAST_2));
 	}
 
 }

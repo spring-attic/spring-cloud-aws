@@ -33,5 +33,5 @@
 	<aws-messaging:notification-argument-resolver id="notificationArgumentResolver"
 												  amazon-sns="customSnsClient"/>
 
-	<bean id="customSnsClient" class="com.amazonaws.services.sns.AmazonSNSClient"/>
+	<bean id="customSnsClient" class="software.amazon.awssdk.services.sns.SnsClient" factory-method="create"/>
 </beans>

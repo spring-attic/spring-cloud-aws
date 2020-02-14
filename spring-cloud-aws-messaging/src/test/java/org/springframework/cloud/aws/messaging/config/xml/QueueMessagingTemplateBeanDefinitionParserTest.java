@@ -177,7 +177,7 @@ public class QueueMessagingTemplateBeanDefinitionParserTest {
 		SqsAsyncClient amazonSqs = registry.getBean(SqsAsyncClient.class);
 		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
-			.isEqualTo(ServiceMetadata.of("sqs").endpointFor(Region.SA_EAST_1));
+			.isEqualTo("https://" + ServiceMetadata.of("sqs").endpointFor(Region.SA_EAST_1));
 	}
 
 	@Test
@@ -195,7 +195,7 @@ public class QueueMessagingTemplateBeanDefinitionParserTest {
 		SqsAsyncClient amazonSqs = registry.getBean(SqsAsyncClient.class);
 		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
-			.isEqualTo(ServiceMetadata.of("sqs").endpointFor(Region.AP_SOUTHEAST_2));
+			.isEqualTo("https://" + ServiceMetadata.of("sqs").endpointFor(Region.AP_SOUTHEAST_2));
 	}
 
 	@Test

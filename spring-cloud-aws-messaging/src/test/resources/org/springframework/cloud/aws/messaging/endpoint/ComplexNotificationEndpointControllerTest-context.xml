@@ -36,7 +36,7 @@
 												  amazon-sns="amazonSns"/>
 
 	<bean id="amazonSns" class="org.mockito.Mockito" factory-method="mock">
-		<constructor-arg value="com.amazonaws.services.sns.AmazonSNS"/>
+		<constructor-arg value="software.amazon.awssdk.services.sns.SnsClient"/>
 	</bean>
 
 	<bean

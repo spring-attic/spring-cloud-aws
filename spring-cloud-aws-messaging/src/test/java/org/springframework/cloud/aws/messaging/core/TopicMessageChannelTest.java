@@ -223,7 +223,7 @@ public class TopicMessageChannelTest {
 		// Assert
 		assertThat(sent).isTrue();
 		assertThat(publishRequestArgumentCaptor.getValue().messageAttributes()
-				.get(headerName).binaryValue()).isEqualTo(headerValue);
+				.get(headerName).binaryValue().asByteBuffer()).isEqualTo(headerValue);
 		assertThat(publishRequestArgumentCaptor.getValue().messageAttributes()
 				.get(headerName).dataType()).isEqualTo(MessageAttributeDataTypes.BINARY);
 	}

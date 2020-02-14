@@ -26,7 +26,7 @@
 	   					   http://www.springframework.org/schema/cloud/aws/context
 	   					   http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd">
 
-	<bean id="myClient" class="com.amazonaws.services.sqs.AmazonSQSAsyncClient"/>
+	<bean id="myClient" class="software.amazon.awssdk.services.sqs.SqsAsyncClient" factory-method="create"/>
 
 	<aws-messaging:annotation-driven-queue-listener amazon-sqs="myClient"/>
 
