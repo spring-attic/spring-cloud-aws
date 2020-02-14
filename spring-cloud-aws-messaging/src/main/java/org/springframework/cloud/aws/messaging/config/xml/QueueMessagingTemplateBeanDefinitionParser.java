@@ -22,6 +22,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.cloud.aws.context.config.xml.GlobalBeanDefinitionUtils;
+import org.springframework.cloud.aws.core.config.xml.XmlWebserviceConfigurationUtils;
 import org.springframework.cloud.aws.messaging.core.QueueMessagingTemplate;
 import org.springframework.util.StringUtils;
 
@@ -53,6 +54,10 @@ public class QueueMessagingTemplateBeanDefinitionParser
 					element.getAttribute(DEFAULT_DESTINATION_ATTRIBUTE));
 		}
 
+		// TODO SDK2 migration: remove duplication
+		builder.addConstructorArgReference(XmlWebserviceConfigurationUtils
+			.getCustomClientOrDefaultClientBeanName(element, parserContext,
+				"amazon-sqs", "software.amazon.awssdk.services.sqs.SqsClient"));
 		builder.addConstructorArgReference(amazonSqsClientBeanName);
 		builder.addConstructorArgReference(GlobalBeanDefinitionUtils
 				.retrieveResourceIdResolverBeanName(parserContext.getRegistry()));

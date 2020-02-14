@@ -444,8 +444,7 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 		}
 
 		private void deleteMessage(String receiptHandle) {
-			// TODO SDK2 migration: used to be async
-			getAmazonSqs().deleteMessage(DeleteMessageRequest.builder()
+			getAmazonSqsAsync().deleteMessage(DeleteMessageRequest.builder()
 					.queueUrl(this.queueUrl).receiptHandle(receiptHandle).build());
 		}
 
@@ -455,19 +454,13 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 					this.logicalQueueName);
 			if (this.deletionPolicy == SqsMessageDeletionPolicy.NEVER) {
 				String receiptHandle = this.message.receiptHandle();
-				// TODO SDK2 migration: re-add after solving issue with clients
-				// QueueMessageAcknowledgment acknowledgment = new
-				// QueueMessageAcknowledgment(
-				// SimpleMessageListenerContainer.this.getAmazonSqsAsync(), this.queueUrl,
-				// receiptHandle);
-				// additionalHeaders.put(QueueMessageHandler.ACKNOWLEDGMENT,
-				// acknowledgment);
+				QueueMessageAcknowledgment acknowledgment = new QueueMessageAcknowledgment(
+						SimpleMessageListenerContainer.this.getAmazonSqsAsync(), this.queueUrl, receiptHandle);
+				additionalHeaders.put(QueueMessageHandler.ACKNOWLEDGMENT, acknowledgment);
 			}
-			// TODO SDK2 migration: re-add after solving issue with clients
-			// additionalHeaders.put(QueueMessageHandler.VISIBILITY,
-			// new QueueMessageVisibility(
-			// SimpleMessageListenerContainer.this.getAmazonSqsAsync(),
-			// this.queueUrl, this.message.receiptHandle()));
+			additionalHeaders.put(QueueMessageHandler.VISIBILITY,
+					new QueueMessageVisibility(SimpleMessageListenerContainer.this.getAmazonSqsAsync(), this.queueUrl,
+							this.message.receiptHandle()));
 
 			return createMessage(this.message, additionalHeaders);
 		}

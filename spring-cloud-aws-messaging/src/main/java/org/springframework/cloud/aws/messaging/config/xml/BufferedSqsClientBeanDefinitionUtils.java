@@ -19,7 +19,6 @@ package org.springframework.cloud.aws.messaging.config.xml;
 import org.w3c.dom.Element;
 
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.cloud.aws.core.config.xml.XmlWebserviceConfigurationUtils;
 import org.springframework.util.StringUtils;
@@ -34,11 +33,12 @@ public final class BufferedSqsClientBeanDefinitionUtils {
 	 * SQS client class name.
 	 */
 	// @checkstyle:off
-	public static final String SQS_CLIENT_CLASS_NAME = "com.amazonaws.services.sqs.AmazonSQSAsyncClient";
+	public static final String SQS_CLIENT_CLASS_NAME = "software.amazon.awssdk.services.sqs.SqsAsyncClient";
 
 	// @checkstyle:on
 
 	// @checkstyle:off
+	// TODO SDK2 migration: update
 	static final String BUFFERED_SQS_CLIENT_CLASS_NAME = "com.amazonaws.services.sqs.buffered.AmazonSQSBufferedAsyncClient";
 
 	// @checkstyle:on
@@ -51,21 +51,22 @@ public final class BufferedSqsClientBeanDefinitionUtils {
 			Element element, ParserContext parserContext) {
 		String amazonSqsClientBeanName = XmlWebserviceConfigurationUtils
 				.getCustomClientOrDefaultClientBeanName(element, parserContext,
-						"amazon-sqs", SQS_CLIENT_CLASS_NAME);
-		if (!StringUtils.hasText(element.getAttribute("amazon-sqs"))) {
+						"amazon-sqs-async", SQS_CLIENT_CLASS_NAME);
+		if (!StringUtils.hasText(element.getAttribute("amazon-sqs-async"))) {
 			BeanDefinition clientBeanDefinition = parserContext.getRegistry()
 					.getBeanDefinition(amazonSqsClientBeanName);
-			if (!clientBeanDefinition.getBeanClassName()
-					.equals(BUFFERED_SQS_CLIENT_CLASS_NAME)) {
-				BeanDefinitionBuilder bufferedClientBeanDefinitionBuilder = BeanDefinitionBuilder
-						.rootBeanDefinition(BUFFERED_SQS_CLIENT_CLASS_NAME);
-				bufferedClientBeanDefinitionBuilder
-						.addConstructorArgValue(clientBeanDefinition);
-				parserContext.getRegistry().removeBeanDefinition(amazonSqsClientBeanName);
-				parserContext.getRegistry().registerBeanDefinition(
-						amazonSqsClientBeanName,
-						bufferedClientBeanDefinitionBuilder.getBeanDefinition());
-			}
+			// TODO SDK2 migration: re-add
+//			if (!clientBeanDefinition.getBeanClassName()
+//					.equals(BUFFERED_SQS_CLIENT_CLASS_NAME)) {
+//				BeanDefinitionBuilder bufferedClientBeanDefinitionBuilder = BeanDefinitionBuilder
+//						.rootBeanDefinition(BUFFERED_SQS_CLIENT_CLASS_NAME);
+//				bufferedClientBeanDefinitionBuilder
+//						.addConstructorArgValue(clientBeanDefinition);
+//				parserContext.getRegistry().removeBeanDefinition(amazonSqsClientBeanName);
+//				parserContext.getRegistry().registerBeanDefinition(
+//						amazonSqsClientBeanName,
+//						bufferedClientBeanDefinitionBuilder.getBeanDefinition());
+//			}
 		}
 		return amazonSqsClientBeanName;
 	}

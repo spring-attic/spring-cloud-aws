@@ -33,6 +33,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.stubbing.Answer;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.ChangeMessageVisibilityRequest;
 import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
@@ -150,6 +151,7 @@ public class SimpleMessageListenerContainerTest {
 	public void testWithDefaultTaskExecutorAndNoBeanName() throws Exception {
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 
+		container.setAmazonSqsAsync(mock(SqsAsyncClient.class));
 		container.setAmazonSqs(mock(SqsClient.class, withSettings().stubOnly()));
 		container.setMessageHandler(mock(QueueMessageHandler.class));
 
@@ -166,6 +168,7 @@ public class SimpleMessageListenerContainerTest {
 	public void testWithDefaultTaskExecutorAndBeanName() throws Exception {
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 
+		container.setAmazonSqsAsync(mock(SqsAsyncClient.class));
 		container.setAmazonSqs(mock(SqsClient.class, withSettings().stubOnly()));
 		container.setMessageHandler(mock(QueueMessageHandler.class));
 		container.setBeanName("testContainerName");
@@ -189,6 +192,7 @@ public class SimpleMessageListenerContainerTest {
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 
 		QueueMessageHandler mockedHandler = mock(QueueMessageHandler.class);
+		SqsAsyncClient mockedSqsAsync = mock(SqsAsyncClient.class);
 		SqsClient mockedSqs = mock(SqsClient.class, withSettings().stubOnly());
 
 		when(mockedSqs.getQueueAttributes(any(GetQueueAttributesRequest.class)))
@@ -198,6 +202,7 @@ public class SimpleMessageListenerContainerTest {
 		when(mockedHandler.getHandlerMethods()).thenReturn(messageHandlerMethods);
 
 		container.setMaxNumberOfMessages(testedMaxNumberOfMessages);
+		container.setAmazonSqsAsync(mockedSqsAsync);
 		container.setAmazonSqs(mockedSqs);
 		container.setMessageHandler(mockedHandler);
 
@@ -218,6 +223,7 @@ public class SimpleMessageListenerContainerTest {
 		SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
 		container.setTaskExecutor(taskExecutor);
 
+		container.setAmazonSqsAsync(mock(SqsAsyncClient.class));
 		container.setAmazonSqs(mock(SqsClient.class, withSettings().stubOnly()));
 		container.setMessageHandler(mock(QueueMessageHandler.class));
 		container.setBeanName("testContainerName");
@@ -230,6 +236,8 @@ public class SimpleMessageListenerContainerTest {
 	public void testSimpleReceiveMessage() throws Exception {
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		container.setAmazonSqsAsync(sqsAsync);
 		SqsClient sqs = mock(SqsClient.class, withSettings().stubOnly());
 		container.setAmazonSqs(sqs);
 
@@ -284,6 +292,8 @@ public class SimpleMessageListenerContainerTest {
 		SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
 		container.setTaskExecutor(taskExecutor);
 
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		container.setAmazonSqsAsync(sqsAsync);
 		SqsClient sqs = mock(SqsClient.class, withSettings().stubOnly());
 		container.setAmazonSqs(sqs);
 
@@ -326,6 +336,8 @@ public class SimpleMessageListenerContainerTest {
 				super.executeMessage(stringMessage);
 			}
 		};
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		container.setAmazonSqsAsync(sqsAsync);
 		SqsClient sqs = mock(SqsClient.class, withSettings().stubOnly());
 		container.setAmazonSqs(sqs);
 
@@ -397,6 +409,8 @@ public class SimpleMessageListenerContainerTest {
 			}
 		};
 
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		container.setAmazonSqsAsync(sqsAsync);
 		SqsClient sqs = mock(SqsClient.class, withSettings().stubOnly());
 		container.setAmazonSqs(sqs);
 
@@ -437,7 +451,8 @@ public class SimpleMessageListenerContainerTest {
 		container.stop();
 
 		verify(messageHandler).handleMessage(this.stringMessageCaptor.capture());
-		assertThat(this.stringMessageCaptor.getValue().getHeaders().get("SenderId"))
+		//TODO SDK2 migration: why is this now uppercase? used to be SenderId
+		assertThat(this.stringMessageCaptor.getValue().getHeaders().get("SENDER_ID"))
 				.isEqualTo("ID");
 
 	}
@@ -447,6 +462,8 @@ public class SimpleMessageListenerContainerTest {
 			throws Exception {
 		// Arrange
 		SimpleMessageListenerContainer simpleMessageListenerContainer = new SimpleMessageListenerContainer();
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		simpleMessageListenerContainer.setAmazonSqsAsync(sqsAsync);
 		SqsClient sqs = mock(SqsClient.class, withSettings().stubOnly());
 		simpleMessageListenerContainer.setAmazonSqs(sqs);
 		QueueMessageHandler messageHandler = mock(QueueMessageHandler.class);
@@ -466,6 +483,8 @@ public class SimpleMessageListenerContainerTest {
 	public void afterPropertiesSet_whenCalled_taskExecutorIsActive() throws Exception {
 		// Arrange
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		container.setAmazonSqsAsync(sqsAsync);
 		SqsClient sqs = mock(SqsClient.class, withSettings().stubOnly());
 		container.setAmazonSqs(sqs);
 		QueueMessageHandler messageHandler = mock(QueueMessageHandler.class);
@@ -495,6 +514,8 @@ public class SimpleMessageListenerContainerTest {
 			}
 		};
 
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		container.setAmazonSqsAsync(sqsAsync);
 		SqsClient sqs = mock(SqsClient.class, withSettings().stubOnly());
 		container.setAmazonSqs(sqs);
 
@@ -574,6 +595,8 @@ public class SimpleMessageListenerContainerTest {
 			}
 		};
 
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		container.setAmazonSqsAsync(sqsAsync);
 		SqsClient sqs = mock(SqsClient.class);
 		container.setAmazonSqs(sqs);
 
@@ -603,7 +626,7 @@ public class SimpleMessageListenerContainerTest {
 		// Assert
 		assertThat(countDownLatch.await(2L, TimeUnit.SECONDS)).isTrue();
 		container.stop();
-		verify(sqs, times(1)).deleteMessage(eq(DeleteMessageRequest.builder().queueUrl(
+		verify(sqsAsync, times(1)).deleteMessage(eq(DeleteMessageRequest.builder().queueUrl(
 				"https://executeMessage_successfulExecution_shouldRemoveMessageFromQueue.amazonaws.com")
 				.receiptHandle("ReceiptHandle").build()));
 	}
@@ -623,6 +646,8 @@ public class SimpleMessageListenerContainerTest {
 			}
 		};
 
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		container.setAmazonSqsAsync(sqsAsync);
 		SqsClient sqs = mock(SqsClient.class);
 		container.setAmazonSqs(sqs);
 
@@ -662,7 +687,7 @@ public class SimpleMessageListenerContainerTest {
 		// Assert
 		assertThat(countDownLatch.await(2L, TimeUnit.SECONDS)).isTrue();
 		container.stop();
-		verify(sqs, times(1)).deleteMessage(eq(DeleteMessageRequest.builder()
+		verify(sqsAsync, times(1)).deleteMessage(eq(DeleteMessageRequest.builder()
 				.queueUrl("https://executeMessage_executionThrowsExceptionAnd"
 						+ "QueueHasAllDeletionPolicy_shouldRemoveMessageFromQueue.amazonaws.com")
 				.receiptHandle("ReceiptHandle").build()));
@@ -683,6 +708,8 @@ public class SimpleMessageListenerContainerTest {
 			}
 		};
 
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		container.setAmazonSqsAsync(sqsAsync);
 		SqsClient sqs = mock(SqsClient.class);
 		container.setAmazonSqs(sqs);
 
@@ -732,6 +759,7 @@ public class SimpleMessageListenerContainerTest {
 	public void doStop_containerNotRunning_shouldNotThrowAnException() throws Exception {
 		// Arrange
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		container.setAmazonSqsAsync(mock(SqsAsyncClient.class));
 		container.setAmazonSqs(mock(SqsClient.class, withSettings().stubOnly()));
 		container.setMessageHandler(mock(QueueMessageHandler.class));
 		container.setAutoStartup(false);
@@ -746,6 +774,8 @@ public class SimpleMessageListenerContainerTest {
 			throws Exception {
 		// Arrange
 		Level previous = disableLogging();
+
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
 
 		SqsClient amazonSqs = mock(SqsClient.class, withSettings().stubOnly());
 		when(amazonSqs.receiveMessage(any(ReceiveMessageRequest.class)))
@@ -781,6 +811,7 @@ public class SimpleMessageListenerContainerTest {
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 		container.setBackOffTime(0);
 		container.setAmazonSqs(amazonSqs);
+		container.setAmazonSqsAsync(sqsAsync);
 		container.setMessageHandler(messageHandler);
 		container.setAutoStartup(false);
 		container.afterPropertiesSet();
@@ -809,6 +840,8 @@ public class SimpleMessageListenerContainerTest {
 			}
 		};
 
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		container.setAmazonSqsAsync(sqsAsync);
 		SqsClient sqs = mock(SqsClient.class);
 		container.setAmazonSqs(sqs);
 
@@ -849,7 +882,7 @@ public class SimpleMessageListenerContainerTest {
 		testMessageListenerWithManualDeletionPolicy.getCountDownLatch().await(1L,
 				TimeUnit.SECONDS);
 		testMessageListenerWithManualDeletionPolicy.acknowledge();
-		verify(sqs, times(1)).deleteMessage(eq(DeleteMessageRequest.builder()
+		verify(sqsAsync, times(1)).deleteMessage(eq(DeleteMessageRequest.builder()
 				.queueUrl("https://receiveMessage_withMessageListenerMethodAnd"
 						+ "NeverDeletionPolicy_waitsForAcknowledgmentBeforeDeletion.amazonaws.com")
 				.receiptHandle("ReceiptHandle").build()));
@@ -871,6 +904,8 @@ public class SimpleMessageListenerContainerTest {
 			}
 		};
 
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		container.setAmazonSqsAsync(sqsAsync);
 		SqsClient sqs = mock(SqsClient.class);
 		container.setAmazonSqs(sqs);
 
@@ -902,14 +937,14 @@ public class SimpleMessageListenerContainerTest {
 		// Assert
 		countDownLatch.await(1L, TimeUnit.SECONDS);
 		// TODO SDK2 migration: improve
-		verify(sqs, never())
+		verify(sqsAsync, never())
 				.changeMessageVisibility(any(ChangeMessageVisibilityRequest.class));
 		TestMessageListenerWithVisibilityProlong testMessageListenerWithVisibilityProlong = applicationContext
 				.getBean(TestMessageListenerWithVisibilityProlong.class);
 		testMessageListenerWithVisibilityProlong.getCountDownLatch().await(1L,
 				TimeUnit.SECONDS);
 		testMessageListenerWithVisibilityProlong.extend(5);
-		verify(sqs, times(1)).changeMessageVisibility(eq(ChangeMessageVisibilityRequest
+		verify(sqsAsync, times(1)).changeMessageVisibility(eq(ChangeMessageVisibilityRequest
 				.builder()
 				.queueUrl("https://receiveMessage_withMessageListenerMethodAnd"
 						+ "VisibilityProlonging_callsChangeMessageVisibility.amazonaws.com")
@@ -924,6 +959,8 @@ public class SimpleMessageListenerContainerTest {
 		Level previous = disableLogging();
 
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		container.setAmazonSqsAsync(sqsAsync);
 		SqsClient sqs = mock(SqsClient.class);
 		container.setAmazonSqs(sqs);
 
@@ -985,29 +1022,28 @@ public class SimpleMessageListenerContainerTest {
 				.getBean(TestMessageListenerWithAllPossibleDeletionPolicies.class);
 		assertThat(bean.getCountdownLatch().await(1L, TimeUnit.SECONDS)).isTrue();
 		container.stop();
-		verify(sqs, times(1)).deleteMessage(eq(DeleteMessageRequest.builder()
+		verify(sqsAsync, times(1)).deleteMessage(eq(DeleteMessageRequest.builder()
 				.queueUrl("https://alwaysSuccess.amazonaws.com")
 				.receiptHandle("alwaysSuccess").build()));
-		verify(sqs, times(1)).deleteMessage(eq(DeleteMessageRequest.builder()
+		verify(sqsAsync, times(1)).deleteMessage(eq(DeleteMessageRequest.builder()
 				.queueUrl("https://alwaysError.amazonaws.com")
 				.receiptHandle("alwaysError").build()));
-		verify(sqs, times(1)).deleteMessage(eq(DeleteMessageRequest.builder()
+		verify(sqsAsync, times(1)).deleteMessage(eq(DeleteMessageRequest.builder()
 				.queueUrl("https://onSuccessSuccess.amazonaws.com")
 				.receiptHandle("onSuccessSuccess").build()));
-		verify(sqs, never()).deleteMessage(eq(DeleteMessageRequest.builder()
+		verify(sqsAsync, never()).deleteMessage(eq(DeleteMessageRequest.builder()
 				.queueUrl("https://onSuccessError.amazonaws.com")
 				.receiptHandle("onSuccessError").build()));
-		verify(sqs, times(1)).deleteMessage(eq(DeleteMessageRequest.builder()
+		verify(sqsAsync, times(1)).deleteMessage(eq(DeleteMessageRequest.builder()
 				.queueUrl("https://noRedriveSuccess.amazonaws.com")
 				.receiptHandle("noRedriveSuccess").build()));
-		verify(sqs, never()).deleteMessage(eq(DeleteMessageRequest.builder()
+		verify(sqsAsync, never()).deleteMessage(eq(DeleteMessageRequest.builder()
 				.queueUrl("https://noRedriveError.amazonaws.com")
 				.receiptHandle("noRedriveError").build()));
-		// TODO SDK2 migration: improve
-		verify(sqs, never()).deleteMessage(eq(DeleteMessageRequest.builder()
+		verify(sqsAsync, never()).deleteMessage(eq(DeleteMessageRequest.builder()
 				.queueUrl("https://neverSuccess.amazonaws.com")
 				.receiptHandle("neverSuccess").build()));
-		verify(sqs, never()).deleteMessage(eq(DeleteMessageRequest.builder()
+		verify(sqsAsync, never()).deleteMessage(eq(DeleteMessageRequest.builder()
 				.queueUrl("https://neverError.amazonaws.com").receiptHandle("neverError")
 				.build()));
 
@@ -1025,6 +1061,8 @@ public class SimpleMessageListenerContainerTest {
 				AnotherTestMessageListener.class);
 
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		container.setAmazonSqsAsync(sqsAsync);
 		SqsClient sqs = mock(SqsClient.class, withSettings().stubOnly());
 		container.setAmazonSqs(sqs);
 		container.setBackOffTime(0);
@@ -1076,10 +1114,28 @@ public class SimpleMessageListenerContainerTest {
 				AnotherTestMessageListener.class);
 
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-		// TODO SDK2 migration: find a solution for clients
-		// MockAmazonSqsAsyncClient sqs = new MockAmazonSqsAsyncClient();
-		SqsClient sqs = mock(SqsClient.class);
 
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		SqsClient sqs = mock(SqsClient.class);
+		when(sqs.getQueueUrl(any(GetQueueUrlRequest.class))).then((Answer<GetQueueUrlResponse>) invocation -> {
+			GetQueueUrlRequest getQueueUrlRequest = invocation.getArgument(0);
+			return GetQueueUrlResponse.builder().queueUrl("http://" + getQueueUrlRequest.queueName() + ".amazonaws.com")
+					.build();
+		});
+		when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class)))
+				.thenReturn(GetQueueAttributesResponse.builder().build());
+		when(sqs.receiveMessage(any(ReceiveMessageRequest.class))).then((Answer<ReceiveMessageResponse>) invocation -> {
+			ReceiveMessageRequest receiveMessageRequest = invocation.getArgument(0);
+			if ("http://testQueue.amazonaws.com".equals(receiveMessageRequest.queueUrl())) {
+				return ReceiveMessageResponse.builder()
+						.messages(Message.builder().body("Hello").receiptHandle("ReceiptHandle").build()).build();
+			}
+			else {
+				return ReceiveMessageResponse.builder().build();
+			}
+		});
+
+		container.setAmazonSqsAsync(sqsAsync);
 		container.setAmazonSqs(sqs);
 		container.setBackOffTime(0);
 
@@ -1094,9 +1150,6 @@ public class SimpleMessageListenerContainerTest {
 
 		assertThat(container.isRunning("testQueue")).isFalse();
 		assertThat(container.isRunning("anotherTestQueue")).isTrue();
-
-		// TODO SDK2 migration: enable after solving issue with clients
-		// sqs.setReceiveMessageEnabled(true);
 
 		// Act
 		container.start("testQueue");
@@ -1121,6 +1174,7 @@ public class SimpleMessageListenerContainerTest {
 	public void stop_withQueueNameThatDoesNotExist_throwsAnException() throws Exception {
 		// Arrange
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		container.setAmazonSqsAsync(mock(SqsAsyncClient.class));
 		container.setAmazonSqs(mock(SqsClient.class, withSettings().stubOnly()));
 		container.setMessageHandler(new QueueMessageHandler());
 		container.afterPropertiesSet();
@@ -1135,6 +1189,7 @@ public class SimpleMessageListenerContainerTest {
 	public void start_withQueueNameThatDoesNotExist_throwAnException() throws Exception {
 		// Arrange
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		container.setAmazonSqsAsync(mock(SqsAsyncClient.class));
 		container.setAmazonSqs(mock(SqsClient.class, withSettings().stubOnly()));
 		container.setMessageHandler(new QueueMessageHandler());
 
@@ -1155,11 +1210,13 @@ public class SimpleMessageListenerContainerTest {
 				TestMessageListener.class);
 
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
 		SqsClient sqs = mock(SqsClient.class, withSettings().stubOnly());
 
 		when(sqs.receiveMessage(any(ReceiveMessageRequest.class)))
 				.thenReturn(ReceiveMessageResponse.builder().build());
 
+		container.setAmazonSqsAsync(sqsAsync);
 		container.setAmazonSqs(sqs);
 		container.setBackOffTime(0);
 
@@ -1196,6 +1253,8 @@ public class SimpleMessageListenerContainerTest {
 				TestMessageListener.class);
 
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		container.setAmazonSqsAsync(sqsAsync);
 		SqsClient sqs = mock(SqsClient.class, withSettings().stubOnly());
 		container.setAmazonSqs(sqs);
 		container.setBackOffTime(0);
@@ -1232,6 +1291,8 @@ public class SimpleMessageListenerContainerTest {
 				LongRunningListenerMethod.class);
 
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		container.setAmazonSqsAsync(sqsAsync);
 		SqsClient sqs = mock(SqsClient.class, withSettings().stubOnly());
 		container.setAmazonSqs(sqs);
 		container.setBackOffTime(0);
@@ -1302,6 +1363,8 @@ public class SimpleMessageListenerContainerTest {
 			}
 		};
 
+		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
+		container.setAmazonSqsAsync(sqsAsync);
 		SqsClient sqs = mock(SqsClient.class, withSettings().stubOnly());
 		container.setAmazonSqs(sqs);
 		container.setBackOffTime(100);
@@ -1358,51 +1421,6 @@ public class SimpleMessageListenerContainerTest {
 				.isTrue();
 	}
 
-	// TODO SDK2 migration: find a solution for clients
-	// // This class is needed because it does not seem to work when using mockito to mock
-	// // those requests
-	// private static final class MockAmazonSqsAsyncClient
-	// extends AmazonSQSBufferedAsyncClient {
-	//
-	// private volatile boolean receiveMessageEnabled;
-	//
-	// private MockAmazonSqsAsyncClient() {
-	// super(null);
-	// }
-	//
-	// @Override
-	// public GetQueueUrlResponse getQueueUrl(GetQueueUrlRequest getQueueUrlRequest)
-	// throws AmazonClientException {
-	// return new GetQueueUrlResult().withQueueUrl(
-	// "http://" + getQueueUrlRequest.getQueueName() + ".amazonaws.com");
-	// }
-	//
-	// @Override
-	// public GetQueueAttributesResult getQueueAttributes(
-	// GetQueueAttributesRequest getQueueAttributesRequest)
-	// throws AmazonClientException {
-	// return new GetQueueAttributesResult();
-	// }
-	//
-	// @Override
-	// public ReceiveMessageResult receiveMessage(
-	// ReceiveMessageRequest receiveMessageRequest)
-	// throws AmazonClientException {
-	// if ("http://testQueue.amazonaws.com".equals(
-	// receiveMessageRequest.getQueueUrl()) && this.receiveMessageEnabled) {
-	// return ReceiveMessageResponse.builder().withMessages(new Message()
-	// .body("Hello").receiptHandle("ReceiptHandle"));
-	// }
-	// else {
-	// return ReceiveMessageResponse.builder();
-	// }
-	// }
-	//
-	// public void setReceiveMessageEnabled(boolean receiveMessageEnabled) {
-	// this.receiveMessageEnabled = receiveMessageEnabled;
-	// }
-	//
-	// }
 
 	private static class TestMessageListener {
 
@@ -1485,13 +1503,19 @@ public class SimpleMessageListenerContainerTest {
 	protected static class SqsTestConfig {
 
 		@Bean
-		public SqsClient amazonSQS() {
+		public SqsClient amazonSqs() {
 			SqsClient mockAmazonSQS = mock(SqsClient.class, withSettings().stubOnly());
 			mockGetQueueUrl(mockAmazonSQS, "testQueue", "http://testQueue.amazonaws.com");
 			when(mockAmazonSQS.receiveMessage(any(ReceiveMessageRequest.class)))
 					.thenReturn(ReceiveMessageResponse.builder().build());
 			when(mockAmazonSQS.getQueueAttributes(any(GetQueueAttributesRequest.class)))
 					.thenReturn(GetQueueAttributesResponse.builder().build());
+			return mockAmazonSQS;
+		}
+
+		@Bean
+		public SqsAsyncClient amazonSqsAsync() {
+			SqsAsyncClient mockAmazonSQS = mock(SqsAsyncClient.class, withSettings().stubOnly());
 			return mockAmazonSQS;
 		}
 

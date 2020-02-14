@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.aws.messaging;
 
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
 
 import org.springframework.cloud.aws.IntegrationTestConfig;
@@ -59,8 +60,8 @@ public class JavaQueueListenerTest extends QueueListenerTest {
 
 		@Bean
 		public QueueMessagingTemplate queueMessagingTemplate(SqsClient amazonSqs,
-				ResourceIdResolver resourceIdResolver) {
-			return new QueueMessagingTemplate(amazonSqs, resourceIdResolver);
+			SqsAsyncClient amazonSqsAsync, ResourceIdResolver resourceIdResolver) {
+			return new QueueMessagingTemplate(amazonSqs, amazonSqsAsync, resourceIdResolver);
 		}
 
 		@Bean

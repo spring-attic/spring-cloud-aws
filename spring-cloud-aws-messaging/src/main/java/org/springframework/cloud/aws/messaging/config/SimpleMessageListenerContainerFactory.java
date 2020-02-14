@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.aws.messaging.config;
 
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
 
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
@@ -43,6 +44,8 @@ public class SimpleMessageListenerContainerFactory {
 	private boolean autoStartup = true;
 
 	private SqsClient amazonSqs;
+
+	private SqsAsyncClient amazonSqsAsync;
 
 	private QueueMessageHandler queueMessageHandler;
 
@@ -108,6 +111,10 @@ public class SimpleMessageListenerContainerFactory {
 		return this.amazonSqs;
 	}
 
+	public SqsAsyncClient getAmazonSqsAsync() {
+		return this.amazonSqsAsync;
+	}
+
 	/**
 	 * Sets the {@link SqsClient} that is going to be used by the container to interact
 	 * with the messaging (SQS) API.
@@ -116,6 +123,15 @@ public class SimpleMessageListenerContainerFactory {
 	public void setAmazonSqs(SqsClient amazonSqs) {
 		Assert.notNull(amazonSqs, "amazonSqs must not be null");
 		this.amazonSqs = amazonSqs;
+	}
+	/**
+	 * Sets the {@link SqsAsyncClient} that is going to be used by the container to interact
+	 * with the messaging (SQS) API.
+	 * @param amazonSqsAsync The {@link SqsAsyncClient}, must not be {@code null}.
+	 */
+	public void setAmazonSqsAsync(SqsAsyncClient amazonSqsAsync) {
+		Assert.notNull(amazonSqsAsync, "amazonSqsAsync must not be null");
+		this.amazonSqsAsync = amazonSqsAsync;
 	}
 
 	public QueueMessageHandler getQueueMessageHandler() {
@@ -185,10 +201,11 @@ public class SimpleMessageListenerContainerFactory {
 
 	public SimpleMessageListenerContainer createSimpleMessageListenerContainer() {
 		Assert.notNull(this.amazonSqs, "amazonSqs must not be null");
+		Assert.notNull(this.amazonSqsAsync, "amazonSqsAsync must not be null");
 
 		SimpleMessageListenerContainer simpleMessageListenerContainer = new SimpleMessageListenerContainer();
-		// TODO SDK2 migration: solve the issue with the async and sync client
 		simpleMessageListenerContainer.setAmazonSqs(this.amazonSqs);
+		simpleMessageListenerContainer.setAmazonSqsAsync(this.amazonSqsAsync);
 		simpleMessageListenerContainer.setAutoStartup(this.autoStartup);
 
 		if (this.taskExecutor != null) {

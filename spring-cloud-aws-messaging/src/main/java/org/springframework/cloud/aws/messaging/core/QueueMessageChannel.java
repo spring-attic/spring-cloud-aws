@@ -20,10 +20,13 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
 import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
@@ -31,6 +34,7 @@ import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
+import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageDeliveryException;
@@ -56,11 +60,13 @@ public class QueueMessageChannel extends AbstractMessageChannel
 	private static final String MESSAGE_ATTRIBUTE_NAMES = "All";
 
 	private final SqsClient amazonSqs;
+	private final SqsAsyncClient amazonSqsAsync;
 
 	private final String queueUrl;
 
-	public QueueMessageChannel(SqsClient amazonSqs, String queueUrl) {
+	public QueueMessageChannel(SqsClient amazonSqs, SqsAsyncClient amazonSqsAsync, String queueUrl) {
 		this.amazonSqs = amazonSqs;
+		this.amazonSqsAsync = amazonSqsAsync;
 		this.queueUrl = queueUrl;
 	}
 
@@ -121,16 +127,14 @@ public class QueueMessageChannel extends AbstractMessageChannel
 	private void sendMessageAndWaitForResult(SendMessageRequest sendMessageRequest,
 			long timeout) throws ExecutionException, TimeoutException {
 		if (timeout > 0) {
-			// TODO SDK2 migration: solve issue with async and sync client
-			// Future<SendMessageResponse> sendMessageFuture = this.amazonSqsAsync
-			// .sendMessage(sendMessageRequest);
-			//
-			// try {
-			// sendMessageFuture.get(timeout, TimeUnit.MILLISECONDS);
-			// }
-			// catch (InterruptedException e) {
-			// Thread.currentThread().interrupt();
-			// }
+			Future<SendMessageResponse> sendMessageFuture = this.amazonSqsAsync.sendMessage(sendMessageRequest);
+
+			try {
+				sendMessageFuture.get(timeout, TimeUnit.MILLISECONDS);
+			}
+			catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
 		}
 		else {
 			this.amazonSqs.sendMessage(sendMessageRequest);

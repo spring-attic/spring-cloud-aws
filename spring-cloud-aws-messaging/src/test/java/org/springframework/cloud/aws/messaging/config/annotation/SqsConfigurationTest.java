@@ -82,9 +82,13 @@ public class SqsConfigurationTest {
 		QueueMessagingTemplate messagingTemplate = (QueueMessagingTemplate) ReflectionTestUtils
 				.getField(sendToReturnValueHandler, "messageTemplate");
 
-		SqsAsyncClient amazonSqs = (SqsAsyncClient) ReflectionTestUtils.getField(messagingTemplate, "amazonSqs");
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
-		assertThat(clientConfiguration.option(AwsClientOption.CREDENTIALS_PROVIDER)).isNotNull();
+		SqsAsyncClient amazonSqsAsync = (SqsAsyncClient) ReflectionTestUtils.getField(messagingTemplate, "amazonSqsAsync");
+		SdkClientConfiguration clientConfigurationAmazonSqsAsync = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqsAsync, "clientConfiguration");
+		assertThat(clientConfigurationAmazonSqsAsync.option(AwsClientOption.CREDENTIALS_PROVIDER)).isNotNull();
+
+		SqsClient amazonSqs = (SqsClient) ReflectionTestUtils.getField(messagingTemplate, "amazonSqs");
+		SdkClientConfiguration clientConfigurationAmazonSqs = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
+		assertThat(clientConfigurationAmazonSqs.option(AwsClientOption.CREDENTIALS_PROVIDER)).isNotNull();
 	}
 
 	@Test
@@ -223,7 +227,7 @@ public class SqsConfigurationTest {
 		// Assert
 		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
-			.isEqualTo(ServiceMetadata.of("sqs").endpointFor(Region.EU_WEST_1));
+			.isEqualTo("https://" + ServiceMetadata.of("sqs").endpointFor(Region.EU_WEST_1));
 	}
 
 	@EnableSqs
@@ -250,7 +254,7 @@ public class SqsConfigurationTest {
 		}
 
 		@Bean
-		public SqsClient amazonSQS() {
+		public SqsClient amazonSqs() {
 			return CUSTOM_SQS_CLIENT;
 		}
 

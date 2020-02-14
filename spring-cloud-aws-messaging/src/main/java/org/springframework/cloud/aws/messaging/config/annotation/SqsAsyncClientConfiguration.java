@@ -17,7 +17,7 @@
 package org.springframework.cloud.aws.messaging.config.annotation;
 
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.aws.context.annotation.ConditionalOnMissingAmazonClient;
@@ -32,8 +32,8 @@ import org.springframework.context.annotation.Lazy;
  * @since 1.0
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnMissingAmazonClient(SqsClient.class)
-public class SqsClientConfiguration {
+@ConditionalOnMissingAmazonClient(SqsAsyncClient.class)
+public class SqsAsyncClientConfiguration {
 
 	@Autowired(required = false)
 	private AwsCredentialsProvider awsCredentialsProvider;
@@ -43,10 +43,16 @@ public class SqsClientConfiguration {
 
 	@Lazy
 	@Bean(destroyMethod = "close")
-	public SqsClient amazonSqs() throws Exception {
-		AmazonWebserviceClientFactoryBean<SqsClient> clientFactoryBean = new AmazonWebserviceClientFactoryBean<>(
-			SqsClient.class, this.awsCredentialsProvider, this.regionProvider);
+	public SqsAsyncClient amazonSqsAsync() throws Exception {
+		AmazonWebserviceClientFactoryBean<SqsAsyncClient> clientFactoryBean = new AmazonWebserviceClientFactoryBean<>(
+				SqsAsyncClient.class, this.awsCredentialsProvider, this.regionProvider);
 		clientFactoryBean.afterPropertiesSet();
+		// TODO SDK2 migration: update
+		// Important
+		// The AWS SDK for Java 2.x isn't currently compatible with the
+		// AmazonSQSBufferedAsyncClient.
+		// https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-client-side-buffering-request-batching.html
+		// return new AmazonSQSBufferedAsyncClient(clientFactoryBean.getObject());
 		return clientFactoryBean.getObject();
 	}
 

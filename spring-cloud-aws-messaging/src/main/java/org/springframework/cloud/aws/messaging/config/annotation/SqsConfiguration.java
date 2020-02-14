@@ -18,6 +18,7 @@ package org.springframework.cloud.aws.messaging.config.annotation;
 
 import java.util.Arrays;
 
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
 
 import org.springframework.beans.factory.BeanFactory;
@@ -64,9 +65,12 @@ public class SqsConfiguration {
 
 	@Bean
 	public SimpleMessageListenerContainer simpleMessageListenerContainer(
-			SqsClient amazonSqs) {
+			SqsClient amazonSqs, SqsAsyncClient amazonSqsAsync) {
 		if (this.simpleMessageListenerContainerFactory.getAmazonSqs() == null) {
 			this.simpleMessageListenerContainerFactory.setAmazonSqs(amazonSqs);
+		}
+		if (this.simpleMessageListenerContainerFactory.getAmazonSqsAsync() == null) {
+			this.simpleMessageListenerContainerFactory.setAmazonSqsAsync(amazonSqsAsync);
 		}
 		if (this.simpleMessageListenerContainerFactory.getResourceIdResolver() == null) {
 			this.simpleMessageListenerContainerFactory
@@ -75,23 +79,26 @@ public class SqsConfiguration {
 
 		SimpleMessageListenerContainer simpleMessageListenerContainer = this.simpleMessageListenerContainerFactory
 				.createSimpleMessageListenerContainer();
-		simpleMessageListenerContainer.setMessageHandler(queueMessageHandler(amazonSqs));
+		simpleMessageListenerContainer.setMessageHandler(queueMessageHandler(amazonSqs, amazonSqsAsync));
 		return simpleMessageListenerContainer;
 	}
 
 	@Bean
-	public QueueMessageHandler queueMessageHandler(SqsClient amazonSqs) {
+	public QueueMessageHandler queueMessageHandler(SqsClient amazonSqs, SqsAsyncClient amazonSqsAsync) {
 		if (this.simpleMessageListenerContainerFactory.getQueueMessageHandler() != null) {
 			return this.simpleMessageListenerContainerFactory.getQueueMessageHandler();
 		}
 		else {
-			return getMessageHandler(amazonSqs);
+			return getMessageHandler(amazonSqs, amazonSqsAsync);
 		}
 	}
 
-	private QueueMessageHandler getMessageHandler(SqsClient amazonSqs) {
+	private QueueMessageHandler getMessageHandler(SqsClient amazonSqs, SqsAsyncClient amazonSqsAsync) {
 		if (this.queueMessageHandlerFactory.getAmazonSqs() == null) {
 			this.queueMessageHandlerFactory.setAmazonSqs(amazonSqs);
+		}
+		if (this.queueMessageHandlerFactory.getAmazonSqsAsync() == null) {
+			this.queueMessageHandlerFactory.setAmazonSqsAsync(amazonSqsAsync);
 		}
 
 		if (CollectionUtils

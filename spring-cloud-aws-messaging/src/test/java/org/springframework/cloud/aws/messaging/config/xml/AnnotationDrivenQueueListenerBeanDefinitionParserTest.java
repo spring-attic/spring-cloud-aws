@@ -142,10 +142,14 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParserTest {
 				.getBeanDefinition(SimpleMessageListenerContainer.class.getName() + "#0");
 		assertThat(abstractContainerDefinition).isNotNull();
 
-		assertThat(abstractContainerDefinition.getPropertyValues().size()).isEqualTo(3);
+		assertThat(abstractContainerDefinition.getPropertyValues().size()).isEqualTo(4);
 		assertThat(((RuntimeBeanReference) abstractContainerDefinition.getPropertyValues()
 				.getPropertyValue("amazonSqs").getValue()).getBeanName())
 						.isEqualTo("myClient");
+		// TODO SDK2 migration: uncomment and extend test
+//		assertThat(((RuntimeBeanReference) abstractContainerDefinition.getPropertyValues()
+//				.getPropertyValue("amazonSqsAsync").getValue()).getBeanName())
+//						.isEqualTo("myClientAsync");
 	}
 
 	@Test
@@ -167,13 +171,15 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParserTest {
 				.getBeanDefinition(SimpleMessageListenerContainer.class.getName() + "#0");
 		assertThat(abstractContainerDefinition).isNotNull();
 
-		assertThat(abstractContainerDefinition.getPropertyValues().size()).isEqualTo(4);
+		assertThat(abstractContainerDefinition.getPropertyValues().size()).isEqualTo(5);
 		assertThat(((RuntimeBeanReference) abstractContainerDefinition.getPropertyValues()
 				.getPropertyValue("taskExecutor").getValue()).getBeanName())
 						.isEqualTo("executor");
 
 		SqsAsyncClient asyncClient = beanFactory.getBean(SqsAsyncClient.class);
 		assertThat(asyncClient).isNotNull();
+		SqsClient client = beanFactory.getBean(SqsClient.class);
+		assertThat(client).isNotNull();
 	}
 
 	@Test
@@ -293,7 +299,7 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParserTest {
 
 		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
-			.isEqualTo(ServiceMetadata.of("sqs").endpointFor(Region.EU_WEST_1));
+			.isEqualTo("https://" + ServiceMetadata.of("sqs").endpointFor(Region.EU_WEST_1));
 
 	}
 
@@ -315,7 +321,7 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParserTest {
 
 		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
-			.isEqualTo(ServiceMetadata.of("sqs").endpointFor(Region.AP_SOUTHEAST_2));
+			.isEqualTo("https://" + ServiceMetadata.of("sqs").endpointFor(Region.AP_SOUTHEAST_2));
 	}
 
 	@Test
@@ -329,7 +335,7 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParserTest {
 		SqsAsyncClient amazonSqs = applicationContext.getBean(SqsAsyncClient.class);
 		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
-			.isEqualTo(ServiceMetadata.of("sqs").endpointFor(Region.AP_SOUTHEAST_1));
+			.isEqualTo("https://" + ServiceMetadata.of("sqs").endpointFor(Region.AP_SOUTHEAST_1));
 	}
 
 	@Test

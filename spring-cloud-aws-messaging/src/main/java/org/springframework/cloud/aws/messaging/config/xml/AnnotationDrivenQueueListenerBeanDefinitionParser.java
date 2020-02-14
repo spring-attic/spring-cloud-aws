@@ -26,6 +26,7 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.cloud.aws.context.config.xml.GlobalBeanDefinitionUtils;
+import org.springframework.cloud.aws.core.config.xml.XmlWebserviceConfigurationUtils;
 import org.springframework.cloud.aws.messaging.core.QueueMessagingTemplate;
 import org.springframework.cloud.aws.messaging.listener.QueueMessageHandler;
 import org.springframework.cloud.aws.messaging.listener.SendToHandlerMethodReturnValueHandler;
@@ -62,7 +63,7 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParser
 	private static final String BACK_OFF_TIME = "back-off-time";
 
 	private static String getMessageHandlerBeanName(Element element,
-			ParserContext parserContext, String sqsClientBeanName) {
+			ParserContext parserContext, String sqsClientBeanName, String sqsAsyncClientBeanName) {
 		BeanDefinitionBuilder queueMessageHandlerDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(QueueMessageHandler.class);
 
@@ -88,7 +89,7 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParser
 		ManagedList<BeanDefinition> returnValueHandlers = getReturnValueHandlers(element,
 				parserContext);
 		returnValueHandlers.add(createSendToHandlerMethodReturnValueHandlerBeanDefinition(
-				element, parserContext, sqsClientBeanName));
+				element, parserContext, sqsClientBeanName, sqsAsyncClientBeanName));
 		queueMessageHandlerDefinitionBuilder.addPropertyValue("customReturnValueHandlers",
 				returnValueHandlers);
 
@@ -101,7 +102,7 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParser
 	}
 
 	private static AbstractBeanDefinition createSendToHandlerMethodReturnValueHandlerBeanDefinition(
-			Element element, ParserContext parserContext, String sqsClientBeanName) {
+			Element element, ParserContext parserContext, String sqsClientBeanName, String sqsAsyncClientBeanName) {
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(SendToHandlerMethodReturnValueHandler.class);
 		if (StringUtils.hasText(element.getAttribute("send-to-message-template"))) {
@@ -114,6 +115,7 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParser
 			BeanDefinitionBuilder templateBuilder = BeanDefinitionBuilder
 					.rootBeanDefinition(QueueMessagingTemplate.class);
 			templateBuilder.addConstructorArgReference(sqsClientBeanName);
+			templateBuilder.addConstructorArgReference(sqsAsyncClientBeanName);
 			templateBuilder.addConstructorArgReference(GlobalBeanDefinitionUtils
 					.retrieveResourceIdResolverBeanName(parserContext.getRegistry()));
 
@@ -213,18 +215,25 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParser
 					element.getAttribute(BACK_OFF_TIME));
 		}
 
-		String amazonSqsClientBeanName = getCustomAmazonSqsClientOrDecoratedDefaultSqsClientBeanName(
+		String amazonSqsAsyncClientBeanName = getCustomAmazonSqsClientOrDecoratedDefaultSqsClientBeanName(
 				element, parserContext);
 
 		containerBuilder.addPropertyReference(
+				Conventions.attributeNameToPropertyName("amazon-sqs-async"),
+			amazonSqsAsyncClientBeanName);
+
+		String amazonSqsClientBeanName = XmlWebserviceConfigurationUtils
+			.getCustomClientOrDefaultClientBeanName(element, parserContext,
+				"amazon-sqs", "software.amazon.awssdk.services.sqs.SqsClient");
+		containerBuilder.addPropertyReference(
 				Conventions.attributeNameToPropertyName("amazon-sqs"),
-				amazonSqsClientBeanName);
+			amazonSqsClientBeanName);
 
 		containerBuilder.addPropertyReference("resourceIdResolver",
 				GlobalBeanDefinitionUtils
 						.retrieveResourceIdResolverBeanName(parserContext.getRegistry()));
 		containerBuilder.addPropertyReference("messageHandler", getMessageHandlerBeanName(
-				element, parserContext, amazonSqsClientBeanName));
+				element, parserContext, amazonSqsClientBeanName, amazonSqsAsyncClientBeanName));
 
 		return containerBuilder.getBeanDefinition();
 	}

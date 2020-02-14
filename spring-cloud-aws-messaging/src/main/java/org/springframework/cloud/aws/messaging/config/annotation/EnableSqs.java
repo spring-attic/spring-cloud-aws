@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Import;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Import({ SqsClientConfiguration.class, SqsConfiguration.class })
+@Import({ SqsAsyncClientConfiguration.class, SqsClientConfiguration.class, SqsConfiguration.class })
 public @interface EnableSqs {
 
 }

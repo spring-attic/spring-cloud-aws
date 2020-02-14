@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.GetQueueAttributesRequest;
 import software.amazon.awssdk.services.sqs.model.GetQueueAttributesResponse;
@@ -72,8 +73,8 @@ abstract class AbstractMessageListenerContainer
 	// Mandatory settings, the container synchronizes this fields after calling the
 	// setters hence there is no further synchronization
 	@SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
-	// TODO SDK2 migration: used to be async client
 	private SqsClient amazonSqs;
+	private SqsAsyncClient amazonSqsAsync;
 
 	@SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
 	private DestinationResolver<String> destinationResolver;
@@ -132,16 +133,28 @@ abstract class AbstractMessageListenerContainer
 		return this.amazonSqs;
 	}
 
+	protected SqsAsyncClient getAmazonSqsAsync() {
+		return this.amazonSqsAsync;
+	}
+
 	/**
-	 * Configures the mandatory {@link SqsClient} client for this instance. // TODO SDK2
-	 * migration: update comment depending on what to do about the buffering client
-	 * <b>Note:</b>The configured instance should have a buffering amazon SQS instance
-	 * (see subclasses) functionality to improve the performance during message reception
-	 * and deletion on the queueing system.
+	 * Configures the mandatory {@link SqsClient} client for this instance.
 	 * @param amazonSqs the amazon sqs instance. Must not be null
 	 */
 	public void setAmazonSqs(SqsClient amazonSqs) {
 		this.amazonSqs = amazonSqs;
+	}
+
+	// TODO SDK2 migration: update comment depending on what to do about the buffering client
+	/**
+	 * Configures the mandatory {@link SqsAsyncClient} client for this instance.
+	 * <b>Note:</b>The configured instance should have a buffering amazon SQS instance
+	 * (see subclasses) functionality to improve the performance during message reception
+	 * and deletion on the queueing system.
+	 * @param amazonSqsAsync the amazon sqs instance. Must not be null
+	 */
+	public void setAmazonSqsAsync(SqsAsyncClient amazonSqsAsync) {
+		this.amazonSqsAsync = amazonSqsAsync;
 	}
 
 	protected DestinationResolver<String> getDestinationResolver() {
@@ -271,6 +284,7 @@ abstract class AbstractMessageListenerContainer
 
 	private void validateConfiguration() {
 		Assert.state(this.amazonSqs != null, "amazonSqs must not be null");
+		Assert.state(this.amazonSqsAsync != null, "amazonSqsAsync must not be null");
 		Assert.state(this.messageHandler != null, "messageHandler must not be null");
 	}
 
@@ -337,7 +351,7 @@ abstract class AbstractMessageListenerContainer
 				GetQueueAttributesRequest.builder().queueUrl(destinationUrl)
 						.attributeNames(QueueAttributeName.REDRIVE_POLICY).build());
 		boolean hasRedrivePolicy = queueAttributes.attributes()
-				.containsKey(QueueAttributeName.REDRIVE_POLICY.toString());
+				.containsKey(QueueAttributeName.REDRIVE_POLICY);
 
 		return new QueueAttributes(hasRedrivePolicy, deletionPolicy, destinationUrl,
 				getMaxNumberOfMessages(), getVisibilityTimeout(), getWaitTimeOut());

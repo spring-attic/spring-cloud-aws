@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
 import software.amazon.awssdk.services.sqs.model.GetQueueUrlResponse;
@@ -54,8 +55,9 @@ public class QueueMessagingTemplateTest {
 	@Test(expected = IllegalStateException.class)
 	public void send_withoutDefaultDestination_throwAnException() {
 		SqsClient amazonSqs = createAmazonSqs();
+		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-				amazonSqs);
+				amazonSqs, amazonSqsAsync);
 
 		Message<String> stringMessage = MessageBuilder.withPayload("message content")
 				.build();
@@ -65,8 +67,9 @@ public class QueueMessagingTemplateTest {
 	@Test
 	public void send_withDefaultDestination_usesDefaultDestination() {
 		SqsClient amazonSqs = createAmazonSqs();
+		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-				amazonSqs);
+				amazonSqs, amazonSqsAsync);
 		queueMessagingTemplate.setDefaultDestinationName("my-queue");
 
 		Message<String> stringMessage = MessageBuilder.withPayload("message content")
@@ -83,8 +86,9 @@ public class QueueMessagingTemplateTest {
 	@Test
 	public void send_withDestination_usesDestination() {
 		SqsClient amazonSqs = createAmazonSqs();
+		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-				amazonSqs);
+				amazonSqs, amazonSqsAsync);
 
 		Message<String> stringMessage = MessageBuilder.withPayload("message content")
 				.build();
@@ -100,9 +104,10 @@ public class QueueMessagingTemplateTest {
 	@Test
 	public void send_withCustomDestinationResolveAndDestination_usesDestination() {
 		SqsClient amazonSqs = createAmazonSqs();
+		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
 				amazonSqs,
-				(DestinationResolver<String>) name -> name.toUpperCase(Locale.ENGLISH),
+			amazonSqsAsync, (DestinationResolver<String>) name -> name.toUpperCase(Locale.ENGLISH),
 				null);
 
 		Message<String> stringMessage = MessageBuilder.withPayload("message content")
@@ -119,8 +124,9 @@ public class QueueMessagingTemplateTest {
 	@Test(expected = IllegalStateException.class)
 	public void receive_withoutDefaultDestination_throwsAnException() {
 		SqsClient amazonSqs = createAmazonSqs();
+		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-				amazonSqs);
+				amazonSqs, amazonSqsAsync);
 
 		queueMessagingTemplate.receive();
 	}
@@ -128,8 +134,9 @@ public class QueueMessagingTemplateTest {
 	@Test
 	public void receive_withDefaultDestination_useDefaultDestination() {
 		SqsClient amazonSqs = createAmazonSqs();
+		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-				amazonSqs);
+				amazonSqs, amazonSqsAsync);
 		queueMessagingTemplate.setDefaultDestinationName("my-queue");
 
 		queueMessagingTemplate.receive();
@@ -144,8 +151,9 @@ public class QueueMessagingTemplateTest {
 	@Test
 	public void receive_withDestination_usesDestination() {
 		SqsClient amazonSqs = createAmazonSqs();
+		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-				amazonSqs);
+				amazonSqs, amazonSqsAsync);
 
 		queueMessagingTemplate.receive("my-queue");
 
@@ -159,8 +167,9 @@ public class QueueMessagingTemplateTest {
 	@Test(expected = IllegalStateException.class)
 	public void receiveAndConvert_withoutDefaultDestination_throwsAnException() {
 		SqsClient amazonSqs = createAmazonSqs();
+		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-				amazonSqs);
+				amazonSqs, amazonSqsAsync);
 
 		queueMessagingTemplate.receiveAndConvert(String.class);
 	}
@@ -168,8 +177,9 @@ public class QueueMessagingTemplateTest {
 	@Test
 	public void receiveAndConvert_withDefaultDestination_usesDefaultDestinationAndConvertsMessage() {
 		SqsClient amazonSqs = createAmazonSqs();
+		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-				amazonSqs);
+				amazonSqs, amazonSqsAsync);
 		queueMessagingTemplate.setDefaultDestinationName("my-queue");
 
 		String message = queueMessagingTemplate.receiveAndConvert(String.class);
@@ -180,8 +190,9 @@ public class QueueMessagingTemplateTest {
 	@Test
 	public void receiveAndConvert_withDestination_usesDestinationAndConvertsMessage() {
 		SqsClient amazonSqs = createAmazonSqs();
+		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-				amazonSqs);
+				amazonSqs, amazonSqsAsync);
 
 		String message = queueMessagingTemplate.receiveAndConvert("my-queue",
 				String.class);
@@ -196,7 +207,7 @@ public class QueueMessagingTemplateTest {
 
 		// Act
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-				createAmazonSqs(), (ResourceIdResolver) null, simpleMessageConverter);
+				createAmazonSqs(), mock(SqsAsyncClient.class), (ResourceIdResolver) null, simpleMessageConverter);
 
 		// Assert
 		assertThat(
@@ -213,6 +224,7 @@ public class QueueMessagingTemplateTest {
 
 		// Arrange
 		SqsClient amazonSqs = createAmazonSqs();
+		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 
 		ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().build();
 
@@ -221,7 +233,7 @@ public class QueueMessagingTemplateTest {
 		simpleMessageConverter.setObjectMapper(objectMapper);
 
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-				amazonSqs, (ResourceIdResolver) null, simpleMessageConverter);
+				amazonSqs, amazonSqsAsync, (ResourceIdResolver) null, simpleMessageConverter);
 
 		// Act
 		queueMessagingTemplate.convertAndSend("test",
@@ -246,11 +258,12 @@ public class QueueMessagingTemplateTest {
 
 		// Arrange
 		SqsClient amazonSqs = createAmazonSqs();
+		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 
 		ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().build();
 
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-				amazonSqs);
+				amazonSqs, amazonSqsAsync);
 
 		// Act
 		queueMessagingTemplate.convertAndSend("test",
@@ -271,6 +284,7 @@ public class QueueMessagingTemplateTest {
 
 	private SqsClient createAmazonSqs() {
 		SqsClient amazonSqs = mock(SqsClient.class);
+		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 
 		GetQueueUrlResponse queueUrl = GetQueueUrlResponse.builder()
 				.queueUrl("https://queue-url.com").build();

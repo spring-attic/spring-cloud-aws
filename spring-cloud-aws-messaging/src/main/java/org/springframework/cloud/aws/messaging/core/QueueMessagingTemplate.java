@@ -49,30 +49,31 @@ public class QueueMessagingTemplate
 		implements DestinationResolvingMessageReceivingOperations<QueueMessageChannel> {
 
 	private final SqsClient amazonSqs;
+	private final SqsAsyncClient amazonSqsAsync;
 
-	public QueueMessagingTemplate(SqsClient amazonSqs) {
-		this(amazonSqs, (ResourceIdResolver) null, null);
+	public QueueMessagingTemplate(SqsClient amazonSqs, SqsAsyncClient amazonSqsAsync) {
+		this(amazonSqs, amazonSqsAsync, (ResourceIdResolver) null, null);
 	}
 
 	public QueueMessagingTemplate(SqsClient amazonSqs,
-			ResourceIdResolver resourceIdResolver) {
-		this(amazonSqs, resourceIdResolver, null);
+		SqsAsyncClient amazonSqsAsync, ResourceIdResolver resourceIdResolver) {
+		this(amazonSqs, amazonSqsAsync, resourceIdResolver, null);
 	}
 
 	/**
 	 * Initializes the messaging template by configuring the resource Id resolver as well
 	 * as the message converter. Uses the {@link DynamicQueueUrlDestinationResolver} with
 	 * the default configuration to resolve destination names.
-	 * @param amazonSqs The {@link SqsAsyncClient} client, cannot be {@code null}.
+	 * @param amazonSqs The {@link SqsClient} client, cannot be {@code null}.
+	 * @param amazonSqsAsync The {@link SqsAsyncClient} client, cannot be {@code null}.
 	 * @param resourceIdResolver The {@link ResourceIdResolver} to be used for resolving
 	 * logical queue names.
 	 * @param messageConverter A {@link MessageConverter} that is going to be added to the
-	 * composite converter.
 	 */
 	public QueueMessagingTemplate(SqsClient amazonSqs,
-			ResourceIdResolver resourceIdResolver, MessageConverter messageConverter) {
+		SqsAsyncClient amazonSqsAsync, ResourceIdResolver resourceIdResolver, MessageConverter messageConverter) {
 		this(amazonSqs,
-				new DynamicQueueUrlDestinationResolver(amazonSqs, resourceIdResolver),
+			amazonSqsAsync, new DynamicQueueUrlDestinationResolver(amazonSqs, resourceIdResolver),
 				messageConverter);
 	}
 
@@ -80,26 +81,27 @@ public class QueueMessagingTemplate
 	 * Initializes the messaging template by configuring the destination resolver as well
 	 * as the message converter. Uses the {@link DynamicQueueUrlDestinationResolver} with
 	 * the default configuration to resolve destination names.
-	 * @param amazonSqs The {@link SqsAsyncClient} client, cannot be {@code null}.
+	 * @param amazonSqs The {@link SqsClient} client, cannot be {@code null}.
+	 * @param amazonSqsAsync The {@link SqsAsyncClient} client, cannot be {@code null}.
 	 * @param destinationResolver A destination resolver implementation to resolve queue
 	 * names into queue urls. The destination resolver will be wrapped into a
 	 * {@link org.springframework.messaging.core.CachingDestinationResolverProxy} to avoid
 	 * duplicate queue url resolutions.
 	 * @param messageConverter A {@link MessageConverter} that is going to be added to the
-	 * composite converter.
 	 */
 	public QueueMessagingTemplate(SqsClient amazonSqs,
-			DestinationResolver<String> destinationResolver,
-			MessageConverter messageConverter) {
+		SqsAsyncClient amazonSqsAsync, DestinationResolver<String> destinationResolver,
+		MessageConverter messageConverter) {
 		super(destinationResolver);
 		this.amazonSqs = amazonSqs;
+		this.amazonSqsAsync = amazonSqsAsync;
 		initMessageConverter(messageConverter);
 	}
 
 	@Override
 	protected QueueMessageChannel resolveMessageChannel(
 			String physicalResourceIdentifier) {
-		return new QueueMessageChannel(this.amazonSqs, physicalResourceIdentifier);
+		return new QueueMessageChannel(this.amazonSqs, this.amazonSqsAsync, physicalResourceIdentifier);
 	}
 
 	@Override

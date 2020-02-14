@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.aws.messaging;
 
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -55,10 +56,11 @@ public class BootQueueListenerTest extends QueueListenerTest {
 
 		@Bean
 		public QueueMessagingTemplate queueMessagingTemplate(SqsClient amazonSqs,
+				SqsAsyncClient amazonSqsAsync,
 				ResourceIdResolver resourceIdResolver,
 				QueueMessageHandlerFactory factory) {
 			QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-					amazonSqs, resourceIdResolver);
+					amazonSqs, amazonSqsAsync, resourceIdResolver);
 			factory.setSendToMessagingTemplate(queueMessagingTemplate);
 
 			return queueMessagingTemplate;

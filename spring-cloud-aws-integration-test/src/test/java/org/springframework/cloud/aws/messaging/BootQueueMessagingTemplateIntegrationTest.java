@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.aws.messaging;
 
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -42,9 +43,9 @@ public class BootQueueMessagingTemplateIntegrationTest
 
 		@Bean
 		public QueueMessagingTemplate defaultQueueMessagingTemplate(
-			SqsClient amazonSqs, ResourceIdResolver resourceIdResolver) {
+			SqsClient amazonSqs, SqsAsyncClient amazonSqsAsync, ResourceIdResolver resourceIdResolver) {
 			QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-					amazonSqs, resourceIdResolver);
+					amazonSqs, amazonSqsAsync, resourceIdResolver);
 			queueMessagingTemplate.setDefaultDestinationName("JsonQueue");
 
 			return queueMessagingTemplate;
@@ -52,9 +53,9 @@ public class BootQueueMessagingTemplateIntegrationTest
 
 		@Bean
 		public QueueMessagingTemplate queueMessagingTemplateWithCustomConverter(
-			SqsClient amazonSqs, ResourceIdResolver resourceIdResolver) {
+			SqsClient amazonSqs, SqsAsyncClient amazonSqsAsync, ResourceIdResolver resourceIdResolver) {
 			QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-					amazonSqs, resourceIdResolver);
+					amazonSqs, amazonSqsAsync, resourceIdResolver);
 			queueMessagingTemplate.setDefaultDestinationName("StreamQueue");
 			queueMessagingTemplate.setMessageConverter(new ObjectMessageConverter());
 
