@@ -16,14 +16,10 @@
 
 package org.springframework.cloud.aws.context.config.support;
 
-import java.nio.file.Paths;
-
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.profiles.ProfileFile;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -129,28 +125,13 @@ public final class ContextConfigurationUtils {
 		}
 
 		if (StringUtils.hasText(profileName)) {
-			BeanDefinitionBuilder credentialsProviderBuilderBuilder = BeanDefinitionBuilder
-					.genericBeanDefinition(
-							"software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider.BuilderImpl");
+			BeanDefinitionBuilder provider = BeanDefinitionBuilder
+				.rootBeanDefinition(ProfileCredentialsProviderBeanFactory.class);
+			provider.addConstructorArgValue(profileName);
 			if (StringUtils.hasText(profilePath)) {
-				// TODO SDK2 migration: placeholder replacement does not work this way, s. failing unit tests
-				credentialsProviderBuilderBuilder.addPropertyValue("profileFile",
-						ProfileFile.builder().content(Paths.get(profilePath))
-								// TODO SDK2 migration: make type configurable?
-								.type(ProfileFile.Type.CREDENTIALS).build());
+				provider.addConstructorArgValue(profilePath);
 			}
-
-			credentialsProviderBuilderBuilder.addPropertyValue("profileName",
-					profileName);
-			registry.registerBeanDefinition(
-					CredentialsProviderFactoryBean.CREDENTIALS_PROVIDER_BUILDER_BEAN_NAME,
-					credentialsProviderBuilderBuilder.getBeanDefinition());
-
-			BeanDefinitionBuilder builder = BeanDefinitionBuilder
-					.genericBeanDefinition(ProfileCredentialsProvider.class);
-			builder.setFactoryMethodOnBean("build",
-					CredentialsProviderFactoryBean.CREDENTIALS_PROVIDER_BUILDER_BEAN_NAME);
-			awsCredentialsProviders.add(builder.getBeanDefinition());
+			awsCredentialsProviders.add(provider.getBeanDefinition());
 		}
 
 		factoryBeanBuilder.addConstructorArgValue(awsCredentialsProviders);

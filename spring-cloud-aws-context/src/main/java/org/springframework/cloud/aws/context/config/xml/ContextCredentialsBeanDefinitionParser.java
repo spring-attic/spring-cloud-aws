@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.aws.context.config.xml;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -29,6 +28,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.cloud.aws.context.config.support.ProfileCredentialsProviderBeanFactory;
 import org.springframework.cloud.aws.core.credentials.CredentialsProviderFactoryBean;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
@@ -55,7 +55,7 @@ class ContextCredentialsBeanDefinitionParser extends AbstractSingleBeanDefinitio
 	// @checkstyle:on
 
 	// @checkstyle:off
-	private static final String PROFILE_CREDENTIALS_PROVIDER_BEAN_CLASS_NAME = "software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider";
+	private static final String PROFILE_CREDENTIALS_PROVIDER_BEAN_CLASS_NAME = ProfileCredentialsProviderBeanFactory.class.getName();
 
 	// @checkstyle:on
 
@@ -94,18 +94,6 @@ class ContextCredentialsBeanDefinitionParser extends AbstractSingleBeanDefinitio
 		builder.addConstructorArgValue(getAttributeValue(SECRET_KEY_ATTRIBUTE_NAME,
 				credentialsProviderElement, parserContext));
 		return builder.getBeanDefinition();
-	}
-
-	private static List<String> getProfileConfiguration(Element element) {
-		List<String> constructorArguments = new ArrayList<>(2);
-		if (StringUtils.hasText(element.getAttribute("profilePath"))) {
-			constructorArguments.add(element.getAttribute("profilePath"));
-		}
-
-		if (StringUtils.hasText(element.getAttribute("profileName"))) {
-			constructorArguments.add(element.getAttribute("profileName"));
-		}
-		return constructorArguments;
 	}
 
 	/**
@@ -168,9 +156,17 @@ class ContextCredentialsBeanDefinitionParser extends AbstractSingleBeanDefinitio
 			}
 
 			if ("profile-credentials".equals(credentialsProviderElement.getLocalName())) {
-				credentialsProviders.add(getCredentialsProvider(
-						PROFILE_CREDENTIALS_PROVIDER_BEAN_CLASS_NAME,
-						getProfileConfiguration(credentialsProviderElement).toArray()));
+				BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
+					.rootBeanDefinition(PROFILE_CREDENTIALS_PROVIDER_BEAN_CLASS_NAME);
+
+				if (StringUtils.hasText(credentialsProviderElement.getAttribute("profileName"))) {
+					beanDefinitionBuilder.addConstructorArgValue(credentialsProviderElement.getAttribute("profileName"));
+				}
+				if (StringUtils.hasText(credentialsProviderElement.getAttribute("profilePath"))) {
+					beanDefinitionBuilder.addConstructorArgValue(credentialsProviderElement.getAttribute("profilePath"));
+				}
+
+				credentialsProviders.add(beanDefinitionBuilder.getBeanDefinition());
 			}
 		}
 
