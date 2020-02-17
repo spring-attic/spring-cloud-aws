@@ -26,9 +26,10 @@
 	   					   http://www.springframework.org/schema/cloud/aws/context
 	   					   http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd">
 
-	<bean id="myClient" class="software.amazon.awssdk.services.sqs.SqsAsyncClient" factory-method="create"/>
+	<bean id="myClient" class="software.amazon.awssdk.services.sqs.SqsClient" factory-method="create"/>
+	<bean id="myClientAsync" class="software.amazon.awssdk.services.sqs.SqsAsyncClient" factory-method="create"/>
 
-	<aws-messaging:annotation-driven-queue-listener amazon-sqs="myClient"/>
+	<aws-messaging:annotation-driven-queue-listener amazon-sqs-async="myClientAsync" amazon-sqs="myClient"/>
 
 	<aws-context:context-credentials>
 		<aws-context:instance-profile-credentials/>

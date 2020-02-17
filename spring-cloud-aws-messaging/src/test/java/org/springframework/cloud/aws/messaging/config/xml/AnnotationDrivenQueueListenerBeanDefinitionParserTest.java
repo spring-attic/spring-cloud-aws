@@ -135,7 +135,9 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-custom-amazon-sqs.xml", getClass()));
 
 		// Assert
-		BeanDefinition sqsAsync = registry.getBeanDefinition("myClient");
+		BeanDefinition sqs = registry.getBeanDefinition("myClient");
+		assertThat(sqs).isNotNull();
+		BeanDefinition sqsAsync = registry.getBeanDefinition("myClientAsync");
 		assertThat(sqsAsync).isNotNull();
 
 		BeanDefinition abstractContainerDefinition = registry
@@ -146,10 +148,9 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParserTest {
 		assertThat(((RuntimeBeanReference) abstractContainerDefinition.getPropertyValues()
 				.getPropertyValue("amazonSqs").getValue()).getBeanName())
 						.isEqualTo("myClient");
-		// TODO SDK2 migration: uncomment and extend test
-//		assertThat(((RuntimeBeanReference) abstractContainerDefinition.getPropertyValues()
-//				.getPropertyValue("amazonSqsAsync").getValue()).getBeanName())
-//						.isEqualTo("myClientAsync");
+		assertThat(((RuntimeBeanReference) abstractContainerDefinition.getPropertyValues()
+				.getPropertyValue("amazonSqsAsync").getValue()).getBeanName())
+						.isEqualTo("myClientAsync");
 	}
 
 	@Test

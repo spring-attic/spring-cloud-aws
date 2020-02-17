@@ -110,11 +110,26 @@
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
 							<tool:expected-type
-								type="com.amazonaws.services.sqs.AmazonSQSAsync"/>
+								type="software.amazon.awssdk.services.sqs.SqsClient"/>
 						</tool:annotation>
 					</xsd:appinfo>
 					<xsd:documentation>
-						Sets the AmazonSQSAsync that is going to be used by the container
+						Sets the SQS sync client that is going to be used by the container
+						to interact with the messaging
+						(SQS) API.
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="amazon-sqs-async" type="xsd:string">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<tool:annotation kind="ref">
+							<tool:expected-type
+								type="software.amazon.awssdk.services.sqs.SqsAsyncClient"/>
+						</tool:annotation>
+					</xsd:appinfo>
+					<xsd:documentation>
+						Sets the  SQS async client that is going to be used by the container
 						to interact with the messaging
 						(SQS) API.
 					</xsd:documentation>
