@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -756,19 +755,18 @@ public class QueueMessageChannelTest {
 	public void sendMessage_withExecutionExceptionWhileSendingAsyncMessage_throwMessageDeliveryException()
 			throws Exception {
 		// Arrange
-		Future<SendMessageResponse> future = mock(Future.class);
+		CompletableFuture<SendMessageResponse> future = mock(CompletableFuture.class);
 		when(future.get(1000, TimeUnit.MILLISECONDS))
-				.thenThrow(new ExecutionException(new Exception()));
+				.thenThrow(new ExecutionException(new Exception("foo")));
 		SqsClient amazonSqs = mock(SqsClient.class);
 		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
-		// TODO SDK2 migration: adapt
-		// when(amazonSqs.sendMessage(any(SendMessageRequest.class)))
-		// .thenReturn(future);
+		when(amazonSqsAsync.sendMessage(any(SendMessageRequest.class))).thenReturn(future);
 		QueueMessageChannel queueMessageChannel = new QueueMessageChannel(amazonSqs,
 			amazonSqsAsync, "http://testQueue");
 
 		// Assert
 		this.expectedException.expect(MessageDeliveryException.class);
+		this.expectedException.expectMessage("foo");
 
 		// Act
 		queueMessageChannel.send(MessageBuilder.withPayload("Hello").build(), 1000);
