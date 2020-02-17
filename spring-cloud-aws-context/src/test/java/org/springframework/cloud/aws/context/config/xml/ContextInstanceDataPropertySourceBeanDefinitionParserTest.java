@@ -111,7 +111,6 @@ public class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
 	}
 
 	@Test
-	// TODO SDK2 migration: this test shouldn't pass now... find out why it does
 	public void parseInternal_singleElementWithCustomAmazonEc2Client_userTagMapCreatedWithCustomEc2Client()
 			throws Exception {
 		// Arrange
@@ -129,7 +128,7 @@ public class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
 				.getBeanDefinition("myUserTags").getConstructorArgumentValues()
 				.getArgumentValue(0, BeanReference.class);
 		BeanReference beanReference = (BeanReference) valueHolder.getValue();
-		assertThat(beanReference.getBeanName()).isEqualTo("amazonEC2Client");
+		assertThat(beanReference.getBeanName()).isEqualTo("customEC2Client");
 		assertThat(beanFactory
 				.containsBeanDefinition(AmazonWebserviceClientConfigurationUtils
 						.getBeanName(Ec2Client.class.getName()))).isFalse();

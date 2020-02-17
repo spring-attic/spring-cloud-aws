@@ -24,8 +24,8 @@
 	   					   http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd">
 
 	<context:context-instance-data user-tags-map="myUserTags"
-								   amazon-ec2="amazonEC2Client"/>
+								   amazon-ec2="customEC2Client"/>
 
-	<bean id="amazonEC2Client" class="com.amazonaws.services.ec2.AmazonEC2Client"/>
+	<bean id="customEC2Client" class="does-not-matter"/>
 
 </beans>
