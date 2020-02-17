@@ -53,7 +53,6 @@ public class SqsAsyncClientBeanDefinitionParserTest {
 		assertThat(asyncClient).isNotNull();
 		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(asyncClient, "clientConfiguration");
 		ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) clientConfiguration.option(SdkAdvancedAsyncClientOption.FUTURE_COMPLETION_EXECUTOR);
-		// //TODO SDK2 migration: default value is now 8, s. SdkDefaultClientBuilder.resolveAsyncFutureCompletionExecutor() Check of it used to be 50
 		assertThat(threadPoolExecutor.getCorePoolSize()).isEqualTo(8);
 	}
 
