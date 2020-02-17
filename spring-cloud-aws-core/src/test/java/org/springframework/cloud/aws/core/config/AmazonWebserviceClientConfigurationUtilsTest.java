@@ -148,10 +148,6 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 				.getBeanName("software.amazon.awssdk.services.rds.RdsClient");
 
 		// Assert
-		// TODO SDK2 migration: should it stay this way? See
-		// org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils.getBeanName
-		// as well.
-		// This is also a breaking change because before it was amazonRDS (upper case)
 		assertThat(beanName).isEqualTo("amazonRds");
 	}
 

@@ -116,9 +116,9 @@ public final class AmazonWebserviceClientConfigurationUtils {
 		String clientClassName = ClassUtils.getShortName(serviceClassName);
 		String shortenedClassName = StringUtils.delete(clientClassName,
 				SERVICE_IMPLEMENTATION_SUFFIX);
-		// TODO SDK2 migration: backwards-compatible this way. find a better solution?
-		// Note not completely backwards-
-		// compatible since it used to be amazonRDS and now it is amazonRds (lower case).
+		// "amazon" is added as prefix to stay close to the naming scheme used with AWS SDK 1.x
+		// In the 1.x SDK the clients were named Amazon[ServiceName]Client, s. https://github.com/aws/aws-sdk-java-v2/blob/master/docs/LaunchChangelog.md#63-client-names
+		// and the bean name was the client class name without the "Client" suffix.
 		return "amazon" + shortenedClassName;
 	}
 
