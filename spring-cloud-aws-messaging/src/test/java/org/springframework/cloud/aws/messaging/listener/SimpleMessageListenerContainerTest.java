@@ -871,11 +871,7 @@ public class SimpleMessageListenerContainerTest {
 
 		// Assert
 		countDownLatch.await(1L, TimeUnit.SECONDS);
-		// TODO SDK2 migration: improve
-		verify(sqs, never()).deleteMessage(eq(DeleteMessageRequest.builder()
-				.queueUrl("https://receiveMessage_withMessageListenerMethodAnd"
-						+ "NeverDeletionPolicy_waitsForAcknowledgmentBeforeDeletion.amazonaws.com")
-				.receiptHandle("ReceiptHandle").build()));
+		verify(sqs, never()).deleteMessage(any(DeleteMessageRequest.class));
 		TestMessageListenerWithManualDeletionPolicy testMessageListenerWithManualDeletionPolicy = applicationContext
 				.getBean(TestMessageListenerWithManualDeletionPolicy.class);
 		testMessageListenerWithManualDeletionPolicy.getCountDownLatch().await(1L,
@@ -935,7 +931,6 @@ public class SimpleMessageListenerContainerTest {
 
 		// Assert
 		countDownLatch.await(1L, TimeUnit.SECONDS);
-		// TODO SDK2 migration: improve
 		verify(sqsAsync, never())
 				.changeMessageVisibility(any(ChangeMessageVisibilityRequest.class));
 		TestMessageListenerWithVisibilityProlong testMessageListenerWithVisibilityProlong = applicationContext
