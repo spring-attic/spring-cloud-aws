@@ -451,8 +451,7 @@ public class SimpleMessageListenerContainerTest {
 		container.stop();
 
 		verify(messageHandler).handleMessage(this.stringMessageCaptor.capture());
-		//TODO SDK2 migration: why is this now uppercase? used to be SenderId
-		assertThat(this.stringMessageCaptor.getValue().getHeaders().get("SENDER_ID"))
+		assertThat(this.stringMessageCaptor.getValue().getHeaders().get("SenderId"))
 				.isEqualTo("ID");
 
 	}

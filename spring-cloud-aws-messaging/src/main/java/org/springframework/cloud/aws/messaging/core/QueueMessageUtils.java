@@ -71,7 +71,7 @@ public final class QueueMessageUtils {
 		Map<String, Object> messageHeaders = new HashMap<>();
 		for (Map.Entry<MessageSystemAttributeName, String> attributeKeyValuePair : message
 				.attributes().entrySet()) {
-			messageHeaders.put(attributeKeyValuePair.getKey().name(),
+			messageHeaders.put(attributeKeyValuePair.getKey().toString(),
 					attributeKeyValuePair.getValue());
 		}
 
