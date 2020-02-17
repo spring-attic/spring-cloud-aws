@@ -38,7 +38,7 @@ public class SqsAsyncClientBeanDefinitionParser extends AbstractBeanDefinitionPa
 			ParserContext parserContext) {
 		AbstractBeanDefinition sqsAsyncClientDefinition = parseCustomClientElement(
 				element, parserContext,
-				BufferedSqsClientBeanDefinitionUtils.SQS_CLIENT_CLASS_NAME);
+				SqsClientBeanDefinitionUtils.SQS_ASYNC_CLIENT_CLASS_NAME);
 		if (StringUtils.hasText(element.getAttribute("task-executor"))) {
 			BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(
 					ShutdownSuppressingExecutorServiceAdapter.class);

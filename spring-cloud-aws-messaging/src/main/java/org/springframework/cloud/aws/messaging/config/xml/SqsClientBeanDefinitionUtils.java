@@ -27,13 +27,14 @@ import org.springframework.util.StringUtils;
  * @author Alain Sahli
  * @author Agim Emruli
  */
-public final class BufferedSqsClientBeanDefinitionUtils {
+public final class SqsClientBeanDefinitionUtils {
+
 
 	/**
-	 * SQS client class name.
+	 * SQS async client class name.
 	 */
 	// @checkstyle:off
-	public static final String SQS_CLIENT_CLASS_NAME = "software.amazon.awssdk.services.sqs.SqsAsyncClient";
+	public static final String SQS_ASYNC_CLIENT_CLASS_NAME = "software.amazon.awssdk.services.sqs.SqsAsyncClient";
 
 	// @checkstyle:on
 
@@ -43,15 +44,22 @@ public final class BufferedSqsClientBeanDefinitionUtils {
 
 	// @checkstyle:on
 
-	private BufferedSqsClientBeanDefinitionUtils() {
+	private static final String SQS_CLIENT_CLASS_NAME = "software.amazon.awssdk.services.sqs.SqsClient";
+
+	private SqsClientBeanDefinitionUtils() {
 		// Avoid instantiation
 	}
 
-	static String getCustomAmazonSqsClientOrDecoratedDefaultSqsClientBeanName(
+	static String getSqsClientBeanName(Element element, ParserContext parserContext) {
+		return  XmlWebserviceConfigurationUtils
+			.getCustomClientOrDefaultClientBeanName(element, parserContext,
+				"amazon-sqs", SQS_CLIENT_CLASS_NAME);
+	}
+	static String getCustomAmazonSqsAsyncClientOrDecoratedDefaultSqsAsyncClientBeanName(
 			Element element, ParserContext parserContext) {
 		String amazonSqsClientBeanName = XmlWebserviceConfigurationUtils
 				.getCustomClientOrDefaultClientBeanName(element, parserContext,
-						"amazon-sqs-async", SQS_CLIENT_CLASS_NAME);
+						"amazon-sqs-async", SQS_ASYNC_CLIENT_CLASS_NAME);
 		if (!StringUtils.hasText(element.getAttribute("amazon-sqs-async"))) {
 			BeanDefinition clientBeanDefinition = parserContext.getRegistry()
 					.getBeanDefinition(amazonSqsClientBeanName);

@@ -22,11 +22,11 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.cloud.aws.context.config.xml.GlobalBeanDefinitionUtils;
-import org.springframework.cloud.aws.core.config.xml.XmlWebserviceConfigurationUtils;
 import org.springframework.cloud.aws.messaging.core.QueueMessagingTemplate;
 import org.springframework.util.StringUtils;
 
-import static org.springframework.cloud.aws.messaging.config.xml.BufferedSqsClientBeanDefinitionUtils.getCustomAmazonSqsClientOrDecoratedDefaultSqsClientBeanName;
+import static org.springframework.cloud.aws.messaging.config.xml.SqsClientBeanDefinitionUtils.getCustomAmazonSqsAsyncClientOrDecoratedDefaultSqsAsyncClientBeanName;
+import static org.springframework.cloud.aws.messaging.config.xml.SqsClientBeanDefinitionUtils.getSqsClientBeanName;
 
 /**
  * @author Alain Sahli
@@ -46,7 +46,8 @@ public class QueueMessagingTemplateBeanDefinitionParser
 	@Override
 	protected void doParse(Element element, ParserContext parserContext,
 			BeanDefinitionBuilder builder) {
-		String amazonSqsClientBeanName = getCustomAmazonSqsClientOrDecoratedDefaultSqsClientBeanName(
+		String amazonSqsClientBeanName = getSqsClientBeanName(element, parserContext);
+		String amazonSqsAsyncClientBeanName = getCustomAmazonSqsAsyncClientOrDecoratedDefaultSqsAsyncClientBeanName(
 				element, parserContext);
 
 		if (StringUtils.hasText(element.getAttribute(DEFAULT_DESTINATION_ATTRIBUTE))) {
@@ -54,11 +55,8 @@ public class QueueMessagingTemplateBeanDefinitionParser
 					element.getAttribute(DEFAULT_DESTINATION_ATTRIBUTE));
 		}
 
-		// TODO SDK2 migration: remove duplication
-		builder.addConstructorArgReference(XmlWebserviceConfigurationUtils
-			.getCustomClientOrDefaultClientBeanName(element, parserContext,
-				"amazon-sqs", "software.amazon.awssdk.services.sqs.SqsClient"));
 		builder.addConstructorArgReference(amazonSqsClientBeanName);
+		builder.addConstructorArgReference(amazonSqsAsyncClientBeanName);
 		builder.addConstructorArgReference(GlobalBeanDefinitionUtils
 				.retrieveResourceIdResolverBeanName(parserContext.getRegistry()));
 

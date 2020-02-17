@@ -26,7 +26,6 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.cloud.aws.context.config.xml.GlobalBeanDefinitionUtils;
-import org.springframework.cloud.aws.core.config.xml.XmlWebserviceConfigurationUtils;
 import org.springframework.cloud.aws.messaging.core.QueueMessagingTemplate;
 import org.springframework.cloud.aws.messaging.listener.QueueMessageHandler;
 import org.springframework.cloud.aws.messaging.listener.SendToHandlerMethodReturnValueHandler;
@@ -35,7 +34,8 @@ import org.springframework.core.Conventions;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
-import static org.springframework.cloud.aws.messaging.config.xml.BufferedSqsClientBeanDefinitionUtils.getCustomAmazonSqsClientOrDecoratedDefaultSqsClientBeanName;
+import static org.springframework.cloud.aws.messaging.config.xml.SqsClientBeanDefinitionUtils.getCustomAmazonSqsAsyncClientOrDecoratedDefaultSqsAsyncClientBeanName;
+import static org.springframework.cloud.aws.messaging.config.xml.SqsClientBeanDefinitionUtils.getSqsClientBeanName;
 
 /**
  * {@link org.springframework.beans.factory.xml.BeanDefinitionParser} for the
@@ -215,16 +215,14 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParser
 					element.getAttribute(BACK_OFF_TIME));
 		}
 
-		String amazonSqsAsyncClientBeanName = getCustomAmazonSqsClientOrDecoratedDefaultSqsClientBeanName(
+		String amazonSqsAsyncClientBeanName = getCustomAmazonSqsAsyncClientOrDecoratedDefaultSqsAsyncClientBeanName(
 				element, parserContext);
 
 		containerBuilder.addPropertyReference(
 				Conventions.attributeNameToPropertyName("amazon-sqs-async"),
 			amazonSqsAsyncClientBeanName);
 
-		String amazonSqsClientBeanName = XmlWebserviceConfigurationUtils
-			.getCustomClientOrDefaultClientBeanName(element, parserContext,
-				"amazon-sqs", "software.amazon.awssdk.services.sqs.SqsClient");
+		String amazonSqsClientBeanName = getSqsClientBeanName(element, parserContext);
 		containerBuilder.addPropertyReference(
 				Conventions.attributeNameToPropertyName("amazon-sqs"),
 			amazonSqsClientBeanName);
