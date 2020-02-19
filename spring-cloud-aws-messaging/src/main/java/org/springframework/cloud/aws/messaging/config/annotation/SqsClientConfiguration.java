@@ -45,7 +45,7 @@ public class SqsClientConfiguration {
 	@Bean(destroyMethod = "close")
 	public SqsClient amazonSqs() throws Exception {
 		AmazonWebserviceClientFactoryBean<SqsClient> clientFactoryBean = new AmazonWebserviceClientFactoryBean<>(
-			SqsClient.class, this.awsCredentialsProvider, this.regionProvider);
+				SqsClient.class, this.awsCredentialsProvider, this.regionProvider);
 		clientFactoryBean.afterPropertiesSet();
 		return clientFactoryBean.getObject();
 	}

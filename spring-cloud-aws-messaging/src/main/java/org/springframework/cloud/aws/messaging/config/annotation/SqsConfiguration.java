@@ -79,12 +79,14 @@ public class SqsConfiguration {
 
 		SimpleMessageListenerContainer simpleMessageListenerContainer = this.simpleMessageListenerContainerFactory
 				.createSimpleMessageListenerContainer();
-		simpleMessageListenerContainer.setMessageHandler(queueMessageHandler(amazonSqs, amazonSqsAsync));
+		simpleMessageListenerContainer
+				.setMessageHandler(queueMessageHandler(amazonSqs, amazonSqsAsync));
 		return simpleMessageListenerContainer;
 	}
 
 	@Bean
-	public QueueMessageHandler queueMessageHandler(SqsClient amazonSqs, SqsAsyncClient amazonSqsAsync) {
+	public QueueMessageHandler queueMessageHandler(SqsClient amazonSqs,
+			SqsAsyncClient amazonSqsAsync) {
 		if (this.simpleMessageListenerContainerFactory.getQueueMessageHandler() != null) {
 			return this.simpleMessageListenerContainerFactory.getQueueMessageHandler();
 		}
@@ -93,7 +95,8 @@ public class SqsConfiguration {
 		}
 	}
 
-	private QueueMessageHandler getMessageHandler(SqsClient amazonSqs, SqsAsyncClient amazonSqsAsync) {
+	private QueueMessageHandler getMessageHandler(SqsClient amazonSqs,
+			SqsAsyncClient amazonSqsAsync) {
 		if (this.queueMessageHandlerFactory.getAmazonSqs() == null) {
 			this.queueMessageHandlerFactory.setAmazonSqs(amazonSqs);
 		}

@@ -83,8 +83,8 @@ public class QueueMessageChannelTest {
 
 		Message<String> stringMessage = MessageBuilder.withPayload("message content")
 				.build();
-		MessageChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+		MessageChannel messageChannel = new QueueMessageChannel(amazonSqs, amazonSqsAsync,
+				"http://testQueue");
 
 		// Act
 		boolean sent = messageChannel.send(stringMessage);
@@ -105,8 +105,8 @@ public class QueueMessageChannelTest {
 
 		Message<String> stringMessage = MessageBuilder.withPayload("message content")
 				.build();
-		MessageChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+		MessageChannel messageChannel = new QueueMessageChannel(amazonSqs, amazonSqsAsync,
+				"http://testQueue");
 		when(amazonSqs.sendMessage(SendMessageRequest.builder()
 				.queueUrl("http://testQueue").messageBody("message content")
 				.delaySeconds(0).messageAttributes(isNotNull()).build())).thenThrow(
@@ -127,7 +127,7 @@ public class QueueMessageChannelTest {
 		SqsClient amazonSqs = mock(SqsClient.class);
 		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 		QueueMessageChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 		String mimeTypeAsString = new MimeType("test", "plain", Charset.forName("UTF-8"))
 				.toString();
 		Message<String> message = MessageBuilder.withPayload("Hello")
@@ -155,7 +155,7 @@ public class QueueMessageChannelTest {
 		SqsClient amazonSqs = mock(SqsClient.class);
 		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 		QueueMessageChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 		MimeType mimeType = new MimeType("test", "plain", Charset.forName("UTF-8"));
 		Message<String> message = MessageBuilder.withPayload("Hello")
 				.setHeader(MessageHeaders.CONTENT_TYPE, mimeType).build();
@@ -191,7 +191,7 @@ public class QueueMessageChannelTest {
 								.build());
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 
 		// Act
 		Message<?> receivedMessage = messageChannel.receive();
@@ -218,7 +218,7 @@ public class QueueMessageChannelTest {
 								.build());
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 
 		// Act
 		Message<?> receivedMessage = messageChannel.receive(2);
@@ -241,7 +241,7 @@ public class QueueMessageChannelTest {
 								.messages(Collections.emptyList()).build());
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 
 		// Act
 		Message<?> receivedMessage = messageChannel.receive(2);
@@ -263,7 +263,7 @@ public class QueueMessageChannelTest {
 								.messages(Collections.emptyList()).build());
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 
 		// Act
 		Message<?> receivedMessage = messageChannel.receive(0);
@@ -296,7 +296,7 @@ public class QueueMessageChannelTest {
 								.build());
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 
 		// Act
 		Message<?> receivedMessage = messageChannel.receive();
@@ -313,7 +313,7 @@ public class QueueMessageChannelTest {
 		SqsClient amazonSqs = mock(SqsClient.class);
 		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 		QueueMessageChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 		String headerValue = "Header value";
 		String headerName = "MyHeader";
 		Message<String> message = MessageBuilder.withPayload("Hello")
@@ -359,7 +359,7 @@ public class QueueMessageChannelTest {
 						.build());
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 
 		// Act
 		Message<?> receivedMessage = messageChannel.receive();
@@ -375,7 +375,7 @@ public class QueueMessageChannelTest {
 		SqsClient amazonSqs = mock(SqsClient.class);
 		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 		QueueMessageChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 		double doubleValue = 1234.56;
 		long longValue = 1234L;
 		int integerValue = 1234;
@@ -496,7 +496,7 @@ public class QueueMessageChannelTest {
 						.build());
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 
 		// Act
 		Message<?> receivedMessage = messageChannel.receive();
@@ -543,7 +543,7 @@ public class QueueMessageChannelTest {
 						.build());
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 
 		// Act
 		messageChannel.receive();
@@ -577,7 +577,7 @@ public class QueueMessageChannelTest {
 						.build());
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 
 		// Act
 		messageChannel.receive();
@@ -590,7 +590,7 @@ public class QueueMessageChannelTest {
 		SqsClient amazonSqs = mock(SqsClient.class);
 		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 		QueueMessageChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 		ByteBuffer headerValue = ByteBuffer.wrap("My binary data!".getBytes());
 		String headerName = "MyHeader";
 		Message<String> message = MessageBuilder.withPayload("Hello")
@@ -638,13 +638,15 @@ public class QueueMessageChannelTest {
 						.build());
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 
 		// Act
 		Message<?> receivedMessage = messageChannel.receive();
 
 		// Assert
-		assertThat(((SdkBytes)receivedMessage.getHeaders().get(headerName)).asByteBuffer()).isEqualTo(headerValue);
+		assertThat(
+				((SdkBytes) receivedMessage.getHeaders().get(headerName)).asByteBuffer())
+						.isEqualTo(headerValue);
 	}
 
 	@Test
@@ -653,7 +655,7 @@ public class QueueMessageChannelTest {
 		SqsClient amazonSqs = mock(SqsClient.class);
 		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 		QueueMessageChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 		Message<String> message = MessageBuilder.withPayload("Hello").build();
 		UUID uuid = (UUID) message.getHeaders().get(MessageHeaders.ID);
 
@@ -695,7 +697,7 @@ public class QueueMessageChannelTest {
 						.build());
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 
 		// Act
 		Message<?> receivedMessage = messageChannel.receive();
@@ -716,9 +718,10 @@ public class QueueMessageChannelTest {
 				.thenReturn(SendMessageResponse.builder().build());
 		SqsClient amazonSqs = mock(SqsClient.class);
 		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
-		when(amazonSqsAsync.sendMessage(any(SendMessageRequest.class))).thenReturn(future);
+		when(amazonSqsAsync.sendMessage(any(SendMessageRequest.class)))
+				.thenReturn(future);
 		QueueMessageChannel queueMessageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 
 		// Act
 		boolean result = queueMessageChannel
@@ -738,9 +741,10 @@ public class QueueMessageChannelTest {
 		when(future.get(1000, TimeUnit.MILLISECONDS)).thenThrow(new TimeoutException());
 		SqsClient amazonSqs = mock(SqsClient.class);
 		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
-		when(amazonSqsAsync.sendMessage(any(SendMessageRequest.class))).thenReturn(future);
+		when(amazonSqsAsync.sendMessage(any(SendMessageRequest.class)))
+				.thenReturn(future);
 		QueueMessageChannel queueMessageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 
 		// Act
 		boolean result = queueMessageChannel
@@ -760,9 +764,10 @@ public class QueueMessageChannelTest {
 				.thenThrow(new ExecutionException(new Exception("foo")));
 		SqsClient amazonSqs = mock(SqsClient.class);
 		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
-		when(amazonSqsAsync.sendMessage(any(SendMessageRequest.class))).thenReturn(future);
+		when(amazonSqsAsync.sendMessage(any(SendMessageRequest.class)))
+				.thenReturn(future);
 		QueueMessageChannel queueMessageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 
 		// Assert
 		this.expectedException.expect(MessageDeliveryException.class);
@@ -786,7 +791,7 @@ public class QueueMessageChannelTest {
 				.thenReturn(SendMessageResponse.builder().build());
 
 		QueueMessageChannel queueMessageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 		Message<String> message = MessageBuilder.withPayload("Hello")
 				.setHeader(SqsMessageHeaders.SQS_DELAY_HEADER, 15).build();
 
@@ -814,7 +819,7 @@ public class QueueMessageChannelTest {
 				.thenReturn(SendMessageResponse.builder().build());
 
 		QueueMessageChannel queueMessageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 		Message<String> message = MessageBuilder.withPayload("Hello").build();
 
 		// Act
@@ -841,7 +846,7 @@ public class QueueMessageChannelTest {
 				.thenReturn(SendMessageResponse.builder().build());
 
 		QueueMessageChannel queueMessageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 		Message<String> message = MessageBuilder.withPayload("Hello")
 				.setHeader(SqsMessageHeaders.SQS_GROUP_ID_HEADER, "id-5").build();
 
@@ -871,7 +876,7 @@ public class QueueMessageChannelTest {
 				.thenReturn(SendMessageResponse.builder().build());
 
 		QueueMessageChannel queueMessageChannel = new QueueMessageChannel(amazonSqs,
-			amazonSqsAsync, "http://testQueue");
+				amazonSqsAsync, "http://testQueue");
 		Message<String> message = MessageBuilder.withPayload("Hello")
 				.setHeader(SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER, "id-5").build();
 

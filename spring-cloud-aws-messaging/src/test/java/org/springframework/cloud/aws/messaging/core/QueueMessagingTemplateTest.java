@@ -106,8 +106,8 @@ public class QueueMessagingTemplateTest {
 		SqsClient amazonSqs = createAmazonSqs();
 		SqsAsyncClient amazonSqsAsync = mock(SqsAsyncClient.class);
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-				amazonSqs,
-			amazonSqsAsync, (DestinationResolver<String>) name -> name.toUpperCase(Locale.ENGLISH),
+				amazonSqs, amazonSqsAsync,
+				(DestinationResolver<String>) name -> name.toUpperCase(Locale.ENGLISH),
 				null);
 
 		Message<String> stringMessage = MessageBuilder.withPayload("message content")
@@ -207,7 +207,8 @@ public class QueueMessagingTemplateTest {
 
 		// Act
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-				createAmazonSqs(), mock(SqsAsyncClient.class), (ResourceIdResolver) null, simpleMessageConverter);
+				createAmazonSqs(), mock(SqsAsyncClient.class), (ResourceIdResolver) null,
+				simpleMessageConverter);
 
 		// Assert
 		assertThat(
@@ -233,7 +234,8 @@ public class QueueMessagingTemplateTest {
 		simpleMessageConverter.setObjectMapper(objectMapper);
 
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-				amazonSqs, amazonSqsAsync, (ResourceIdResolver) null, simpleMessageConverter);
+				amazonSqs, amazonSqsAsync, (ResourceIdResolver) null,
+				simpleMessageConverter);
 
 		// Act
 		queueMessagingTemplate.convertAndSend("test",

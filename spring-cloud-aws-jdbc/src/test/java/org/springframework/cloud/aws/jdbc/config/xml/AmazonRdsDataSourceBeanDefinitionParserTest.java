@@ -348,7 +348,8 @@ public class AmazonRdsDataSourceBeanDefinitionParserTest {
 
 		// Assert
 		// have to use reflection utils
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonRDS, "clientConfiguration");
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonRDS, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
 				.isEqualTo("https://rds.eu-west-1.amazonaws.com");
 	}
@@ -370,7 +371,8 @@ public class AmazonRdsDataSourceBeanDefinitionParserTest {
 
 		// Assert
 		// have to use reflection utils
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonRDS, "clientConfiguration");
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonRDS, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
 				.isEqualTo("https://rds.eu-west-1.amazonaws.com");
 

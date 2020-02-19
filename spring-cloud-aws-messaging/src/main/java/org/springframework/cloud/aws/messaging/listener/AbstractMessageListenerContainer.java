@@ -74,6 +74,7 @@ abstract class AbstractMessageListenerContainer
 	// setters hence there is no further synchronization
 	@SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
 	private SqsClient amazonSqs;
+
 	private SqsAsyncClient amazonSqsAsync;
 
 	@SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
@@ -145,7 +146,8 @@ abstract class AbstractMessageListenerContainer
 		this.amazonSqs = amazonSqs;
 	}
 
-	// TODO SDK2 migration: update comment depending on what to do about the buffering client
+	// TODO SDK2 migration: update comment depending on what to do about the buffering
+	// client
 	/**
 	 * Configures the mandatory {@link SqsAsyncClient} client for this instance.
 	 * <b>Note:</b>The configured instance should have a buffering amazon SQS instance

@@ -49,14 +49,15 @@ public class QueueMessagingTemplate
 		implements DestinationResolvingMessageReceivingOperations<QueueMessageChannel> {
 
 	private final SqsClient amazonSqs;
+
 	private final SqsAsyncClient amazonSqsAsync;
 
 	public QueueMessagingTemplate(SqsClient amazonSqs, SqsAsyncClient amazonSqsAsync) {
 		this(amazonSqs, amazonSqsAsync, (ResourceIdResolver) null, null);
 	}
 
-	public QueueMessagingTemplate(SqsClient amazonSqs,
-		SqsAsyncClient amazonSqsAsync, ResourceIdResolver resourceIdResolver) {
+	public QueueMessagingTemplate(SqsClient amazonSqs, SqsAsyncClient amazonSqsAsync,
+			ResourceIdResolver resourceIdResolver) {
 		this(amazonSqs, amazonSqsAsync, resourceIdResolver, null);
 	}
 
@@ -70,10 +71,10 @@ public class QueueMessagingTemplate
 	 * logical queue names.
 	 * @param messageConverter A {@link MessageConverter} that is going to be added to the
 	 */
-	public QueueMessagingTemplate(SqsClient amazonSqs,
-		SqsAsyncClient amazonSqsAsync, ResourceIdResolver resourceIdResolver, MessageConverter messageConverter) {
-		this(amazonSqs,
-			amazonSqsAsync, new DynamicQueueUrlDestinationResolver(amazonSqs, resourceIdResolver),
+	public QueueMessagingTemplate(SqsClient amazonSqs, SqsAsyncClient amazonSqsAsync,
+			ResourceIdResolver resourceIdResolver, MessageConverter messageConverter) {
+		this(amazonSqs, amazonSqsAsync,
+				new DynamicQueueUrlDestinationResolver(amazonSqs, resourceIdResolver),
 				messageConverter);
 	}
 
@@ -89,9 +90,9 @@ public class QueueMessagingTemplate
 	 * duplicate queue url resolutions.
 	 * @param messageConverter A {@link MessageConverter} that is going to be added to the
 	 */
-	public QueueMessagingTemplate(SqsClient amazonSqs,
-		SqsAsyncClient amazonSqsAsync, DestinationResolver<String> destinationResolver,
-		MessageConverter messageConverter) {
+	public QueueMessagingTemplate(SqsClient amazonSqs, SqsAsyncClient amazonSqsAsync,
+			DestinationResolver<String> destinationResolver,
+			MessageConverter messageConverter) {
 		super(destinationResolver);
 		this.amazonSqs = amazonSqs;
 		this.amazonSqsAsync = amazonSqsAsync;
@@ -101,7 +102,8 @@ public class QueueMessagingTemplate
 	@Override
 	protected QueueMessageChannel resolveMessageChannel(
 			String physicalResourceIdentifier) {
-		return new QueueMessageChannel(this.amazonSqs, this.amazonSqsAsync, physicalResourceIdentifier);
+		return new QueueMessageChannel(this.amazonSqs, this.amazonSqsAsync,
+				physicalResourceIdentifier);
 	}
 
 	@Override

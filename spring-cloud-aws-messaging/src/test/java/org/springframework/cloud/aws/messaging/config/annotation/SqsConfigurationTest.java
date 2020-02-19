@@ -82,13 +82,20 @@ public class SqsConfigurationTest {
 		QueueMessagingTemplate messagingTemplate = (QueueMessagingTemplate) ReflectionTestUtils
 				.getField(sendToReturnValueHandler, "messageTemplate");
 
-		SqsAsyncClient amazonSqsAsync = (SqsAsyncClient) ReflectionTestUtils.getField(messagingTemplate, "amazonSqsAsync");
-		SdkClientConfiguration clientConfigurationAmazonSqsAsync = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqsAsync, "clientConfiguration");
-		assertThat(clientConfigurationAmazonSqsAsync.option(AwsClientOption.CREDENTIALS_PROVIDER)).isNotNull();
+		SqsAsyncClient amazonSqsAsync = (SqsAsyncClient) ReflectionTestUtils
+				.getField(messagingTemplate, "amazonSqsAsync");
+		SdkClientConfiguration clientConfigurationAmazonSqsAsync = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonSqsAsync, "clientConfiguration");
+		assertThat(clientConfigurationAmazonSqsAsync
+				.option(AwsClientOption.CREDENTIALS_PROVIDER)).isNotNull();
 
-		SqsClient amazonSqs = (SqsClient) ReflectionTestUtils.getField(messagingTemplate, "amazonSqs");
-		SdkClientConfiguration clientConfigurationAmazonSqs = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
-		assertThat(clientConfigurationAmazonSqs.option(AwsClientOption.CREDENTIALS_PROVIDER)).isNotNull();
+		SqsClient amazonSqs = (SqsClient) ReflectionTestUtils.getField(messagingTemplate,
+				"amazonSqs");
+		SdkClientConfiguration clientConfigurationAmazonSqs = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonSqs, "clientConfiguration");
+		assertThat(
+				clientConfigurationAmazonSqs.option(AwsClientOption.CREDENTIALS_PROVIDER))
+						.isNotNull();
 	}
 
 	@Test
@@ -211,10 +218,11 @@ public class SqsConfigurationTest {
 
 		// Assert
 		SqsAsyncClient amazonSqs = applicationContext.getBean(SqsAsyncClient.class);
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
-		assertThat(
-			DefaultCredentialsProvider.class.isInstance(clientConfiguration.option(AwsClientOption.CREDENTIALS_PROVIDER)))
-			.isTrue();
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonSqs, "clientConfiguration");
+		assertThat(DefaultCredentialsProvider.class.isInstance(
+				clientConfiguration.option(AwsClientOption.CREDENTIALS_PROVIDER)))
+						.isTrue();
 	}
 
 	@Test
@@ -225,9 +233,11 @@ public class SqsConfigurationTest {
 		SqsAsyncClient amazonSqs = applicationContext.getBean(SqsAsyncClient.class);
 
 		// Assert
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonSqs, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
-			.isEqualTo("https://" + ServiceMetadata.of("sqs").endpointFor(Region.EU_WEST_1));
+				.isEqualTo("https://"
+						+ ServiceMetadata.of("sqs").endpointFor(Region.EU_WEST_1));
 	}
 
 	@EnableSqs

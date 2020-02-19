@@ -47,15 +47,15 @@ public class SqsAsyncClientBeanDefinitionParser extends AbstractBeanDefinitionPa
 					builder.getBeanDefinition());
 		}
 		// TODO SDK2 migration: re-add
-//		if (Boolean.parseBoolean(element.getAttribute("buffered"))) {
-//			BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(
-//					BufferedSqsClientBeanDefinitionUtils.BUFFERED_SQS_CLIENT_CLASS_NAME);
-//			builder.addConstructorArgValue(sqsAsyncClientDefinition);
-//			return builder.getBeanDefinition();
-//		}
-//		else {
-			return sqsAsyncClientDefinition;
-//		}
+		// if (Boolean.parseBoolean(element.getAttribute("buffered"))) {
+		// BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(
+		// BufferedSqsClientBeanDefinitionUtils.BUFFERED_SQS_CLIENT_CLASS_NAME);
+		// builder.addConstructorArgValue(sqsAsyncClientDefinition);
+		// return builder.getBeanDefinition();
+		// }
+		// else {
+		return sqsAsyncClientDefinition;
+		// }
 	}
 
 }

@@ -85,12 +85,12 @@ public class AmazonWebserviceClientFactoryBean<T extends SdkClient>
 				.invokeMethod(builderMethod, null);
 
 		if (this.executor != null) {
-			Assert.isAssignable(AwsAsyncClientBuilder.class, builder.getClass(), "Client must be async if executor is set.");
-			((AwsAsyncClientBuilder<?, T>) builder).asyncConfiguration(ClientAsyncConfiguration.builder()
-					.advancedOption(
+			Assert.isAssignable(AwsAsyncClientBuilder.class, builder.getClass(),
+					"Client must be async if executor is set.");
+			((AwsAsyncClientBuilder<?, T>) builder)
+					.asyncConfiguration(ClientAsyncConfiguration.builder().advancedOption(
 							SdkAdvancedAsyncClientOption.FUTURE_COMPLETION_EXECUTOR,
-							executor)
-					.build());
+							executor).build());
 		}
 
 		if (this.credentialsProvider != null) {

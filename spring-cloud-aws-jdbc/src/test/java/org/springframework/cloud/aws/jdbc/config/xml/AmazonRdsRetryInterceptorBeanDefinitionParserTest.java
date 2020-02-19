@@ -63,7 +63,8 @@ public class AmazonRdsRetryInterceptorBeanDefinitionParserTest {
 		RdsClient amazonRDS = classPathXmlApplicationContext.getBean(RdsClient.class);
 
 		// Assert
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonRDS, "clientConfiguration");
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonRDS, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
 				.isEqualTo("https://rds.eu-west-1.amazonaws.com");
 	}
@@ -79,7 +80,8 @@ public class AmazonRdsRetryInterceptorBeanDefinitionParserTest {
 		RdsClient amazonRDS = classPathXmlApplicationContext.getBean(RdsClient.class);
 
 		// Assert
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonRDS, "clientConfiguration");
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonRDS, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
 				.isEqualTo("https://rds.eu-west-1.amazonaws.com");
 	}

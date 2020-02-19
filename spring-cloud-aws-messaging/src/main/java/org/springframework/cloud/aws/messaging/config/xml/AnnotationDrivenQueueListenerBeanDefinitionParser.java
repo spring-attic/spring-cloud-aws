@@ -63,7 +63,8 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParser
 	private static final String BACK_OFF_TIME = "back-off-time";
 
 	private static String getMessageHandlerBeanName(Element element,
-			ParserContext parserContext, String sqsClientBeanName, String sqsAsyncClientBeanName) {
+			ParserContext parserContext, String sqsClientBeanName,
+			String sqsAsyncClientBeanName) {
 		BeanDefinitionBuilder queueMessageHandlerDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(QueueMessageHandler.class);
 
@@ -102,7 +103,8 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParser
 	}
 
 	private static AbstractBeanDefinition createSendToHandlerMethodReturnValueHandlerBeanDefinition(
-			Element element, ParserContext parserContext, String sqsClientBeanName, String sqsAsyncClientBeanName) {
+			Element element, ParserContext parserContext, String sqsClientBeanName,
+			String sqsAsyncClientBeanName) {
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(SendToHandlerMethodReturnValueHandler.class);
 		if (StringUtils.hasText(element.getAttribute("send-to-message-template"))) {
@@ -220,18 +222,19 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParser
 
 		containerBuilder.addPropertyReference(
 				Conventions.attributeNameToPropertyName("amazon-sqs-async"),
-			amazonSqsAsyncClientBeanName);
+				amazonSqsAsyncClientBeanName);
 
 		String amazonSqsClientBeanName = getSqsClientBeanName(element, parserContext);
 		containerBuilder.addPropertyReference(
 				Conventions.attributeNameToPropertyName("amazon-sqs"),
-			amazonSqsClientBeanName);
+				amazonSqsClientBeanName);
 
 		containerBuilder.addPropertyReference("resourceIdResolver",
 				GlobalBeanDefinitionUtils
 						.retrieveResourceIdResolverBeanName(parserContext.getRegistry()));
-		containerBuilder.addPropertyReference("messageHandler", getMessageHandlerBeanName(
-				element, parserContext, amazonSqsClientBeanName, amazonSqsAsyncClientBeanName));
+		containerBuilder.addPropertyReference("messageHandler",
+				getMessageHandlerBeanName(element, parserContext, amazonSqsClientBeanName,
+						amazonSqsAsyncClientBeanName));
 
 		return containerBuilder.getBeanDefinition();
 	}

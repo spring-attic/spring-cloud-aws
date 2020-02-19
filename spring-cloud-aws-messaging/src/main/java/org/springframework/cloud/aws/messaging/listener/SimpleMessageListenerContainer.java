@@ -455,12 +455,14 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 			if (this.deletionPolicy == SqsMessageDeletionPolicy.NEVER) {
 				String receiptHandle = this.message.receiptHandle();
 				QueueMessageAcknowledgment acknowledgment = new QueueMessageAcknowledgment(
-						SimpleMessageListenerContainer.this.getAmazonSqsAsync(), this.queueUrl, receiptHandle);
+						SimpleMessageListenerContainer.this.getAmazonSqsAsync(),
+						this.queueUrl, receiptHandle);
 				additionalHeaders.put(QueueMessageHandler.ACKNOWLEDGMENT, acknowledgment);
 			}
 			additionalHeaders.put(QueueMessageHandler.VISIBILITY,
-					new QueueMessageVisibility(SimpleMessageListenerContainer.this.getAmazonSqsAsync(), this.queueUrl,
-							this.message.receiptHandle()));
+					new QueueMessageVisibility(
+							SimpleMessageListenerContainer.this.getAmazonSqsAsync(),
+							this.queueUrl, this.message.receiptHandle()));
 
 			return createMessage(this.message, additionalHeaders);
 		}

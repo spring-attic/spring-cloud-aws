@@ -42,8 +42,8 @@ import static org.springframework.cloud.aws.core.config.xml.XmlWebserviceConfigu
  * {@link org.springframework.beans.factory.xml.BeanDefinitionParser} parser
  * implementation for the datasource element. Parses the element and constructs a fully
  * configured {@link AmazonRdsDataSourceFactoryBean} bean definition. Also creates a bean
- * definition for the {@link software.amazon.awssdk.services.rds.RdsClient} if there is not
- * already an existing one this application context.
+ * definition for the {@link software.amazon.awssdk.services.rds.RdsClient} if there is
+ * not already an existing one this application context.
  *
  * @author Agim Emruli
  * @since 1.0

@@ -126,7 +126,7 @@ public final class ContextConfigurationUtils {
 
 		if (StringUtils.hasText(profileName)) {
 			BeanDefinitionBuilder provider = BeanDefinitionBuilder
-				.rootBeanDefinition(ProfileCredentialsProviderBeanFactory.class);
+					.rootBeanDefinition(ProfileCredentialsProviderBeanFactory.class);
 			provider.addConstructorArgValue(profileName);
 			if (StringUtils.hasText(profilePath)) {
 				provider.addConstructorArgValue(profilePath);

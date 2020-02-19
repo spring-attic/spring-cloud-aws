@@ -298,9 +298,11 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParserTest {
 		// Assert
 		SqsAsyncClient amazonSqs = registry.getBean(SqsAsyncClient.class);
 
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonSqs, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
-			.isEqualTo("https://" + ServiceMetadata.of("sqs").endpointFor(Region.EU_WEST_1));
+				.isEqualTo("https://"
+						+ ServiceMetadata.of("sqs").endpointFor(Region.EU_WEST_1));
 
 	}
 
@@ -320,9 +322,11 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParserTest {
 		// Assert
 		SqsAsyncClient amazonSqs = registry.getBean(SqsAsyncClient.class);
 
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonSqs, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
-			.isEqualTo("https://" + ServiceMetadata.of("sqs").endpointFor(Region.AP_SOUTHEAST_2));
+				.isEqualTo("https://"
+						+ ServiceMetadata.of("sqs").endpointFor(Region.AP_SOUTHEAST_2));
 	}
 
 	@Test
@@ -334,9 +338,11 @@ public class AnnotationDrivenQueueListenerBeanDefinitionParserTest {
 
 		// Assert
 		SqsAsyncClient amazonSqs = applicationContext.getBean(SqsAsyncClient.class);
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonSqs, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
-			.isEqualTo("https://" + ServiceMetadata.of("sqs").endpointFor(Region.AP_SOUTHEAST_1));
+				.isEqualTo("https://"
+						+ ServiceMetadata.of("sqs").endpointFor(Region.AP_SOUTHEAST_1));
 	}
 
 	@Test

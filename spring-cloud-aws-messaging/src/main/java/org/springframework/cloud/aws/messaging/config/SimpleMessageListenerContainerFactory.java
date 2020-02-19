@@ -124,9 +124,10 @@ public class SimpleMessageListenerContainerFactory {
 		Assert.notNull(amazonSqs, "amazonSqs must not be null");
 		this.amazonSqs = amazonSqs;
 	}
+
 	/**
-	 * Sets the {@link SqsAsyncClient} that is going to be used by the container to interact
-	 * with the messaging (SQS) API.
+	 * Sets the {@link SqsAsyncClient} that is going to be used by the container to
+	 * interact with the messaging (SQS) API.
 	 * @param amazonSqsAsync The {@link SqsAsyncClient}, must not be {@code null}.
 	 */
 	public void setAmazonSqsAsync(SqsAsyncClient amazonSqsAsync) {

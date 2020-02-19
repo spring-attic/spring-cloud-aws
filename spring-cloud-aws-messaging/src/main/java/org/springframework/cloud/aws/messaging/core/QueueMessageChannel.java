@@ -60,11 +60,13 @@ public class QueueMessageChannel extends AbstractMessageChannel
 	private static final String MESSAGE_ATTRIBUTE_NAMES = "All";
 
 	private final SqsClient amazonSqs;
+
 	private final SqsAsyncClient amazonSqsAsync;
 
 	private final String queueUrl;
 
-	public QueueMessageChannel(SqsClient amazonSqs, SqsAsyncClient amazonSqsAsync, String queueUrl) {
+	public QueueMessageChannel(SqsClient amazonSqs, SqsAsyncClient amazonSqsAsync,
+			String queueUrl) {
 		this.amazonSqs = amazonSqs;
 		this.amazonSqsAsync = amazonSqsAsync;
 		this.queueUrl = queueUrl;
@@ -127,7 +129,8 @@ public class QueueMessageChannel extends AbstractMessageChannel
 	private void sendMessageAndWaitForResult(SendMessageRequest sendMessageRequest,
 			long timeout) throws ExecutionException, TimeoutException {
 		if (timeout > 0) {
-			Future<SendMessageResponse> sendMessageFuture = this.amazonSqsAsync.sendMessage(sendMessageRequest);
+			Future<SendMessageResponse> sendMessageFuture = this.amazonSqsAsync
+					.sendMessage(sendMessageRequest);
 
 			try {
 				sendMessageFuture.get(timeout, TimeUnit.MILLISECONDS);

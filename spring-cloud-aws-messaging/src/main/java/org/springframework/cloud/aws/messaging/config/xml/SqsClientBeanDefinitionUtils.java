@@ -29,7 +29,6 @@ import org.springframework.util.StringUtils;
  */
 public final class SqsClientBeanDefinitionUtils {
 
-
 	/**
 	 * SQS async client class name.
 	 */
@@ -51,10 +50,10 @@ public final class SqsClientBeanDefinitionUtils {
 	}
 
 	static String getSqsClientBeanName(Element element, ParserContext parserContext) {
-		return  XmlWebserviceConfigurationUtils
-			.getCustomClientOrDefaultClientBeanName(element, parserContext,
-				"amazon-sqs", SQS_CLIENT_CLASS_NAME);
+		return XmlWebserviceConfigurationUtils.getCustomClientOrDefaultClientBeanName(
+				element, parserContext, "amazon-sqs", SQS_CLIENT_CLASS_NAME);
 	}
+
 	static String getCustomAmazonSqsAsyncClientOrDecoratedDefaultSqsAsyncClientBeanName(
 			Element element, ParserContext parserContext) {
 		String amazonSqsClientBeanName = XmlWebserviceConfigurationUtils
@@ -64,17 +63,18 @@ public final class SqsClientBeanDefinitionUtils {
 			BeanDefinition clientBeanDefinition = parserContext.getRegistry()
 					.getBeanDefinition(amazonSqsClientBeanName);
 			// TODO SDK2 migration: re-add
-//			if (!clientBeanDefinition.getBeanClassName()
-//					.equals(BUFFERED_SQS_CLIENT_CLASS_NAME)) {
-//				BeanDefinitionBuilder bufferedClientBeanDefinitionBuilder = BeanDefinitionBuilder
-//						.rootBeanDefinition(BUFFERED_SQS_CLIENT_CLASS_NAME);
-//				bufferedClientBeanDefinitionBuilder
-//						.addConstructorArgValue(clientBeanDefinition);
-//				parserContext.getRegistry().removeBeanDefinition(amazonSqsClientBeanName);
-//				parserContext.getRegistry().registerBeanDefinition(
-//						amazonSqsClientBeanName,
-//						bufferedClientBeanDefinitionBuilder.getBeanDefinition());
-//			}
+			// if (!clientBeanDefinition.getBeanClassName()
+			// .equals(BUFFERED_SQS_CLIENT_CLASS_NAME)) {
+			// BeanDefinitionBuilder bufferedClientBeanDefinitionBuilder =
+			// BeanDefinitionBuilder
+			// .rootBeanDefinition(BUFFERED_SQS_CLIENT_CLASS_NAME);
+			// bufferedClientBeanDefinitionBuilder
+			// .addConstructorArgValue(clientBeanDefinition);
+			// parserContext.getRegistry().removeBeanDefinition(amazonSqsClientBeanName);
+			// parserContext.getRegistry().registerBeanDefinition(
+			// amazonSqsClientBeanName,
+			// bufferedClientBeanDefinitionBuilder.getBeanDefinition());
+			// }
 		}
 		return amazonSqsClientBeanName;
 	}

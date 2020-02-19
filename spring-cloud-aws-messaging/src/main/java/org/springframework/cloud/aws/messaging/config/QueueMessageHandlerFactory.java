@@ -116,11 +116,11 @@ public class QueueMessageHandlerFactory {
 	 * {@link org.springframework.messaging.handler.annotation.SendTo}.
 	 * </p>
 	 * <p>
-	 * An {@link SqsAsyncClient} client is only needed if {@code sendToMessagingTemplate} is
-	 * {@code null}.
+	 * An {@link SqsAsyncClient} client is only needed if {@code sendToMessagingTemplate}
+	 * is {@code null}.
 	 * </p>
-	 * @param amazonSqsAsync The {@link SqsAsyncClient} client that is going to be used by the
-	 * {@link SendToHandlerMethodReturnValueHandler} to send messages.
+	 * @param amazonSqsAsync The {@link SqsAsyncClient} client that is going to be used by
+	 * the {@link SendToHandlerMethodReturnValueHandler} to send messages.
 	 */
 	public void setAmazonSqsAsync(SqsAsyncClient amazonSqsAsync) {
 		this.amazonSqsAsync = amazonSqsAsync;
@@ -170,8 +170,8 @@ public class QueueMessageHandlerFactory {
 		}
 		else {
 			sendToHandlerMethodReturnValueHandler = new SendToHandlerMethodReturnValueHandler(
-					getDefaultSendToQueueMessagingTemplate(this.amazonSqs, this.amazonSqsAsync,
-							this.resourceIdResolver));
+					getDefaultSendToQueueMessagingTemplate(this.amazonSqs,
+							this.amazonSqsAsync, this.resourceIdResolver));
 
 		}
 		sendToHandlerMethodReturnValueHandler.setBeanFactory(this.beanFactory);
@@ -182,7 +182,8 @@ public class QueueMessageHandlerFactory {
 	}
 
 	private QueueMessagingTemplate getDefaultSendToQueueMessagingTemplate(
-			SqsClient amazonSqs, SqsAsyncClient amazonSqsAsync, ResourceIdResolver resourceIdResolver) {
+			SqsClient amazonSqs, SqsAsyncClient amazonSqsAsync,
+			ResourceIdResolver resourceIdResolver) {
 		return new QueueMessagingTemplate(amazonSqs, amazonSqsAsync, resourceIdResolver,
 				getDefaultMappingJackson2MessageConverter());
 	}

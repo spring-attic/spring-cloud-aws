@@ -93,7 +93,8 @@ public class SnsConfigurationTest {
 		SnsClient amazonSns = this.webApplicationContext.getBean(SnsClient.class);
 
 		// Assert
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSns, "clientConfiguration");
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonSns, "clientConfiguration");
 		assertThat(clientConfiguration.option(AwsClientOption.CREDENTIALS_PROVIDER))
 				.isEqualTo(SnsConfigurationWithCredentials.AWS_CREDENTIALS_PROVIDER);
 	}
@@ -128,9 +129,11 @@ public class SnsConfigurationTest {
 		SnsClient amazonSns = this.webApplicationContext.getBean(SnsClient.class);
 
 		// Assert
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSns, "clientConfiguration");
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonSns, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
-				.isEqualTo("https://" + ServiceMetadata.of("sns").endpointFor(Region.EU_WEST_1));
+				.isEqualTo("https://"
+						+ ServiceMetadata.of("sns").endpointFor(Region.EU_WEST_1));
 	}
 
 	private NotificationStatusHandlerMethodArgumentResolver getNotificationStatusHandlerMethodArgumentResolver(

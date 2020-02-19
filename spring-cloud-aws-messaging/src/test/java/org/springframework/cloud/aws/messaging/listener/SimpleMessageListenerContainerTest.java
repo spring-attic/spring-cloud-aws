@@ -625,8 +625,9 @@ public class SimpleMessageListenerContainerTest {
 		// Assert
 		assertThat(countDownLatch.await(2L, TimeUnit.SECONDS)).isTrue();
 		container.stop();
-		verify(sqsAsync, times(1)).deleteMessage(eq(DeleteMessageRequest.builder().queueUrl(
-				"https://executeMessage_successfulExecution_shouldRemoveMessageFromQueue.amazonaws.com")
+		verify(sqsAsync, times(1)).deleteMessage(eq(DeleteMessageRequest.builder()
+				.queueUrl(
+						"https://executeMessage_successfulExecution_shouldRemoveMessageFromQueue.amazonaws.com")
 				.receiptHandle("ReceiptHandle").build()));
 	}
 
@@ -938,11 +939,11 @@ public class SimpleMessageListenerContainerTest {
 		testMessageListenerWithVisibilityProlong.getCountDownLatch().await(1L,
 				TimeUnit.SECONDS);
 		testMessageListenerWithVisibilityProlong.extend(5);
-		verify(sqsAsync, times(1)).changeMessageVisibility(eq(ChangeMessageVisibilityRequest
-				.builder()
-				.queueUrl("https://receiveMessage_withMessageListenerMethodAnd"
-						+ "VisibilityProlonging_callsChangeMessageVisibility.amazonaws.com")
-				.receiptHandle("ReceiptHandle").visibilityTimeout(5).build()));
+		verify(sqsAsync, times(1))
+				.changeMessageVisibility(eq(ChangeMessageVisibilityRequest.builder()
+						.queueUrl("https://receiveMessage_withMessageListenerMethodAnd"
+								+ "VisibilityProlonging_callsChangeMessageVisibility.amazonaws.com")
+						.receiptHandle("ReceiptHandle").visibilityTimeout(5).build()));
 		container.stop();
 	}
 
@@ -1111,23 +1112,29 @@ public class SimpleMessageListenerContainerTest {
 
 		SqsAsyncClient sqsAsync = mock(SqsAsyncClient.class);
 		SqsClient sqs = mock(SqsClient.class);
-		when(sqs.getQueueUrl(any(GetQueueUrlRequest.class))).then((Answer<GetQueueUrlResponse>) invocation -> {
-			GetQueueUrlRequest getQueueUrlRequest = invocation.getArgument(0);
-			return GetQueueUrlResponse.builder().queueUrl("http://" + getQueueUrlRequest.queueName() + ".amazonaws.com")
-					.build();
-		});
+		when(sqs.getQueueUrl(any(GetQueueUrlRequest.class)))
+				.then((Answer<GetQueueUrlResponse>) invocation -> {
+					GetQueueUrlRequest getQueueUrlRequest = invocation.getArgument(0);
+					return GetQueueUrlResponse.builder().queueUrl(
+							"http://" + getQueueUrlRequest.queueName() + ".amazonaws.com")
+							.build();
+				});
 		when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class)))
 				.thenReturn(GetQueueAttributesResponse.builder().build());
-		when(sqs.receiveMessage(any(ReceiveMessageRequest.class))).then((Answer<ReceiveMessageResponse>) invocation -> {
-			ReceiveMessageRequest receiveMessageRequest = invocation.getArgument(0);
-			if ("http://testQueue.amazonaws.com".equals(receiveMessageRequest.queueUrl())) {
-				return ReceiveMessageResponse.builder()
-						.messages(Message.builder().body("Hello").receiptHandle("ReceiptHandle").build()).build();
-			}
-			else {
-				return ReceiveMessageResponse.builder().build();
-			}
-		});
+		when(sqs.receiveMessage(any(ReceiveMessageRequest.class)))
+				.then((Answer<ReceiveMessageResponse>) invocation -> {
+					ReceiveMessageRequest receiveMessageRequest = invocation
+							.getArgument(0);
+					if ("http://testQueue.amazonaws.com"
+							.equals(receiveMessageRequest.queueUrl())) {
+						return ReceiveMessageResponse.builder().messages(Message.builder()
+								.body("Hello").receiptHandle("ReceiptHandle").build())
+								.build();
+					}
+					else {
+						return ReceiveMessageResponse.builder().build();
+					}
+				});
 
 		container.setAmazonSqsAsync(sqsAsync);
 		container.setAmazonSqs(sqs);
@@ -1415,7 +1422,6 @@ public class SimpleMessageListenerContainerTest {
 				.isTrue();
 	}
 
-
 	private static class TestMessageListener {
 
 		private final CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -1509,7 +1515,8 @@ public class SimpleMessageListenerContainerTest {
 
 		@Bean
 		public SqsAsyncClient amazonSqsAsync() {
-			SqsAsyncClient mockAmazonSQS = mock(SqsAsyncClient.class, withSettings().stubOnly());
+			SqsAsyncClient mockAmazonSQS = mock(SqsAsyncClient.class,
+					withSettings().stubOnly());
 			return mockAmazonSQS;
 		}
 

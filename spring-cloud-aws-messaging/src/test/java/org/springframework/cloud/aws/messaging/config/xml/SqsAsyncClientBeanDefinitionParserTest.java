@@ -49,15 +49,17 @@ public class SqsAsyncClientBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-minimal.xml", getClass()));
 
 		// Assert
-		SqsAsyncClient asyncClient = beanFactory.getBean("customClient", SqsAsyncClient.class);
+		SqsAsyncClient asyncClient = beanFactory.getBean("customClient",
+				SqsAsyncClient.class);
 		assertThat(asyncClient).isNotNull();
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(asyncClient, "clientConfiguration");
-		ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) clientConfiguration.option(SdkAdvancedAsyncClientOption.FUTURE_COMPLETION_EXECUTOR);
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(asyncClient, "clientConfiguration");
+		ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) clientConfiguration
+				.option(SdkAdvancedAsyncClientOption.FUTURE_COMPLETION_EXECUTOR);
 		assertThat(threadPoolExecutor.getCorePoolSize()).isEqualTo(8);
 	}
 
-
-	//TODO SDK2 migration: re-visit after solving issue with clients
+	// TODO SDK2 migration: re-visit after solving issue with clients
 	@Test
 	public void parseInternal_notBuffered_createsAsyncClientWithoutBufferedDecorator()
 			throws Exception {
@@ -70,7 +72,8 @@ public class SqsAsyncClientBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-not-buffered.xml", getClass()));
 
 		// Assert
-		SqsAsyncClient asyncClient = beanFactory.getBean("customClient", SqsAsyncClient.class);
+		SqsAsyncClient asyncClient = beanFactory.getBean("customClient",
+				SqsAsyncClient.class);
 		assertThat(asyncClient).isNotNull();
 		assertThat(SqsAsyncClient.class.isInstance(asyncClient)).isTrue();
 	}
@@ -87,11 +90,15 @@ public class SqsAsyncClientBeanDefinitionParserTest {
 				getClass().getSimpleName() + "-custom-task-executor.xml", getClass()));
 
 		// Assert
-		SqsAsyncClient asyncClient = beanFactory.getBean("customClient", SqsAsyncClient.class);
+		SqsAsyncClient asyncClient = beanFactory.getBean("customClient",
+				SqsAsyncClient.class);
 		assertThat(asyncClient).isNotNull();
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(asyncClient, "clientConfiguration");
-		Executor executor = clientConfiguration.option(SdkAdvancedAsyncClientOption.FUTURE_COMPLETION_EXECUTOR);
-		ShutdownSuppressingExecutorServiceAdapter customExecutor = (ShutdownSuppressingExecutorServiceAdapter) ReflectionTestUtils.getField(executor, "executor");
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(asyncClient, "clientConfiguration");
+		Executor executor = clientConfiguration
+				.option(SdkAdvancedAsyncClientOption.FUTURE_COMPLETION_EXECUTOR);
+		ShutdownSuppressingExecutorServiceAdapter customExecutor = (ShutdownSuppressingExecutorServiceAdapter) ReflectionTestUtils
+				.getField(executor, "executor");
 		assertThat(ReflectionTestUtils.getField(customExecutor, "taskExecutor"))
 				.isSameAs(beanFactory.getBean("myThreadPoolTaskExecutor"));
 	}
@@ -109,9 +116,11 @@ public class SqsAsyncClientBeanDefinitionParserTest {
 
 		// Assert
 		SqsAsyncClient amazonSqs = registry.getBean(SqsAsyncClient.class);
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonSqs, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
-			.isEqualTo("https://" + ServiceMetadata.of("sqs").endpointFor(Region.EU_WEST_1));
+				.isEqualTo("https://"
+						+ ServiceMetadata.of("sqs").endpointFor(Region.EU_WEST_1));
 	}
 
 	@Test
@@ -127,9 +136,11 @@ public class SqsAsyncClientBeanDefinitionParserTest {
 
 		// Assert
 		SqsAsyncClient amazonSqs = registry.getBean(SqsAsyncClient.class);
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSqs, "clientConfiguration");
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonSqs, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
-			.isEqualTo("https://" + ServiceMetadata.of("sqs").endpointFor(Region.AP_SOUTHEAST_2));
+				.isEqualTo("https://"
+						+ ServiceMetadata.of("sqs").endpointFor(Region.AP_SOUTHEAST_2));
 	}
 
 }

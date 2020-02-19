@@ -153,9 +153,11 @@ public class NotificationMessagingTemplateBeanDefinitionParserTest {
 
 		// Assert
 		SnsClient amazonSns = registry.getBean(SnsClient.class);
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSns, "clientConfiguration");
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonSns, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
-			.isEqualTo("https://" + ServiceMetadata.of("sns").endpointFor(Region.EU_WEST_1));
+				.isEqualTo("https://"
+						+ ServiceMetadata.of("sns").endpointFor(Region.EU_WEST_1));
 	}
 
 	@Test
@@ -171,9 +173,11 @@ public class NotificationMessagingTemplateBeanDefinitionParserTest {
 
 		// Assert
 		SnsClient amazonSns = registry.getBean(SnsClient.class);
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(amazonSns, "clientConfiguration");
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(amazonSns, "clientConfiguration");
 		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT).toString())
-			.isEqualTo("https://" + ServiceMetadata.of("sns").endpointFor(Region.CN_NORTH_1));
+				.isEqualTo("https://"
+						+ ServiceMetadata.of("sns").endpointFor(Region.CN_NORTH_1));
 	}
 
 }

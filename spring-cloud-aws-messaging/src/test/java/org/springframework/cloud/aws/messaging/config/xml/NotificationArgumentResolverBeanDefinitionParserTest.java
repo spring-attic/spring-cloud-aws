@@ -65,9 +65,11 @@ public class NotificationArgumentResolverBeanDefinitionParserTest {
 		SnsClient snsClient = context.getBean(SnsClient.class);
 
 		// Assert
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(snsClient, "clientConfiguration");
-		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT)).isEqualTo(
-			new URI("https", ServiceMetadata.of("sns").endpointFor(Region.EU_WEST_1).toString(), null, null));
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(snsClient, "clientConfiguration");
+		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT))
+				.isEqualTo(new URI("https", ServiceMetadata.of("sns")
+						.endpointFor(Region.EU_WEST_1).toString(), null, null));
 	}
 
 	// @checkstyle:off
@@ -83,9 +85,11 @@ public class NotificationArgumentResolverBeanDefinitionParserTest {
 		SnsClient snsClient = context.getBean(SnsClient.class);
 
 		// Assert
-		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils.getField(snsClient, "clientConfiguration");
-		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT)).isEqualTo(
-				new URI("https", ServiceMetadata.of("sns").endpointFor(Region.US_WEST_2).toString(), null, null));
+		SdkClientConfiguration clientConfiguration = (SdkClientConfiguration) ReflectionTestUtils
+				.getField(snsClient, "clientConfiguration");
+		assertThat(clientConfiguration.option(SdkClientOption.ENDPOINT))
+				.isEqualTo(new URI("https", ServiceMetadata.of("sns")
+						.endpointFor(Region.US_WEST_2).toString(), null, null));
 	}
 
 	@Test

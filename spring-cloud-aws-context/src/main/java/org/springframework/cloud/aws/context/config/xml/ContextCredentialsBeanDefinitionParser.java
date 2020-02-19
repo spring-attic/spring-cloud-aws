@@ -55,7 +55,8 @@ class ContextCredentialsBeanDefinitionParser extends AbstractSingleBeanDefinitio
 	// @checkstyle:on
 
 	// @checkstyle:off
-	private static final String PROFILE_CREDENTIALS_PROVIDER_BEAN_CLASS_NAME = ProfileCredentialsProviderBeanFactory.class.getName();
+	private static final String PROFILE_CREDENTIALS_PROVIDER_BEAN_CLASS_NAME = ProfileCredentialsProviderBeanFactory.class
+			.getName();
 
 	// @checkstyle:on
 
@@ -157,13 +158,17 @@ class ContextCredentialsBeanDefinitionParser extends AbstractSingleBeanDefinitio
 
 			if ("profile-credentials".equals(credentialsProviderElement.getLocalName())) {
 				BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
-					.rootBeanDefinition(PROFILE_CREDENTIALS_PROVIDER_BEAN_CLASS_NAME);
+						.rootBeanDefinition(PROFILE_CREDENTIALS_PROVIDER_BEAN_CLASS_NAME);
 
-				if (StringUtils.hasText(credentialsProviderElement.getAttribute("profileName"))) {
-					beanDefinitionBuilder.addConstructorArgValue(credentialsProviderElement.getAttribute("profileName"));
+				if (StringUtils.hasText(
+						credentialsProviderElement.getAttribute("profileName"))) {
+					beanDefinitionBuilder.addConstructorArgValue(
+							credentialsProviderElement.getAttribute("profileName"));
 				}
-				if (StringUtils.hasText(credentialsProviderElement.getAttribute("profilePath"))) {
-					beanDefinitionBuilder.addConstructorArgValue(credentialsProviderElement.getAttribute("profilePath"));
+				if (StringUtils.hasText(
+						credentialsProviderElement.getAttribute("profilePath"))) {
+					beanDefinitionBuilder.addConstructorArgValue(
+							credentialsProviderElement.getAttribute("profilePath"));
 				}
 
 				credentialsProviders.add(beanDefinitionBuilder.getBeanDefinition());
