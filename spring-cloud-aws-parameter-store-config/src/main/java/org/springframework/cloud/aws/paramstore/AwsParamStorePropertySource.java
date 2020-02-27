@@ -61,6 +61,7 @@ public class AwsParamStorePropertySource
 
 	@Override
 	public Object getProperty(String name) {
+		logger.trace("getting property: " + name);
 		return properties.get(name);
 	}
 
@@ -69,6 +70,7 @@ public class AwsParamStorePropertySource
 				.getParametersByPath(paramsRequest);
 		for (Parameter parameter : paramsResult.getParameters()) {
 			String key = parameter.getName().replace(context, "").replace('/', '.');
+			logger.debug("setting property: " + key);
 			properties.put(key, parameter.getValue());
 		}
 		if (paramsResult.getNextToken() != null) {
