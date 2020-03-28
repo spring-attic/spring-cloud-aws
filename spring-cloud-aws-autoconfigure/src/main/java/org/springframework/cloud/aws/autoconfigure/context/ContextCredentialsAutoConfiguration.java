@@ -19,6 +19,7 @@ package org.springframework.cloud.aws.autoconfigure.context;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.cloud.aws.autoconfigure.context.properties.AwsCredentialsProperties;
 import org.springframework.cloud.aws.context.config.annotation.ContextDefaultConfigurationRegistrar;
 import org.springframework.cloud.aws.core.credentials.CredentialsProviderFactoryBean;
@@ -82,29 +83,28 @@ public class ContextCredentialsAutoConfiguration {
 				return;
 			}
 
-			Boolean useDefaultCredentialsChain = this.environment.getProperty(
-					AWS_CREDENTIALS_PROPERTY_PREFIX + ".useDefaultAwsCredentialsChain",
-					Boolean.class, false);
-			String accessKey = this.environment
-					.getProperty(AWS_CREDENTIALS_PROPERTY_PREFIX + ".accessKey");
-			String secretKey = this.environment
-					.getProperty(AWS_CREDENTIALS_PROPERTY_PREFIX + ".secretKey");
+			Binder binder = Binder.get(environment);
+
+			Boolean useDefaultCredentialsChain = binder.bind(
+					AWS_CREDENTIALS_PROPERTY_PREFIX + ".use-default-aws-credentials-chain",
+					Boolean.class).orElse(false);
+			String accessKey = binder.bind(AWS_CREDENTIALS_PROPERTY_PREFIX + ".access-key", String.class).orElse(null);
+			String secretKey = binder.bind(AWS_CREDENTIALS_PROPERTY_PREFIX + ".secret-key", String.class).orElse(null);
 			if (useDefaultCredentialsChain && (StringUtils.isEmpty(accessKey)
 					|| StringUtils.isEmpty(secretKey))) {
 				registerDefaultAWSCredentialsProvider(registry);
 			}
 			else {
 				registerCredentialsProvider(registry, accessKey, secretKey,
-						this.environment.getProperty(
-								AWS_CREDENTIALS_PROPERTY_PREFIX + ".instanceProfile",
-								Boolean.class, true)
-								&& !this.environment.containsProperty(
-										AWS_CREDENTIALS_PROPERTY_PREFIX + ".accessKey"),
-						this.environment.getProperty(
-								AWS_CREDENTIALS_PROPERTY_PREFIX + ".profileName",
+						binder.bind(AWS_CREDENTIALS_PROPERTY_PREFIX + ".instance-profile",
+								Boolean.class).orElse(true)
+								&& !binder.bind(AWS_CREDENTIALS_PROPERTY_PREFIX + ".access-key", String.class).isBound(),
+						binder.bind(
+								AWS_CREDENTIALS_PROPERTY_PREFIX + ".profile-name", String.class).orElse(
 								DEFAULT_PROFILE_NAME),
-						this.environment.getProperty(
-								AWS_CREDENTIALS_PROPERTY_PREFIX + ".profilePath"));
+						binder.bind(
+								AWS_CREDENTIALS_PROPERTY_PREFIX + ".profile-path", String.class).orElse(
+								null));
 			}
 		}
 
