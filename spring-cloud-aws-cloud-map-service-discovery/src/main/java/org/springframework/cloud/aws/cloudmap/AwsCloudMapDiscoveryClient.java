@@ -55,10 +55,10 @@ public class AwsCloudMapDiscoveryClient implements DiscoveryClient {
 
 	}
 
-	private AwsCloudMapServiceInstance getInstance(String service, String id) {
-		Instance instance = aws.getInstance(new GetInstanceRequest().withInstanceId(id))
+	private AwsCloudMapServiceInstance getInstance(String serviceId, String instanceId) {
+		Instance instance = aws.getInstance(new GetInstanceRequest().withServiceId(serviceId).withInstanceId(instanceId))
 				.getInstance();
-		return new AwsCloudMapServiceInstance(service, instance);
+		return new AwsCloudMapServiceInstance(serviceId, instance);
 	}
 
 	@Override
