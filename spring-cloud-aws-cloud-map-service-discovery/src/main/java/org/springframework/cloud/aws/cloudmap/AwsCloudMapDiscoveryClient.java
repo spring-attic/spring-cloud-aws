@@ -44,19 +44,18 @@ public class AwsCloudMapDiscoveryClient implements DiscoveryClient {
 
 	@Override
 	public List<ServiceInstance> getInstances(String serviceId) {
-		ListInstancesRequest listInstancesRequest = new ListInstancesRequest()
-				.withServiceId(serviceId);
+		ListInstancesRequest listInstancesRequest = new ListInstancesRequest().withServiceId(serviceId);
 		// TODO pagination
 		// TODO parallel requests?
 		// TODO filter on health?
 		return aws.listInstances(listInstancesRequest).getInstances().stream()
-				.map(summary -> getInstance(serviceId, summary.getId()))
-				.collect(Collectors.toList());
+				.map(summary -> getInstance(serviceId, summary.getId())).collect(Collectors.toList());
 
 	}
 
 	private AwsCloudMapServiceInstance getInstance(String serviceId, String instanceId) {
-		Instance instance = aws.getInstance(new GetInstanceRequest().withServiceId(serviceId).withInstanceId(instanceId))
+		Instance instance = aws
+				.getInstance(new GetInstanceRequest().withServiceId(serviceId).withInstanceId(instanceId))
 				.getInstance();
 		return new AwsCloudMapServiceInstance(serviceId, instance);
 	}
@@ -64,8 +63,8 @@ public class AwsCloudMapDiscoveryClient implements DiscoveryClient {
 	@Override
 	public List<String> getServices() {
 		// TODO pagination
-		return aws.listServices(new ListServicesRequest()).getServices().stream()
-				.map(ServiceSummary::getId).collect(Collectors.toList());
+		return aws.listServices(new ListServicesRequest()).getServices().stream().map(ServiceSummary::getId)
+				.collect(Collectors.toList());
 	}
 
 }
