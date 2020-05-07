@@ -66,6 +66,9 @@ public class AwsParamStoreProperties {
 	/** Is AWS Parameter Store support enabled. */
 	private boolean enabled = true;
 
+	/** Is use only application name for resource location*/
+	private boolean onlyApplicationNameLocator = true;
+
 	public String getPrefix() {
 		return prefix;
 	}
@@ -112,6 +115,14 @@ public class AwsParamStoreProperties {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public boolean isOnlyApplicationNameLocator() {
+		return onlyApplicationNameLocator;
+	}
+
+	public void setOnlyApplicationNameLocator(boolean onlyApplicationNameLocator) {
+		this.onlyApplicationNameLocator = onlyApplicationNameLocator;
 	}
 
 }
