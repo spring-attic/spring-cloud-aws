@@ -39,6 +39,11 @@ public class AwsCloudMapServiceInstance implements ServiceInstance {
 	}
 
 	@Override
+	public String getInstanceId() {
+		return instance.getId();
+	}
+
+	@Override
 	public String getServiceId() {
 		return serviceId;
 	}
@@ -64,13 +69,17 @@ public class AwsCloudMapServiceInstance implements ServiceInstance {
 
 	@Override
 	public URI getUri() {
-		String scheme = isSecure() ? "https" : "http";
-		return URI.create(String.format("%s://%s/%s", scheme, getHost(), getPort()));
+		return URI.create(String.format("%s://%s/%s", getScheme(), getHost(), getPort()));
 	}
 
 	@Override
 	public Map<String, String> getMetadata() {
 		return instance.getAttributes();
+	}
+
+	@Override
+	public String getScheme() {
+		return isSecure() ? "https" : "http";
 	}
 
 }
