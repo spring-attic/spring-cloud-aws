@@ -65,7 +65,7 @@ public class AwsCloudMapServiceInstance implements ServiceInstance {
 	@Override
 	public URI getUri() {
 		String scheme = isSecure() ? "https" : "http";
-		return URI.create(String.format("%s:%s/%s", scheme, getHost(), getPort()));
+		return URI.create(String.format("%s://%s/%s", scheme, getHost(), getPort()));
 	}
 
 	@Override
