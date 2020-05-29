@@ -41,7 +41,7 @@ public class AwsSecretsManagerProperties {
 
 	/**
 	 * Prefix indicating first level for every property. Value must start with a forward
-	 * slash followed by a valid path segment or be empty. Defaults to "/config".
+	 * slash followed by a valid path segment or be empty. Defaults to "/secret".
 	 */
 	@NotNull
 	@Pattern(regexp = "(/[a-zA-Z0-9.\\-_]+)*")
