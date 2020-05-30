@@ -1603,7 +1603,7 @@ be resolved against the SQS API. The send method that takes no destination argum
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import com.amazonaws.services.sqs.AmazonSQS;
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import com.amazonaws.services.sqs.AmazonSQSAsync;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.aws.messaging.core.QueueMessagingTemplate;
 import org.springframework.messaging.support.MessageBuilder;
@@ -1613,8 +1613,8 @@ public class SqsQueueSender {
     private final QueueMessagingTemplate queueMessagingTemplate;
 
     @Autowired
-    public SqsQueueSender(AmazonSQS amazonSqs) {
-        this.queueMessagingTemplate = new QueueMessagingTemplate(amazonSqs);
+    public SqsQueueSender(AmazonSQSAsync amazonSQSAsync) {
+        this.queueMessagingTemplate = new QueueMessagingTemplate(amazonSQSAsync);
     }
 
     public void send(String message) {
@@ -1625,7 +1625,7 @@ public class SqsQueueSender {
 </div>
 <div class="paragraph">
 <p>This example uses the <code>MessageBuilder</code> class to create a message with a string payload. The <code>QueueMessagingTemplate</code> is
-constructed by passing a reference to the <code>AmazonSQS</code> client. The destination in the send method is a string value that
+constructed by passing a reference to the <code>AmazonSQSAsync</code> client. The destination in the send method is a string value that
 must match the queue name defined on AWS. This value will be resolved at runtime by the Amazon SQS client. Optionally
 a <code>ResourceIdResolver</code> implementation can be passed to the <code>QueueMessagingTemplate</code> constructor to resolve resources by
 logical name when running inside a CloudFormation stack (see <a href="#managing-cloud-environments">Managing cloud environments</a> for more information about
@@ -1657,7 +1657,7 @@ resource name resolution).</p>
 </div>
 </div>
 <div class="paragraph">
-<p>In this example the messaging namespace handler constructs a new <code>QueueMessagingTemplate</code>. The <code>AmazonSQS</code> client
+<p>In this example the messaging namespace handler constructs a new <code>QueueMessagingTemplate</code>. The <code>AmazonSQSAsync</code> client
 is automatically created and passed to the template&#8217;s constructor based on the provided credentials. If the
 application runs inside a configured CloudFormation stack a <code>ResourceIdResolver</code> is passed to the constructor (see
 <a href="#managing-cloud-environments">Managing cloud environments</a> for more information about resource name resolution).</p>
