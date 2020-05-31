@@ -410,6 +410,27 @@ use of the modules. A typical XML configuration to use Spring Cloud AWS is outli
 &lt;/beans&gt;</code></pre>
 </div>
 </div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>On application startup, for its internal purposes Spring Cloud AWS performs a check if application runs in AWS cloud environment
+by using <code>EC2MetadataUtils</code> class provided by AWS SDK. Starting from version 1.11.678, AWS SDK logs a warning message with exception when this check is made outside of AWS environment.
+This warning message can be hidden by setting <code>ERROR</code> logging level on <code>com.amazonaws.util.EC2MetadataUtils</code> class.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code>logging.level.com.amazonaws.util.EC2MetadataUtils=error</code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <div class="sect3">
 <h4 id="sdk-credentials-configuration"><a class="anchor" href="#sdk-credentials-configuration"></a><a class="link" href="#sdk-credentials-configuration">2.2.1. SDK credentials configuration</a></h4>
 <div class="paragraph">
