@@ -29,9 +29,11 @@ import org.springframework.util.Assert;
  * dynamically retrieves the region with the EC2 meta-data. This implementation allows
  * application to run against their region without any further configuration.
  *
+ * @deprecated since 2.2.3 in favor of {@link DynamicRegionProvider}
  * @author Agim Emruli
  * @author Gleb Schukin
  */
+@Deprecated
 public class Ec2MetadataRegionProvider implements RegionProvider {
 
 	@Override

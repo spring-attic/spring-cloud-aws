@@ -23,6 +23,8 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.cloud.aws.core.region.DynamicRegionProvider;
+import org.springframework.cloud.aws.core.region.StaticRegionProvider;
 import org.springframework.util.StringUtils;
 
 import static org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils.replaceDefaultRegionProvider;
@@ -86,13 +88,13 @@ public class ContextRegionBeanDefinitionParser extends AbstractBeanDefinitionPar
 		}
 		else if (StringUtils.hasText(element.getAttribute("region"))) {
 			BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(
-					"org.springframework.cloud.aws.core.region.StaticRegionProvider");
+				StaticRegionProvider.class.getName());
 			builder.addConstructorArgValue(element.getAttribute("region"));
 			return builder.getBeanDefinition();
 		}
 		else if (isAutoDetect(element)) {
 			BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(
-					"org.springframework.cloud.aws.core.region.Ec2MetadataRegionProvider");
+				DynamicRegionProvider.class.getName());
 			return builder.getBeanDefinition();
 		}
 		return null;

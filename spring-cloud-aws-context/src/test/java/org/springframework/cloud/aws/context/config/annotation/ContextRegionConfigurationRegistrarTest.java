@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.cloud.aws.core.region.Ec2MetadataRegionProvider;
+import org.springframework.cloud.aws.core.region.DynamicRegionProvider;
 import org.springframework.cloud.aws.core.region.StaticRegionProvider;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -75,8 +75,8 @@ public class ContextRegionConfigurationRegistrarTest {
 				ApplicationConfigurationWithDynamicRegionProvider.class);
 
 		// Act
-		Ec2MetadataRegionProvider staticRegionProvider = this.context
-				.getBean(Ec2MetadataRegionProvider.class);
+		DynamicRegionProvider staticRegionProvider = this.context
+				.getBean(DynamicRegionProvider.class);
 
 		// Assert
 		assertThat(staticRegionProvider).isNotNull();

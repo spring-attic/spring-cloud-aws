@@ -31,7 +31,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils;
 import org.springframework.cloud.aws.core.credentials.CredentialsProviderFactoryBean;
-import org.springframework.cloud.aws.core.region.Ec2MetadataRegionProvider;
+import org.springframework.cloud.aws.core.region.DynamicRegionProvider;
 import org.springframework.cloud.aws.core.region.StaticRegionProvider;
 import org.springframework.util.StringUtils;
 
@@ -65,7 +65,7 @@ public final class ContextConfigurationUtils {
 
 		if (autoDetect) {
 			beanDefinition = BeanDefinitionBuilder
-					.genericBeanDefinition(Ec2MetadataRegionProvider.class)
+					.genericBeanDefinition(DynamicRegionProvider.class)
 					.getBeanDefinition();
 		}
 		else if (StringUtils.hasText(configuredRegion)) {

@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
-import org.springframework.cloud.aws.core.region.Ec2MetadataRegionProvider;
+import org.springframework.cloud.aws.core.region.DynamicRegionProvider;
 import org.springframework.cloud.aws.core.region.RegionProvider;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -92,7 +92,7 @@ public class ContextRegionBeanDefinitionParserTest {
 	}
 
 	@Test
-	public void parse_autoDetectRegion_returnEc2MetadataRegionProvider()
+	public void parse_autoDetectRegion_returnDynamicRegionProvider()
 			throws Exception {
 		// Arrange
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
@@ -105,7 +105,7 @@ public class ContextRegionBeanDefinitionParserTest {
 
 		// Assert
 		assertThat(myRegionProvider).isNotNull();
-		assertThat(myRegionProvider instanceof Ec2MetadataRegionProvider).isTrue();
+		assertThat(myRegionProvider instanceof DynamicRegionProvider).isTrue();
 	}
 
 	@Test

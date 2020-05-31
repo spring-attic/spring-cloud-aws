@@ -22,7 +22,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import org.springframework.boot.test.util.TestPropertyValues;
-import org.springframework.cloud.aws.core.region.Ec2MetadataRegionProvider;
+import org.springframework.cloud.aws.core.region.DynamicRegionProvider;
 import org.springframework.cloud.aws.core.region.StaticRegionProvider;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -45,7 +45,7 @@ public class ContextRegionProviderAutoConfigurationTest {
 	}
 
 	@Test
-	public void regionProvider_autoDetectionConfigured_Ec2metaDataRegionProviderConfigured()
+	public void regionProvider_autoDetectionConfigured_dynamicRegionProviderConfigured()
 			throws Exception {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();
@@ -56,11 +56,11 @@ public class ContextRegionProviderAutoConfigurationTest {
 		this.context.refresh();
 
 		// Assert
-		assertThat(this.context.getBean(Ec2MetadataRegionProvider.class)).isNotNull();
+		assertThat(this.context.getBean(DynamicRegionProvider.class)).isNotNull();
 	}
 
 	@Test
-	public void regionProvider_autoDetectionConfigured_emptyStaticRegionConfigured_Ec2metaDataRegionProviderConfigured()
+	public void regionProvider_autoDetectionConfigured_emptyStaticRegionConfigured_dynamicRegionProviderConfigured()
 			throws Exception {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();
@@ -72,7 +72,7 @@ public class ContextRegionProviderAutoConfigurationTest {
 		this.context.refresh();
 
 		// Assert
-		assertThat(this.context.getBean(Ec2MetadataRegionProvider.class)).isNotNull();
+		assertThat(this.context.getBean(DynamicRegionProvider.class)).isNotNull();
 	}
 
 	@Test
