@@ -1217,6 +1217,26 @@ AWS parameter values are limited to 4096 characters, so we support individual Sp
 </tr>
 </tbody>
 </table>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In order to find out which properties are retrieved from AWS Parameter Store on application startup,
+turn on <code>DEBUG</code> logging on <code>org.springframework.cloud.aws.paramstore.AwsParamStorePropertySource</code> class.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code>logging.level.org.springframework.cloud.aws.paramstore.AwsParamStorePropertySource=debug</code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
 </div>
 <div class="sect2">
 <h3 id="integrating-your-spring-cloud-application-with-the-aws-secrets-manager"><a class="anchor" href="#integrating-your-spring-cloud-application-with-the-aws-secrets-manager"></a><a class="link" href="#integrating-your-spring-cloud-application-with-the-aws-secrets-manager">3.3. Integrating your Spring Cloud application with the AWS Secrets Manager</a></h3>
