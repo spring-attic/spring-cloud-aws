@@ -313,4 +313,15 @@ public class SimpleStorageResourceTest {
 		// Assert
 	}
 
+	@Test
+	public void getUri_encodes_objectName() throws Exception {
+		AmazonS3 s3 = mock(AmazonS3.class);
+		when(s3.getRegion()).thenReturn(Region.US_West_2);
+		SimpleStorageResource resource = new SimpleStorageResource(s3, "bucketName",
+				"some/[objectName]", new SyncTaskExecutor());
+
+		assertThat(resource.getURI()).isEqualTo(new URI(
+				"https://s3.us-west-2.amazonaws.com/bucketName/some%2F%5BobjectName%5D"));
+	}
+
 }
