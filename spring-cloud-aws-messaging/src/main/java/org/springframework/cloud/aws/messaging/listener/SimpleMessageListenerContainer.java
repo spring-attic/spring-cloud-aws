@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.aws.messaging.listener;
 
+import static org.springframework.cloud.aws.messaging.core.QueueMessageUtils.createMessage;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,27 +27,24 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import com.amazonaws.services.sqs.model.DeleteMessageRequest;
-import com.amazonaws.services.sqs.model.Message;
-import com.amazonaws.services.sqs.model.ReceiveMessageResult;
-
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.messaging.MessagingException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
-import static org.springframework.cloud.aws.messaging.core.QueueMessageUtils.createMessage;
+import com.amazonaws.services.sqs.model.DeleteMessageRequest;
+import com.amazonaws.services.sqs.model.Message;
+import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 
 /**
  * @author Agim Emruli
  * @author Alain Sahli
  * @author Mete Alpaslan Katırcıoğlu
+ * @author Kevin Gath
  * @since 1.0
  */
 public class SimpleMessageListenerContainer extends AbstractMessageListenerContainer {
-
-	private static final int DEFAULT_WORKER_THREADS = 2;
 
 	private static final String DEFAULT_THREAD_NAME_PREFIX = ClassUtils
 			.getShortName(SimpleMessageListenerContainer.class) + "-";
@@ -68,6 +67,10 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 
 	public void setTaskExecutor(AsyncTaskExecutor taskExecutor) {
 		this.taskExecutor = taskExecutor;
+	}
+
+	public void createTaskExecutorBy(TaskExecutorBuilder executorConfig) {
+		this.taskExecutor = executorConfig.build();
 	}
 
 	/**
@@ -191,29 +194,11 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 	 * @see org.springframework.core.task.SimpleAsyncTaskExecutor#SimpleAsyncTaskExecutor(String)
 	 */
 	protected AsyncTaskExecutor createDefaultTaskExecutor() {
-		String beanName = getBeanName();
-		ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
-		threadPoolTaskExecutor.setThreadNamePrefix(
-				beanName != null ? beanName + "-" : DEFAULT_THREAD_NAME_PREFIX);
-		int spinningThreads = this.getRegisteredQueues().size();
+		String beanName = getBeanName() != null ? getBeanName() + "-"
+				: DEFAULT_THREAD_NAME_PREFIX;
 
-		if (spinningThreads > 0) {
-			threadPoolTaskExecutor
-					.setCorePoolSize(spinningThreads * DEFAULT_WORKER_THREADS);
-
-			int maxNumberOfMessagePerBatch = getMaxNumberOfMessages() != null
-					? getMaxNumberOfMessages() : DEFAULT_MAX_NUMBER_OF_MESSAGES;
-			threadPoolTaskExecutor
-					.setMaxPoolSize(spinningThreads * (maxNumberOfMessagePerBatch + 1));
-		}
-
-		// No use of a thread pool executor queue to avoid retaining message to long in
-		// memory
-		threadPoolTaskExecutor.setQueueCapacity(0);
-		threadPoolTaskExecutor.afterPropertiesSet();
-
-		return threadPoolTaskExecutor;
-
+		return new TaskExecutorBuilder().fromMessageListenerContainer(this, beanName)
+				.build();
 	}
 
 	private void scheduleMessageListeners() {
