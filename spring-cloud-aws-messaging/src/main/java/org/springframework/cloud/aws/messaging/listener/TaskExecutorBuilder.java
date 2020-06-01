@@ -22,7 +22,7 @@ import org.springframework.util.Assert;
 
 /**
  * @author Kevin Gath
- * @since 2.3
+ * @since 1.0
  */
 public class TaskExecutorBuilder {
 
