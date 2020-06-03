@@ -117,7 +117,7 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 
 	private AwsParamStorePropertySource create(String context) {
 		AwsParamStorePropertySource propertySource = new AwsParamStorePropertySource(
-				context, this.ssmClient);
+				"awsParamStore[" + context + "]", this.ssmClient);
 		propertySource.init();
 		return propertySource;
 	}

@@ -120,7 +120,7 @@ public class AwsSecretsManagerPropertySourceLocator implements PropertySourceLoc
 
 	private AwsSecretsManagerPropertySource create(String context) {
 		AwsSecretsManagerPropertySource propertySource = new AwsSecretsManagerPropertySource(
-				context, this.smClient);
+				"awsSecretsManager[" + context + "]", this.smClient);
 		propertySource.init();
 		return propertySource;
 	}
