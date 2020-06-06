@@ -23,11 +23,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import static java.util.Collections.EMPTY_LIST;
 
 /**
+ * Properties to configure metadata used for the Micrometer metrics.
+ *
  * @author Renan Reis Martins de Paula
  */
 @ConfigurationProperties(prefix = "cloud.aws.ec2.micrometer.metrics")
 public class AwsEc2MicrometerMetricsProperties {
 
+	/**
+	 * Metadata names that will be used as tags for the metrics.
+	 */
 	private Collection<String> tags = EMPTY_LIST;
 
 	public Collection<String> getTags() {

@@ -73,13 +73,6 @@ public class AwsEc2MicrometerMetricsAutoConfiguration {
 	}
 
 	Collection<Tag> createTags() {
-		// Java 9
-		// Collection<Tag> tags = metricsProperties.getTags()
-		// .stream()
-		// .map(this::retrieveMetadataValue)
-		// .flatMap(Optional::stream)
-		// .collect(toList());
-
 		return metricsProperties.getTags()
 								.stream()
 								.map(this::retrieveMetadataValue)
