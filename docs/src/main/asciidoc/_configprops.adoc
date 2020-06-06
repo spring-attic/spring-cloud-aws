@@ -27,5 +27,6 @@
 |cloud.aws.region.use-default-aws-region-chain | false | Whether default AWS SDK region provider chain should be used when auto is set to true.
 |cloud.aws.stack.auto | true | Enables the automatic stack name detection for the application.
 |cloud.aws.stack.name | myStackName | The name of the manually configured stack name that will be used to retrieve the resources.
+|cloud.aws.ec2.micrometer.metrics.tags |  | The metadata that will be added as tags to the metrics. Eg. ami-id,instance-id
 
 |===

@@ -19,6 +19,11 @@
       "type": "java.lang.String"
     },
     {
+      "name": "cloud.aws.ec2.micrometer.metrics.tags",
+	  "description": "It tags the metrics with EC2 Metadata.",
+      "type": "java.lang.String"
+    },
+    {
       "defaultValue": true,
       "name": "management.metrics.export.cloudwatch.enabled",
       "description": "Enables cloud watch metrics.",
