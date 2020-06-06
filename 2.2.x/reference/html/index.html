@@ -715,6 +715,23 @@ only configure classes that are available in the Spring Boot application&#8217;s
 AWS provides support to configure the credential information with the Spring Boot application configuration files.
 Spring Cloud AWS provides the following properties to configure the credentials setup for the whole application.</p>
 </div>
+<div class="paragraph">
+<p>Unless <code>cloud.aws.credentials.use-default-aws-credentials-chain</code> is set to <code>true</code>, Spring Cloud AWS configures following
+credentials chain:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>AWSStaticCredentialsProvider</code> if <code>cloud.aws.credentials.access-key</code> is provided</p>
+</li>
+<li>
+<p><code>EC2ContainerCredentialsProviderWrapper</code> unless <code>cloud.aws.credentials.instance-profile</code> is set to <code>false</code></p>
+</li>
+<li>
+<p><code>ProfileCredentialsProvider</code></p>
+</li>
+</ol>
+</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -730,22 +747,32 @@ Spring Cloud AWS provides the following properties to configure the credentials 
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.credentials.accessKey</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.credentials.access-key</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">AKIAIOSFODNN7EXAMPLE</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The access key to be used with a static provider</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.credentials.secretKey</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.credentials.secret-key</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The secret key to be used with a static provider</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.credentials.instanceProfile</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.credentials.instance-profile</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Configures an instance profile credentials provider with no further configuration</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.credentials.useDefaultAwsCredentialsChain</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.credentials.profile-name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">default</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The name of a configuration profile in the specified configuration file</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.credentials.profile-path</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>~/.aws/credentials</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The file path where the profile configuration file is located. Defaults to <code>~/.aws/credentials</code> if value is not provided</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.credentials.use-default-aws-credentials-chain</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Use the DefaultAWSCredentials Chain instead of configuring a custom credentials chain</p></td>
 </tr>
@@ -782,7 +809,7 @@ against the AWS cloud).</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Enables automatic region detection based on the EC2 meta data service</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.region.useDefaultAwsRegionChain</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cloud.aws.region.use-default-aws-region-chain</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Use the DefaultAWSRegion Chain instead of configuring a custom region chain</p></td>
 </tr>
