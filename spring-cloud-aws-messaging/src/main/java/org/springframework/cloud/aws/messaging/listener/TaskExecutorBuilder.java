@@ -50,6 +50,17 @@ public class TaskExecutorBuilder {
 	}
 
 	/**
+	 * Initialized the member variables with an existing {@ThreadPoolTaskExecutor}
+	 */
+	public TaskExecutorBuilder(ThreadPoolTaskExecutor taskExecutor) {
+
+		this();
+		this.maxPoolSize = taskExecutor.getMaxPoolSize();
+		this.corePoolSize = taskExecutor.getCorePoolSize();
+		this.threadNamePrefix = taskExecutor.getThreadNamePrefix();
+	}
+
+	/**
 	 * Set the member variables with input form
 	 * {@link org.springframework.cloud.aws.messaging.listener.SimpleMessageListenerContainer}.
 	 * So the behavior before this class is not changed.

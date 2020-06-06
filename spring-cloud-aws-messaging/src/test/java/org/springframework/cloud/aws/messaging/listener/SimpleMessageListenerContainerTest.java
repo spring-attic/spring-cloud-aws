@@ -240,6 +240,8 @@ class SimpleMessageListenerContainerTest {
 		assertThat(container.getTaskExecutor()).isEqualTo(taskExecutor);
 	}
 
+
+
 	@Test
 	void testSimpleReceiveMessage() throws Exception {
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
