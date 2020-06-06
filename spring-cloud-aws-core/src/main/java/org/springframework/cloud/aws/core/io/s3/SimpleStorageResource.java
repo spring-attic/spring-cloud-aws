@@ -23,6 +23,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -141,6 +143,10 @@ public class SimpleStorageResource extends AbstractResource implements WritableR
 		Region region = this.amazonS3.getRegion().toAWSRegion();
 		return new URL("https", region.getServiceEndpoint(AmazonS3Client.S3_SERVICE_NAME),
 				"/" + this.bucketName + "/" + this.objectName);
+	}
+
+	public URI getS3URI() throws URISyntaxException {
+		return new URI("S3", "//" + this.bucketName + "/" + this.objectName, null);
 	}
 
 	@Override
