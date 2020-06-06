@@ -255,7 +255,8 @@ $(addBlockSwitches);
 <li><a href="#using-cloudformation-3">9.5. Using CloudFormation</a></li>
 </ul>
 </li>
-<li><a href="#configuration-properties">10. Configuration properties</a></li>
+<li><a href="#cloudwatch-metrics">10. CloudWatch Metrics</a></li>
+<li><a href="#configuration-properties">11. Configuration properties</a></li>
 </ul>
 </div>
 </div>
@@ -3383,7 +3384,61 @@ like <em>integrationteststack-sampleBucket-23qysofs62tc2</em></p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="configuration-properties"><a class="anchor" href="#configuration-properties"></a><a class="link" href="#configuration-properties">10. Configuration properties</a></h2>
+<h2 id="cloudwatch-metrics"><a class="anchor" href="#cloudwatch-metrics"></a><a class="link" href="#cloudwatch-metrics">10. CloudWatch Metrics</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Spring Cloud AWS provides Spring Boot auto-configuration for Micrometer CloudWatch integration.
+To send metrics to CloudWatch add a dependency to <code>spring-cloud-aws-actuator</code> module:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-aws-actuator&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Additionally CloudWatch integration requires a value provided for <code>management.metrics.export.cloudwatch.namespace</code> configuration property.</p>
+</div>
+<div class="paragraph">
+<p>Following configuration properties are available to configure CloudWatch integration:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">property</th>
+<th class="tableblock halign-left valign-top">default</th>
+<th class="tableblock halign-left valign-top">description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">management.metrics.export.cloudwatch.namespace</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The namespace which will be used when sending metrics to CloudWatch. This property is needed and must not be null.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">management.metrics.export.cloudwatch.enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If CloudWatch integration should be enabled. This property should be likely set to <code>false</code> for a local development profile.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">management.metrics.export.cloudwatch.step</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1m</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The interval at which metrics are sent to CloudWatch. The default is 1 minute.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="configuration-properties"><a class="anchor" href="#configuration-properties"></a><a class="link" href="#configuration-properties">11. Configuration properties</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>To see the list of all Spring Cloud AWS related configuration properties please check <a href="appendix.html">the Appendix page</a>.</p>
