@@ -242,7 +242,7 @@ public class SimpleStorageResourceTest {
 			"bucket", "object", new SyncTaskExecutor());
 
 		// Assert
-		assertThat(simpleStorageResource.getS3URI())
+		assertThat(simpleStorageResource.getS3Uri())
 			.isEqualTo(new URI("S3://bucket/object"));
 
 	}
