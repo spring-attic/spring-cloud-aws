@@ -220,6 +220,8 @@ public class SimpleStorageResourceTest {
 
 		AmazonS3Client amazonS3 = mock(AmazonS3Client.class);
 
+		when(amazonS3.getRegion()).thenReturn(Region.EU_Ireland);
+
 		// Act
 		SimpleStorageResource simpleStorageResource = new SimpleStorageResource(amazonS3,
 				"bucket", "object", new SyncTaskExecutor());
@@ -234,8 +236,6 @@ public class SimpleStorageResourceTest {
 	public void getUrl_existingObject_returnsUrlWithS3Scheme() throws Exception {
 
 		AmazonS3Client amazonS3 = mock(AmazonS3Client.class);
-
-		when(amazonS3.getRegion()).thenReturn(Region.EU_Ireland);
 
 		// Act
 		SimpleStorageResource simpleStorageResource = new SimpleStorageResource(amazonS3,
