@@ -239,11 +239,11 @@ public class SimpleStorageResourceTest {
 
 		// Act
 		SimpleStorageResource simpleStorageResource = new SimpleStorageResource(amazonS3,
-			"bucket", "object", new SyncTaskExecutor());
+				"bucket", "object", new SyncTaskExecutor());
 
 		// Assert
 		assertThat(simpleStorageResource.getS3Uri())
-			.isEqualTo(new URI("S3://bucket/object"));
+				.isEqualTo(new URI("s3://bucket/object"));
 
 	}
 

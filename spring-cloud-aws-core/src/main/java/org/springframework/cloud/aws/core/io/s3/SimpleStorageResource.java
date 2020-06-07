@@ -149,8 +149,13 @@ public class SimpleStorageResource extends AbstractResource implements WritableR
 				"/" + this.bucketName + "/" + encodedObjectName);
 	}
 
-	public URI getS3URI() throws URISyntaxException {
-		return new URI("S3", "//" + this.bucketName + "/" + this.objectName, null);
+	public URI getS3Uri() {
+		try {
+			return new URI("s3", "//" + this.bucketName + "/" + this.objectName, null);
+		}
+		catch (URISyntaxException e) {
+			throw new RuntimeException("Failed to resolve s3:// uri", e);
+		}
 	}
 
 	@Override
