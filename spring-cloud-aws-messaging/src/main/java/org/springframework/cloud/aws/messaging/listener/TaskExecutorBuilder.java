@@ -50,7 +50,7 @@ public class TaskExecutorBuilder {
 	}
 
 	/**
-	 * Initialized the member variables with an existing {@ThreadPoolTaskExecutor}
+	 * Initialized the member variables with an existing {@ThreadPoolTaskExecutor}.
 	 */
 	public TaskExecutorBuilder(ThreadPoolTaskExecutor taskExecutor) {
 
@@ -65,9 +65,9 @@ public class TaskExecutorBuilder {
 	 * {@link org.springframework.cloud.aws.messaging.listener.SimpleMessageListenerContainer}.
 	 * So the behavior before this class is not changed.
 	 * @param messageListenerContainer implementation to extract information to calculate
-	 *     pool size information
+	 * pool size information
 	 * @param threadNamePrefix which is required and constructed by the
-	 *     _messageListenerContainer_
+	 * _messageListenerContainer_
 	 * @return The instance of this builder to manipulate the values
 	 */
 	public TaskExecutorBuilder fromMessageListenerContainer(

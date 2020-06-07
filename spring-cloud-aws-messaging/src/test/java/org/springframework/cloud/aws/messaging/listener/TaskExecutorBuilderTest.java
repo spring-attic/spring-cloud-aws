@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.aws.messaging.listener;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.jupiter.api.Nested;
@@ -27,6 +25,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Kevin Gath
@@ -69,13 +69,14 @@ public class TaskExecutorBuilderTest {
 
 			assertThat(build).isNotNull();
 		}
+
 	}
 
 	@Nested
 	class withSize {
 
 		@ParameterizedTest
-		@CsvSource({ "-1, 2", "0, 2", "5, 2", "5, 0", "5, -2", })
+		@CsvSource({ "-1, 2", "0, 2", "5, 2", "5, 0", "5, -2" })
 		public void assertionFails(int corePoolSize, int maxPoolSize) {
 			TaskExecutorBuilder builder = new TaskExecutorBuilder();
 
@@ -94,5 +95,7 @@ public class TaskExecutorBuilderTest {
 
 			assertThat(build).isNotNull();
 		}
+
 	}
+
 }
