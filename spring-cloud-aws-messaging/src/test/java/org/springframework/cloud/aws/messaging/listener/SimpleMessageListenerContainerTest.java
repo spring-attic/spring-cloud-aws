@@ -18,6 +18,7 @@ package org.springframework.cloud.aws.messaging.listener;
 
 import java.nio.charset.Charset;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -414,8 +415,11 @@ public class SimpleMessageListenerContainerTest {
 						.withMaxNumberOfMessages(10).withWaitTimeSeconds(20)))
 								.thenReturn(new ReceiveMessageResult().withMessages(
 										new Message().withBody("messageContent")
-												.withAttributes(Collections
-														.singletonMap("SenderId", "ID"))))
+												.withAttributes(new HashMap<String,String>() {{
+													put("SenderId","ID");
+													put("SentTimestamp","1000");
+													put("ApproximateFirstReceiveTimestamp","2000");
+												}})))
 								.thenReturn(new ReceiveMessageResult());
 		when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class)))
 				.thenReturn(new GetQueueAttributesResult());
@@ -430,6 +434,11 @@ public class SimpleMessageListenerContainerTest {
 		verify(messageHandler).handleMessage(this.stringMessageCaptor.capture());
 		assertThat(this.stringMessageCaptor.getValue().getHeaders().get("SenderId"))
 				.isEqualTo("ID");
+		assertThat(this.stringMessageCaptor.getValue().getHeaders().getTimestamp())
+			.isEqualTo(1000L);
+		assertThat(this.stringMessageCaptor.getValue().getHeaders().get("ApproximateFirstReceiveTimestamp"))
+			.isEqualTo("2000");
+
 
 	}
 

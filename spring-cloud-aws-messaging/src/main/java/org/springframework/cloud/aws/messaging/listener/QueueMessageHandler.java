@@ -21,19 +21,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.config.BeanExpressionContext;
 import org.springframework.beans.factory.config.BeanExpressionResolver;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.cloud.aws.messaging.core.SqsMessageHeaders;
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
 import org.springframework.cloud.aws.messaging.listener.support.AcknowledgmentHandlerMethodArgumentResolver;
 import org.springframework.cloud.aws.messaging.listener.support.VisibilityHandlerMethodArgumentResolver;
 import org.springframework.cloud.aws.messaging.support.NotificationMessageArgumentResolver;
 import org.springframework.cloud.aws.messaging.support.NotificationSubjectArgumentResolver;
+import org.springframework.cloud.aws.messaging.support.SqsHeadersMethodArgumentResolver;
 import org.springframework.cloud.aws.messaging.support.converter.ObjectMessageConverter;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -46,13 +50,13 @@ import org.springframework.messaging.handler.HandlerMethod;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.support.AnnotationExceptionHandlerMethodResolver;
 import org.springframework.messaging.handler.annotation.support.HeaderMethodArgumentResolver;
-import org.springframework.messaging.handler.annotation.support.HeadersMethodArgumentResolver;
 import org.springframework.messaging.handler.annotation.support.PayloadArgumentResolver;
 import org.springframework.messaging.handler.invocation.AbstractExceptionHandlerMethodResolver;
 import org.springframework.messaging.handler.invocation.AbstractMethodMessageHandler;
 import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
 import org.springframework.messaging.handler.invocation.HandlerMethodReturnValueHandler;
 import org.springframework.messaging.handler.invocation.InvocableHandlerMethod;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.comparator.ComparableComparator;
 import org.springframework.validation.Errors;
@@ -62,6 +66,7 @@ import org.springframework.validation.Validator;
  * @author Agim Emruli
  * @author Alain Sahli
  * @author Maciej Walkowiak
+ * @author Wojciech Mąka
  * @since 1.0
  */
 public class QueueMessageHandler
@@ -91,7 +96,7 @@ public class QueueMessageHandler
 				getCustomArgumentResolvers());
 
 		resolvers.add(new HeaderMethodArgumentResolver(null, null));
-		resolvers.add(new HeadersMethodArgumentResolver());
+		resolvers.add(new SqsHeadersMethodArgumentResolver());
 
 		resolvers.add(new NotificationSubjectArgumentResolver());
 		resolvers.add(new AcknowledgmentHandlerMethodArgumentResolver(ACKNOWLEDGMENT));
@@ -105,9 +110,21 @@ public class QueueMessageHandler
 		return resolvers;
 	}
 
+	public void handleSqsMessage(Message<?> message) throws MessagingException {
+		String destination = getDestination(message);
+		if (destination != null) {
+			String lookupDestination = getLookupDestination(destination);
+			if (lookupDestination != null) {
+				final Map<String, Object> newHeaders = new HashMap<>();
+				newHeaders.put("lookupDestination", lookupDestination);
+				message = MessageBuilder.createMessage(message.getPayload(), SqsMessageHeaders.createFrom((SqsMessageHeaders) message.getHeaders(), newHeaders));
+				handleMessageInternal(message, lookupDestination);
+			}
+		}
+	}
+
 	@Override
 	protected List<? extends HandlerMethodReturnValueHandler> initReturnValueHandlers() {
-
 		return new ArrayList<>(this.getCustomReturnValueHandlers());
 	}
 
