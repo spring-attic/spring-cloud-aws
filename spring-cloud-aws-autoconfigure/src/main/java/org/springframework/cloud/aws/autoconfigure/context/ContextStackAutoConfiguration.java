@@ -22,10 +22,10 @@ import com.amazonaws.services.cloudformation.AmazonCloudFormationClient;
 import com.amazonaws.services.ec2.AmazonEC2;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.aws.autoconfigure.context.properties.AwsStackProperties;
 import org.springframework.cloud.aws.context.annotation.ConditionalOnMissingAmazonClient;
@@ -82,7 +82,7 @@ public class ContextStackAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(StackResourceRegistry.class)
-	@ConditionalOnSingleCandidate(StackNameProvider.class)
+	@ConditionalOnBean(StackNameProvider.class)
 	public StackResourceRegistryFactoryBean stackResourceRegistryFactoryBean(
 			AmazonCloudFormation amazonCloudFormation,
 			StackNameProvider stackNameProvider) {
