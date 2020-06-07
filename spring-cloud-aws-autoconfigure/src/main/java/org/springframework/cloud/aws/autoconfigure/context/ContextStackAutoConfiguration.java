@@ -53,7 +53,7 @@ import org.springframework.context.annotation.Import;
 public class ContextStackAutoConfiguration {
 
 	@Autowired
-	private AwsStackProperties awsStackProperties;
+	private AwsStackProperties properties;
 
 	@Autowired(required = false)
 	private AmazonEC2 amazonEC2;
@@ -68,7 +68,7 @@ public class ContextStackAutoConfiguration {
 	@ConditionalOnMissingBean
 	@ConditionalOnProperty("cloud.aws.stack.name")
 	public StackNameProvider staticStackNameProvider() {
-		return new StaticStackNameProvider(awsStackProperties.getName());
+		return new StaticStackNameProvider(properties.getName());
 	}
 
 	@Bean
