@@ -18,6 +18,8 @@ package org.springframework.cloud.aws.autoconfigure.context.properties;
 
 import com.amazonaws.auth.profile.internal.AwsProfileNameLoader;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 /**
  * Properties related to AWS credentials.
  *
@@ -25,6 +27,7 @@ import com.amazonaws.auth.profile.internal.AwsProfileNameLoader;
  * @since 2.0.2
  * @see org.springframework.cloud.aws.autoconfigure.context.ContextCredentialsAutoConfiguration
  */
+@ConfigurationProperties(prefix = "cloud.aws.credentials")
 public class AwsCredentialsProperties {
 
 	/**
@@ -46,7 +49,7 @@ public class AwsCredentialsProperties {
 	 * Use the DefaultAWSCredentials Chain instead of configuring a custom credentials
 	 * chain.
 	 */
-	private boolean useDefaultAwsCredentialsChain;
+	private boolean useDefaultAwsCredentialsChain = true;
 
 	/**
 	 * The AWS profile name.

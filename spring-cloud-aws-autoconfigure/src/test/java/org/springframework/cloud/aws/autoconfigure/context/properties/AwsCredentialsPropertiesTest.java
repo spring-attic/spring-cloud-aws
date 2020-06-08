@@ -74,12 +74,11 @@ public class AwsCredentialsPropertiesTest {
 	@Test
 	public void useDefaultAwsCredentialsChainCanBeSet() {
 		assertThat(this.properties.isUseDefaultAwsCredentialsChain())
-				.as("useDefaultAwsCredentialsChain default expected to be false")
-				.isFalse();
+				.as("useDefaultAwsCredentialsChain default expected to be true").isTrue();
 
-		this.properties.setUseDefaultAwsCredentialsChain(true);
+		this.properties.setUseDefaultAwsCredentialsChain(false);
 		assertThat(this.properties.isUseDefaultAwsCredentialsChain())
-				.as("useDefaultAwsCredentialsChain should have been assigned").isTrue();
+				.as("useDefaultAwsCredentialsChain should have been assigned").isFalse();
 	}
 
 	@Test

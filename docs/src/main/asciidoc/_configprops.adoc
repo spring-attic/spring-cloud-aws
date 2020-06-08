@@ -18,7 +18,7 @@
 |cloud.aws.credentials.profile-name |  | The AWS profile name.
 |cloud.aws.credentials.profile-path |  | The AWS profile path.
 |cloud.aws.credentials.secret-key |  | The secret key to be used with a static provider.
-|cloud.aws.credentials.use-default-aws-credentials-chain | false | Use the DefaultAWSCredentials Chain instead of configuring a custom credentials chain.
+|cloud.aws.credentials.use-default-aws-credentials-chain | true | Use the DefaultAWSCredentials Chain instead of configuring a custom credentials chain.
 |cloud.aws.loader.core-pool-size | 1 | The core pool size of the Task Executor used for parallel S3 interaction. @see org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor#setCorePoolSize(int)
 |cloud.aws.loader.max-pool-size |  | The maximum pool size of the Task Executor used for parallel S3 interaction. @see org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor#setMaxPoolSize(int)
 |cloud.aws.loader.queue-capacity |  | The maximum queue capacity for backed up S3 requests. @see org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor#setQueueCapacity(int)

@@ -305,14 +305,17 @@ only configure classes that are available in the Spring Boot application's class
 ===== Configuring credentials
 Spring Boot provides a standard way to define properties with property file or YAML configuration files. Spring Cloud
 AWS provides support to configure the credential information with the Spring Boot application configuration files.
-Spring Cloud AWS provides the following properties to configure the credentials setup for the whole application.
 
-Unless `cloud.aws.credentials.use-default-aws-credentials-chain` is set to `true`, Spring Cloud AWS configures following
+By default Spring Cloud AWS configures https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/auth/DefaultAWSCredentialsProviderChain.html[DefaultAWSCredentialsProviderChain] to resolve AWS credentials.
+
+If `cloud.aws.credentials.use-default-aws-credentials-chain` is set to `false`, Spring Cloud AWS configures following
 credentials chain:
 
 1. `AWSStaticCredentialsProvider` if `cloud.aws.credentials.access-key` is provided
 2. `EC2ContainerCredentialsProviderWrapper` unless `cloud.aws.credentials.instance-profile` is set to `false`
 3. `ProfileCredentialsProvider`
+
+Spring Cloud AWS provides the following properties to configure the credentials setup for the whole application.
 
 [cols="3*", options="header"]
 |===
