@@ -36,7 +36,7 @@ public class AwsSecretsManagerPropertiesFailTest {
 		ConfigurableEnvironment environment = new StandardEnvironment();
 		MutablePropertySources propertySources = environment.getPropertySources();
 		propertySources.addFirst(new PropertiesPropertySource(
-				"application-validation.properties", properties));
+			"application-validation.properties", properties));
 		application.setEnvironment(environment);
 	}
 
