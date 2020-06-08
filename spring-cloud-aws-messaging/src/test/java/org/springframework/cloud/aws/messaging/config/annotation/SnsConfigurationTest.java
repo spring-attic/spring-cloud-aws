@@ -22,8 +22,8 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sns.AmazonSNS;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.cloud.aws.context.config.annotation.EnableContextRegion;
 import org.springframework.cloud.aws.messaging.endpoint.NotificationStatusHandlerMethodArgumentResolver;
@@ -46,7 +46,7 @@ public class SnsConfigurationTest {
 
 	private AnnotationConfigWebApplicationContext webApplicationContext;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.webApplicationContext = new AnnotationConfigWebApplicationContext();
 		this.webApplicationContext.setServletContext(new MockServletContext());

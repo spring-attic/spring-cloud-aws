@@ -16,8 +16,8 @@
 
 package org.springframework.cloud.aws.autoconfigure.context.properties;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +31,7 @@ public class AwsS3ResourceLoaderPropertiesTest {
 
 	private AwsS3ResourceLoaderProperties properties;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.properties = new AwsS3ResourceLoaderProperties();
 	}

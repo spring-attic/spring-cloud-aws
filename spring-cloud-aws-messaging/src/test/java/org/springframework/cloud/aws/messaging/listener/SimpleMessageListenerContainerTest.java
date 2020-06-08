@@ -40,9 +40,9 @@ import com.amazonaws.services.sqs.model.OverLimitException;
 import com.amazonaws.services.sqs.model.QueueAttributeName;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -139,7 +139,7 @@ public class SimpleMessageListenerContainerTest {
 				.thenReturn(new GetQueueUrlResult().withQueueUrl(queueUrl));
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		initMocks(this);
 	}

@@ -16,8 +16,8 @@
 
 package org.springframework.cloud.aws.autoconfigure.context;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.aws.core.io.s3.SimpleStorageProtocolResolver;
@@ -32,7 +32,7 @@ public class ContextResourceLoaderAutoConfigurationTest {
 
 	private AnnotationConfigApplicationContext context;
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		if (this.context != null) {
 			this.context.close();

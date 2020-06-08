@@ -24,8 +24,8 @@ import com.amazonaws.services.elasticache.model.CacheCluster;
 import com.amazonaws.services.elasticache.model.DescribeCacheClustersRequest;
 import com.amazonaws.services.elasticache.model.DescribeCacheClustersResult;
 import com.amazonaws.services.elasticache.model.Endpoint;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import org.springframework.cache.Cache;
@@ -54,7 +54,7 @@ public class ElastiCacheCachingConfigurationTest {
 		return expiration.getInt(cache);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		if (this.context != null) {
 			this.context.close();

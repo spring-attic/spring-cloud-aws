@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.aws.cache.redis;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import org.springframework.beans.factory.DisposableBean;

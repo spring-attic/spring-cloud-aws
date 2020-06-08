@@ -19,7 +19,7 @@ package org.springframework.cloud.aws.messaging.support.converter;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 
 import org.springframework.messaging.converter.MessageConversionException;

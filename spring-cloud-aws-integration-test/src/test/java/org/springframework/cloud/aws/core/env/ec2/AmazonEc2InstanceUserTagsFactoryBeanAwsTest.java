@@ -16,10 +16,10 @@
 
 package org.springframework.cloud.aws.core.env.ec2;
 
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,12 +42,12 @@ public class AmazonEc2InstanceUserTagsFactoryBeanAwsTest {
 	@Autowired
 	private ConfigurableApplicationContext context;
 
-	@Before
+	@BeforeEach
 	public void enableInstanceIdMetadataService() {
 		this.testStackInstanceIdService.enable();
 	}
 
-	@After
+	@AfterEach
 	public void disableInstanceIdMetadataService() {
 		this.testStackInstanceIdService.disable();
 	}

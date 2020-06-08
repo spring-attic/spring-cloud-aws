@@ -19,7 +19,7 @@ package org.springframework.cloud.aws.core.naming;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;

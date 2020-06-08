@@ -19,8 +19,8 @@ package org.springframework.cloud.aws.messaging;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.aws.messaging.listener.SimpleMessageListenerContainer;
@@ -33,14 +33,14 @@ abstract class AbstractContainerTest {
 	@Autowired
 	protected SimpleMessageListenerContainer simpleMessageListenerContainer;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		if (!this.simpleMessageListenerContainer.isRunning()) {
 			this.simpleMessageListenerContainer.start();
 		}
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		if (this.simpleMessageListenerContainer.isRunning()) {
 			CountDownLatch countDownLatch = new CountDownLatch(1);

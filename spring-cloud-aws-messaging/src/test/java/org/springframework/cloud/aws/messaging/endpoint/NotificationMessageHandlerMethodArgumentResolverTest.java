@@ -17,7 +17,7 @@
 package org.springframework.cloud.aws.messaging.endpoint;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 
 import org.springframework.core.MethodParameter;

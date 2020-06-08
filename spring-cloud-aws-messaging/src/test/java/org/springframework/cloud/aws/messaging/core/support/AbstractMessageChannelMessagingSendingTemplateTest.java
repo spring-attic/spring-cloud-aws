@@ -19,8 +19,8 @@ package org.springframework.cloud.aws.messaging.core.support;
 import java.util.Collections;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
@@ -50,7 +50,7 @@ public class AbstractMessageChannelMessagingSendingTemplateTest {
 	private DestinationResolver<String> destinationResolver;
 
 	@SuppressWarnings("unchecked")
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		reset(this.destinationResolver);
 	}

@@ -17,8 +17,8 @@
 package org.springframework.cloud.aws.messaging.endpoint;
 
 import com.amazonaws.services.sns.AmazonSNS;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
@@ -62,7 +62,7 @@ public class ComplexNotificationEndpointControllerTest {
 
 	private MockMvc mockMvc;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 	}

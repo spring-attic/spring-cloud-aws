@@ -16,8 +16,8 @@
 
 package org.springframework.cloud.aws.cache;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public abstract class ElastiCacheAwsTest {
 	@Autowired
 	private CachingService cachingService;
 
-	@Before
+	@BeforeEach
 	public void resetInvocationCount() throws Exception {
 		this.cachingService.resetInvocationCount();
 	}

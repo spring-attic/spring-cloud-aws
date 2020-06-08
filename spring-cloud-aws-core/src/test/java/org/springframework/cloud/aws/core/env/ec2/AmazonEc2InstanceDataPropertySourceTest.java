@@ -27,10 +27,10 @@ import com.amazonaws.util.EC2MetadataUtils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterEachClass;
+import org.junit.jupiter.api.BeforeEachClass;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.util.SocketUtils;
 
@@ -46,7 +46,7 @@ public class AmazonEc2InstanceDataPropertySourceTest {
 	@SuppressWarnings("StaticNonFinalField")
 	private static HttpServer httpServer;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setupHttpServer() throws Exception {
 		InetSocketAddress address = new InetSocketAddress(HTTP_SERVER_TEST_PORT);
 		httpServer = HttpServer.create(address, -1);
@@ -171,7 +171,7 @@ public class AmazonEc2InstanceDataPropertySourceTest {
 		httpServer.removeContext("/latest/meta-data/instance-id");
 	}
 
-	@After
+	@AfterEach
 	public void clearMetadataCache() throws Exception {
 		Field metadataCacheField = EC2MetadataUtils.class.getDeclaredField("cache");
 		metadataCacheField.setAccessible(true);

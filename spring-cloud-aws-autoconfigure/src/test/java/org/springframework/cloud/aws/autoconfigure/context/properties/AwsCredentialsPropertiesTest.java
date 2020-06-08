@@ -19,8 +19,8 @@ package org.springframework.cloud.aws.autoconfigure.context.properties;
 import java.util.UUID;
 
 import com.amazonaws.auth.profile.internal.AwsProfileNameLoader;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +34,7 @@ public class AwsCredentialsPropertiesTest {
 
 	private AwsCredentialsProperties properties;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.properties = new AwsCredentialsProperties();
 	}

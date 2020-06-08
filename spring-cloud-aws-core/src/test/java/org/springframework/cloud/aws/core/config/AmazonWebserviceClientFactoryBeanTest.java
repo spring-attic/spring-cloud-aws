@@ -18,7 +18,7 @@ package org.springframework.cloud.aws.core.config;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.cloud.aws.core.region.StaticRegionProvider;
 

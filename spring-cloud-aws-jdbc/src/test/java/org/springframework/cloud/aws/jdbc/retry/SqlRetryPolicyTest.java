@@ -19,7 +19,7 @@ package org.springframework.cloud.aws.jdbc.retry;
 import java.sql.SQLException;
 import java.sql.SQLTransientException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.TransientDataAccessResourceException;

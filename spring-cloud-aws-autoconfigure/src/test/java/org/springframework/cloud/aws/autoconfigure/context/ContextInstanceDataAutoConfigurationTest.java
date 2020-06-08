@@ -20,9 +20,9 @@ import java.lang.reflect.Field;
 
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.aws.context.support.env.AwsCloudEnvironmentCheckUtils;
@@ -38,7 +38,7 @@ public class ContextInstanceDataAutoConfigurationTest {
 
 	private AnnotationConfigApplicationContext context;
 
-	@Before
+	@BeforeEach
 	public void restContextInstanceDataCondition() throws IllegalAccessException {
 		Field field = ReflectionUtils.findField(AwsCloudEnvironmentCheckUtils.class,
 				"isCloudEnvironment");
@@ -47,7 +47,7 @@ public class ContextInstanceDataAutoConfigurationTest {
 		field.set(null, null);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		if (this.context != null) {
 			this.context.close();

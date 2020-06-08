@@ -19,8 +19,8 @@ package org.springframework.cloud.aws.autoconfigure.metrics;
 import io.micrometer.cloudwatch.CloudWatchConfig;
 import io.micrometer.cloudwatch.CloudWatchMeterRegistry;
 import io.micrometer.core.instrument.Clock;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.mock.env.MockEnvironment;
@@ -38,7 +38,7 @@ public class CloudWatchExportAutoConfigurationTest {
 
 	private AnnotationConfigApplicationContext context;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		this.env = new MockEnvironment();
 		this.context = new AnnotationConfigApplicationContext();

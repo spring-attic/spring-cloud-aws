@@ -22,7 +22,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.cloud.aws.messaging.core.QueueMessagingTemplate;

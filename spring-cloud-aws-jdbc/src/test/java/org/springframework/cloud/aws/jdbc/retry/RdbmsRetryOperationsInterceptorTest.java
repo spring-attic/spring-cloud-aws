@@ -18,7 +18,7 @@ package org.springframework.cloud.aws.jdbc.retry;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 
 import org.springframework.aop.ProxyMethodInvocation;

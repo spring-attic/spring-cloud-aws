@@ -19,8 +19,8 @@ package org.springframework.cloud.aws.messaging;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ public abstract class NotificationMessagingTemplateIntegrationTest
 	@Autowired
 	private NotificationReceiver notificationReceiver;
 
-	@Before
+	@BeforeEach
 	public void resetMocks() throws Exception {
 		this.notificationReceiver.reset();
 	}

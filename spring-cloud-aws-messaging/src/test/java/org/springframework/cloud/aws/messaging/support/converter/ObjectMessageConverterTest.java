@@ -23,7 +23,7 @@ import java.util.Collections;
 
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 
 import org.springframework.messaging.Message;

@@ -26,10 +26,10 @@ import com.amazonaws.services.elasticache.model.DescribeCacheClustersResult;
 import com.amazonaws.services.elasticache.model.Endpoint;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterEachClass;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import org.springframework.cache.CacheManager;
@@ -59,7 +59,7 @@ public class ElastiCacheAutoConfigurationTest {
 		TestMemcacheServer.stopServer();
 	}
 
-	@Before
+	@BeforeEach
 	public void restContextInstanceDataCondition() throws IllegalAccessException {
 		Field field = ReflectionUtils.findField(AwsCloudEnvironmentCheckUtils.class,
 				"isCloudEnvironment");
@@ -68,7 +68,7 @@ public class ElastiCacheAutoConfigurationTest {
 		field.set(null, null);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		this.context.close();
 	}

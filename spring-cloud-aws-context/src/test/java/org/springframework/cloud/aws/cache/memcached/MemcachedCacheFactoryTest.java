@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.aws.cache.memcached;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.cloud.aws.cache.config.TestMemcacheServer;
 

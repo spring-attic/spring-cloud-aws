@@ -25,8 +25,8 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +61,7 @@ public abstract class MessageListenerContainerAwsTest extends AbstractContainerT
 	@Autowired
 	private StackResourceRegistry stackResourceRegistry;
 
-	@Before
+	@BeforeEach
 	public void insertTotalNumberOfMessagesIntoTheLoadTestQueue()
 			throws InterruptedException {
 		CountDownLatch countDownLatch = new CountDownLatch(TOTAL_BATCHES);

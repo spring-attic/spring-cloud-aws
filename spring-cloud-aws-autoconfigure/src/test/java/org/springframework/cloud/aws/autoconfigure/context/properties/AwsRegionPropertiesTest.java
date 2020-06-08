@@ -17,8 +17,8 @@
 package org.springframework.cloud.aws.autoconfigure.context.properties;
 
 import com.amazonaws.regions.Regions;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,7 +32,7 @@ public class AwsRegionPropertiesTest {
 
 	private AwsRegionProperties properties;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.properties = new AwsRegionProperties();
 	}

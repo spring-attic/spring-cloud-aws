@@ -36,8 +36,8 @@ import java.util.List;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -212,7 +212,7 @@ public abstract class ResourceLoaderAwsTest {
 
 	// Cleans up the bucket. Because if the bucket is not cleaned up, then the bucket will
 	// not be deleted after the test run.
-	@After
+	@AfterEach
 	public void tearDown() {
 		String bucketName = this.stackResourceRegistry
 				.lookupPhysicalResourceId("EmptyBucket");

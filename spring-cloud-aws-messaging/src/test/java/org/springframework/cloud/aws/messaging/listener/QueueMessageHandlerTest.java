@@ -30,8 +30,8 @@ import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -93,7 +93,7 @@ public class QueueMessageHandlerTest {
 	@Mock
 	private DestinationResolvingMessageSendingOperations<?> messageTemplate;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		// noinspection RedundantArrayCreation to avoid unchecked generic array creation
 		// for varargs parameter with Java 8.
