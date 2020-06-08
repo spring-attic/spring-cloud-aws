@@ -50,6 +50,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Agim Emruli
  * @author Alain Sahli
+ * @author Philip Riecks
  * @since 1.0
  */
 @SuppressWarnings({ "AbstractClassWithoutAbstractMethods",

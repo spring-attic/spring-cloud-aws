@@ -18,18 +18,17 @@ package org.springframework.cloud.aws.messaging;
 
 import com.amazonaws.services.sns.AmazonSNS;
 
-import org.springframework.cloud.aws.IntegrationTestConfig;
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.cloud.aws.messaging.config.annotation.EnableSns;
 import org.springframework.cloud.aws.messaging.config.annotation.EnableSqs;
 import org.springframework.cloud.aws.messaging.core.NotificationMessagingTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
  * @author Alain Sahli
+ * @author Philip Riecks
  */
 @ContextConfiguration(classes = JavaNotificationMessagingTemplateIntegrationTest.NotificationMessagingTemplateIntegrationTestConfiguration.class)
 class JavaNotificationMessagingTemplateIntegrationTest
@@ -38,7 +37,6 @@ class JavaNotificationMessagingTemplateIntegrationTest
 	@Configuration
 	@EnableSqs
 	@EnableSns
-	@Import(IntegrationTestConfig.class)
 	protected static class NotificationMessagingTemplateIntegrationTestConfiguration {
 
 		@Bean

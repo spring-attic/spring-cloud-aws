@@ -18,26 +18,25 @@ package org.springframework.cloud.aws.messaging;
 
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.aws.autoconfigure.messaging.MessagingAutoConfiguration;
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.cloud.aws.messaging.config.QueueMessageHandlerFactory;
 import org.springframework.cloud.aws.messaging.config.SimpleMessageListenerContainerFactory;
 import org.springframework.cloud.aws.messaging.core.QueueMessagingTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 
 /**
  * @author Alain Sahli
+ * @author Philip Riecks
  */
 @SpringBootTest(classes = BootQueueListenerTest.QueueListenerTestConfiguration.class)
 class BootQueueListenerTest extends QueueListenerTest {
 
 	@Configuration
-	@EnableAutoConfiguration
-	@PropertySource({ "classpath:Integration-test-config.properties",
-			"file://${els.config.dir}/access.properties" })
+	@ImportAutoConfiguration({MessagingAutoConfiguration.class})
 	protected static class QueueListenerTestConfiguration {
 
 		@Bean

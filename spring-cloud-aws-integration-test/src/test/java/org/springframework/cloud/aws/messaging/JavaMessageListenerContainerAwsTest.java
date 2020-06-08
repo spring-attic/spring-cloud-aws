@@ -18,25 +18,23 @@ package org.springframework.cloud.aws.messaging;
 
 import java.util.concurrent.ThreadPoolExecutor;
 
-import org.springframework.cloud.aws.IntegrationTestConfig;
 import org.springframework.cloud.aws.messaging.config.SimpleMessageListenerContainerFactory;
 import org.springframework.cloud.aws.messaging.config.annotation.EnableSqs;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
  * @author Alain Sahli
+ * @author Philip Riecks
  */
 @ContextConfiguration(classes = JavaMessageListenerContainerAwsTest.MessageListenerContainerAwsTestConfiguration.class)
 class JavaMessageListenerContainerAwsTest extends MessageListenerContainerAwsTest {
 
 	@Configuration
 	@EnableSqs
-	@Import(IntegrationTestConfig.class)
 	protected static class MessageListenerContainerAwsTestConfiguration {
 
 		@Bean

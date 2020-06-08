@@ -30,7 +30,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.aws.core.env.stack.StackResourceRegistry;
 import org.springframework.cloud.aws.core.support.documentation.RuntimeUse;
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
 import org.springframework.core.task.TaskExecutor;
@@ -58,9 +57,6 @@ abstract class MessageListenerContainerAwsTest extends AbstractContainerTest {
 	@Autowired
 	private MessageReceiver messageReceiver;
 
-	@Autowired
-	private StackResourceRegistry stackResourceRegistry;
-
 	@BeforeEach
 	public void insertTotalNumberOfMessagesIntoTheLoadTestQueue()
 			throws InterruptedException {
@@ -68,8 +64,8 @@ abstract class MessageListenerContainerAwsTest extends AbstractContainerTest {
 
 		for (int batch = 0; batch < TOTAL_BATCHES; batch++) {
 			this.taskExecutor.execute(new QueueMessageSender(
-					this.stackResourceRegistry.lookupPhysicalResourceId("LoadTestQueue"),
-					this.amazonSqsClient, countDownLatch));
+				amazonSqsClient.getQueueUrl("LoadTestQueue").getQueueUrl(),
+				this.amazonSqsClient, countDownLatch));
 		}
 
 		countDownLatch.await();
@@ -117,7 +113,7 @@ abstract class MessageListenerContainerAwsTest extends AbstractContainerTest {
 			List<SendMessageBatchRequestEntry> messages = new ArrayList<>();
 			for (int i = 0; i < BATCH_MESSAGE_SIZE; i++) {
 				messages.add(new SendMessageBatchRequestEntry(Integer.toString(i),
-						new StringBuilder().append("message_").append(i).toString()));
+					new StringBuilder().append("message_").append(i).toString()));
 			}
 			this.amazonSqs.sendMessageBatch(
 					new SendMessageBatchRequest(this.queueUrl, messages));

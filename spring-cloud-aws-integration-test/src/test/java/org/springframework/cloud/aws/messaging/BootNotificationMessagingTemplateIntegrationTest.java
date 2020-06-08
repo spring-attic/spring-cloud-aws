@@ -18,25 +18,24 @@ package org.springframework.cloud.aws.messaging;
 
 import com.amazonaws.services.sns.AmazonSNS;
 
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.aws.autoconfigure.messaging.MessagingAutoConfiguration;
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.cloud.aws.messaging.core.NotificationMessagingTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 
 /**
  * @author Alain Sahli
+ * @author Philip Riecks
  */
 @SpringBootTest(classes = BootNotificationMessagingTemplateIntegrationTest.NotificationMessagingTemplateIntegrationTestConfiguration.class)
 class BootNotificationMessagingTemplateIntegrationTest
 		extends NotificationMessagingTemplateIntegrationTest {
 
 	@Configuration
-	@EnableAutoConfiguration
-	@PropertySource({ "classpath:Integration-test-config.properties",
-			"file://${els.config.dir}/access.properties" })
+	@ImportAutoConfiguration({MessagingAutoConfiguration.class})
 	protected static class NotificationMessagingTemplateIntegrationTestConfiguration {
 
 		@Bean

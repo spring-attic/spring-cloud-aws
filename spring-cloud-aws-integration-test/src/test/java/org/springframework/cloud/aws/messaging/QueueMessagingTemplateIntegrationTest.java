@@ -33,9 +33,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Agim Emruli
  * @author Alain Sahli
+ * @author Philip Riecks
  */
 @ExtendWith(SpringExtension.class)
-abstract class QueueMessagingTemplateIntegrationTest {
+abstract class QueueMessagingTemplateIntegrationTest extends AbstractContainerTest {
 
 	private static final String JSON_QUEUE_NAME = "JsonQueue";
 

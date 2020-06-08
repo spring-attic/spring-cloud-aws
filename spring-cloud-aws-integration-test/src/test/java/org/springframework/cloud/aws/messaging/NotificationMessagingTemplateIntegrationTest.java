@@ -36,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Alain Sahli
+ * @author Philip Riecks
  */
 @ExtendWith(SpringExtension.class)
 public abstract class NotificationMessagingTemplateIntegrationTest

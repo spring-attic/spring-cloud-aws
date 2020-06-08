@@ -18,25 +18,24 @@ package org.springframework.cloud.aws.messaging;
 
 import java.util.concurrent.ThreadPoolExecutor;
 
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.aws.autoconfigure.messaging.MessagingAutoConfiguration;
 import org.springframework.cloud.aws.messaging.config.SimpleMessageListenerContainerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * @author Alain Sahli
+ * @author Philip Riecks
  */
 @SpringBootTest(classes = BootMessageListenerContainerAwsTest.MessageListenerContainerAwsTestConfiguration.class)
 class BootMessageListenerContainerAwsTest extends MessageListenerContainerAwsTest {
 
 	@Configuration
-	@EnableAutoConfiguration
-	@PropertySource({ "classpath:Integration-test-config.properties",
-			"file://${els.config.dir}/access.properties" })
+	@ImportAutoConfiguration({MessagingAutoConfiguration.class})
 	protected static class MessageListenerContainerAwsTestConfiguration {
 
 		@Bean
@@ -65,5 +64,4 @@ class BootMessageListenerContainerAwsTest extends MessageListenerContainerAwsTes
 		}
 
 	}
-
 }
