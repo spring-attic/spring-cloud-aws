@@ -21,17 +21,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.config.BeanExpressionContext;
 import org.springframework.beans.factory.config.BeanExpressionResolver;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.cloud.aws.messaging.core.SqsMessageHeaders;
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
 import org.springframework.cloud.aws.messaging.listener.support.AcknowledgmentHandlerMethodArgumentResolver;
 import org.springframework.cloud.aws.messaging.listener.support.VisibilityHandlerMethodArgumentResolver;
@@ -56,7 +53,6 @@ import org.springframework.messaging.handler.invocation.AbstractMethodMessageHan
 import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
 import org.springframework.messaging.handler.invocation.HandlerMethodReturnValueHandler;
 import org.springframework.messaging.handler.invocation.InvocableHandlerMethod;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.comparator.ComparableComparator;
 import org.springframework.validation.Errors;
@@ -108,19 +104,6 @@ public class QueueMessageHandler
 				new NoOpValidator()));
 
 		return resolvers;
-	}
-
-	public void handleSqsMessage(Message<?> message) throws MessagingException {
-		String destination = getDestination(message);
-		if (destination != null) {
-			String lookupDestination = getLookupDestination(destination);
-			if (lookupDestination != null) {
-				final Map<String, Object> newHeaders = new HashMap<>();
-				newHeaders.put("lookupDestination", lookupDestination);
-				message = MessageBuilder.createMessage(message.getPayload(), SqsMessageHeaders.createFrom((SqsMessageHeaders) message.getHeaders(), newHeaders));
-				handleMessageInternal(message, lookupDestination);
-			}
-		}
 	}
 
 	@Override

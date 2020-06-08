@@ -33,13 +33,17 @@ public class SqsHeadersMethodArgumentResolver extends HeadersMethodArgumentResol
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
-		return super.supportsParameter(parameter) || SqsMessageHeaders.class == parameter.getParameterType();
+		return super.supportsParameter(parameter)
+				|| SqsMessageHeaders.class == parameter.getParameterType();
 	}
 
 	@Override
-	public Object resolveArgument(MethodParameter parameter, Message<?> message) throws Exception {
-		final Class<? extends MessageHeaders> messageHeadersClass = message.getHeaders().getClass();
-		if (messageHeadersClass.getName().equals("org.springframework.messaging.support.MessageHeaderAccessor$MutableMessageHeaders")) {
+	public Object resolveArgument(MethodParameter parameter, Message<?> message)
+			throws Exception {
+		final Class<? extends MessageHeaders> messageHeadersClass = message.getHeaders()
+				.getClass();
+		if (messageHeadersClass.getName().equals(
+				"org.springframework.messaging.support.MessageHeaderAccessor$MutableMessageHeaders")) {
 			final Map<String, Object> headers = new HashMap<>();
 			for (String key : message.getHeaders().keySet()) {
 				headers.put(key, message.getHeaders().get(key));
@@ -50,4 +54,5 @@ public class SqsHeadersMethodArgumentResolver extends HeadersMethodArgumentResol
 			return super.resolveArgument(parameter, message);
 		}
 	}
+
 }

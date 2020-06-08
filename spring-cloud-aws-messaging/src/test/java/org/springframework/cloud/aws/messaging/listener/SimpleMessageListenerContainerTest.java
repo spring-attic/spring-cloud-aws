@@ -412,14 +412,17 @@ public class SimpleMessageListenerContainerTest {
 		when(sqs.receiveMessage(new ReceiveMessageRequest(
 				"https://messageExecutor_withMessageWithAttributes_shouldPassThemAsHeaders.amazonaws.com")
 						.withAttributeNames("All").withMessageAttributeNames("All")
-						.withMaxNumberOfMessages(10).withWaitTimeSeconds(20)))
-								.thenReturn(new ReceiveMessageResult().withMessages(
-										new Message().withBody("messageContent")
-												.withAttributes(new HashMap<String,String>() {{
-													put("SenderId","ID");
-													put("SentTimestamp","1000");
-													put("ApproximateFirstReceiveTimestamp","2000");
-												}})))
+						.withMaxNumberOfMessages(10).withWaitTimeSeconds(20))).thenReturn(
+								new ReceiveMessageResult().withMessages(new Message()
+										.withBody("messageContent")
+										.withAttributes(new HashMap<String, String>() {
+											{
+												put("SenderId", "ID");
+												put("SentTimestamp", "1000");
+												put("ApproximateFirstReceiveTimestamp",
+														"2000");
+											}
+										})))
 								.thenReturn(new ReceiveMessageResult());
 		when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class)))
 				.thenReturn(new GetQueueAttributesResult());
@@ -435,10 +438,9 @@ public class SimpleMessageListenerContainerTest {
 		assertThat(this.stringMessageCaptor.getValue().getHeaders().get("SenderId"))
 				.isEqualTo("ID");
 		assertThat(this.stringMessageCaptor.getValue().getHeaders().getTimestamp())
-			.isEqualTo(1000L);
-		assertThat(this.stringMessageCaptor.getValue().getHeaders().get("ApproximateFirstReceiveTimestamp"))
-			.isEqualTo("2000");
-
+				.isEqualTo(1000L);
+		assertThat(this.stringMessageCaptor.getValue().getHeaders()
+				.get("ApproximateFirstReceiveTimestamp")).isEqualTo("2000");
 
 	}
 

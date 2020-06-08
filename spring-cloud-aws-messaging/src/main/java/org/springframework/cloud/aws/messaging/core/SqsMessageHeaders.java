@@ -63,21 +63,23 @@ public class SqsMessageHeaders extends MessageHeaders {
 	 */
 	public static final String SQS_SENT_TIMESTAMP = "SentTimestamp";
 
-
 	public SqsMessageHeaders(Map<String, Object> headers) {
 		super(headers, getId(headers), getTimestamp(headers));
 	}
 
-	public static SqsMessageHeaders createFrom(SqsMessageHeaders other, Map<String,Object> newHeaders) {
-		for (String key : newHeaders.keySet())  {
+	public static SqsMessageHeaders createFrom(SqsMessageHeaders other,
+			Map<String, Object> newHeaders) {
+		for (String key : newHeaders.keySet()) {
 			other.getRawHeaders().put(key, newHeaders.get(key));
 		}
 		return other;
 	}
 
 	public Long getApproximateFirstReceiveTimestamp() {
-		return containsKey(SQS_APPROXIMATE_FIRST_RECEIVE_TIMESTAMP) ? Long.parseLong(Objects
-			.requireNonNull(get(SQS_APPROXIMATE_FIRST_RECEIVE_TIMESTAMP, String.class))) : null;
+		return containsKey(SQS_APPROXIMATE_FIRST_RECEIVE_TIMESTAMP)
+				? Long.parseLong(Objects.requireNonNull(
+						get(SQS_APPROXIMATE_FIRST_RECEIVE_TIMESTAMP, String.class)))
+				: null;
 	}
 
 	public Long getSentTimestamp() {
@@ -85,17 +87,21 @@ public class SqsMessageHeaders extends MessageHeaders {
 	}
 
 	public Long getApproximateReceiveCount() {
-		return containsKey(SQS_APPROXIMATE_RECEIVE_COUNT) ? Long.parseLong(Objects
-			.requireNonNull(get(SQS_APPROXIMATE_RECEIVE_COUNT, String.class))) : null;
+		return containsKey(SQS_APPROXIMATE_RECEIVE_COUNT)
+				? Long.parseLong(Objects
+						.requireNonNull(get(SQS_APPROXIMATE_RECEIVE_COUNT, String.class)))
+				: null;
 	}
 
 	private static Long getTimestamp(Map<String, Object> headers) {
-		return headers.containsKey(SQS_SENT_TIMESTAMP) ? Long.parseLong(Objects
-			.requireNonNull((String) headers.get(SQS_SENT_TIMESTAMP))) : null;
+		return headers.containsKey(SQS_SENT_TIMESTAMP)
+				? Long.parseLong(
+						Objects.requireNonNull((String) headers.get(SQS_SENT_TIMESTAMP)))
+				: null;
 	}
 
 	private static UUID getId(Map<String, Object> headers) {
-		return headers.containsKey(ID) ?  (UUID)headers.get(ID) : null;
+		return headers.containsKey(ID) ? (UUID) headers.get(ID) : null;
 	}
 
 }
