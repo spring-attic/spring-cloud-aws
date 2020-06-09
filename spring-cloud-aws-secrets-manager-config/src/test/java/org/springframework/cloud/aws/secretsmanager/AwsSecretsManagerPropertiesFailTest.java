@@ -106,7 +106,7 @@ public class AwsSecretsManagerPropertiesFailTest {
 	}
 
 	@Test
-	public void whenGivenDefaultContextNotInPattern_thenFail() {
+	public void  whenGivenProfileSeparatorNotInPattern_thenFail_thenFail() {
 
 		properties.put(prefix, "/secret");
 		properties.put(defaultContext, "app");

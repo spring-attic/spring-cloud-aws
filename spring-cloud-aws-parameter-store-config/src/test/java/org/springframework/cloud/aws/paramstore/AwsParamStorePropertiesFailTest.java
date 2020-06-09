@@ -24,6 +24,7 @@ public class AwsParamStorePropertiesFailTest {
 	private static String profileSeparator = AwsParamStoreProperties.CONFIG_PREFIX
 			.concat(".profile-separator");
 
+
 	@BeforeEach
 	public void setup() {
 		// create Spring Application dynamically
@@ -103,7 +104,7 @@ public class AwsParamStorePropertiesFailTest {
 	}
 
 	@Test
-	public void whenGivenDefaultContextNotInPattern_thenFail() {
+	public void whenGivenProfileSeparatorNotInPattern_thenFail() {
 
 		properties.put(prefix, "/secret");
 		properties.put(defaultContext, "app");
