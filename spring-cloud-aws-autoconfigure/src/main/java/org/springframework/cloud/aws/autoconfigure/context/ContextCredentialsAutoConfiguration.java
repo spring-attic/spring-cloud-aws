@@ -34,6 +34,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cloud.aws.autoconfigure.context.properties.AwsCredentialsProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
 import static org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils.CREDENTIALS_PROVIDER_BEAN_NAME;
 
@@ -52,28 +53,30 @@ public class ContextCredentialsAutoConfiguration {
 	@ConditionalOnMissingBean(name = CREDENTIALS_PROVIDER_BEAN_NAME)
 	public AWSCredentialsProvider awsCredentialsProvider(
 			AwsCredentialsProperties properties) {
-		if (properties.isUseDefaultAwsCredentialsChain()) {
+
+		List<AWSCredentialsProvider> providers = new ArrayList<>();
+
+		if (StringUtils.hasText(properties.getAccessKey())
+				&& StringUtils.hasText(properties.getSecretKey())) {
+			providers.add(new AWSStaticCredentialsProvider(new BasicAWSCredentials(
+					properties.getAccessKey(), properties.getSecretKey())));
+		}
+
+		if (properties.isInstanceProfile()) {
+			providers.add(new EC2ContainerCredentialsProviderWrapper());
+		}
+
+		if (properties.getProfileName() != null) {
+			providers.add(properties.getProfilePath() != null
+					? new ProfileCredentialsProvider(properties.getProfilePath(),
+							properties.getProfileName())
+					: new ProfileCredentialsProvider(properties.getProfileName()));
+		}
+
+		if (providers.isEmpty()) {
 			return new DefaultAWSCredentialsProviderChain();
 		}
 		else {
-			List<AWSCredentialsProvider> providers = new ArrayList<>();
-
-			if (properties.getAccessKey() != null && properties.getSecretKey() != null) {
-				providers.add(new AWSStaticCredentialsProvider(new BasicAWSCredentials(
-						properties.getAccessKey(), properties.getSecretKey())));
-			}
-
-			if (properties.isInstanceProfile()) {
-				providers.add(new EC2ContainerCredentialsProviderWrapper());
-			}
-
-			if (properties.getProfileName() != null) {
-				providers.add(properties.getProfilePath() != null
-						? new ProfileCredentialsProvider(properties.getProfilePath(),
-								properties.getProfileName())
-						: new ProfileCredentialsProvider(properties.getProfileName()));
-			}
-
 			return new AWSCredentialsProviderChain(providers);
 		}
 	}

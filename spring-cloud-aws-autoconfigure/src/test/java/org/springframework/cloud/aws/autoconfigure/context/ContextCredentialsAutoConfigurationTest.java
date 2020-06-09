@@ -99,13 +99,8 @@ public class ContextCredentialsAutoConfigurationTest {
 					@SuppressWarnings("unchecked")
 					List<CredentialsProvider> credentialsProviders = (List<CredentialsProvider>) ReflectionTestUtils
 							.getField(awsCredentialsProvider, "credentialsProviders");
-					assertThat(credentialsProviders).hasSize(3);
-					assertThat(credentialsProviders.get(0))
-							.isInstanceOf(AWSStaticCredentialsProvider.class);
-					assertThat(credentialsProviders.get(1))
-							.isInstanceOf(EC2ContainerCredentialsProviderWrapper.class);
-					assertThat(credentialsProviders.get(2))
-							.isInstanceOf(ProfileCredentialsProvider.class);
+					assertThat(credentialsProviders).hasSize(1)
+							.hasOnlyElementsOfType(AWSStaticCredentialsProvider.class);
 				});
 	}
 
@@ -122,11 +117,8 @@ public class ContextCredentialsAutoConfigurationTest {
 					@SuppressWarnings("unchecked")
 					List<CredentialsProvider> credentialsProviders = (List<CredentialsProvider>) ReflectionTestUtils
 							.getField(awsCredentialsProvider, "credentialsProviders");
-					assertThat(credentialsProviders).hasSize(2);
-					assertThat(credentialsProviders.get(0))
-							.isInstanceOf(EC2ContainerCredentialsProviderWrapper.class);
-					assertThat(credentialsProviders.get(1))
-							.isInstanceOf(ProfileCredentialsProvider.class);
+					assertThat(credentialsProviders).hasSize(1).hasOnlyElementsOfType(
+							EC2ContainerCredentialsProviderWrapper.class);
 				});
 	}
 
@@ -143,12 +135,9 @@ public class ContextCredentialsAutoConfigurationTest {
 					@SuppressWarnings("unchecked")
 					List<CredentialsProvider> credentialsProviders = (List<CredentialsProvider>) ReflectionTestUtils
 							.getField(awsCredentialsProvider, "credentialsProviders");
-					assertThat(credentialsProviders).hasSize(2);
-					assertThat(credentialsProviders.get(0))
-							.isInstanceOf(EC2ContainerCredentialsProviderWrapper.class);
-					assertThat(credentialsProviders.get(1))
-							.isInstanceOf(ProfileCredentialsProvider.class);
-					assertThat(ReflectionTestUtils.getField(credentialsProviders.get(1),
+					assertThat(credentialsProviders).hasSize(1)
+							.hasOnlyElementsOfType(ProfileCredentialsProvider.class);
+					assertThat(ReflectionTestUtils.getField(credentialsProviders.get(0),
 							"profileName")).isEqualTo("test");
 				});
 	}
@@ -172,14 +161,11 @@ public class ContextCredentialsAutoConfigurationTest {
 					@SuppressWarnings("unchecked")
 					List<CredentialsProvider> credentialsProviders = (List<CredentialsProvider>) ReflectionTestUtils
 							.getField(awsCredentialsProvider, "credentialsProviders");
-					assertThat(credentialsProviders).hasSize(2);
-					assertThat(credentialsProviders.get(0))
-							.isInstanceOf(EC2ContainerCredentialsProviderWrapper.class);
-					assertThat(credentialsProviders.get(1))
-							.isInstanceOf(ProfileCredentialsProvider.class);
+					assertThat(credentialsProviders).hasSize(1)
+							.hasOnlyElementsOfType(ProfileCredentialsProvider.class);
 
 					ProfileCredentialsProvider provider = (ProfileCredentialsProvider) credentialsProviders
-							.get(1);
+							.get(0);
 					assertThat(provider.getCredentials().getAWSAccessKeyId())
 							.isEqualTo("testAccessKey");
 					assertThat(provider.getCredentials().getAWSSecretKey())
