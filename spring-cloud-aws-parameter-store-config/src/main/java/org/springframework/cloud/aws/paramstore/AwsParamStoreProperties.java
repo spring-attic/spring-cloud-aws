@@ -23,7 +23,6 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
-
 /**
  * Configuration properties for the AWS Parameter Store integration. Mostly based on the
  * Spring Cloud Consul Configuration equivalent.
