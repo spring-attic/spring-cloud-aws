@@ -24,7 +24,6 @@ public class AwsParamStorePropertiesFailTest {
 	private static String profileSeparator = AwsParamStoreProperties.CONFIG_PREFIX
 			.concat(".profile-separator");
 
-
 	@BeforeEach
 	public void setup() {
 		// create Spring Application dynamically
@@ -36,7 +35,7 @@ public class AwsParamStorePropertiesFailTest {
 		ConfigurableEnvironment environment = new StandardEnvironment();
 		MutablePropertySources propertySources = environment.getPropertySources();
 		propertySources.addFirst(new PropertiesPropertySource(
-			"application-validation.properties", properties));
+				"application-validation.properties", properties));
 		application.setEnvironment(environment);
 	}
 

@@ -44,7 +44,8 @@ public class AwsSecretsManagerProperties implements Validator {
 	 */
 	private static final Pattern prefixPattern = Pattern.compile("(/[a-zA-Z0-9.\\-_]+)*");
 
-	private static final Pattern profileSeparatorPatten = Pattern.compile("[a-zA-Z0-9.\\-_]+");
+	private static final Pattern profileSeparatorPatten = Pattern
+			.compile("[a-zA-Z0-9.\\-_]+");
 
 	/**
 	 * Prefix indicating first level for every property. Value must start with a forward
@@ -75,24 +76,27 @@ public class AwsSecretsManagerProperties implements Validator {
 
 	@Override
 	public void validate(Object target, Errors errors) {
-		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "prefix", "field.required",new Object[]{prefix},
-			"prefix should not be empty or null.");
+		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "prefix", "field.required",
+				new Object[] { prefix }, "prefix should not be empty or null.");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "defaultContext",
-			"field.required",new Object[]{defaultContext}, "defaultContext should not be empty or null.");
+				"field.required", new Object[] { defaultContext },
+				"defaultContext should not be empty or null.");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "profileSeparator",
-			"field.required",new Object[]{profileSeparator}, "profileSeparator should not be empty or null.");
+				"field.required", new Object[] { profileSeparator },
+				"profileSeparator should not be empty or null.");
 
 		AwsSecretsManagerProperties awsSecretsManagerProperties = (AwsSecretsManagerProperties) target;
 
 		if (!prefixPattern.matcher(awsSecretsManagerProperties.getPrefix()).matches()) {
-			errors.rejectValue("prefix", "prefix.pattern.wrong",new Object[]{prefix},
-				"The prefix must have pattern of:  " + prefixPattern.toString());
+			errors.rejectValue("prefix", "prefix.pattern.wrong", new Object[] { prefix },
+					"The prefix must have pattern of:  " + prefixPattern.toString());
 		}
 		if (!profileSeparatorPatten
-			.matcher(awsSecretsManagerProperties.getProfileSeparator()).matches()) {
-			errors.rejectValue("profileSeparator", "separator.pattern.wrong",new Object[]{profileSeparator},
-				"The profileSeparator must have pattern of:  "
-					+ profileSeparatorPatten.toString());
+				.matcher(awsSecretsManagerProperties.getProfileSeparator()).matches()) {
+			errors.rejectValue("profileSeparator", "separator.pattern.wrong",
+					new Object[] { profileSeparator },
+					"The profileSeparator must have pattern of:  "
+							+ profileSeparatorPatten.toString());
 		}
 	}
 

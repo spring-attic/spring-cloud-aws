@@ -6,11 +6,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(properties = {
-	AwsSecretsManagerProperties.CONFIG_PREFIX+ ".prefix=/sec",
-	AwsSecretsManagerProperties.CONFIG_PREFIX+ ".default-context=app",
-	AwsSecretsManagerProperties.CONFIG_PREFIX+ ".profile-separator=."
-}, classes = {AwsSecretsManagerConfiguration.class})
+@SpringBootTest(properties = { AwsSecretsManagerProperties.CONFIG_PREFIX + ".prefix=/sec",
+		AwsSecretsManagerProperties.CONFIG_PREFIX + ".default-context=app",
+		AwsSecretsManagerProperties.CONFIG_PREFIX + ".profile-separator=." }, classes = {
+				AwsSecretsManagerConfiguration.class })
 public class AwsSecretsManagerPropertiesSuccessTest {
 
 	@Autowired
