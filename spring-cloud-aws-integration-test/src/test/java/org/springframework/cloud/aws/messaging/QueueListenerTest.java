@@ -90,6 +90,7 @@ public abstract class QueueListenerTest extends AbstractContainerTest {
 		assertNotNull(this.messageListener.getApproximateFirstReceiveTimestamp());
 		assertNotNull(this.messageListener.getSentTimestamp());
 		assertNotNull(this.messageListener.getTimestamp());
+		assertEquals(this.messageListener.getTimestamp(), this.messageListener.getSentTimestamp());
 	}
 
 	@Test
@@ -210,7 +211,7 @@ public abstract class QueueListenerTest extends AbstractContainerTest {
 			this.approximateReceiveCount = asSqsHeaders.getApproximateReceiveCount();
 			this.approximateFirstReceiveTimestamp = asSqsHeaders
 					.getApproximateFirstReceiveTimestamp();
-			this.timestamp = asSqsHeaders.getSentTimestamp();
+			this.timestamp = asSqsHeaders.getTimestamp();
 			this.sentTimestamp = asSqsHeaders.getSentTimestamp();
 			this.getCountDownLatch().countDown();
 		}

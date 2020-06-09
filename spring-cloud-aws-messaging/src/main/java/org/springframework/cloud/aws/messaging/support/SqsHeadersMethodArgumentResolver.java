@@ -16,12 +16,13 @@
 
 package org.springframework.cloud.aws.messaging.support;
 
+import java.util.Map;
+import java.util.Objects;
+
 import org.springframework.cloud.aws.messaging.core.SqsMessageHeaders;
 import org.springframework.core.MethodParameter;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.support.HeadersMethodArgumentResolver;
-import org.springframework.messaging.support.MessageHeaderAccessor;
 
 /**
  * @author Wojciech Mąka
@@ -29,27 +30,30 @@ import org.springframework.messaging.support.MessageHeaderAccessor;
  */
 public class SqsHeadersMethodArgumentResolver extends HeadersMethodArgumentResolver {
 
-	private static final String MUTABLE_MESSAGE_HEADERS_NESTED_CLASS_NAME = "MutableMessageHeaders";
-
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return super.supportsParameter(parameter)
 				|| SqsMessageHeaders.class == parameter.getParameterType();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object resolveArgument(MethodParameter parameter, Message<?> message)
 			throws Exception {
-		final MessageHeaders messageHeaders = message.getHeaders();
-		final Class<? extends MessageHeaders> messageHeadersClass = messageHeaders
-				.getClass();
-		if (messageHeadersClass.getDeclaringClass().equals(MessageHeaderAccessor.class)
-				&& messageHeadersClass.getName()
-						.endsWith(MUTABLE_MESSAGE_HEADERS_NESTED_CLASS_NAME)) {
-			return new SqsMessageHeaders(messageHeaders);
+		final Object resolvedParameter = Objects
+				.requireNonNull(super.resolveArgument(parameter, message));
+		if (Map.class.isAssignableFrom(resolvedParameter.getClass())
+				&& SqsMessageHeaders.class != resolvedParameter.getClass()) {
+			return new SqsMessageHeaders((Map<String, Object>) resolvedParameter);
 		}
 		else {
-			return super.resolveArgument(parameter, message);
+			// Here according to source code in HeadersMethodArgumentResolver we can have
+			// MessageHeadersAccessor.
+			// Return everything which cannot be wrapped in SqsMessageHeaders due to
+			// handler method signature,
+			// or if resolved parameter already is SqsMessageHeader - do not wrap it
+			// again.
+			return resolvedParameter;
 		}
 	}
 
