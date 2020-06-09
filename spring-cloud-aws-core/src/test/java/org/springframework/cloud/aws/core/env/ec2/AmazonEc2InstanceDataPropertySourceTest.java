@@ -27,7 +27,7 @@ import com.amazonaws.util.EC2MetadataUtils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import org.junit.AfterClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -55,7 +55,7 @@ public class AmazonEc2InstanceDataPropertySourceTest {
 				"http://" + address.getHostName() + ":" + address.getPort());
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void shutdownHttpServer() throws Exception {
 		if (httpServer != null) {
 			httpServer.stop(10);

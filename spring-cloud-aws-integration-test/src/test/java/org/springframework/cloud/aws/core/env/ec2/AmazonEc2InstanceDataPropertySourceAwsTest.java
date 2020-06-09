@@ -66,7 +66,7 @@ public abstract class AmazonEc2InstanceDataPropertySourceAwsTest {
 		restContextInstanceDataCondition();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void shutdownHttpServer() throws Exception {
 		if (httpServer != null) {
 			httpServer.stop(10);

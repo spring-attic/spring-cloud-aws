@@ -26,7 +26,7 @@ import com.amazonaws.services.elasticache.model.DescribeCacheClustersResult;
 import com.amazonaws.services.elasticache.model.Endpoint;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
-import org.junit.AfterClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,12 +49,12 @@ public class ElastiCacheAutoConfigurationTest {
 
 	private AnnotationConfigApplicationContext context;
 
-	@AfterClass
+	@AfterAll
 	public static void shutDownHttpServer() {
 		MetaDataServer.shutdownHttpServer();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void shutdownCacheServer() throws Exception {
 		TestMemcacheServer.stopServer();
 	}
