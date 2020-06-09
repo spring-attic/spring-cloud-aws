@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,14 +65,6 @@ public class SqsMessageHeaders extends MessageHeaders {
 
 	public SqsMessageHeaders(Map<String, Object> headers) {
 		super(headers, getId(headers), getTimestamp(headers));
-	}
-
-	public static SqsMessageHeaders createFrom(SqsMessageHeaders other,
-			Map<String, Object> newHeaders) {
-		for (String key : newHeaders.keySet()) {
-			other.getRawHeaders().put(key, newHeaders.get(key));
-		}
-		return other;
 	}
 
 	public Long getApproximateFirstReceiveTimestamp() {

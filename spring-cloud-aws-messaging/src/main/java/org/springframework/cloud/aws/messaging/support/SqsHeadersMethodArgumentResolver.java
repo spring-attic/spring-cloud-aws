@@ -16,20 +16,20 @@
 
 package org.springframework.cloud.aws.messaging.support;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.cloud.aws.messaging.core.SqsMessageHeaders;
 import org.springframework.core.MethodParameter;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.support.HeadersMethodArgumentResolver;
+import org.springframework.messaging.support.MessageHeaderAccessor;
 
 /**
  * @author Wojciech Mąka
  * @since 2.2.3
  */
 public class SqsHeadersMethodArgumentResolver extends HeadersMethodArgumentResolver {
+
+	private static final String MUTABLE_MESSAGE_HEADERS_NESTED_CLASS_NAME = "MutableMessageHeaders";
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
@@ -40,15 +40,13 @@ public class SqsHeadersMethodArgumentResolver extends HeadersMethodArgumentResol
 	@Override
 	public Object resolveArgument(MethodParameter parameter, Message<?> message)
 			throws Exception {
-		final Class<? extends MessageHeaders> messageHeadersClass = message.getHeaders()
+		final MessageHeaders messageHeaders = message.getHeaders();
+		final Class<? extends MessageHeaders> messageHeadersClass = messageHeaders
 				.getClass();
-		if (messageHeadersClass.getName().equals(
-				"org.springframework.messaging.support.MessageHeaderAccessor$MutableMessageHeaders")) {
-			final Map<String, Object> headers = new HashMap<>();
-			for (String key : message.getHeaders().keySet()) {
-				headers.put(key, message.getHeaders().get(key));
-			}
-			return new SqsMessageHeaders(headers);
+		if (messageHeadersClass.getDeclaringClass().equals(MessageHeaderAccessor.class)
+				&& messageHeadersClass.getName()
+						.endsWith(MUTABLE_MESSAGE_HEADERS_NESTED_CLASS_NAME)) {
+			return new SqsMessageHeaders(messageHeaders);
 		}
 		else {
 			return super.resolveArgument(parameter, message);
