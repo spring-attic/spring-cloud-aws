@@ -16,11 +16,10 @@
 
 package org.springframework.cloud.aws.core.io.s3;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.cloud.aws.core.io.s3.SimpleStorageNameUtils.getBucketNameFromLocation;
 import static org.springframework.cloud.aws.core.io.s3.SimpleStorageNameUtils.getLocationForBucketAndObject;
 import static org.springframework.cloud.aws.core.io.s3.SimpleStorageNameUtils.getLocationForBucketAndObjectAndVersionId;
@@ -34,9 +33,6 @@ import static org.springframework.cloud.aws.core.io.s3.SimpleStorageNameUtils.st
  */
 public class SimpleStorageNameUtilsTest {
 
-	@Rule
-	public final ExpectedException expectedException = ExpectedException.none();
-
 	@Test
 	public void testIsSimpleStorageResource() throws Exception {
 		assertThat(isSimpleStorageResource("s3://foo/bar")).isTrue();
@@ -47,9 +43,9 @@ public class SimpleStorageNameUtilsTest {
 
 	@Test
 	public void testIsSimpleStorageResourceNUll() throws Exception {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage(" must not be null");
-		isSimpleStorageResource(null);
+		assertThatThrownBy(() -> isSimpleStorageResource(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining(" must not be null");
 	}
 
 	@Test
@@ -66,37 +62,37 @@ public class SimpleStorageNameUtilsTest {
 
 	@Test
 	public void testGetBucketNameNotNull() throws Exception {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage(" must not be null");
-		getBucketNameFromLocation(null);
+		assertThatThrownBy(() -> getBucketNameFromLocation(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining(" must not be null");
 	}
 
 	@Test
 	public void testNonLocationForBucket() throws Exception {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("not a valid S3 location");
-		getBucketNameFromLocation("foo://fo*");
+		assertThatThrownBy(() -> getBucketNameFromLocation("foo://fo*"))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("not a valid S3 location");
 	}
 
 	@Test
 	public void testNonValidBucket() throws Exception {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("valid bucket name");
-		getBucketNameFromLocation("s3://fo*");
+		assertThatThrownBy(() -> getBucketNameFromLocation("s3://fo*"))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("valid bucket name");
 	}
 
 	@Test
 	public void testEmptyValidBucket() throws Exception {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("valid bucket name");
-		getBucketNameFromLocation("s3:///");
+		assertThatThrownBy(() -> getBucketNameFromLocation("s3:///"))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("valid bucket name");
 	}
 
 	@Test
 	public void testGetObjectNameNull() throws Exception {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage(" must not be null");
-		getObjectNameFromLocation(null);
+		assertThatThrownBy(() -> getObjectNameFromLocation(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining(" must not be null");
 	}
 
 	@Test
@@ -129,16 +125,16 @@ public class SimpleStorageNameUtilsTest {
 
 	@Test
 	public void testEmptyValidBucketForLocation() throws Exception {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("valid bucket name");
-		getObjectNameFromLocation("s3:///");
+		assertThatThrownBy(() -> getObjectNameFromLocation("s3:///"))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("valid bucket name");
 	}
 
 	@Test
 	public void testEmptyValidBucketForLocationWithKey() throws Exception {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("valid bucket name");
-		getObjectNameFromLocation("s3:///foo");
+		assertThatThrownBy(() -> getObjectNameFromLocation("s3:///foo"))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("valid bucket name");
 	}
 
 	@Test
@@ -173,9 +169,9 @@ public class SimpleStorageNameUtilsTest {
 
 	@Test
 	public void testStripProtocolNull() throws Exception {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage(" must not be null");
-		stripProtocol(null);
+		assertThatThrownBy(() -> stripProtocol(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining(" must not be null");
 	}
 
 }

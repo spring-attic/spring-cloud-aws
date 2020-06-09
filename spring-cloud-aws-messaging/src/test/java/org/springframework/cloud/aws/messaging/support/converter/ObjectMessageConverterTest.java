@@ -22,9 +22,7 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
 
 import org.apache.commons.codec.binary.Base64;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
@@ -34,14 +32,12 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.util.MimeType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  *
  */
 public class ObjectMessageConverterTest {
-
-	@Rule
-	public final ExpectedException expectedException = ExpectedException.none();
 
 	private static MessageHeaders getMessageHeaders(String charsetName) {
 		return new MessageHeaders(Collections.singletonMap(MessageHeaders.CONTENT_TYPE,
@@ -78,29 +74,29 @@ public class ObjectMessageConverterTest {
 		assertThat(result.getContent()).isEqualTo(content);
 	}
 
-	@Test(expected = UnsupportedCharsetException.class)
+	@Test
 	public void testWithWrongCharset() throws Exception {
-		// noinspection ResultOfObjectAllocationIgnored
-		new ObjectMessageConverter("someUnsupportedEncoding");
+		assertThatThrownBy(() -> new ObjectMessageConverter("someUnsupportedEncoding"))
+				.isInstanceOf(UnsupportedCharsetException.class);
 	}
 
 	@Test
 	public void testPayloadIsNotAValidBase64Payload() throws Exception {
-		this.expectedException.expect(MessageConversionException.class);
-		this.expectedException.expectMessage("not a valid base64 encoded stream");
 
 		ObjectMessageConverter messageConverter = new ObjectMessageConverter();
-		messageConverter.fromMessage(MessageBuilder.withPayload("test€").build(), null);
+		assertThatThrownBy(() -> messageConverter
+				.fromMessage(MessageBuilder.withPayload("test€").build(), null))
+						.isInstanceOf(MessageConversionException.class)
+						.hasMessageContaining("not a valid base64 encoded stream");
 	}
 
 	@Test
 	public void testPayloadIsNotAValidObjectStream() throws Exception {
-		this.expectedException.expect(MessageConversionException.class);
-		this.expectedException.expectMessage("Error reading payload");
-
 		ObjectMessageConverter messageConverter = new ObjectMessageConverter();
-		messageConverter.fromMessage(MessageBuilder.withPayload("someStream").build(),
-				null);
+		assertThatThrownBy(() -> messageConverter
+				.fromMessage(MessageBuilder.withPayload("someStream").build(), null))
+						.isInstanceOf(MessageConversionException.class)
+						.hasMessageContaining("Error reading payload");
 	}
 
 	private static final class MySerializableClass implements Serializable {

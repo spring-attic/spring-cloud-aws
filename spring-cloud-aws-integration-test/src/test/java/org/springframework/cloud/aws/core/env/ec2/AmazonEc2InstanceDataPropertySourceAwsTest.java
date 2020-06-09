@@ -33,7 +33,7 @@ import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.aws.context.support.env.AwsCloudEnvironmentCheckUtils;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.SocketUtils;
 
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Agim Emruli
  */
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public abstract class AmazonEc2InstanceDataPropertySourceAwsTest {
 
 	private static final int HTTP_SERVER_TEST_PORT = SocketUtils.findAvailableTcpPort();

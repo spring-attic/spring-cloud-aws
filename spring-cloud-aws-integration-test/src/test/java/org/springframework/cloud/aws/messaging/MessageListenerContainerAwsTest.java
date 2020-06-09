@@ -34,12 +34,12 @@ import org.springframework.cloud.aws.core.env.stack.StackResourceRegistry;
 import org.springframework.cloud.aws.core.support.documentation.RuntimeUse;
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public abstract class MessageListenerContainerAwsTest extends AbstractContainerTest {
 
 	private static final int BATCH_MESSAGE_SIZE = 10;

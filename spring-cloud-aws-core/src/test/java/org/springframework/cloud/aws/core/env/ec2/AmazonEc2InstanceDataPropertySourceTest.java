@@ -27,9 +27,9 @@ import com.amazonaws.util.EC2MetadataUtils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import org.junit.AfterClass;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterEachClass;
-import org.junit.jupiter.api.BeforeEachClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.util.SocketUtils;

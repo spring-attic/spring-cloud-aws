@@ -22,13 +22,12 @@ import com.amazonaws.services.sns.model.CreateTopicResult;
 import com.amazonaws.services.sns.model.ListTopicsRequest;
 import com.amazonaws.services.sns.model.ListTopicsResult;
 import com.amazonaws.services.sns.model.Topic;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,18 +37,12 @@ import static org.mockito.Mockito.when;
  */
 public class DynamicTopicDestinationResolverTest {
 
-	@Rule
-	public final ExpectedException expectedException = ExpectedException.none();
-
 	// @checkstyle:off
 	@Test
 	public void resolveDestination_withNonExistentTopicAndWithoutMarkerReturnedOnListTopics_shouldThrowIllegalArgumentException()
 			throws Exception {
 		// @checkstyle:on
 		// Arrange
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("No topic found for name :'test'");
-
 		AmazonSNS sns = mock(AmazonSNS.class);
 		when(sns.listTopics(new ListTopicsRequest(null)))
 				.thenReturn(new ListTopicsResult());
@@ -57,8 +50,10 @@ public class DynamicTopicDestinationResolverTest {
 		DynamicTopicDestinationResolver resolver = new DynamicTopicDestinationResolver(
 				sns);
 
-		// Act
-		resolver.resolveDestination("test");
+		// Assert
+		assertThatThrownBy(() -> resolver.resolveDestination("test"))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("No topic found for name :'test'");
 	}
 
 	// @checkstyle:off
@@ -67,9 +62,6 @@ public class DynamicTopicDestinationResolverTest {
 			// @checkstyle:on
 			throws Exception {
 		// Arrange
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("No topic found for name :'test'");
-
 		AmazonSNS sns = mock(AmazonSNS.class);
 		when(sns.listTopics(new ListTopicsRequest(null)))
 				.thenReturn(new ListTopicsResult().withNextToken("foo"));
@@ -79,8 +71,10 @@ public class DynamicTopicDestinationResolverTest {
 		DynamicTopicDestinationResolver resolver = new DynamicTopicDestinationResolver(
 				sns);
 
-		// Act
-		resolver.resolveDestination("test");
+		// Assert
+		assertThatThrownBy(() -> resolver.resolveDestination("test"))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("No topic found for name :'test'");
 	}
 
 	@Test

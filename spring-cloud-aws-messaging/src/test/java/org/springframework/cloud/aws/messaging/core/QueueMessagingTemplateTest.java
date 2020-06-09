@@ -41,6 +41,7 @@ import org.springframework.messaging.core.DestinationResolver;
 import org.springframework.messaging.support.MessageBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -51,7 +52,7 @@ import static org.mockito.Mockito.when;
  */
 public class QueueMessagingTemplateTest {
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void send_withoutDefaultDestination_throwAnException() {
 		AmazonSQSAsync amazonSqs = createAmazonSqs();
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
@@ -59,7 +60,8 @@ public class QueueMessagingTemplateTest {
 
 		Message<String> stringMessage = MessageBuilder.withPayload("message content")
 				.build();
-		queueMessagingTemplate.send(stringMessage);
+		assertThatThrownBy(() -> queueMessagingTemplate.send(stringMessage))
+				.isInstanceOf(IllegalStateException.class);
 	}
 
 	@Test
@@ -116,13 +118,14 @@ public class QueueMessagingTemplateTest {
 				.isEqualTo("MYQUEUE");
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void receive_withoutDefaultDestination_throwsAnException() {
 		AmazonSQSAsync amazonSqs = createAmazonSqs();
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
 				amazonSqs);
 
-		queueMessagingTemplate.receive();
+		assertThatThrownBy(queueMessagingTemplate::receive)
+				.isInstanceOf(IllegalStateException.class);
 	}
 
 	@Test
@@ -156,13 +159,14 @@ public class QueueMessagingTemplateTest {
 				.isEqualTo("https://queue-url.com");
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void receiveAndConvert_withoutDefaultDestination_throwsAnException() {
 		AmazonSQSAsync amazonSqs = createAmazonSqs();
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
 				amazonSqs);
 
-		queueMessagingTemplate.receiveAndConvert(String.class);
+		assertThatThrownBy(() -> queueMessagingTemplate.receiveAndConvert(String.class))
+				.isInstanceOf(IllegalStateException.class);
 	}
 
 	@Test

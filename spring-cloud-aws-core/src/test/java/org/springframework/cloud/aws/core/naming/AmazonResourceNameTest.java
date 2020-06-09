@@ -18,11 +18,10 @@ package org.springframework.cloud.aws.core.naming;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.cloud.aws.core.naming.AmazonResourceName.Builder;
 import static org.springframework.cloud.aws.core.naming.AmazonResourceName.fromString;
 
@@ -36,29 +35,25 @@ import static org.springframework.cloud.aws.core.naming.AmazonResourceName.fromS
  */
 public class AmazonResourceNameTest {
 
-	@Rule
-	public final ExpectedException expectedException = ExpectedException.none();
-
 	@Test
 	public void testNameIsNull() {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("name must not be null");
-		fromString(null);
+		assertThatThrownBy(() -> fromString(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("name must not be null");
 	}
 
 	@Test
 	public void testWithoutArnQualifier() {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException
-				.expectMessage("must have an arn qualifier at the beginning");
-		fromString("foo:aws:iam::123456789012:David");
+		assertThatThrownBy(() -> fromString("foo:aws:iam::123456789012:David"))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("must have an arn qualifier at the beginning");
 	}
 
 	@Test
 	public void testWithoutAwsQualifier() {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("must have a valid partition name");
-		fromString("arn:axs:iam::123456789012:David");
+		assertThatThrownBy(() -> fromString("arn:axs:iam::123456789012:David"))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("must have a valid partition name");
 	}
 
 	@Test

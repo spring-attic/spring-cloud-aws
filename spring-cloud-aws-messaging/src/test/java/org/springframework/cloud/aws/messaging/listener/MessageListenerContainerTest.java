@@ -25,9 +25,7 @@ import com.amazonaws.services.sqs.model.GetQueueAttributesRequest;
 import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
 import com.amazonaws.services.sqs.model.GetQueueUrlRequest;
 import com.amazonaws.services.sqs.model.GetQueueUrlResult;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 
@@ -40,6 +38,7 @@ import org.springframework.messaging.core.DestinationResolutionException;
 import org.springframework.messaging.core.DestinationResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -54,9 +53,6 @@ import static org.mockito.Mockito.withSettings;
  */
 public class MessageListenerContainerTest {
 
-	@Rule
-	public final ExpectedException expectedException = ExpectedException.none();
-
 	@Test
 	public void testAfterPropertiesSetIsSettingActiveFlag() throws Exception {
 		AbstractMessageListenerContainer container = new StubAbstractMessageListenerContainer();
@@ -70,25 +66,23 @@ public class MessageListenerContainerTest {
 
 	@Test
 	public void testAmazonSqsNullThrowsException() throws Exception {
-		this.expectedException.expect(IllegalStateException.class);
-		this.expectedException.expectMessage("amazonSqs must not be null");
-
 		AbstractMessageListenerContainer container = new StubAbstractMessageListenerContainer();
 		container.setMessageHandler(mock(QueueMessageHandler.class));
 
-		container.afterPropertiesSet();
+		assertThatThrownBy(container::afterPropertiesSet)
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("amazonSqs must not be null");
 	}
 
 	@Test
 	public void testMessageHandlerNullThrowsException() throws Exception {
-		this.expectedException.expect(IllegalStateException.class);
-		this.expectedException.expectMessage("messageHandler must not be null");
-
 		AbstractMessageListenerContainer container = new StubAbstractMessageListenerContainer();
 
 		container.setAmazonSqs(mock(AmazonSQSAsync.class, withSettings().stubOnly()));
 
-		container.afterPropertiesSet();
+		assertThatThrownBy(container::afterPropertiesSet)
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("messageHandler must not be null");
 	}
 
 	@Test

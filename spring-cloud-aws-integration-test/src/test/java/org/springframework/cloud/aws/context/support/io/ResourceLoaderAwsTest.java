@@ -46,7 +46,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.WritableResource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.FileCopyUtils;
 
@@ -58,7 +58,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Agim Emruli
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public abstract class ResourceLoaderAwsTest {
 
 	private static final String S3_PREFIX = "s3://";

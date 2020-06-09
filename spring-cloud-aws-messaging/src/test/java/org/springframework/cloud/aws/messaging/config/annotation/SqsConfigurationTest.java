@@ -25,9 +25,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClient;
 import com.amazonaws.services.sqs.buffered.AmazonSQSBufferedAsyncClient;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.cloud.aws.context.config.annotation.EnableContextRegion;
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
@@ -56,9 +54,6 @@ import static org.mockito.Mockito.withSettings;
  * @author Alain Sahli
  */
 public class SqsConfigurationTest {
-
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
 
 	@Test
 	public void configuration_withMinimalBeans_shouldStartSqsListenerContainer()

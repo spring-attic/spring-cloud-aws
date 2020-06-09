@@ -34,7 +34,7 @@ import org.springframework.cloud.aws.core.env.stack.StackResourceRegistry;
 import org.springframework.cloud.aws.core.io.s3.PathMatchingSimpleStorageResourcePatternResolver;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.Assert.assertEquals;
 
@@ -44,7 +44,7 @@ import static org.junit.Assert.assertEquals;
  * @since 1.0
  */
 @SuppressWarnings("SpringJavaAutowiringInspection")
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public abstract class PathMatchingResourceLoaderAwsTest {
 
 	private static final List<String> FILES_FOR_HIERARCHY = Arrays.asList(

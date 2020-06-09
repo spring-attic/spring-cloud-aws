@@ -29,6 +29,7 @@ import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.messaging.core.DestinationResolutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -149,9 +150,10 @@ public class DynamicQueueUrlDestinationResolverTest {
 		assertThat(physicalResourceId).isEqualTo("http://queue.com");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void instantiation_withNullAmazonClient_shouldThrowAnError() throws Exception {
-		new DynamicQueueUrlDestinationResolver(null, null);
+		assertThatThrownBy(() -> new DynamicQueueUrlDestinationResolver(null, null))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 }

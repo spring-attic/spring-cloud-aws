@@ -24,9 +24,7 @@ import com.amazonaws.services.rds.model.DBInstanceNotFoundException;
 import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
 import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
 import com.amazonaws.services.rds.model.Endpoint;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.cloud.aws.jdbc.datasource.DataSourceFactory;
@@ -34,6 +32,7 @@ import org.springframework.cloud.aws.jdbc.datasource.DataSourceInformation;
 import org.springframework.cloud.aws.jdbc.datasource.support.DatabaseType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -47,16 +46,10 @@ import static org.mockito.Mockito.when;
  */
 public class AmazonRdsDataSourceFactoryBeanTest {
 
-	@Rule
-	public final ExpectedException expectedException = ExpectedException.none();
-
 	@Test
 	public void afterPropertiesSet_noInstanceFound_reportsIllegalStateException()
 			throws Exception {
 		// Arrange
-		this.expectedException.expect(IllegalStateException.class);
-		this.expectedException.expectMessage("No database instance with id:'test'");
-
 		AmazonRDS amazonRDS = mock(AmazonRDS.class);
 		when(amazonRDS.describeDBInstances(
 				new DescribeDBInstancesRequest().withDBInstanceIdentifier("test")))
@@ -65,10 +58,10 @@ public class AmazonRdsDataSourceFactoryBeanTest {
 		AmazonRdsDataSourceFactoryBean amazonRdsDataSourceFactoryBean = new AmazonRdsDataSourceFactoryBean(
 				amazonRDS, "test", "foo");
 
-		// Act
-		amazonRdsDataSourceFactoryBean.afterPropertiesSet();
-
 		// Assert
+		assertThatThrownBy(amazonRdsDataSourceFactoryBean::afterPropertiesSet)
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessageContaining("No database instance with id:'test'");
 	}
 
 	@Test

@@ -18,12 +18,10 @@ package org.springframework.cloud.aws.messaging.listener;
 
 import java.lang.reflect.Method;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.cloud.aws.core.support.documentation.RuntimeUse;
@@ -36,6 +34,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.mock.env.MockPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
@@ -45,11 +44,8 @@ import static org.mockito.Mockito.verify;
  * @author Alain Sahli
  * @author Agim Emruli
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SendToHandlerMethodReturnValueHandlerTest {
-
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
 
 	@Mock
 	private DestinationResolvingMessageSendingOperations<?> messageTemplate;
@@ -114,19 +110,18 @@ public class SendToHandlerMethodReturnValueHandlerTest {
 	public void handleReturnValue_withNullMessageTemplate_exceptionIsThrown()
 			throws Exception {
 		// Arrange
-		this.expectedException.expect(IllegalStateException.class);
-		this.expectedException.expectMessage(
-				"A messageTemplate must be set to handle the return value.");
-
 		Method validSendToMethod = this.getClass().getDeclaredMethod("validSendToMethod");
 		MethodParameter methodParameter = new MethodParameter(validSendToMethod, -1);
 		SendToHandlerMethodReturnValueHandler sendToHandlerMethodReturnValueHandler;
 		sendToHandlerMethodReturnValueHandler = new SendToHandlerMethodReturnValueHandler(
 				null);
 
-		// Act
-		sendToHandlerMethodReturnValueHandler.handleReturnValue("Return me!",
-				methodParameter, MessageBuilder.withPayload("Nothing").build());
+		// Assert
+		assertThatThrownBy(() -> sendToHandlerMethodReturnValueHandler.handleReturnValue(
+				"Return me!", methodParameter,
+				MessageBuilder.withPayload("Nothing").build()))
+						.isInstanceOf(IllegalStateException.class).hasMessage(
+								"A messageTemplate must be set to handle the return value.");
 	}
 
 	@Test

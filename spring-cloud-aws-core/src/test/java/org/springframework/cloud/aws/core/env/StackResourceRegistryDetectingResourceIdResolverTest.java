@@ -19,21 +19,17 @@ package org.springframework.cloud.aws.core.env;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.cloud.aws.core.env.stack.StackResourceRegistry;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class StackResourceRegistryDetectingResourceIdResolverTest {
-
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
 
 	private static ListableBeanFactory makeListableBeanFactory(
 			StackResourceRegistry... stackResourceRegistries) {
@@ -135,11 +131,9 @@ public class StackResourceRegistryDetectingResourceIdResolverTest {
 				makeStackResourceRegistry(), makeStackResourceRegistry()));
 
 		// Assert
-		this.expectedException.expect(IllegalStateException.class);
-		this.expectedException.expectMessage("Multiple stack resource registries found");
-
-		// Act
-		resourceIdResolver.afterPropertiesSet();
+		assertThatThrownBy(resourceIdResolver::afterPropertiesSet)
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("Multiple stack resource registries found");
 	}
 
 }

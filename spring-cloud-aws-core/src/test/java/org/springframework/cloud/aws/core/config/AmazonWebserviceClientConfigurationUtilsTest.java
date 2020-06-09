@@ -21,9 +21,7 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -31,14 +29,12 @@ import org.springframework.cloud.aws.core.credentials.CredentialsProviderFactory
 import org.springframework.cloud.aws.core.region.StaticRegionProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Agim Emruli
  */
 public class AmazonWebserviceClientConfigurationUtilsTest {
-
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
 
 	@Test
 	public void registerAmazonWebserviceClient_withMinimalConfiguration_returnsDefaultBeanDefinition()
@@ -124,25 +120,20 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 	public void registerAmazonWebserviceClient_withCustomRegionAndRegionProviderConfigured_reportsError()
 			throws Exception {
 		// Arrange
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage(
-				"Only region or regionProvider can be configured, but not both");
-
 		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 		beanFactory.registerSingleton(
 				AmazonWebserviceClientConfigurationUtils.CREDENTIALS_PROVIDER_BEAN_NAME,
 				new StaticAwsCredentialsProvider());
 
-		BeanDefinitionHolder beanDefinitionHolder = AmazonWebserviceClientConfigurationUtils
+		// Assert
+		assertThatThrownBy(() -> AmazonWebserviceClientConfigurationUtils
 				.registerAmazonWebserviceClient(new Object(), beanFactory,
 						AmazonTestWebserviceClient.class.getName(), "someProvider",
-						Regions.EU_WEST_1.getName());
+						Regions.EU_WEST_1.getName()))
+								.isInstanceOf(IllegalArgumentException.class)
+								.hasMessageContaining(
+										"Only region or regionProvider can be configured, but not both");
 
-		// Act
-		beanFactory.getBean(beanDefinitionHolder.getBeanName(),
-				AmazonTestWebserviceClient.class);
-
-		// Assert
 	}
 
 	@Test

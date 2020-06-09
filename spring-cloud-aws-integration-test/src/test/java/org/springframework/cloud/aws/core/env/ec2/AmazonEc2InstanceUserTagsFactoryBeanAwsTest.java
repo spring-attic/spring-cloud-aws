@@ -27,12 +27,12 @@ import org.springframework.beans.factory.config.BeanExpressionContext;
 import org.springframework.cloud.aws.support.TestStackInstanceIdService;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  *
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 public class AmazonEc2InstanceUserTagsFactoryBeanAwsTest {
 

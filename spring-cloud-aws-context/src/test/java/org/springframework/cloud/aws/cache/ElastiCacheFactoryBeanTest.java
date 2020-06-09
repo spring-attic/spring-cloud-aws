@@ -25,21 +25,17 @@ import com.amazonaws.services.elasticache.model.CacheNode;
 import com.amazonaws.services.elasticache.model.DescribeCacheClustersRequest;
 import com.amazonaws.services.elasticache.model.DescribeCacheClustersResult;
 import com.amazonaws.services.elasticache.model.Endpoint;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.cache.Cache;
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ElastiCacheFactoryBeanTest {
-
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
 
 	@Test
 	public void getObject_availableCluster_returnsConfiguredMemcachedClient()
@@ -104,9 +100,6 @@ public class ElastiCacheFactoryBeanTest {
 	public void getObject_clusterWithRedisEngineConfigured_reportsError()
 			throws Exception {
 		// Arrange
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("engine");
-
 		AmazonElastiCache amazonElastiCache = mock(AmazonElastiCacheClient.class);
 		DescribeCacheClustersRequest memcached = new DescribeCacheClustersRequest()
 				.withCacheClusterId("memcached");
@@ -122,10 +115,10 @@ public class ElastiCacheFactoryBeanTest {
 				amazonElastiCache, "memcached", Collections.singletonList(
 						new TestCacheFactory("testCache", "localhost", 45678)));
 
-		// Act
-		elastiCacheFactoryBean.afterPropertiesSet();
-
 		// Assert
+		assertThatThrownBy(elastiCacheFactoryBean::afterPropertiesSet)
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("engine");
 	}
 
 	private static final class TestCacheFactory implements CacheFactory {

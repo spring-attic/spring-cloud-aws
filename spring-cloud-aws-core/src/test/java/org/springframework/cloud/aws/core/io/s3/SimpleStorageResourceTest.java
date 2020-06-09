@@ -33,14 +33,13 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.Region;
 import com.amazonaws.services.s3.model.S3Object;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.stubbing.Answer;
 
 import org.springframework.core.task.SyncTaskExecutor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -50,9 +49,6 @@ import static org.mockito.Mockito.when;
  * @author Agim Emruli
  */
 public class SimpleStorageResourceTest {
-
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
 
 	@Test
 	public void exists_withExistingObjectMetadata_returnsTrue() throws Exception {
@@ -125,37 +121,33 @@ public class SimpleStorageResourceTest {
 	@Test
 	public void contentLength_fileDoesNotExists_reportsError() throws Exception {
 		// Arrange
-		this.expectedException.expect(FileNotFoundException.class);
-		this.expectedException.expectMessage("not found");
-
 		AmazonS3 amazonS3 = mock(AmazonS3.class);
 		when(amazonS3.getObjectMetadata(any(GetObjectMetadataRequest.class)))
 				.thenReturn(null);
 		SimpleStorageResource simpleStorageResource = new SimpleStorageResource(amazonS3,
 				"bucket", "object", new SyncTaskExecutor());
 
-		// Act
-		simpleStorageResource.contentLength();
-
 		// Assert
+		assertThatThrownBy(simpleStorageResource::contentLength)
+				.isInstanceOf(FileNotFoundException.class)
+				.hasMessageContaining("not found");
+
 	}
 
 	@Test
 	public void lastModified_fileDoestNotExist_reportsError() throws Exception {
 		// Arrange
-		this.expectedException.expect(FileNotFoundException.class);
-		this.expectedException.expectMessage("not found");
-
 		AmazonS3 amazonS3 = mock(AmazonS3.class);
 		when(amazonS3.getObjectMetadata(any(GetObjectMetadataRequest.class)))
 				.thenReturn(null);
+
 		SimpleStorageResource simpleStorageResource = new SimpleStorageResource(amazonS3,
 				"bucket", "object", new SyncTaskExecutor());
 
-		// Act
-		simpleStorageResource.lastModified();
-
 		// Assert
+		assertThatThrownBy(simpleStorageResource::lastModified)
+				.isInstanceOf(FileNotFoundException.class)
+				.hasMessageContaining("not found");
 	}
 
 	@Test
@@ -250,9 +242,6 @@ public class SimpleStorageResourceTest {
 	@Test
 	public void getFile_existingObject_throwsMeaningFullException() throws Exception {
 
-		this.expectedException.expect(UnsupportedOperationException.class);
-		this.expectedException.expectMessage("getInputStream()");
-
 		AmazonS3Client amazonS3 = mock(AmazonS3Client.class);
 
 		// Act
@@ -260,7 +249,10 @@ public class SimpleStorageResourceTest {
 				"bucket", "object", new SyncTaskExecutor());
 
 		// Assert
-		simpleStorageResource.getFile();
+
+		assertThatThrownBy(simpleStorageResource::getFile)
+				.isInstanceOf(UnsupportedOperationException.class)
+				.hasMessageContaining("getInputStream()");
 
 	}
 

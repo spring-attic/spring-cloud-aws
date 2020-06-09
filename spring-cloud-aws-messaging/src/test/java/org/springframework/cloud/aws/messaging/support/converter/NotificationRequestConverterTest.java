@@ -18,15 +18,14 @@ package org.springframework.cloud.aws.messaging.support.converter;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.messaging.converter.MessageConversionException;
 import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.support.MessageBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Agim Emruli
@@ -35,20 +34,20 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class NotificationRequestConverterTest {
 
-	@Rule
-	public final ExpectedException expectedException = ExpectedException.none();
-
 	@Test
 	public void testWriteMessageNotSupported() throws Exception {
-		this.expectedException.expect(UnsupportedOperationException.class);
-		new NotificationRequestConverter(new StringMessageConverter()).toMessage("test",
-				null);
+		assertThatThrownBy(
+				() -> new NotificationRequestConverter(new StringMessageConverter())
+						.toMessage("test", null))
+								.isInstanceOf(UnsupportedOperationException.class);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void fromMessage_withoutMessage_shouldThrowAnException() throws Exception {
-		new NotificationRequestConverter(new StringMessageConverter()).fromMessage(null,
-				String.class);
+		assertThatThrownBy(
+				() -> new NotificationRequestConverter(new StringMessageConverter())
+						.fromMessage(null, String.class))
+								.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -99,46 +98,62 @@ public class NotificationRequestConverterTest {
 
 	@Test
 	public void testNoTypeSupplied() throws Exception {
-		this.expectedException.expect(MessageConversionException.class);
-		this.expectedException.expectMessage("does not contain a Type attribute");
 		ObjectNode jsonObject = JsonNodeFactory.instance.objectNode();
 		jsonObject.put("Message", "Hello World!");
 		String payload = jsonObject.toString();
-		new NotificationRequestConverter(new StringMessageConverter())
-				.fromMessage(MessageBuilder.withPayload(payload).build(), String.class);
+
+		assertThatThrownBy(
+				() -> new NotificationRequestConverter(new StringMessageConverter())
+						.fromMessage(MessageBuilder.withPayload(payload).build(),
+								String.class))
+										.isInstanceOf(MessageConversionException.class)
+										.hasMessageContaining(
+												"does not contain a Type attribute");
+
 	}
 
 	@Test
 	public void testWrongTypeSupplied() throws Exception {
-		this.expectedException.expect(MessageConversionException.class);
-		this.expectedException.expectMessage("is not a valid notification");
 		ObjectNode jsonObject = JsonNodeFactory.instance.objectNode();
 		jsonObject.put("Type", "Subscription");
 		jsonObject.put("Message", "Hello World!");
+
 		String payload = jsonObject.toString();
-		new NotificationRequestConverter(new StringMessageConverter())
-				.fromMessage(MessageBuilder.withPayload(payload).build(), String.class);
+
+		assertThatThrownBy(
+				() -> new NotificationRequestConverter(new StringMessageConverter())
+						.fromMessage(MessageBuilder.withPayload(payload).build(),
+								String.class))
+										.isInstanceOf(MessageConversionException.class)
+										.hasMessageContaining(
+												"is not a valid notification");
 	}
 
 	@Test
 	public void testNoMessageAvailableSupplied() throws Exception {
-		this.expectedException.expect(MessageConversionException.class);
-		this.expectedException.expectMessage("does not contain a message");
 		ObjectNode jsonObject = JsonNodeFactory.instance.objectNode();
 		jsonObject.put("Type", "Notification");
 		jsonObject.put("Subject", "Hello World!");
 		String payload = jsonObject.toString();
-		new NotificationRequestConverter(new StringMessageConverter())
-				.fromMessage(MessageBuilder.withPayload(payload).build(), String.class);
+
+		assertThatThrownBy(
+				() -> new NotificationRequestConverter(new StringMessageConverter())
+						.fromMessage(MessageBuilder.withPayload(payload).build(),
+								String.class))
+										.isInstanceOf(MessageConversionException.class)
+										.hasMessageContaining(
+												"does not contain a message");
 	}
 
 	@Test
 	public void testNoValidJson() throws Exception {
-		this.expectedException.expect(MessageConversionException.class);
-		this.expectedException.expectMessage("Could not read JSON");
 		String message = "foo";
-		new NotificationRequestConverter(new StringMessageConverter())
-				.fromMessage(MessageBuilder.withPayload(message).build(), String.class);
+		assertThatThrownBy(
+				() -> new NotificationRequestConverter(new StringMessageConverter())
+						.fromMessage(MessageBuilder.withPayload(message).build(),
+								String.class))
+										.isInstanceOf(MessageConversionException.class)
+										.hasMessageContaining("Could not read JSON");
 	}
 
 }

@@ -41,7 +41,7 @@ import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -54,7 +54,7 @@ import static org.junit.Assert.assertTrue;
  */
 @SuppressWarnings({ "AbstractClassWithoutAbstractMethods",
 		"SpringJavaAutowiringInspection" })
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public abstract class QueueListenerTest extends AbstractContainerTest {
 
 	@Autowired

@@ -41,9 +41,7 @@ import com.amazonaws.services.sqs.model.QueueAttributeName;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.stubbing.Answer;
@@ -67,6 +65,7 @@ import org.springframework.util.MimeType;
 import org.springframework.util.StopWatch;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -85,9 +84,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
  * @since 1.0
  */
 public class SimpleMessageListenerContainerTest {
-
-	@Rule
-	public final ExpectedException expectedException = ExpectedException.none();
 
 	@Captor
 	private ArgumentCaptor<org.springframework.messaging.Message<String>> stringMessageCaptor;
@@ -1106,11 +1102,10 @@ public class SimpleMessageListenerContainerTest {
 		container.setAmazonSqs(mock(AmazonSQSAsync.class, withSettings().stubOnly()));
 		container.setMessageHandler(new QueueMessageHandler());
 		container.afterPropertiesSet();
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("foo");
 
-		// Act
-		container.stop("foo");
+		// Assert
+		assertThatThrownBy(() -> container.stop("foo"))
+				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining("foo");
 	}
 
 	@Test
@@ -1121,11 +1116,10 @@ public class SimpleMessageListenerContainerTest {
 		container.setMessageHandler(new QueueMessageHandler());
 
 		container.afterPropertiesSet();
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("bar");
 
-		// Act
-		container.start("bar");
+		// Assert
+		assertThatThrownBy(() -> container.start("bar"))
+				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining("bar");
 	}
 
 	@Test

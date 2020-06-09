@@ -21,11 +21,10 @@ import java.util.Arrays;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,15 +36,11 @@ import static org.mockito.Mockito.when;
  */
 public class CredentialsProviderFactoryBeanTest {
 
-	@Rule
-	public final ExpectedException expectedException = ExpectedException.none();
-
 	@Test
 	public void testCreateWithNullCredentialsProvider() throws Exception {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("not be null");
-		// noinspection ResultOfObjectAllocationIgnored
-		new CredentialsProviderFactoryBean(null);
+		assertThatThrownBy(() -> new CredentialsProviderFactoryBean(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("not be null");
 	}
 
 	@Test

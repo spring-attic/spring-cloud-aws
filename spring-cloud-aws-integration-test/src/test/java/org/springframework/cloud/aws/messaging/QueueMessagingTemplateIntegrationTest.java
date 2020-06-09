@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.cloud.aws.messaging.core.QueueMessagingTemplate;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.Assert.assertEquals;
 
@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
  * @author Agim Emruli
  * @author Alain Sahli
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public abstract class QueueMessagingTemplateIntegrationTest {
 
 	private static final String JSON_QUEUE_NAME = "JsonQueue";

@@ -16,21 +16,18 @@
 
 package org.springframework.cloud.aws.messaging.listener.support;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Szymon Dembek
  * @since 1.3
  */
 public class VisibilityHandlerMethodArgumentResolverTest {
-
-	@Rule
-	public final ExpectedException expectedException = ExpectedException.none();
 
 	@Test
 	public void resolveArgument_messageWithNoVisibilityHeader_throwIllegalArgumentException()
@@ -41,11 +38,11 @@ public class VisibilityHandlerMethodArgumentResolverTest {
 				"Visibility");
 		Message<String> message = MessageBuilder.withPayload("no content").build();
 
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("Visibility");
-
-		// Act
-		visibilityHandlerMethodArgumentResolver.resolveArgument(null, message);
+		// Assert
+		assertThatThrownBy(() -> visibilityHandlerMethodArgumentResolver
+				.resolveArgument(null, message))
+						.isInstanceOf(IllegalArgumentException.class)
+						.hasMessageContaining("Visibility");
 	}
 
 }

@@ -37,9 +37,7 @@ import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageResult;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 
 import org.springframework.messaging.Message;
@@ -52,6 +50,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.util.MimeType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNotNull;
 import static org.mockito.Mockito.mock;
@@ -65,9 +64,6 @@ import static org.mockito.Mockito.when;
  * @since 1.0
  */
 public class QueueMessageChannelTest {
-
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
 
 	@Test
 	public void sendMessage_validTextMessage_returnsTrue() throws Exception {
@@ -109,11 +105,9 @@ public class QueueMessageChannelTest {
 								.thenThrow(new AmazonServiceException("wanted error"));
 
 		// Assert
-		this.expectedException.expect(MessagingException.class);
-		this.expectedException.expectMessage("wanted error");
-
-		// Act
-		messageChannel.send(stringMessage);
+		assertThatThrownBy(() -> messageChannel.send(stringMessage))
+				.isInstanceOf(MessagingException.class)
+				.hasMessageContaining("wanted error");
 	}
 
 	@Test
@@ -499,9 +493,6 @@ public class QueueMessageChannelTest {
 			throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage(
-				"Cannot convert String [17] to target class [java.util.concurrent.atomic.AtomicInteger]");
 
 		HashMap<String, MessageAttributeValue> messageAttributes = new HashMap<>();
 		AtomicInteger atomicInteger = new AtomicInteger(17);
@@ -523,8 +514,10 @@ public class QueueMessageChannelTest {
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
 				"http://testQueue");
 
-		// Act
-		messageChannel.receive();
+		// Assert
+		assertThatThrownBy(messageChannel::receive)
+				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining(
+						"Cannot convert String [17] to target class [java.util.concurrent.atomic.AtomicInteger]");
 	}
 
 	@Test
@@ -532,10 +525,6 @@ public class QueueMessageChannelTest {
 			throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
-		this.expectedException.expect(MessagingException.class);
-		this.expectedException.expectMessage(
-				"Message attribute with value '12' and data type 'Number.class.not.Found' could not be converted"
-						+ " into a Number because target class was not found.");
 
 		HashMap<String, MessageAttributeValue> messageAttributes = new HashMap<>();
 		messageAttributes.put("classNotFound",
@@ -556,8 +545,11 @@ public class QueueMessageChannelTest {
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
 				"http://testQueue");
 
-		// Act
-		messageChannel.receive();
+		// Assert
+		assertThatThrownBy(messageChannel::receive).isInstanceOf(MessagingException.class)
+				.hasMessageContaining(
+						"Message attribute with value '12' and data type 'Number.class.not.Found' could not be converted"
+								+ " into a Number because target class was not found.");
 	}
 
 	@Test
@@ -731,11 +723,9 @@ public class QueueMessageChannelTest {
 				"http://testQueue");
 
 		// Assert
-		this.expectedException.expect(MessageDeliveryException.class);
-
-		// Act
-		queueMessageChannel.send(MessageBuilder.withPayload("Hello").build(), 1000);
-
+		assertThatThrownBy(() -> queueMessageChannel
+				.send(MessageBuilder.withPayload("Hello").build(), 1000))
+						.isInstanceOf(MessageDeliveryException.class);
 	}
 
 	@Test
