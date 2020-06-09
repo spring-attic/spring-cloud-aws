@@ -70,7 +70,7 @@ import org.springframework.messaging.handler.invocation.HandlerMethodReturnValue
 import org.springframework.messaging.support.MessageBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -587,15 +587,12 @@ public class QueueMessageHandlerTest {
 		appender.setContext(log.getLoggerContext());
 
 		// Act
-		try {
-			messageHandler.handleMessage(MessageBuilder.withPayload("testContent")
-					.setHeader(QueueMessageHandler.LOGICAL_RESOURCE_ID, "receive")
-					.build());
-			fail();
-		}
-		catch (MessagingException e) {
-			// ignore
-		}
+		assertThatThrownBy(
+				() -> messageHandler
+						.handleMessage(MessageBuilder.withPayload("testContent")
+								.setHeader(QueueMessageHandler.LOGICAL_RESOURCE_ID,
+										"receive")
+								.build())).isInstanceOf(MessagingException.class);
 
 		// Assert
 		assertThat(appender.list).hasSize(1);
