@@ -16,12 +16,13 @@
 
 package org.springframework.cloud.aws.secretsmanager;
 
+import java.util.regex.Pattern;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
-import java.util.regex.Pattern;
 
 /**
  * Configuration properties for the AWS Secrets Manager integration. Mostly based on the
