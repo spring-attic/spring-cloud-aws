@@ -40,12 +40,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Agim Emruli
  */
-public class ContextCredentialsAutoConfigurationTest {
+class ContextCredentialsAutoConfigurationTest {
 
 	private AnnotationConfigApplicationContext context;
 
 	@AfterEach
-	public void tearDown() throws Exception {
+	void tearDown() throws Exception {
 		if (this.context != null) {
 			this.context.close();
 		}
@@ -53,7 +53,7 @@ public class ContextCredentialsAutoConfigurationTest {
 
 	// @checkstyle:off
 	@Test
-	public void credentialsProvider_noExplicitCredentialsProviderConfigured_configuresDefaultAwsCredentialsProviderChainWithInstanceProfile()
+	void credentialsProvider_noExplicitCredentialsProviderConfigured_configuresDefaultAwsCredentialsProviderChainWithInstanceProfile()
 			throws Exception {
 		// @checkstyle:on
 		// Arrange
@@ -82,7 +82,7 @@ public class ContextCredentialsAutoConfigurationTest {
 
 	// @checkstyle:off
 	@Test
-	public void credentialsProvider_propertyToUseDefaultIsSet_configuresDefaultAwsCredentialsProvider_existAccessKeyAndSecretKey() {
+	void credentialsProvider_propertyToUseDefaultIsSet_configuresDefaultAwsCredentialsProvider_existAccessKeyAndSecretKey() {
 		// @checkstyle:on
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextCredentialsAutoConfiguration.class);
@@ -105,7 +105,7 @@ public class ContextCredentialsAutoConfigurationTest {
 	}
 
 	@Test
-	public void credentialsProvider_dashSeparatedPropertyToUseDefaultIsSet_configuresDefaultAwsCredentialsProvider_existAccessKeyAndSecretKey() {
+	void credentialsProvider_dashSeparatedPropertyToUseDefaultIsSet_configuresDefaultAwsCredentialsProvider_existAccessKeyAndSecretKey() {
 		// @checkstyle:on
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextCredentialsAutoConfiguration.class);
@@ -128,7 +128,7 @@ public class ContextCredentialsAutoConfigurationTest {
 	}
 
 	@Test
-	public void credentialsProvider_propertyToUseDefaultIsSet_configuresDefaultAwsCredentialsProvider() {
+	void credentialsProvider_propertyToUseDefaultIsSet_configuresDefaultAwsCredentialsProvider() {
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextCredentialsAutoConfiguration.class);
 		TestPropertyValues.of("cloud.aws.credentials.useDefaultAwsCredentialsChain:true")
@@ -145,7 +145,7 @@ public class ContextCredentialsAutoConfigurationTest {
 	}
 
 	@Test
-	public void credentialsProvider_dashSeparatedPropertyToUseDefaultIsSet_configuresDefaultAwsCredentialsProvider() {
+	void credentialsProvider_dashSeparatedPropertyToUseDefaultIsSet_configuresDefaultAwsCredentialsProvider() {
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextCredentialsAutoConfiguration.class);
 		TestPropertyValues
@@ -164,7 +164,7 @@ public class ContextCredentialsAutoConfigurationTest {
 
 	// @checkstyle:off
 	@Test
-	public void credentialsProvider_accessKeyAndSecretKeyConfigured_configuresStaticCredentialsProviderWithAccessAndSecretKey() {
+	void credentialsProvider_accessKeyAndSecretKeyConfigured_configuresStaticCredentialsProviderWithAccessAndSecretKey() {
 		// @checkstyle:on
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextCredentialsAutoConfiguration.class);
@@ -195,7 +195,7 @@ public class ContextCredentialsAutoConfigurationTest {
 
 	// @checkstyle:off
 	@Test
-	public void credentialsProvider_dashSeparatedAccessKeyAndSecretKeyConfigured_configuresStaticCredentialsProviderWithAccessAndSecretKey() {
+	void credentialsProvider_dashSeparatedAccessKeyAndSecretKeyConfigured_configuresStaticCredentialsProviderWithAccessAndSecretKey() {
 		// @checkstyle:on
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextCredentialsAutoConfiguration.class);
@@ -225,7 +225,7 @@ public class ContextCredentialsAutoConfigurationTest {
 	}
 
 	@Test
-	public void credentialsProvider_instanceProfileConfigured_configuresInstanceProfileCredentialsProvider() {
+	void credentialsProvider_instanceProfileConfigured_configuresInstanceProfileCredentialsProvider() {
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextCredentialsAutoConfiguration.class);
 		TestPropertyValues.of("cloud.aws.credentials.instanceProfile")
@@ -248,7 +248,7 @@ public class ContextCredentialsAutoConfigurationTest {
 	}
 
 	@Test
-	public void credentialsProvider_dashSeparatedInstanceProfileConfigured_configuresInstanceProfileCredentialsProvider() {
+	void credentialsProvider_dashSeparatedInstanceProfileConfigured_configuresInstanceProfileCredentialsProvider() {
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextCredentialsAutoConfiguration.class);
 		TestPropertyValues.of("cloud.aws.credentials.instance-profile")
@@ -271,7 +271,7 @@ public class ContextCredentialsAutoConfigurationTest {
 	}
 
 	@Test
-	public void credentialsProvider_profileNameConfigured_configuresProfileCredentialsProvider() {
+	void credentialsProvider_profileNameConfigured_configuresProfileCredentialsProvider() {
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextCredentialsAutoConfiguration.class);
 		TestPropertyValues.of("cloud.aws.credentials.profileName:test")
@@ -298,7 +298,7 @@ public class ContextCredentialsAutoConfigurationTest {
 	}
 
 	@Test
-	public void credentialsProvider_dashSeparatedProfileNameConfigured_configuresProfileCredentialsProvider() {
+	void credentialsProvider_dashSeparatedProfileNameConfigured_configuresProfileCredentialsProvider() {
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextCredentialsAutoConfiguration.class);
 		TestPropertyValues.of("cloud.aws.credentials.profile-name:test")
@@ -325,7 +325,7 @@ public class ContextCredentialsAutoConfigurationTest {
 	}
 
 	@Test
-	public void credentialsProvider_profileNameAndPathConfigured_configuresProfileCredentialsProvider()
+	void credentialsProvider_profileNameAndPathConfigured_configuresProfileCredentialsProvider()
 			throws IOException {
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextCredentialsAutoConfiguration.class);
@@ -360,7 +360,7 @@ public class ContextCredentialsAutoConfigurationTest {
 	}
 
 	@Test
-	public void credentialsProvider_dashSeparatedProfileNameAndPathConfigured_configuresProfileCredentialsProvider()
+	void credentialsProvider_dashSeparatedProfileNameAndPathConfigured_configuresProfileCredentialsProvider()
 			throws IOException {
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextCredentialsAutoConfiguration.class);

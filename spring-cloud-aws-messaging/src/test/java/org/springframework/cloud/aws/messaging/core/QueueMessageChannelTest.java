@@ -63,10 +63,10 @@ import static org.mockito.Mockito.when;
  * @author Alain Sahli
  * @since 1.0
  */
-public class QueueMessageChannelTest {
+class QueueMessageChannelTest {
 
 	@Test
-	public void sendMessage_validTextMessage_returnsTrue() throws Exception {
+	void sendMessage_validTextMessage_returnsTrue() throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
 		ArgumentCaptor<SendMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor
@@ -90,8 +90,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void sendMessage_serviceThrowsError_throwsMessagingException()
-			throws Exception {
+	void sendMessage_serviceThrowsError_throwsMessagingException() throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
 
@@ -111,7 +110,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void sendMessage_withMimeTypeAsStringHeader_shouldPassItAsMessageAttribute()
+	void sendMessage_withMimeTypeAsStringHeader_shouldPassItAsMessageAttribute()
 			throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
@@ -138,7 +137,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void sendMessage_withMimeTypeHeader_shouldPassItAsMessageAttribute()
+	void sendMessage_withMimeTypeHeader_shouldPassItAsMessageAttribute()
 			throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
@@ -164,7 +163,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void receiveMessage_withoutTimeout_returnsTextMessage() throws Exception {
+	void receiveMessage_withoutTimeout_returnsTextMessage() throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
 		when(amazonSqs.receiveMessage(new ReceiveMessageRequest("http://testQueue")
@@ -187,8 +186,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void receiveMessage_withSpecifiedTimeout_returnsTextMessage()
-			throws Exception {
+	void receiveMessage_withSpecifiedTimeout_returnsTextMessage() throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
 		when(amazonSqs.receiveMessage(new ReceiveMessageRequest("http://testQueue")
@@ -211,7 +209,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void receiveMessage_withSpecifiedTimeout_returnsNull() throws Exception {
+	void receiveMessage_withSpecifiedTimeout_returnsNull() throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
 		when(amazonSqs.receiveMessage(new ReceiveMessageRequest("http://testQueue")
@@ -231,7 +229,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void receiveMessage_withoutDefaultTimeout_returnsNull() throws Exception {
+	void receiveMessage_withoutDefaultTimeout_returnsNull() throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
 		when(amazonSqs.receiveMessage(new ReceiveMessageRequest("http://testQueue")
@@ -251,7 +249,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void receiveMessage_withMimeTypeMessageAttribute_shouldCopyToHeaders()
+	void receiveMessage_withMimeTypeMessageAttribute_shouldCopyToHeaders()
 			throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
@@ -281,7 +279,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void sendMessage_withStringMessageHeader_shouldBeSentAsQueueMessageAttribute()
+	void sendMessage_withStringMessageHeader_shouldBeSentAsQueueMessageAttribute()
 			throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
@@ -310,7 +308,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void receiveMessage_withStringMessageHeader_shouldBeReceivedAsQueueMessageAttribute()
+	void receiveMessage_withStringMessageHeader_shouldBeReceivedAsQueueMessageAttribute()
 			throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
@@ -340,7 +338,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void sendMessage_withNumericMessageHeaders_shouldBeSentAsQueueMessageAttributes()
+	void sendMessage_withNumericMessageHeaders_shouldBeSentAsQueueMessageAttributes()
 			throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
@@ -409,7 +407,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void receiveMessage_withNumericMessageHeaders_shouldBeReceivedAsQueueMessageAttributes()
+	void receiveMessage_withNumericMessageHeaders_shouldBeReceivedAsQueueMessageAttributes()
 			throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
@@ -489,7 +487,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void receiveMessage_withIncompatibleNumericMessageHeader_shouldThrowAnException()
+	void receiveMessage_withIncompatibleNumericMessageHeader_shouldThrowAnException()
 			throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
@@ -521,7 +519,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void receiveMessage_withMissingNumericMessageHeaderTargetClass_shouldThrowAnException()
+	void receiveMessage_withMissingNumericMessageHeaderTargetClass_shouldThrowAnException()
 			throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
@@ -553,7 +551,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void sendMessage_withBinaryMessageHeader_shouldBeSentAsBinaryMessageAttribute()
+	void sendMessage_withBinaryMessageHeader_shouldBeSentAsBinaryMessageAttribute()
 			throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
@@ -582,7 +580,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void receiveMessage_withBinaryMessageHeader_shouldBeReceivedAsByteBufferMessageAttribute()
+	void receiveMessage_withBinaryMessageHeader_shouldBeReceivedAsByteBufferMessageAttribute()
 			throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
@@ -612,7 +610,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void sendMessage_withUuidAsId_shouldConvertUuidToString() throws Exception {
+	void sendMessage_withUuidAsId_shouldConvertUuidToString() throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
 		QueueMessageChannel messageChannel = new QueueMessageChannel(amazonSqs,
@@ -635,8 +633,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void receiveMessage_withIdOfTypeString_IdShouldBeConvertedToUuid()
-			throws Exception {
+	void receiveMessage_withIdOfTypeString_IdShouldBeConvertedToUuid() throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
 		UUID uuid = UUID.randomUUID();
@@ -667,7 +664,7 @@ public class QueueMessageChannelTest {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void sendMessage_withTimeout_sendsMessageAsyncAndReturnsTrueOnceFutureCompleted()
+	void sendMessage_withTimeout_sendsMessageAsyncAndReturnsTrueOnceFutureCompleted()
 			throws Exception {
 		// Arrange
 		Future<SendMessageResult> future = mock(Future.class);
@@ -689,7 +686,7 @@ public class QueueMessageChannelTest {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void sendMessage_withSendMessageAsyncTakingMoreTimeThanSpecifiedTimeout_returnsFalse()
+	void sendMessage_withSendMessageAsyncTakingMoreTimeThanSpecifiedTimeout_returnsFalse()
 			throws Exception {
 		// Arrange
 		Future<SendMessageResult> future = mock(Future.class);
@@ -710,7 +707,7 @@ public class QueueMessageChannelTest {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void sendMessage_withExecutionExceptionWhileSendingAsyncMessage_throwMessageDeliveryException()
+	void sendMessage_withExecutionExceptionWhileSendingAsyncMessage_throwMessageDeliveryException()
 			throws Exception {
 		// Arrange
 		Future<SendMessageResult> future = mock(Future.class);
@@ -729,7 +726,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void sendMessage_withDelayHeader_shouldSetDelayOnSendMessageRequestAndNotSetItAsHeaderAsMessageAttribute()
+	void sendMessage_withDelayHeader_shouldSetDelayOnSendMessageRequestAndNotSetItAsHeaderAsMessageAttribute()
 			throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
@@ -756,7 +753,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void sendMessage_withoutDelayHeader_shouldNotSetDelayOnSendMessageRequestAndNotSetHeaderAsMessageAttribute()
+	void sendMessage_withoutDelayHeader_shouldNotSetDelayOnSendMessageRequestAndNotSetHeaderAsMessageAttribute()
 			throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
@@ -782,7 +779,7 @@ public class QueueMessageChannelTest {
 	}
 
 	@Test
-	public void sendMessage_withGroupIdHeader_shouldSetGroupIdOnSendMessageRequestAndNotSetItAsHeaderAsMessageAttribute()
+	void sendMessage_withGroupIdHeader_shouldSetGroupIdOnSendMessageRequestAndNotSetItAsHeaderAsMessageAttribute()
 			throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
@@ -810,7 +807,7 @@ public class QueueMessageChannelTest {
 
 	// @checkstyle:off
 	@Test
-	public void sendMessage_withDeduplicationIdHeader_shouldSetDeduplicationIdOnSendMessageRequestAndNotSetItAsHeaderAsMessageAttribute()
+	void sendMessage_withDeduplicationIdHeader_shouldSetDeduplicationIdOnSendMessageRequestAndNotSetItAsHeaderAsMessageAttribute()
 			throws Exception {
 		// @checkstyle:on
 		// Arrange

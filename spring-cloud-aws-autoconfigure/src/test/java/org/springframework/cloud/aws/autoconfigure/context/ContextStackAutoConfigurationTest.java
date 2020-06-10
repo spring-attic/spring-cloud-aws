@@ -47,12 +47,12 @@ import org.springframework.util.ReflectionUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class ContextStackAutoConfigurationTest {
+class ContextStackAutoConfigurationTest {
 
 	private AnnotationConfigApplicationContext context;
 
 	@BeforeEach
-	public void restContextInstanceDataCondition() throws IllegalAccessException {
+	void restContextInstanceDataCondition() throws IllegalAccessException {
 		Field field = ReflectionUtils.findField(AwsCloudEnvironmentCheckUtils.class,
 				"isCloudEnvironment");
 		assertThat(field).isNotNull();
@@ -61,14 +61,14 @@ public class ContextStackAutoConfigurationTest {
 	}
 
 	@AfterEach
-	public void tearDown() throws Exception {
+	void tearDown() throws Exception {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	public void stackRegistry_autoConfigurationEnabled_returnsAutoConfiguredStackRegistry()
+	void stackRegistry_autoConfigurationEnabled_returnsAutoConfiguredStackRegistry()
 			throws Exception {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();
@@ -90,7 +90,7 @@ public class ContextStackAutoConfigurationTest {
 	}
 
 	@Test
-	public void stackRegistry_manualConfigurationEnabled_returnsAutoConfiguredStackRegistry()
+	void stackRegistry_manualConfigurationEnabled_returnsAutoConfiguredStackRegistry()
 			throws Exception {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();
@@ -108,7 +108,7 @@ public class ContextStackAutoConfigurationTest {
 	}
 
 	@Test
-	public void stackRegistry_manualConfigurationEnabledAndStackNameProvided_returnsStaticStackNameProvider()
+	void stackRegistry_manualConfigurationEnabledAndStackNameProvided_returnsStaticStackNameProvider()
 			throws Exception {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();
@@ -129,7 +129,7 @@ public class ContextStackAutoConfigurationTest {
 	}
 
 	@Test
-	public void resourceIdResolver_withoutAnyStackConfiguration_availableAsConfiguredBean()
+	void resourceIdResolver_withoutAnyStackConfiguration_availableAsConfiguredBean()
 			throws Exception {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();
@@ -145,7 +145,7 @@ public class ContextStackAutoConfigurationTest {
 	}
 
 	@Test
-	public void stackResourceRegistryFactoryBean_isNotCreatedWhenStackNameAbsentAndStackAutoFalse() {
+	void stackResourceRegistryFactoryBean_isNotCreatedWhenStackNameAbsentAndStackAutoFalse() {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextStackAutoConfiguration.class);
@@ -162,7 +162,7 @@ public class ContextStackAutoConfigurationTest {
 	static class AutoConfigurationStackRegistryTestConfiguration {
 
 		@Bean
-		public AmazonCloudFormation amazonCloudFormation() {
+		AmazonCloudFormation amazonCloudFormation() {
 			AmazonCloudFormation amazonCloudFormation = Mockito
 					.mock(AmazonCloudFormation.class);
 			Mockito.when(amazonCloudFormation.describeStackResources(
@@ -182,7 +182,7 @@ public class ContextStackAutoConfigurationTest {
 	static class ManualConfigurationStackRegistryTestConfiguration {
 
 		@Bean
-		public AmazonCloudFormation amazonCloudFormation() {
+		AmazonCloudFormation amazonCloudFormation() {
 			AmazonCloudFormation amazonCloudFormation = Mockito
 					.mock(AmazonCloudFormation.class);
 			Mockito.when(amazonCloudFormation.listStackResources(

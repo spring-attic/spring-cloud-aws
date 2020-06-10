@@ -28,19 +28,19 @@ import org.springframework.core.io.ResourceLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ContextResourceLoaderConfigurationTest {
+class ContextResourceLoaderConfigurationTest {
 
 	private AnnotationConfigApplicationContext context;
 
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	public void regionProvider_withConfiguredRegion_staticRegionProviderConfigured() {
+	void regionProvider_withConfiguredRegion_staticRegionProviderConfigured() {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext(
 				ApplicationConfigurationWithResourceLoader.class);
@@ -63,7 +63,7 @@ public class ContextResourceLoaderConfigurationTest {
 	static class ApplicationConfigurationWithResourceLoader {
 
 		@Bean
-		public ApplicationBean appBean() {
+		ApplicationBean appBean() {
 			return new ApplicationBean();
 		}
 

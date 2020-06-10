@@ -26,7 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class AwsSecretsManagerPropertySourceTest {
+class AwsSecretsManagerPropertySourceTest {
 
 	private AWSSecretsManager smClient = mock(AWSSecretsManager.class);
 
@@ -34,7 +34,7 @@ public class AwsSecretsManagerPropertySourceTest {
 			"/config/myservice", smClient);
 
 	@Test
-	public void shouldParseSecretValue() {
+	void shouldParseSecretValue() {
 		GetSecretValueResult secretValueResult = new GetSecretValueResult();
 		secretValueResult.setSecretString("{\"key1\": \"value1\", \"key2\": \"value2\"}");
 

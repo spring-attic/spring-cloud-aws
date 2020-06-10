@@ -27,17 +27,17 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Tom Gianos
  * @since 2.0.2
  */
-public class AwsS3ResourceLoaderPropertiesTest {
+class AwsS3ResourceLoaderPropertiesTest {
 
 	private AwsS3ResourceLoaderProperties properties;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.properties = new AwsS3ResourceLoaderProperties();
 	}
 
 	@Test
-	public void corePoolSizeCanBeSet() {
+	void corePoolSizeCanBeSet() {
 		assertThat(this.properties.getCorePoolSize())
 				.as("Default value of the core size should be one").isEqualTo(1);
 
@@ -48,7 +48,7 @@ public class AwsS3ResourceLoaderPropertiesTest {
 	}
 
 	@Test
-	public void maxPoolSizeCanBeSet() {
+	void maxPoolSizeCanBeSet() {
 		assertThat(this.properties.getMaxPoolSize())
 				.as("Default value of the max pool size should be integer max value")
 				.isEqualTo(Integer.MAX_VALUE);
@@ -60,7 +60,7 @@ public class AwsS3ResourceLoaderPropertiesTest {
 	}
 
 	@Test
-	public void queueCapacityCanBeSet() {
+	void queueCapacityCanBeSet() {
 		assertThat(this.properties.getQueueCapacity()).as(
 				"Default value of the queue capacity size should be integer max value")
 				.isEqualTo(Integer.MAX_VALUE);

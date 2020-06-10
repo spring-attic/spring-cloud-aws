@@ -50,10 +50,10 @@ import static org.mockito.Mockito.when;
 /**
  * @author Alain Sahli
  */
-public class QueueMessagingTemplateTest {
+class QueueMessagingTemplateTest {
 
 	@Test
-	public void send_withoutDefaultDestination_throwAnException() {
+	void send_withoutDefaultDestination_throwAnException() {
 		AmazonSQSAsync amazonSqs = createAmazonSqs();
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
 				amazonSqs);
@@ -65,7 +65,7 @@ public class QueueMessagingTemplateTest {
 	}
 
 	@Test
-	public void send_withDefaultDestination_usesDefaultDestination() {
+	void send_withDefaultDestination_usesDefaultDestination() {
 		AmazonSQSAsync amazonSqs = createAmazonSqs();
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
 				amazonSqs);
@@ -83,7 +83,7 @@ public class QueueMessagingTemplateTest {
 	}
 
 	@Test
-	public void send_withDestination_usesDestination() {
+	void send_withDestination_usesDestination() {
 		AmazonSQSAsync amazonSqs = createAmazonSqs();
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
 				amazonSqs);
@@ -100,7 +100,7 @@ public class QueueMessagingTemplateTest {
 	}
 
 	@Test
-	public void send_withCustomDestinationResolveAndDestination_usesDestination() {
+	void send_withCustomDestinationResolveAndDestination_usesDestination() {
 		AmazonSQSAsync amazonSqs = createAmazonSqs();
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
 				amazonSqs,
@@ -119,7 +119,7 @@ public class QueueMessagingTemplateTest {
 	}
 
 	@Test
-	public void receive_withoutDefaultDestination_throwsAnException() {
+	void receive_withoutDefaultDestination_throwsAnException() {
 		AmazonSQSAsync amazonSqs = createAmazonSqs();
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
 				amazonSqs);
@@ -129,7 +129,7 @@ public class QueueMessagingTemplateTest {
 	}
 
 	@Test
-	public void receive_withDefaultDestination_useDefaultDestination() {
+	void receive_withDefaultDestination_useDefaultDestination() {
 		AmazonSQSAsync amazonSqs = createAmazonSqs();
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
 				amazonSqs);
@@ -145,7 +145,7 @@ public class QueueMessagingTemplateTest {
 	}
 
 	@Test
-	public void receive_withDestination_usesDestination() {
+	void receive_withDestination_usesDestination() {
 		AmazonSQSAsync amazonSqs = createAmazonSqs();
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
 				amazonSqs);
@@ -160,7 +160,7 @@ public class QueueMessagingTemplateTest {
 	}
 
 	@Test
-	public void receiveAndConvert_withoutDefaultDestination_throwsAnException() {
+	void receiveAndConvert_withoutDefaultDestination_throwsAnException() {
 		AmazonSQSAsync amazonSqs = createAmazonSqs();
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
 				amazonSqs);
@@ -170,7 +170,7 @@ public class QueueMessagingTemplateTest {
 	}
 
 	@Test
-	public void receiveAndConvert_withDefaultDestination_usesDefaultDestinationAndConvertsMessage() {
+	void receiveAndConvert_withDefaultDestination_usesDefaultDestinationAndConvertsMessage() {
 		AmazonSQSAsync amazonSqs = createAmazonSqs();
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
 				amazonSqs);
@@ -182,7 +182,7 @@ public class QueueMessagingTemplateTest {
 	}
 
 	@Test
-	public void receiveAndConvert_withDestination_usesDestinationAndConvertsMessage() {
+	void receiveAndConvert_withDestination_usesDestinationAndConvertsMessage() {
 		AmazonSQSAsync amazonSqs = createAmazonSqs();
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
 				amazonSqs);
@@ -194,7 +194,7 @@ public class QueueMessagingTemplateTest {
 	}
 
 	@Test
-	public void instantiation_withConverter_shouldAddItToTheCompositeConverter() {
+	void instantiation_withConverter_shouldAddItToTheCompositeConverter() {
 		// Arrange
 		SimpleMessageConverter simpleMessageConverter = new SimpleMessageConverter();
 
@@ -212,7 +212,7 @@ public class QueueMessagingTemplateTest {
 	}
 
 	@Test
-	public void instantiation_WithCustomJacksonConverterThatSupportsJava8Types_shouldConvertMessageToString()
+	void instantiation_WithCustomJacksonConverterThatSupportsJava8Types_shouldConvertMessageToString()
 			throws IOException {
 
 		// Arrange
@@ -245,7 +245,7 @@ public class QueueMessagingTemplateTest {
 	}
 
 	@Test
-	public void instantiation_withDefaultMapping2JacksonConverter_shouldSupportJava8Types()
+	void instantiation_withDefaultMapping2JacksonConverter_shouldSupportJava8Types()
 			throws IOException {
 
 		// Arrange

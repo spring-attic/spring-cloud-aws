@@ -48,10 +48,10 @@ import static org.mockito.Mockito.when;
 /**
  * @author Agim Emruli
  */
-public class SimpleStorageResourceTest {
+class SimpleStorageResourceTest {
 
 	@Test
-	public void exists_withExistingObjectMetadata_returnsTrue() throws Exception {
+	void exists_withExistingObjectMetadata_returnsTrue() throws Exception {
 		// Arrange
 		AmazonS3 amazonS3 = mock(AmazonS3.class);
 		when(amazonS3.getObjectMetadata(any(GetObjectMetadataRequest.class)))
@@ -66,7 +66,7 @@ public class SimpleStorageResourceTest {
 	}
 
 	@Test
-	public void exists_withoutExistingObjectMetadata_returnsFalse() throws Exception {
+	void exists_withoutExistingObjectMetadata_returnsFalse() throws Exception {
 		// Arrange
 		AmazonS3 amazonS3 = mock(AmazonS3.class);
 		when(amazonS3.getObjectMetadata(any(GetObjectMetadataRequest.class)))
@@ -81,7 +81,7 @@ public class SimpleStorageResourceTest {
 	}
 
 	@Test
-	public void contentLength_withExistingResource_returnsContentLengthOfObjectMetaData()
+	void contentLength_withExistingResource_returnsContentLengthOfObjectMetaData()
 			throws Exception {
 		// Arrange
 		AmazonS3 amazonS3 = mock(AmazonS3.class);
@@ -99,7 +99,7 @@ public class SimpleStorageResourceTest {
 	}
 
 	@Test
-	public void lastModified_withExistingResource_returnsLastModifiedDateOfResource()
+	void lastModified_withExistingResource_returnsLastModifiedDateOfResource()
 			throws Exception {
 		// Arrange
 		AmazonS3 amazonS3 = mock(AmazonS3.class);
@@ -119,7 +119,7 @@ public class SimpleStorageResourceTest {
 	}
 
 	@Test
-	public void contentLength_fileDoesNotExists_reportsError() throws Exception {
+	void contentLength_fileDoesNotExists_reportsError() throws Exception {
 		// Arrange
 		AmazonS3 amazonS3 = mock(AmazonS3.class);
 		when(amazonS3.getObjectMetadata(any(GetObjectMetadataRequest.class)))
@@ -135,7 +135,7 @@ public class SimpleStorageResourceTest {
 	}
 
 	@Test
-	public void lastModified_fileDoestNotExist_reportsError() throws Exception {
+	void lastModified_fileDoestNotExist_reportsError() throws Exception {
 		// Arrange
 		AmazonS3 amazonS3 = mock(AmazonS3.class);
 		when(amazonS3.getObjectMetadata(any(GetObjectMetadataRequest.class)))
@@ -151,7 +151,7 @@ public class SimpleStorageResourceTest {
 	}
 
 	@Test
-	public void getFileName_existingObject_returnsFileNameWithoutBucketNameFromParameterWithoutActuallyFetchingTheFile()
+	void getFileName_existingObject_returnsFileNameWithoutBucketNameFromParameterWithoutActuallyFetchingTheFile()
 			throws Exception {
 		// Arrange
 		AmazonS3 amazonS3 = mock(AmazonS3.class);
@@ -167,8 +167,7 @@ public class SimpleStorageResourceTest {
 	}
 
 	@Test
-	public void getInputStream_existingObject_returnsInputStreamWithContent()
-			throws Exception {
+	void getInputStream_existingObject_returnsInputStreamWithContent() throws Exception {
 		// Arrange
 		AmazonS3 amazonS3 = mock(AmazonS3.class);
 		ObjectMetadata objectMetadata = mock(ObjectMetadata.class);
@@ -190,7 +189,7 @@ public class SimpleStorageResourceTest {
 	}
 
 	@Test
-	public void getDescription_withoutObjectMetaData_returnsDescriptiveDescription()
+	void getDescription_withoutObjectMetaData_returnsDescriptiveDescription()
 			throws Exception {
 		// Arrange
 		AmazonS3 amazonS3 = mock(AmazonS3.class);
@@ -208,7 +207,7 @@ public class SimpleStorageResourceTest {
 	}
 
 	@Test
-	public void getUrl_existingObject_returnsUrlWithS3Prefix() throws Exception {
+	void getUrl_existingObject_returnsUrlWithS3Prefix() throws Exception {
 
 		AmazonS3Client amazonS3 = mock(AmazonS3Client.class);
 
@@ -225,7 +224,7 @@ public class SimpleStorageResourceTest {
 	}
 
 	@Test
-	public void getUrl_existingObject_returnsUrlWithS3Scheme() throws Exception {
+	void getUrl_existingObject_returnsUrlWithS3Scheme() throws Exception {
 
 		AmazonS3Client amazonS3 = mock(AmazonS3Client.class);
 
@@ -240,7 +239,7 @@ public class SimpleStorageResourceTest {
 	}
 
 	@Test
-	public void getFile_existingObject_throwsMeaningFullException() throws Exception {
+	void getFile_existingObject_throwsMeaningFullException() throws Exception {
 
 		AmazonS3Client amazonS3 = mock(AmazonS3Client.class);
 
@@ -257,8 +256,7 @@ public class SimpleStorageResourceTest {
 	}
 
 	@Test
-	public void createRelative_existingObject_returnsRelativeCreatedFile()
-			throws IOException {
+	void createRelative_existingObject_returnsRelativeCreatedFile() throws IOException {
 
 		// Arrange
 		AmazonS3 amazonS3 = mock(AmazonS3.class);
@@ -276,7 +274,7 @@ public class SimpleStorageResourceTest {
 	}
 
 	@Test
-	public void writeFile_forNewFile_writesFileContent() throws Exception {
+	void writeFile_forNewFile_writesFileContent() throws Exception {
 		// Arrange
 		AmazonS3 amazonS3 = mock(AmazonS3.class);
 		SimpleStorageResource simpleStorageResource = new SimpleStorageResource(amazonS3,
@@ -306,7 +304,7 @@ public class SimpleStorageResourceTest {
 	}
 
 	@Test
-	public void getUri_encodes_objectName() throws Exception {
+	void getUri_encodes_objectName() throws Exception {
 		AmazonS3 s3 = mock(AmazonS3.class);
 		when(s3.getRegion()).thenReturn(Region.US_West_2);
 		SimpleStorageResource resource = new SimpleStorageResource(s3, "bucketName",

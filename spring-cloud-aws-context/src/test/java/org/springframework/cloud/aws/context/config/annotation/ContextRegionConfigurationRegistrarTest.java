@@ -35,19 +35,19 @@ import org.springframework.core.env.MapPropertySource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class ContextRegionConfigurationRegistrarTest {
+class ContextRegionConfigurationRegistrarTest {
 
 	private AnnotationConfigApplicationContext context;
 
 	@AfterEach
-	public void tearDown() throws Exception {
+	void tearDown() throws Exception {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	public void regionProvider_withConfiguredRegion_staticRegionProviderConfigured()
+	void regionProvider_withConfiguredRegion_staticRegionProviderConfigured()
 			throws Exception {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext(
@@ -64,7 +64,7 @@ public class ContextRegionConfigurationRegistrarTest {
 	}
 
 	@Test
-	public void regionProvider_withAutoDetectedRegion_dynamicRegionProviderConfigured()
+	void regionProvider_withAutoDetectedRegion_dynamicRegionProviderConfigured()
 			throws Exception {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext(
@@ -79,7 +79,7 @@ public class ContextRegionConfigurationRegistrarTest {
 	}
 
 	@Test
-	public void regionProvider_withAutoDetectedRegionAndDefaultChain_defaulAwsChainRegionProviderConfigured()
+	void regionProvider_withAutoDetectedRegionAndDefaultChain_defaulAwsChainRegionProviderConfigured()
 			throws Exception {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext(
@@ -94,7 +94,7 @@ public class ContextRegionConfigurationRegistrarTest {
 	}
 
 	@Test
-	public void regionProvider_withExpressionConfiguredRegion_staticRegionProviderConfigured()
+	void regionProvider_withExpressionConfiguredRegion_staticRegionProviderConfigured()
 			throws Exception {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();
@@ -114,7 +114,7 @@ public class ContextRegionConfigurationRegistrarTest {
 	}
 
 	@Test
-	public void regionProvider_withPlaceHolderConfiguredRegion_staticRegionProviderConfigured()
+	void regionProvider_withPlaceHolderConfiguredRegion_staticRegionProviderConfigured()
 			throws Exception {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();
@@ -134,8 +134,7 @@ public class ContextRegionConfigurationRegistrarTest {
 	}
 
 	@Test
-	public void regionProvider_withNoRegionAndNoAutoDetection_reportsError()
-			throws Exception {
+	void regionProvider_withNoRegionAndNoAutoDetection_reportsError() throws Exception {
 
 		this.context = new AnnotationConfigApplicationContext();
 
@@ -149,8 +148,7 @@ public class ContextRegionConfigurationRegistrarTest {
 	}
 
 	@Test
-	public void regionProvider_withRegionAndAutoDetection_reportsError()
-			throws Exception {
+	void regionProvider_withRegionAndAutoDetection_reportsError() throws Exception {
 
 		this.context = new AnnotationConfigApplicationContext();
 
@@ -163,7 +161,7 @@ public class ContextRegionConfigurationRegistrarTest {
 	}
 
 	@Test
-	public void regionProvider_withConfiguredWrongRegion_reportsError() throws Exception {
+	void regionProvider_withConfiguredWrongRegion_reportsError() throws Exception {
 
 		assertThatThrownBy(() -> new AnnotationConfigApplicationContext(
 				ApplicationConfigurationWithWrongRegion.class))
@@ -194,7 +192,7 @@ public class ContextRegionConfigurationRegistrarTest {
 	static class ApplicationConfigurationWithPlaceHolderRegion {
 
 		@Bean
-		public static PropertySourcesPlaceholderConfigurer configurer() {
+		static PropertySourcesPlaceholderConfigurer configurer() {
 			return new PropertySourcesPlaceholderConfigurer();
 		}
 

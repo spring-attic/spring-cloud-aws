@@ -36,12 +36,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Petromir Dzhunev
  * @author Maciej Walkowiak
  */
-public class ContextRegionProviderAutoConfigurationTest {
+class ContextRegionProviderAutoConfigurationTest {
 
 	private AnnotationConfigApplicationContext context;
 
 	@AfterEach
-	public void tearDown() throws Exception {
+	void tearDown() throws Exception {
 		if (this.context != null) {
 			this.context.close();
 		}
@@ -49,7 +49,7 @@ public class ContextRegionProviderAutoConfigurationTest {
 	}
 
 	@Test
-	public void regionProvider_autoDetectionConfigured_Ec2metaDataRegionProviderConfigured()
+	void regionProvider_autoDetectionConfigured_Ec2metaDataRegionProviderConfigured()
 			throws Exception {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();
@@ -64,7 +64,7 @@ public class ContextRegionProviderAutoConfigurationTest {
 	}
 
 	@Test
-	public void regionProvider_autoDetectionConfigured_emptyStaticRegionConfigured_Ec2metaDataRegionProviderConfigured()
+	void regionProvider_autoDetectionConfigured_emptyStaticRegionConfigured_Ec2metaDataRegionProviderConfigured()
 			throws Exception {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();
@@ -80,7 +80,7 @@ public class ContextRegionProviderAutoConfigurationTest {
 	}
 
 	@Test
-	public void regionProvider_staticRegionConfigured_staticRegionProviderWithConfiguredRegionConfigured()
+	void regionProvider_staticRegionConfigured_staticRegionProviderWithConfiguredRegionConfigured()
 			throws Exception {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();
@@ -98,7 +98,7 @@ public class ContextRegionProviderAutoConfigurationTest {
 	}
 
 	@Test
-	public void regionProvider_autoDetectionAndDefaultChainConfigured_DefaultAwsRegionProviderChainDelegateConfigured() {
+	void regionProvider_autoDetectionAndDefaultChainConfigured_DefaultAwsRegionProviderChainDelegateConfigured() {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextRegionProviderAutoConfiguration.class);

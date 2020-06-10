@@ -24,11 +24,10 @@ import org.springframework.mail.javamail.JavaMailSender;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MailSenderAutoConfigurationTest {
+class MailSenderAutoConfigurationTest {
 
 	@Test
-	public void mailSender_MailSenderWithJava_configuresJavaMailSender()
-			throws Exception {
+	void mailSender_MailSenderWithJava_configuresJavaMailSender() throws Exception {
 		// Arrange
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 		context.register(MailSenderAutoConfiguration.class);

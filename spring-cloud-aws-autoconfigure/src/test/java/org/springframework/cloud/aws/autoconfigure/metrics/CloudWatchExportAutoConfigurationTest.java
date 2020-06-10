@@ -32,21 +32,21 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Dawid Kublik
  */
-public class CloudWatchExportAutoConfigurationTest {
+class CloudWatchExportAutoConfigurationTest {
 
 	private MockEnvironment env;
 
 	private AnnotationConfigApplicationContext context;
 
 	@BeforeEach
-	public void before() {
+	void before() {
 		this.env = new MockEnvironment();
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.setEnvironment(this.env);
 	}
 
 	@Test
-	public void testWithoutSettingAnyConfigProperties() {
+	void testWithoutSettingAnyConfigProperties() {
 		this.context.register(CloudWatchExportAutoConfiguration.class);
 		this.context.refresh();
 		assertThat(this.context.getBeansOfType(CloudWatchMeterRegistry.class).isEmpty())
@@ -54,7 +54,7 @@ public class CloudWatchExportAutoConfigurationTest {
 	}
 
 	@Test
-	public void testConfiguration() throws Exception {
+	void testConfiguration() throws Exception {
 		this.env.setProperty("management.metrics.export.cloudwatch.namespace", "test");
 
 		this.context.register(CloudWatchExportAutoConfiguration.class);

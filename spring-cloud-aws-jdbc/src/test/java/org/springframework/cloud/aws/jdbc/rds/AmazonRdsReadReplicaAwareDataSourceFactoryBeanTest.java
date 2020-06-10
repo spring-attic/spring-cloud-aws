@@ -42,10 +42,10 @@ import static org.mockito.Mockito.when;
 /**
  * @author Agim Emruli
  */
-public class AmazonRdsReadReplicaAwareDataSourceFactoryBeanTest {
+class AmazonRdsReadReplicaAwareDataSourceFactoryBeanTest {
 
 	@Test
-	public void afterPropertiesSet_instanceWithoutReadReplica_createsNoDataSourceRouter()
+	void afterPropertiesSet_instanceWithoutReadReplica_createsNoDataSourceRouter()
 			throws Exception {
 		// Arrange
 		AmazonRDS amazonRDS = mock(AmazonRDS.class);
@@ -78,7 +78,7 @@ public class AmazonRdsReadReplicaAwareDataSourceFactoryBeanTest {
 	}
 
 	@Test
-	public void afterPropertiesSet_instanceWithReadReplica_createsDataSourceRouter()
+	void afterPropertiesSet_instanceWithReadReplica_createsDataSourceRouter()
 			throws Exception {
 		// Arrange
 		AmazonRDS amazonRDS = mock(AmazonRDS.class);

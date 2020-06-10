@@ -32,10 +32,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Alain Sahli
  * @since 1.0
  */
-public class NotificationRequestConverterTest {
+class NotificationRequestConverterTest {
 
 	@Test
-	public void testWriteMessageNotSupported() throws Exception {
+	void testWriteMessageNotSupported() throws Exception {
 		assertThatThrownBy(
 				() -> new NotificationRequestConverter(new StringMessageConverter())
 						.toMessage("test", null))
@@ -43,7 +43,7 @@ public class NotificationRequestConverterTest {
 	}
 
 	@Test
-	public void fromMessage_withoutMessage_shouldThrowAnException() throws Exception {
+	void fromMessage_withoutMessage_shouldThrowAnException() throws Exception {
 		assertThatThrownBy(
 				() -> new NotificationRequestConverter(new StringMessageConverter())
 						.fromMessage(null, String.class))
@@ -51,7 +51,7 @@ public class NotificationRequestConverterTest {
 	}
 
 	@Test
-	public void fromMessage_withMessageAndSubject_shouldReturnMessage() throws Exception {
+	void fromMessage_withMessageAndSubject_shouldReturnMessage() throws Exception {
 		// Arrange
 		ObjectNode jsonObject = JsonNodeFactory.instance.objectNode();
 		jsonObject.put("Type", "Notification");
@@ -76,7 +76,7 @@ public class NotificationRequestConverterTest {
 	}
 
 	@Test
-	public void fromMessage_withMessageOnly_shouldReturnMessage() throws Exception {
+	void fromMessage_withMessageOnly_shouldReturnMessage() throws Exception {
 		// Arrange
 		ObjectNode jsonObject = JsonNodeFactory.instance.objectNode();
 		jsonObject.put("Type", "Notification");
@@ -97,7 +97,7 @@ public class NotificationRequestConverterTest {
 	}
 
 	@Test
-	public void testNoTypeSupplied() throws Exception {
+	void testNoTypeSupplied() throws Exception {
 		ObjectNode jsonObject = JsonNodeFactory.instance.objectNode();
 		jsonObject.put("Message", "Hello World!");
 		String payload = jsonObject.toString();
@@ -113,7 +113,7 @@ public class NotificationRequestConverterTest {
 	}
 
 	@Test
-	public void testWrongTypeSupplied() throws Exception {
+	void testWrongTypeSupplied() throws Exception {
 		ObjectNode jsonObject = JsonNodeFactory.instance.objectNode();
 		jsonObject.put("Type", "Subscription");
 		jsonObject.put("Message", "Hello World!");
@@ -130,7 +130,7 @@ public class NotificationRequestConverterTest {
 	}
 
 	@Test
-	public void testNoMessageAvailableSupplied() throws Exception {
+	void testNoMessageAvailableSupplied() throws Exception {
 		ObjectNode jsonObject = JsonNodeFactory.instance.objectNode();
 		jsonObject.put("Type", "Notification");
 		jsonObject.put("Subject", "Hello World!");
@@ -146,7 +146,7 @@ public class NotificationRequestConverterTest {
 	}
 
 	@Test
-	public void testNoValidJson() throws Exception {
+	void testNoValidJson() throws Exception {
 		String message = "foo";
 		assertThatThrownBy(
 				() -> new NotificationRequestConverter(new StringMessageConverter())

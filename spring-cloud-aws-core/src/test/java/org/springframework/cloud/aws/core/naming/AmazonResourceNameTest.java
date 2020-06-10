@@ -33,38 +33,38 @@ import static org.springframework.cloud.aws.core.naming.AmazonResourceName.fromS
  * @author Agim Emruli
  * @since 1.0
  */
-public class AmazonResourceNameTest {
+class AmazonResourceNameTest {
 
 	@Test
-	public void testNameIsNull() {
+	void testNameIsNull() {
 		assertThatThrownBy(() -> fromString(null))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("name must not be null");
 	}
 
 	@Test
-	public void testWithoutArnQualifier() {
+	void testWithoutArnQualifier() {
 		assertThatThrownBy(() -> fromString("foo:aws:iam::123456789012:David"))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("must have an arn qualifier at the beginning");
 	}
 
 	@Test
-	public void testWithoutAwsQualifier() {
+	void testWithoutAwsQualifier() {
 		assertThatThrownBy(() -> fromString("arn:axs:iam::123456789012:David"))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("must have a valid partition name");
 	}
 
 	@Test
-	public void testWithCustomPartitionName() {
+	void testWithCustomPartitionName() {
 		AmazonResourceName resourceName = fromString(
 				"arn:aws-cn:iam::123456789012:David");
 		assertThat(resourceName.getPartition()).isEqualTo("aws-cn");
 	}
 
 	@Test
-	public void testDynamoDb() {
+	void testDynamoDb() {
 		String arn = "arn:aws:dynamodb:us-east-1:123456789012:table/books_table";
 		AmazonResourceName resourceName = fromString(arn);
 		assertThat(resourceName.getService()).isEqualTo("dynamodb");
@@ -76,7 +76,7 @@ public class AmazonResourceNameTest {
 	}
 
 	@Test
-	public void testDynamoDbBuilder() {
+	void testDynamoDbBuilder() {
 		Builder builder = new Builder();
 		builder.withService("dynamodb");
 		builder.withRegion(Region.getRegion(Regions.US_EAST_1));
@@ -89,7 +89,7 @@ public class AmazonResourceNameTest {
 	}
 
 	@Test
-	public void testElasticBeansTalkBuilder() {
+	void testElasticBeansTalkBuilder() {
 		Builder builder = new Builder();
 		builder.withService("elasticbeanstalk");
 		builder.withRegion(Region.getRegion(Regions.US_EAST_1));
@@ -101,7 +101,7 @@ public class AmazonResourceNameTest {
 	}
 
 	@Test
-	public void testElasticBeansTalk() {
+	void testElasticBeansTalk() {
 		String arn = "arn:aws:elasticbeanstalk:us-east-1::solutionstack/32bit Amazon Linux running Tomcat 7";
 		AmazonResourceName resourceName = fromString(arn);
 		assertThat(resourceName.getService()).isEqualTo("elasticbeanstalk");
@@ -114,7 +114,7 @@ public class AmazonResourceNameTest {
 	}
 
 	@Test
-	public void testIamService() {
+	void testIamService() {
 		String arn = "arn:aws:iam::123456789012:server-certificate/ProdServerCert";
 		AmazonResourceName resourceName = fromString(arn);
 		assertThat(resourceName.getService()).isEqualTo("iam");
@@ -126,7 +126,7 @@ public class AmazonResourceNameTest {
 	}
 
 	@Test
-	public void testRdsService() {
+	void testRdsService() {
 		String arn = "arn:aws:rds:us-west-2:123456789012:db:mysql-db";
 		AmazonResourceName resourceName = fromString(arn);
 		assertThat(resourceName.getService()).isEqualTo("rds");
@@ -138,7 +138,7 @@ public class AmazonResourceNameTest {
 	}
 
 	@Test
-	public void testRoute53Service() {
+	void testRoute53Service() {
 		String arn = "arn:aws:route53:::hostedzone/Z148QEXAMPLE8V";
 		AmazonResourceName resourceName = fromString(arn);
 		assertThat(resourceName.getService()).isEqualTo("route53");
@@ -150,7 +150,7 @@ public class AmazonResourceNameTest {
 	}
 
 	@Test
-	public void testS3Service() {
+	void testS3Service() {
 		String arn = "arn:aws:s3:::my_corporate_bucket/Development/*";
 		AmazonResourceName resourceName = fromString(arn);
 		assertThat(resourceName.getService()).isEqualTo("s3");
@@ -162,7 +162,7 @@ public class AmazonResourceNameTest {
 	}
 
 	@Test
-	public void testSnsService() {
+	void testSnsService() {
 		String arn = "arn:aws:sns:us-east-1:123456789012:my_corporate_topic:02034b43-fefa-4e07-a5eb-3be56f8c54ce";
 		AmazonResourceName resourceName = fromString(arn);
 		assertThat(resourceName.getService()).isEqualTo("sns");
@@ -175,7 +175,7 @@ public class AmazonResourceNameTest {
 	}
 
 	@Test
-	public void testSqsService() {
+	void testSqsService() {
 		String arn = "arn:aws:sqs:us-east-1:123456789012:queue1";
 		AmazonResourceName resourceName = fromString(arn);
 		assertThat(resourceName.getService()).isEqualTo("sqs");
@@ -187,7 +187,7 @@ public class AmazonResourceNameTest {
 	}
 
 	@Test
-	public void testGovCloudAwsQualifier() {
+	void testGovCloudAwsQualifier() {
 		String arn = "arn:aws-us-gov:sns:us-gov-east-1:123456789012:my_corporate_topic:02034b43-fefa-4e07-a5eb-3be56f8c54ce";
 		AmazonResourceName resourceName = fromString(arn);
 		assertThat(resourceName.getService()).isEqualTo("sns");

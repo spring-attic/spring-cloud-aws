@@ -30,10 +30,10 @@ import org.springframework.web.context.request.ServletWebRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BaseNotificationMessageHandlerMethodArgumentResolverTest {
+class BaseNotificationMessageHandlerMethodArgumentResolverTest {
 
 	@Test
-	public void resolveArgument_SubScriptionMessage_createsObjectWithAllFields()
+	void resolveArgument_SubScriptionMessage_createsObjectWithAllFields()
 			throws Exception {
 		// Arrange
 		AbstractNotificationMessageHandlerMethodArgumentResolver resolver = null;
@@ -108,7 +108,7 @@ public class BaseNotificationMessageHandlerMethodArgumentResolverTest {
 	}
 
 	@Test
-	public void resolveArgument_NotificationMessage_createsObjectWithAllFields()
+	void resolveArgument_NotificationMessage_createsObjectWithAllFields()
 			throws Exception {
 		// Arrange
 		AbstractNotificationMessageHandlerMethodArgumentResolver resolver;

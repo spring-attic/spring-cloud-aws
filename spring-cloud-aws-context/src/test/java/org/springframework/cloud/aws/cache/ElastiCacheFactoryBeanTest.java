@@ -35,11 +35,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ElastiCacheFactoryBeanTest {
+class ElastiCacheFactoryBeanTest {
 
 	@Test
-	public void getObject_availableCluster_returnsConfiguredMemcachedClient()
-			throws Exception {
+	void getObject_availableCluster_returnsConfiguredMemcachedClient() throws Exception {
 		// Arrange
 		AmazonElastiCache amazonElastiCache = mock(AmazonElastiCacheClient.class);
 
@@ -65,7 +64,7 @@ public class ElastiCacheFactoryBeanTest {
 	}
 
 	@Test
-	public void getObject_availableClusterWithLogicalName_returnsConfigurationMemcachedClientWithPhysicalName()
+	void getObject_availableClusterWithLogicalName_returnsConfigurationMemcachedClientWithPhysicalName()
 			throws Exception {
 		// Arrange
 		AmazonElastiCache amazonElastiCache = mock(AmazonElastiCacheClient.class);
@@ -97,8 +96,7 @@ public class ElastiCacheFactoryBeanTest {
 	}
 
 	@Test
-	public void getObject_clusterWithRedisEngineConfigured_reportsError()
-			throws Exception {
+	void getObject_clusterWithRedisEngineConfigured_reportsError() throws Exception {
 		// Arrange
 		AmazonElastiCache amazonElastiCache = mock(AmazonElastiCacheClient.class);
 		DescribeCacheClustersRequest memcached = new DescribeCacheClustersRequest()

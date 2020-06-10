@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /**
  *
  */
-public class ObjectMessageConverterTest {
+class ObjectMessageConverterTest {
 
 	private static MessageHeaders getMessageHeaders(String charsetName) {
 		return new MessageHeaders(Collections.singletonMap(MessageHeaders.CONTENT_TYPE,
@@ -46,7 +46,7 @@ public class ObjectMessageConverterTest {
 	}
 
 	@Test
-	public void testToMessageAndFromMessage() throws Exception {
+	void testToMessageAndFromMessage() throws Exception {
 		String content = "stringwithspecialcharsöäü€a8";
 		MySerializableClass sourceMessage = new MySerializableClass(content);
 		MessageConverter messageConverter = new ObjectMessageConverter();
@@ -60,7 +60,7 @@ public class ObjectMessageConverterTest {
 	}
 
 	@Test
-	public void testToMessageAndFromMessageWithCustomEncoding() throws Exception {
+	void testToMessageAndFromMessageWithCustomEncoding() throws Exception {
 		String content = "stringwithspecialcharsöäü€a8";
 		MySerializableClass sourceMessage = new MySerializableClass(content);
 		MessageConverter messageConverter = new ObjectMessageConverter("ISO-8859-1");
@@ -75,13 +75,13 @@ public class ObjectMessageConverterTest {
 	}
 
 	@Test
-	public void testWithWrongCharset() throws Exception {
+	void testWithWrongCharset() throws Exception {
 		assertThatThrownBy(() -> new ObjectMessageConverter("someUnsupportedEncoding"))
 				.isInstanceOf(UnsupportedCharsetException.class);
 	}
 
 	@Test
-	public void testPayloadIsNotAValidBase64Payload() throws Exception {
+	void testPayloadIsNotAValidBase64Payload() throws Exception {
 
 		ObjectMessageConverter messageConverter = new ObjectMessageConverter();
 		assertThatThrownBy(() -> messageConverter
@@ -91,7 +91,7 @@ public class ObjectMessageConverterTest {
 	}
 
 	@Test
-	public void testPayloadIsNotAValidObjectStream() throws Exception {
+	void testPayloadIsNotAValidObjectStream() throws Exception {
 		ObjectMessageConverter messageConverter = new ObjectMessageConverter();
 		assertThatThrownBy(() -> messageConverter
 				.fromMessage(MessageBuilder.withPayload("someStream").build(), null))
@@ -107,7 +107,7 @@ public class ObjectMessageConverterTest {
 			this.content = content;
 		}
 
-		public String getContent() {
+		String getContent() {
 			return this.content;
 		}
 

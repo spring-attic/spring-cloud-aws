@@ -32,10 +32,10 @@ import static org.mockito.Mockito.when;
 /**
  * @author Agim Emruli
  */
-public class SimpleSpringMemcachedTest {
+class SimpleSpringMemcachedTest {
 
 	@Test
-	public void getName_configuredName_configuredNameReturned() throws Exception {
+	void getName_configuredName_configuredNameReturned() throws Exception {
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
 		SimpleSpringMemcached cache = new SimpleSpringMemcached(client, "test");
@@ -48,7 +48,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void simpleSpringMemcached_withoutName_reportsError() throws Exception {
+	void simpleSpringMemcached_withoutName_reportsError() throws Exception {
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
 
@@ -60,8 +60,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void simpleSpringMemcached_withoutMemcachedClient_reportsError()
-			throws Exception {
+	void simpleSpringMemcached_withoutMemcachedClient_reportsError() throws Exception {
 		// Assert
 		assertThatThrownBy(() -> new SimpleSpringMemcached(null, "test"))
 				.isInstanceOf(IllegalArgumentException.class)
@@ -69,7 +68,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void getNativeCache_withConfiguredMemcachedClient_returnsConfiguredMemcachedClient()
+	void getNativeCache_withConfiguredMemcachedClient_returnsConfiguredMemcachedClient()
 			throws Exception {
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
@@ -83,7 +82,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void get_withoutTypeParameterAndFoundInstance_returnsValueWrapperWithInstance()
+	void get_withoutTypeParameterAndFoundInstance_returnsValueWrapperWithInstance()
 			throws Exception {
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
@@ -99,8 +98,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void get_withoutTypeParameterAndNonFoundInstance_returnsValue()
-			throws Exception {
+	void get_withoutTypeParameterAndNonFoundInstance_returnsValue() throws Exception {
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
 		SimpleSpringMemcached cache = new SimpleSpringMemcached(client, "test");
@@ -113,8 +111,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void get_withTypeParameterAndFoundInstance_returnsConvertedValue()
-			throws Exception {
+	void get_withTypeParameterAndFoundInstance_returnsConvertedValue() throws Exception {
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
 		SimpleSpringMemcached cache = new SimpleSpringMemcached(client, "test");
@@ -129,7 +126,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void get_withTypeParameterAndNonFoundInstance_returnsValue() throws Exception {
+	void get_withTypeParameterAndNonFoundInstance_returnsValue() throws Exception {
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
 		SimpleSpringMemcached cache = new SimpleSpringMemcached(client, "test");
@@ -142,7 +139,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void get_withTypeParameterAndNonCompatibleInstance_reportsIllegalArgumentException()
+	void get_withTypeParameterAndNonCompatibleInstance_reportsIllegalArgumentException()
 			throws Exception {
 
 		// Arrange
@@ -158,7 +155,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void get_withoutTypeParameterAndNonCompatibleCacheKey_reportsIllegalArgumentException()
+	void get_withoutTypeParameterAndNonCompatibleCacheKey_reportsIllegalArgumentException()
 			throws Exception {
 
 		// Arrange
@@ -172,7 +169,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void get_withTypeParameterAndNonCompatibleCacheKey_reportsIllegalArgumentException()
+	void get_withTypeParameterAndNonCompatibleCacheKey_reportsIllegalArgumentException()
 			throws Exception {
 
 		// Arrange
@@ -186,7 +183,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void get_withoutTypeParameterAndNullCacheKey_reportsIllegalArgumentException()
+	void get_withoutTypeParameterAndNullCacheKey_reportsIllegalArgumentException()
 			throws Exception {
 
 		// Arrange
@@ -200,7 +197,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void get_withTypeParameterAndNullCacheKey_reportsIllegalArgumentException()
+	void get_withTypeParameterAndNullCacheKey_reportsIllegalArgumentException()
 			throws Exception {
 
 		// Arrange
@@ -214,7 +211,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void get_witValueLoaderAndNonExistingValue_createsValueFromValueLoaderAndStoresItInCache()
+	void get_witValueLoaderAndNonExistingValue_createsValueFromValueLoaderAndStoresItInCache()
 			throws Exception {
 
 		// Arrange
@@ -232,8 +229,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void get_witValueLoaderAndExistingValue_doesNotCallValueLoader()
-			throws Exception {
+	void get_witValueLoaderAndExistingValue_doesNotCallValueLoader() throws Exception {
 
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
@@ -251,7 +247,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void put_nullCacheKey_reportsIllegalArgumentException() throws Exception {
+	void put_nullCacheKey_reportsIllegalArgumentException() throws Exception {
 
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
@@ -264,7 +260,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void put_longCacheKey_reportsIllegalArgumentException() throws Exception {
+	void put_longCacheKey_reportsIllegalArgumentException() throws Exception {
 
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
@@ -277,8 +273,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void put_nullCacheValueWithDefaultExpiration_keyStoredInCache()
-			throws Exception {
+	void put_nullCacheValueWithDefaultExpiration_keyStoredInCache() throws Exception {
 
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
@@ -293,7 +288,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void put_withDefaultExpiration_keyStoredInCache() throws Exception {
+	void put_withDefaultExpiration_keyStoredInCache() throws Exception {
 
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
@@ -308,7 +303,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void put_withCustomExpiration_keyStoredInCache() throws Exception {
+	void put_withCustomExpiration_keyStoredInCache() throws Exception {
 
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
@@ -324,7 +319,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void evict_nullCacheKey_reportsIllegalArgumentException() throws Exception {
+	void evict_nullCacheKey_reportsIllegalArgumentException() throws Exception {
 
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
@@ -337,7 +332,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void evict_longCacheKey_reportsIllegalArgumentException() throws Exception {
+	void evict_longCacheKey_reportsIllegalArgumentException() throws Exception {
 
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
@@ -351,7 +346,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void evict_withCacheKey_deletedObjectInCache() throws Exception {
+	void evict_withCacheKey_deletedObjectInCache() throws Exception {
 
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
@@ -366,7 +361,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void clear_withDefaultSettings_flushesCache() throws Exception {
+	void clear_withDefaultSettings_flushesCache() throws Exception {
 
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
@@ -380,8 +375,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void putIfAbsent_withNewValue_shouldPutTheNewValueAndReturnNull()
-			throws Exception {
+	void putIfAbsent_withNewValue_shouldPutTheNewValueAndReturnNull() throws Exception {
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);
 		SimpleSpringMemcached cache = new SimpleSpringMemcached(client, "test");
@@ -395,7 +389,7 @@ public class SimpleSpringMemcachedTest {
 	}
 
 	@Test
-	public void putIfAbsent_withExistingValue_shouldNotPutTheValueAndReturnTheExistingOne()
+	void putIfAbsent_withExistingValue_shouldNotPutTheValueAndReturnTheExistingOne()
 			throws Exception {
 		// Arrange
 		MemcachedClientIF client = mock(MemcachedClientIF.class);

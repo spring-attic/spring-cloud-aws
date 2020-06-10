@@ -28,10 +28,10 @@ import org.springframework.web.context.request.ServletWebRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class NotificationMessageHandlerMethodArgumentResolverTest {
+class NotificationMessageHandlerMethodArgumentResolverTest {
 
 	@Test
-	public void resolveArgument_wrongMessageType_reportsErrors() throws Exception {
+	void resolveArgument_wrongMessageType_reportsErrors() throws Exception {
 		// Arrange
 		NotificationMessageHandlerMethodArgumentResolver resolver = new NotificationMessageHandlerMethodArgumentResolver();
 
@@ -55,7 +55,7 @@ public class NotificationMessageHandlerMethodArgumentResolverTest {
 	}
 
 	@Test
-	public void resolveArgument_notificationMessageTypeWithSubject_reportsErrors()
+	void resolveArgument_notificationMessageTypeWithSubject_reportsErrors()
 			throws Exception {
 		// Arrange
 		NotificationMessageHandlerMethodArgumentResolver resolver = new NotificationMessageHandlerMethodArgumentResolver();
@@ -80,8 +80,7 @@ public class NotificationMessageHandlerMethodArgumentResolverTest {
 	}
 
 	@Test
-	public void supportsParameter_withIntegerParameterType_shouldReturnFalse()
-			throws Exception {
+	void supportsParameter_withIntegerParameterType_shouldReturnFalse() throws Exception {
 		// Arrange
 		NotificationMessageHandlerMethodArgumentResolver resolver = new NotificationMessageHandlerMethodArgumentResolver();
 		MethodParameter methodParameter = new MethodParameter(

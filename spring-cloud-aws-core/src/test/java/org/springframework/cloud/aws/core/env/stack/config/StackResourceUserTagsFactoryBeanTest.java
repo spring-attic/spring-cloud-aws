@@ -32,10 +32,10 @@ import static org.mockito.Mockito.when;
 /**
  * @author Agim Emruli
  */
-public class StackResourceUserTagsFactoryBeanTest {
+class StackResourceUserTagsFactoryBeanTest {
 
 	@Test
-	public void getObject_stackWithTagsDefined_createTagsMap() throws Exception {
+	void getObject_stackWithTagsDefined_createTagsMap() throws Exception {
 		// Arrange
 		AmazonCloudFormation cloudFormation = mock(AmazonCloudFormation.class);
 		StackNameProvider stackNameProvider = mock(StackNameProvider.class);

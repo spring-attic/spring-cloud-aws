@@ -44,19 +44,19 @@ import static org.mockito.Mockito.when;
  * @author Alain Sahli
  */
 @ExtendWith(MockitoExtension.class)
-public class AbstractMessageChannelMessagingSendingTemplateTest {
+class AbstractMessageChannelMessagingSendingTemplateTest {
 
 	@Mock
 	private DestinationResolver<String> destinationResolver;
 
 	@SuppressWarnings("unchecked")
 	@BeforeEach
-	public void setUp() throws Exception {
+	void setUp() throws Exception {
 		reset(this.destinationResolver);
 	}
 
 	@Test
-	public void send_WithDestinationNameAndMessage_shouldResolveTheDestinationAndSendTheMessage()
+	void send_WithDestinationNameAndMessage_shouldResolveTheDestinationAndSendTheMessage()
 			throws Exception {
 		// Arrange
 		MessageSendingTemplateTest messageSendingTemplate = new MessageSendingTemplateTest(
@@ -82,7 +82,7 @@ public class AbstractMessageChannelMessagingSendingTemplateTest {
 	}
 
 	@Test
-	public void convertAndSend_WithDestinationNameAndPayload_shouldResolveTheDestinationAndSendTheConvertedMessage()
+	void convertAndSend_WithDestinationNameAndPayload_shouldResolveTheDestinationAndSendTheConvertedMessage()
 			throws Exception {
 		// Arrange
 		MessageSendingTemplateTest messageSendingTemplate = new MessageSendingTemplateTest(
@@ -103,7 +103,7 @@ public class AbstractMessageChannelMessagingSendingTemplateTest {
 	}
 
 	@Test
-	public void convertAndSend_WithDestinationNamePayloadAndHeaders_shouldResolveTheDestinationAndSendTheConvertedMessage()
+	void convertAndSend_WithDestinationNamePayloadAndHeaders_shouldResolveTheDestinationAndSendTheConvertedMessage()
 			throws Exception {
 		// Arrange
 		MessageSendingTemplateTest messageSendingTemplate = new MessageSendingTemplateTest(
@@ -129,7 +129,7 @@ public class AbstractMessageChannelMessagingSendingTemplateTest {
 
 	// @checkstyle:off
 	@Test
-	public void convertAndSend_WithDestinationNamePayloadAndPostProcessor_shouldResolveTheDestinationSendTheConvertedMessageAndCallPostProcessor()
+	void convertAndSend_WithDestinationNamePayloadAndPostProcessor_shouldResolveTheDestinationSendTheConvertedMessageAndCallPostProcessor()
 			throws Exception {
 		// @checkstyle:on
 		// Arrange
@@ -159,7 +159,7 @@ public class AbstractMessageChannelMessagingSendingTemplateTest {
 
 	// @checkstyle:off
 	@Test
-	public void convertAndSend_WithDestinationNamePayloadHeadersAndPostProcessor_shouldResolveTheDestinationSendTheConvertedMessageAndCallPostProcessor()
+	void convertAndSend_WithDestinationNamePayloadHeadersAndPostProcessor_shouldResolveTheDestinationSendTheConvertedMessageAndCallPostProcessor()
 			// @checkstyle:on
 			throws Exception {
 		// Arrange
@@ -192,7 +192,7 @@ public class AbstractMessageChannelMessagingSendingTemplateTest {
 	}
 
 	@Test
-	public void send_WithPayload_shouldUseDefaultDestination() throws Exception {
+	void send_WithPayload_shouldUseDefaultDestination() throws Exception {
 		// Arrange
 		MessageSendingTemplateTest messageSendingTemplate = new MessageSendingTemplateTest(
 				this.destinationResolver);
@@ -235,7 +235,7 @@ public class AbstractMessageChannelMessagingSendingTemplateTest {
 			return this.messageChannel;
 		}
 
-		public MessageChannelTest getMessageChannel() {
+		MessageChannelTest getMessageChannel() {
 			return this.messageChannel;
 		}
 
@@ -257,7 +257,7 @@ public class AbstractMessageChannelMessagingSendingTemplateTest {
 			return false;
 		}
 
-		public Message<?> getSentMessage() {
+		Message<?> getSentMessage() {
 			return this.sentMessage;
 		}
 

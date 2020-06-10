@@ -34,17 +34,17 @@ import static org.mockito.Mockito.when;
  *
  * @author Agim Emruli
  */
-public class CredentialsProviderFactoryBeanTest {
+class CredentialsProviderFactoryBeanTest {
 
 	@Test
-	public void testCreateWithNullCredentialsProvider() throws Exception {
+	void testCreateWithNullCredentialsProvider() throws Exception {
 		assertThatThrownBy(() -> new CredentialsProviderFactoryBean(null))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("not be null");
 	}
 
 	@Test
-	public void getObject_withZeroConfiguredProviders_returnsDefaultAwsCredentialsProviderChain()
+	void getObject_withZeroConfiguredProviders_returnsDefaultAwsCredentialsProviderChain()
 			throws Exception {
 		// Arrange
 		CredentialsProviderFactoryBean credentialsProviderFactoryBean = new CredentialsProviderFactoryBean();
@@ -62,7 +62,7 @@ public class CredentialsProviderFactoryBeanTest {
 	}
 
 	@Test
-	public void testCreateWithMultiple() throws Exception {
+	void testCreateWithMultiple() throws Exception {
 		AWSCredentialsProvider first = mock(AWSCredentialsProvider.class);
 		AWSCredentialsProvider second = mock(AWSCredentialsProvider.class);
 

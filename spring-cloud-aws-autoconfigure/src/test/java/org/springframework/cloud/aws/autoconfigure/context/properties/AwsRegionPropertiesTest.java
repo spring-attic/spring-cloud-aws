@@ -28,17 +28,17 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Tom Gianos
  * @since 2.0.2
  */
-public class AwsRegionPropertiesTest {
+class AwsRegionPropertiesTest {
 
 	private AwsRegionProperties properties;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.properties = new AwsRegionProperties();
 	}
 
 	@Test
-	public void autoCanBeSet() {
+	void autoCanBeSet() {
 		assertThat(this.properties.isAuto()).as("Default value of auto should be true")
 				.isTrue();
 
@@ -48,7 +48,7 @@ public class AwsRegionPropertiesTest {
 	}
 
 	@Test
-	public void staticRegionCanBeSet() {
+	void staticRegionCanBeSet() {
 		assertThat(this.properties.getStatic())
 				.as("Static region value should have default of null").isNull();
 

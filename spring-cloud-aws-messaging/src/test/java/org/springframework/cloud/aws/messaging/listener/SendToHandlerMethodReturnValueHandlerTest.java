@@ -45,14 +45,13 @@ import static org.mockito.Mockito.verify;
  * @author Agim Emruli
  */
 @ExtendWith(MockitoExtension.class)
-public class SendToHandlerMethodReturnValueHandlerTest {
+class SendToHandlerMethodReturnValueHandlerTest {
 
 	@Mock
 	private DestinationResolvingMessageSendingOperations<?> messageTemplate;
 
 	@Test
-	public void supportsReturnType_methodAnnotatedWithSendTo_trueIsReturned()
-			throws Exception {
+	void supportsReturnType_methodAnnotatedWithSendTo_trueIsReturned() throws Exception {
 		// Arrange
 		SendToHandlerMethodReturnValueHandler sendToHandlerMethodReturnValueHandler;
 		sendToHandlerMethodReturnValueHandler = new SendToHandlerMethodReturnValueHandler(
@@ -69,7 +68,7 @@ public class SendToHandlerMethodReturnValueHandlerTest {
 	}
 
 	@Test
-	public void supportsReturnType_methodWithoutSendToAnnotation_falseIsReturned()
+	void supportsReturnType_methodWithoutSendToAnnotation_falseIsReturned()
 			throws Exception {
 		// Arrange
 		SendToHandlerMethodReturnValueHandler sendToHandlerMethodReturnValueHandler;
@@ -88,7 +87,7 @@ public class SendToHandlerMethodReturnValueHandlerTest {
 	}
 
 	@Test
-	public void supportsReturnType_methodWithSendToAnnotationWithoutValue_trueIsReturned()
+	void supportsReturnType_methodWithSendToAnnotationWithoutValue_trueIsReturned()
 			throws Exception {
 		// Arrange
 		SendToHandlerMethodReturnValueHandler sendToHandlerMethodReturnValueHandler;
@@ -107,8 +106,7 @@ public class SendToHandlerMethodReturnValueHandlerTest {
 	}
 
 	@Test
-	public void handleReturnValue_withNullMessageTemplate_exceptionIsThrown()
-			throws Exception {
+	void handleReturnValue_withNullMessageTemplate_exceptionIsThrown() throws Exception {
 		// Arrange
 		Method validSendToMethod = this.getClass().getDeclaredMethod("validSendToMethod");
 		MethodParameter methodParameter = new MethodParameter(validSendToMethod, -1);
@@ -125,7 +123,7 @@ public class SendToHandlerMethodReturnValueHandlerTest {
 	}
 
 	@Test
-	public void handleReturnValue_withNullReturnValue_NoMessageTemplateIsCalled()
+	void handleReturnValue_withNullReturnValue_NoMessageTemplateIsCalled()
 			throws Exception {
 		// Arrange
 		Method validSendToMethod = this.getClass().getDeclaredMethod("validSendToMethod");
@@ -143,7 +141,7 @@ public class SendToHandlerMethodReturnValueHandlerTest {
 	}
 
 	@Test
-	public void handleReturnValue_withAMessageTemplateAndAValidMethodWithDestination_templateIsCalled()
+	void handleReturnValue_withAMessageTemplateAndAValidMethodWithDestination_templateIsCalled()
 			throws Exception {
 		// Arrange
 		Method validSendToMethod = this.getClass().getDeclaredMethod("validSendToMethod");
@@ -162,7 +160,7 @@ public class SendToHandlerMethodReturnValueHandlerTest {
 	}
 
 	@Test
-	public void handleReturnValue_withExpressionInSendToName_templateIsCalled()
+	void handleReturnValue_withExpressionInSendToName_templateIsCalled()
 			throws Exception {
 		// Arrange
 		Method validSendToMethod = this.getClass().getDeclaredMethod("expressionMethod");
@@ -191,7 +189,7 @@ public class SendToHandlerMethodReturnValueHandlerTest {
 	}
 
 	@Test
-	public void handleReturnValue_withPlaceHolderInSendToName_templateIsCalled()
+	void handleReturnValue_withPlaceHolderInSendToName_templateIsCalled()
 			throws Exception {
 		// Arrange
 		Method validSendToMethod = this.getClass().getDeclaredMethod("placeHolderMethod");
@@ -226,7 +224,7 @@ public class SendToHandlerMethodReturnValueHandlerTest {
 
 	// @checkstyle:off
 	@Test
-	public void handleReturnValue_withAMessageTemplateAndAValidMethodWithoutDestination_templateIsCalled()
+	void handleReturnValue_withAMessageTemplateAndAValidMethodWithoutDestination_templateIsCalled()
 			throws Exception {
 		// @checkstyle:on
 		// Arrange

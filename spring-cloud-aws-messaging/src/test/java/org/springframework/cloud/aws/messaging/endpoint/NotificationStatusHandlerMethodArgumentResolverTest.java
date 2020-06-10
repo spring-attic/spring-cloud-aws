@@ -32,10 +32,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class NotificationStatusHandlerMethodArgumentResolverTest {
+class NotificationStatusHandlerMethodArgumentResolverTest {
 
 	@Test
-	public void resolveArgument_wrongMessageType_reportsErrors() throws Exception {
+	void resolveArgument_wrongMessageType_reportsErrors() throws Exception {
 		// Arrange
 		AmazonSNS amazonSns = mock(AmazonSNS.class);
 		NotificationStatusHandlerMethodArgumentResolver resolver = new NotificationStatusHandlerMethodArgumentResolver(
@@ -61,7 +61,7 @@ public class NotificationStatusHandlerMethodArgumentResolverTest {
 	}
 
 	@Test
-	public void resolveArgument_subscriptionRequest_createsValidSubscriptionStatus()
+	void resolveArgument_subscriptionRequest_createsValidSubscriptionStatus()
 			throws Exception {
 		// Arrange
 		AmazonSNS amazonSns = mock(AmazonSNS.class);

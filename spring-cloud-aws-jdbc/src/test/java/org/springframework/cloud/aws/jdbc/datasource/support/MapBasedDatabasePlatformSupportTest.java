@@ -31,17 +31,17 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Agim Emruli
  * @since 1.0
  */
-public class MapBasedDatabasePlatformSupportTest {
+class MapBasedDatabasePlatformSupportTest {
 
 	@Test
-	public void testGetDriverClassNameForDatabase() throws Exception {
+	void testGetDriverClassNameForDatabase() throws Exception {
 		assertThat(new SimpleDatabasePlatformSupport()
 				.getDriverClassNameForDatabase(DatabaseType.MYSQL))
 						.isEqualTo("com.mysql.jdbc.Driver");
 	}
 
 	@Test
-	public void testGetDriverNonConfiguredDatabasePlatform() throws Exception {
+	void testGetDriverNonConfiguredDatabasePlatform() throws Exception {
 		assertThatThrownBy(() -> new SimpleDatabasePlatformSupport()
 				.getDriverClassNameForDatabase(DatabaseType.ORACLE))
 						.isInstanceOf(IllegalArgumentException.class)
@@ -49,7 +49,7 @@ public class MapBasedDatabasePlatformSupportTest {
 	}
 
 	@Test
-	public void testNullDriver() throws Exception {
+	void testNullDriver() throws Exception {
 		assertThatThrownBy(() -> new SimpleDatabasePlatformSupport()
 				.getDriverClassNameForDatabase(null))
 						.isInstanceOf(IllegalArgumentException.class)
@@ -57,7 +57,7 @@ public class MapBasedDatabasePlatformSupportTest {
 	}
 
 	@Test
-	public void testGetDatabaseUrlForDatabase() throws Exception {
+	void testGetDatabaseUrlForDatabase() throws Exception {
 		SimpleDatabasePlatformSupport simpleDatabasePlatformSupport = new SimpleDatabasePlatformSupport();
 		String url = simpleDatabasePlatformSupport.getDatabaseUrlForDatabase(
 				DatabaseType.MYSQL, "localhost", 3306, "testDb");
@@ -65,7 +65,7 @@ public class MapBasedDatabasePlatformSupportTest {
 	}
 
 	@Test
-	public void testGetDatabaseUrlWrongHostName() throws Exception {
+	void testGetDatabaseUrlWrongHostName() throws Exception {
 		SimpleDatabasePlatformSupport simpleDatabasePlatformSupport = new SimpleDatabasePlatformSupport();
 		assertThatThrownBy(() -> simpleDatabasePlatformSupport.getDatabaseUrlForDatabase(
 				DatabaseType.MYSQL, "localhost<", 3306, "testDb"))

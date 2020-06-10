@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class StackResourceRegistryDetectingResourceIdResolverTest {
+class StackResourceRegistryDetectingResourceIdResolverTest {
 
 	private static ListableBeanFactory makeListableBeanFactory(
 			StackResourceRegistry... stackResourceRegistries) {
@@ -62,7 +62,7 @@ public class StackResourceRegistryDetectingResourceIdResolverTest {
 
 	// @checkstyle:off
 	@Test
-	public void resolveToPhysicalResourceId_logicalResourceIdOfNonStackResourceAndNoStackResourceRegistryAvailable_returnsLogicalResourceIdAsPhysicalResourceId()
+	void resolveToPhysicalResourceId_logicalResourceIdOfNonStackResourceAndNoStackResourceRegistryAvailable_returnsLogicalResourceIdAsPhysicalResourceId()
 			throws Exception {
 		// @checkstyle:on
 		// Arrange
@@ -81,7 +81,7 @@ public class StackResourceRegistryDetectingResourceIdResolverTest {
 
 	// @checkstyle:off
 	@Test
-	public void resolveToPhysicalResourceId_logicalResourceIdOfNonStackResourceAndStackResourceRegistryAvailable_returnsLogicalResourceIdAsPhysicalResourceId()
+	void resolveToPhysicalResourceId_logicalResourceIdOfNonStackResourceAndStackResourceRegistryAvailable_returnsLogicalResourceIdAsPhysicalResourceId()
 			throws Exception {
 		// @checkstyle:on
 		// Arrange
@@ -101,7 +101,7 @@ public class StackResourceRegistryDetectingResourceIdResolverTest {
 
 	// @checkstyle:off
 	@Test
-	public void resolveToPhysicalResourceId_logicalResourceIdOfStackResourceAndStackResourceRegistryAvailable_returnsPhysicalResourceIdFromStackResourceRegistry()
+	void resolveToPhysicalResourceId_logicalResourceIdOfStackResourceAndStackResourceRegistryAvailable_returnsPhysicalResourceIdFromStackResourceRegistry()
 			throws Exception {
 		// @checkstyle:on
 		// Arrange
@@ -121,7 +121,7 @@ public class StackResourceRegistryDetectingResourceIdResolverTest {
 
 	// @checkstyle:off
 	@Test
-	public void createInstance_multipleStackResourceRegistriesAvailable_throwsException()
+	void createInstance_multipleStackResourceRegistriesAvailable_throwsException()
 			throws Exception {
 		// @checkstyle:on
 		// Arrange

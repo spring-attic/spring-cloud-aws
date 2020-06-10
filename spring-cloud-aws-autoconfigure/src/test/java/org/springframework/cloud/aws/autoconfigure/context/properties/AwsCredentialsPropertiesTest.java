@@ -30,17 +30,17 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Tom Gianos
  * @since 2.0.2
  */
-public class AwsCredentialsPropertiesTest {
+class AwsCredentialsPropertiesTest {
 
 	private AwsCredentialsProperties properties;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.properties = new AwsCredentialsProperties();
 	}
 
 	@Test
-	public void accessKeyCanBeSet() {
+	void accessKeyCanBeSet() {
 		assertThat(this.properties.getAccessKey())
 				.as("Access key default value expected to be null").isNull();
 
@@ -51,7 +51,7 @@ public class AwsCredentialsPropertiesTest {
 	}
 
 	@Test
-	public void secretKeyCanBeSet() {
+	void secretKeyCanBeSet() {
 		assertThat(this.properties.getSecretKey())
 				.as("Secret key default value expected to be null").isNull();
 
@@ -62,7 +62,7 @@ public class AwsCredentialsPropertiesTest {
 	}
 
 	@Test
-	public void instanceProfileCanBeSet() {
+	void instanceProfileCanBeSet() {
 		assertThat(this.properties.isInstanceProfile())
 				.as("Instance profile default expected to be true").isTrue();
 
@@ -72,7 +72,7 @@ public class AwsCredentialsPropertiesTest {
 	}
 
 	@Test
-	public void useDefaultAwsCredentialsChainCanBeSet() {
+	void useDefaultAwsCredentialsChainCanBeSet() {
 		assertThat(this.properties.isUseDefaultAwsCredentialsChain())
 				.as("useDefaultAwsCredentialsChain default expected to be false")
 				.isFalse();
@@ -83,7 +83,7 @@ public class AwsCredentialsPropertiesTest {
 	}
 
 	@Test
-	public void profileNameCanBeSet() {
+	void profileNameCanBeSet() {
 		assertThat(this.properties.getProfileName())
 				.as("Default profile name expected to be set")
 				.isEqualTo(AwsProfileNameLoader.DEFAULT_PROFILE_NAME);
@@ -95,7 +95,7 @@ public class AwsCredentialsPropertiesTest {
 	}
 
 	@Test
-	public void profilePathCanBeSet() {
+	void profilePathCanBeSet() {
 		assertThat(this.properties.getProfilePath())
 				.as("Profile path default value expected to be null").isNull();
 

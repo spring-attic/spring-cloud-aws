@@ -27,10 +27,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Szymon Dembek
  * @since 1.3
  */
-public class VisibilityHandlerMethodArgumentResolverTest {
+class VisibilityHandlerMethodArgumentResolverTest {
 
 	@Test
-	public void resolveArgument_messageWithNoVisibilityHeader_throwIllegalArgumentException()
+	void resolveArgument_messageWithNoVisibilityHeader_throwIllegalArgumentException()
 			throws Exception {
 		// Arrange
 		VisibilityHandlerMethodArgumentResolver visibilityHandlerMethodArgumentResolver;

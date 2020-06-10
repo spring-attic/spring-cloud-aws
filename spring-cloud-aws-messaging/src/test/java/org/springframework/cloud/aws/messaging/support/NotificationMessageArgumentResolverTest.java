@@ -31,10 +31,10 @@ import org.springframework.messaging.support.MessageBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NotificationMessageArgumentResolverTest {
+class NotificationMessageArgumentResolverTest {
 
 	@Test
-	public void supportsParameter_withNotificationMessageMethodParameter_shouldReturnTrue()
+	void supportsParameter_withNotificationMessageMethodParameter_shouldReturnTrue()
 			throws Exception {
 		// Arrange
 		NotificationMessageArgumentResolver notificationMessageArgumentResolver = new NotificationMessageArgumentResolver(
@@ -59,8 +59,7 @@ public class NotificationMessageArgumentResolverTest {
 	}
 
 	@Test
-	public void supportsParameter_withWrongMethodParameter_shouldReturnFalse()
-			throws Exception {
+	void supportsParameter_withWrongMethodParameter_shouldReturnFalse() throws Exception {
 		// Arrange
 		NotificationMessageArgumentResolver notificationMessageArgumentResolver = new NotificationMessageArgumentResolver(
 				new StringMessageConverter());
@@ -83,7 +82,7 @@ public class NotificationMessageArgumentResolverTest {
 	}
 
 	@Test
-	public void supportsParameter_withNonStringParameterType_shouldReturnTrue()
+	void supportsParameter_withNonStringParameterType_shouldReturnTrue()
 			throws Exception {
 		// Arrange
 		NotificationMessageArgumentResolver notificationMessageArgumentResolver = new NotificationMessageArgumentResolver(
@@ -107,7 +106,7 @@ public class NotificationMessageArgumentResolverTest {
 	}
 
 	@Test
-	public void resolveArgument_withValidMessagePayload_shouldReturnNotificationMessage()
+	void resolveArgument_withValidMessagePayload_shouldReturnNotificationMessage()
 			throws Exception {
 		// Arrange
 		NotificationMessageArgumentResolver notificationMessageArgumentResolver = new NotificationMessageArgumentResolver(

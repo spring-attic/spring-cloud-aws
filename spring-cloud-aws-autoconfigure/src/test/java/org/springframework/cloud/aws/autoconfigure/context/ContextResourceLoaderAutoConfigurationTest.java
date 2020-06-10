@@ -28,19 +28,19 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ContextResourceLoaderAutoConfigurationTest {
+class ContextResourceLoaderAutoConfigurationTest {
 
 	private AnnotationConfigApplicationContext context;
 
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	public void createResourceLoader_withCustomTaskExecutorSettings_executorConfigured() {
+	void createResourceLoader_withCustomTaskExecutorSettings_executorConfigured() {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ContextResourceLoaderAutoConfiguration.class);
@@ -66,7 +66,7 @@ public class ContextResourceLoaderAutoConfigurationTest {
 	}
 
 	@Test
-	public void createResourceLoader_withoutExecutorSettings_executorConfigured() {
+	void createResourceLoader_withoutExecutorSettings_executorConfigured() {
 
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();

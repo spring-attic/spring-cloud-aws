@@ -27,10 +27,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Alain Sahli
  * @since 1.1
  */
-public class AcknowledgmentHandlerMethodArgumentResolverTest {
+class AcknowledgmentHandlerMethodArgumentResolverTest {
 
 	@Test
-	public void resolveArgument_messageWithNoAcknowledgmentHeader_throwIllegalArgumentException()
+	void resolveArgument_messageWithNoAcknowledgmentHeader_throwIllegalArgumentException()
 			throws Exception {
 		// Arrange
 		AcknowledgmentHandlerMethodArgumentResolver acknowledgmentHandlerMethodArgumentResolver;

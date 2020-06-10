@@ -44,10 +44,10 @@ import static org.mockito.Mockito.when;
  * @author Agim Emruli
  * @since 1.0
  */
-public class AmazonRdsDataSourceFactoryBeanTest {
+class AmazonRdsDataSourceFactoryBeanTest {
 
 	@Test
-	public void afterPropertiesSet_noInstanceFound_reportsIllegalStateException()
+	void afterPropertiesSet_noInstanceFound_reportsIllegalStateException()
 			throws Exception {
 		// Arrange
 		AmazonRDS amazonRDS = mock(AmazonRDS.class);
@@ -65,7 +65,7 @@ public class AmazonRdsDataSourceFactoryBeanTest {
 	}
 
 	@Test
-	public void newInstance_withResourceIdResolver_createsInstanceWithResolvedName()
+	void newInstance_withResourceIdResolver_createsInstanceWithResolvedName()
 			throws Exception {
 		// Arrange
 		AmazonRDS amazonRDS = mock(AmazonRDS.class);
@@ -103,7 +103,7 @@ public class AmazonRdsDataSourceFactoryBeanTest {
 	}
 
 	@Test
-	public void afterPropertiesSet_noUserNameSet_createsInstanceWithUserNameFromMetaData()
+	void afterPropertiesSet_noUserNameSet_createsInstanceWithUserNameFromMetaData()
 			throws Exception {
 		// Arrange
 		AmazonRDS amazonRDS = mock(AmazonRDS.class);
@@ -138,8 +138,7 @@ public class AmazonRdsDataSourceFactoryBeanTest {
 	}
 
 	@Test
-	public void destroyInstance_shutdownInitiated_destroysDynamicDataSource()
-			throws Exception {
+	void destroyInstance_shutdownInitiated_destroysDynamicDataSource() throws Exception {
 		AmazonRDS amazonRDS = mock(AmazonRDS.class);
 		DataSourceFactory dataSourceFactory = mock(DataSourceFactory.class);
 		DataSource dataSource = mock(DataSource.class);
@@ -169,7 +168,7 @@ public class AmazonRdsDataSourceFactoryBeanTest {
 	}
 
 	@Test
-	public void afterPropertiesSet_customUserNameSet_createsInstanceWithCustomUserNameAndIgnoresMetaDataUserName()
+	void afterPropertiesSet_customUserNameSet_createsInstanceWithCustomUserNameAndIgnoresMetaDataUserName()
 			throws Exception {
 		AmazonRDS amazonRDS = mock(AmazonRDS.class);
 		DataSourceFactory dataSourceFactory = mock(DataSourceFactory.class);

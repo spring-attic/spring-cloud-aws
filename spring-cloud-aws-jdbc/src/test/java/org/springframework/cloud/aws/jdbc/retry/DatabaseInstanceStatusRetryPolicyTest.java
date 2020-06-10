@@ -39,11 +39,10 @@ import static org.mockito.Mockito.when;
  * @author Agim Emruli
  */
 @SuppressWarnings("NonBooleanMethodNameMayNotStartWithQuestion")
-public class DatabaseInstanceStatusRetryPolicyTest {
+class DatabaseInstanceStatusRetryPolicyTest {
 
 	@Test
-	public void canRetry_retryPossibleDueToAvailableDatabase_returnsTrue()
-			throws Exception {
+	void canRetry_retryPossibleDueToAvailableDatabase_returnsTrue() throws Exception {
 		// Arrange
 		AmazonRDS amazonRDS = mock(AmazonRDS.class);
 
@@ -66,7 +65,7 @@ public class DatabaseInstanceStatusRetryPolicyTest {
 	}
 
 	@Test
-	public void canRetry_withResourceIdResolver_returnsTrue() throws Exception {
+	void canRetry_withResourceIdResolver_returnsTrue() throws Exception {
 		// Arrange
 		AmazonRDS amazonRDS = mock(AmazonRDS.class);
 		ResourceIdResolver resourceIdResolver = mock(ResourceIdResolver.class);
@@ -94,7 +93,7 @@ public class DatabaseInstanceStatusRetryPolicyTest {
 	}
 
 	@Test
-	public void canRetry_retryNotPossibleDueToNoDatabase_returnsFalse() throws Exception {
+	void canRetry_retryNotPossibleDueToNoDatabase_returnsFalse() throws Exception {
 		// Arrange
 		AmazonRDS amazonRDS = mock(AmazonRDS.class);
 
@@ -117,7 +116,7 @@ public class DatabaseInstanceStatusRetryPolicyTest {
 	}
 
 	@Test
-	public void canRetry_multipleDatabasesFoundForInstanceIdentifier_reportsException()
+	void canRetry_multipleDatabasesFoundForInstanceIdentifier_reportsException()
 			throws Exception {
 		// Arrange
 		AmazonRDS amazonRDS = mock(AmazonRDS.class);
@@ -145,7 +144,7 @@ public class DatabaseInstanceStatusRetryPolicyTest {
 	}
 
 	@Test
-	public void canRetry_noExceptionRegistered_returnsTrue() throws Exception {
+	void canRetry_noExceptionRegistered_returnsTrue() throws Exception {
 		// Arrange
 		AmazonRDS amazonRDS = mock(AmazonRDS.class);
 

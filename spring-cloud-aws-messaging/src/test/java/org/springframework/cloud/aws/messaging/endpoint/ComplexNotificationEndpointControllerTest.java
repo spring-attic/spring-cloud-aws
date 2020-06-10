@@ -49,7 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration(classes = Config.class)
-public class ComplexNotificationEndpointControllerTest {
+class ComplexNotificationEndpointControllerTest {
 
 	@Autowired
 	private WebApplicationContext context;
@@ -63,12 +63,12 @@ public class ComplexNotificationEndpointControllerTest {
 	private MockMvc mockMvc;
 
 	@BeforeEach
-	public void setUp() throws Exception {
+	void setUp() throws Exception {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 	}
 
 	@Test
-	public void subscribe_subscriptionConfirmationRequestReceived_subscriptionConfirmedThroughSubscriptionStatus()
+	void subscribe_subscriptionConfirmationRequestReceived_subscriptionConfirmedThroughSubscriptionStatus()
 			throws Exception {
 		// Arrange
 		byte[] subscriptionRequestJsonContent = FileCopyUtils.copyToByteArray(
@@ -93,7 +93,7 @@ public class ComplexNotificationEndpointControllerTest {
 
 	// @checkstyle:off
 	@Test
-	public void notification_notificationReceivedAsMessageWithComplexContent_notificationSubjectAndMessagePassedToAnnotatedControllerMethod()
+	void notification_notificationReceivedAsMessageWithComplexContent_notificationSubjectAndMessagePassedToAnnotatedControllerMethod()
 			throws Exception {
 		// @checkstyle:on
 		// Arrange
@@ -118,7 +118,7 @@ public class ComplexNotificationEndpointControllerTest {
 	}
 
 	@Test
-	public void notification_unsubscribeConfirmationReceivedAsMessage_reSubscriptionCalledByController()
+	void notification_unsubscribeConfirmationReceivedAsMessage_reSubscriptionCalledByController()
 			throws Exception {
 		// Arrange
 		byte[] notificationJsonContent = FileCopyUtils.copyToByteArray(

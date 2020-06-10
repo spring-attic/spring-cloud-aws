@@ -34,10 +34,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /**
  * @author Agim Emruli
  */
-public class AmazonWebserviceClientConfigurationUtilsTest {
+class AmazonWebserviceClientConfigurationUtilsTest {
 
 	@Test
-	public void registerAmazonWebserviceClient_withMinimalConfiguration_returnsDefaultBeanDefinition()
+	void registerAmazonWebserviceClient_withMinimalConfiguration_returnsDefaultBeanDefinition()
 			throws Exception {
 		// Arrange
 		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
@@ -63,7 +63,7 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 
 	// @checkstyle:off
 	@Test
-	public void registerAmazonWebserviceClient_withCustomRegionProviderConfiguration_returnsBeanDefinitionWithRegionConfiguredThatIsReturnedByTheRegionProvider()
+	void registerAmazonWebserviceClient_withCustomRegionProviderConfiguration_returnsBeanDefinitionWithRegionConfiguredThatIsReturnedByTheRegionProvider()
 			throws Exception {
 		// @checkstyle:on
 		// Arrange
@@ -92,7 +92,7 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 	}
 
 	@Test
-	public void registerAmazonWebserviceClient_withCustomRegionConfiguration_returnsBeanDefinitionWithRegionConfigured()
+	void registerAmazonWebserviceClient_withCustomRegionConfiguration_returnsBeanDefinitionWithRegionConfigured()
 			throws Exception {
 		// Arrange
 		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
@@ -117,7 +117,7 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 	}
 
 	@Test
-	public void registerAmazonWebserviceClient_withCustomRegionAndRegionProviderConfigured_reportsError()
+	void registerAmazonWebserviceClient_withCustomRegionAndRegionProviderConfigured_reportsError()
 			throws Exception {
 		// Arrange
 		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
@@ -137,7 +137,7 @@ public class AmazonWebserviceClientConfigurationUtilsTest {
 	}
 
 	@Test
-	public void generateBeanName_withInterfaceAndCapitalLetterInSequence_producesDeCapitalizedBeanName()
+	void generateBeanName_withInterfaceAndCapitalLetterInSequence_producesDeCapitalizedBeanName()
 			throws Exception {
 		// Arrange
 

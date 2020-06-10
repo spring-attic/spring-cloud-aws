@@ -27,10 +27,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /**
  * @author Agim Emruli
  */
-public class AmazonS3ClientFactoryTest {
+class AmazonS3ClientFactoryTest {
 
 	@Test
-	public void createClientForEndpointUrl_withNullEndpoint_throwsIllegalArgumentException() {
+	void createClientForEndpointUrl_withNullEndpoint_throwsIllegalArgumentException() {
 		// Arrange
 		AmazonS3ClientFactory amazonS3ClientFactory = new AmazonS3ClientFactory();
 		AmazonS3 amazonS3 = AmazonS3ClientBuilder.standard()
@@ -45,7 +45,7 @@ public class AmazonS3ClientFactoryTest {
 	}
 
 	@Test
-	public void createClientForEndpointUrl_withNullAmazonS3Client_throwsIllegalArgumentException() {
+	void createClientForEndpointUrl_withNullAmazonS3Client_throwsIllegalArgumentException() {
 		// Arrange
 		AmazonS3ClientFactory amazonS3ClientFactory = new AmazonS3ClientFactory();
 
@@ -57,7 +57,7 @@ public class AmazonS3ClientFactoryTest {
 	}
 
 	@Test
-	public void createClientForEndpointUrl_withDefaultRegionUrl_createClientForDefaultRegion() {
+	void createClientForEndpointUrl_withDefaultRegionUrl_createClientForDefaultRegion() {
 		// Arrange
 		AmazonS3ClientFactory amazonS3ClientFactory = new AmazonS3ClientFactory();
 		AmazonS3 amazonS3 = AmazonS3ClientBuilder.standard()
@@ -72,7 +72,7 @@ public class AmazonS3ClientFactoryTest {
 	}
 
 	@Test
-	public void createClientForEndpointUrl_withCustomRegionUrl_createClientForCustomRegion() {
+	void createClientForEndpointUrl_withCustomRegionUrl_createClientForCustomRegion() {
 		// Arrange
 		AmazonS3ClientFactory amazonS3ClientFactory = new AmazonS3ClientFactory();
 		AmazonS3 amazonS3 = AmazonS3ClientBuilder.standard().withRegion(Regions.EU_WEST_1)
@@ -87,7 +87,7 @@ public class AmazonS3ClientFactoryTest {
 	}
 
 	@Test
-	public void createClientForEndpointUrl_withProxiedClient_createClientForCustomRegion() {
+	void createClientForEndpointUrl_withProxiedClient_createClientForCustomRegion() {
 		// Arrange
 		AmazonS3ClientFactory amazonS3ClientFactory = new AmazonS3ClientFactory();
 		AmazonS3 amazonS3 = AmazonS3ProxyFactory.createProxy(
@@ -102,7 +102,7 @@ public class AmazonS3ClientFactoryTest {
 	}
 
 	@Test
-	public void createClientForEndpointUrl_withCustomRegionUrlAndCachedClient_returnsCachedClient() {
+	void createClientForEndpointUrl_withCustomRegionUrlAndCachedClient_returnsCachedClient() {
 		// Arrange
 		AmazonS3ClientFactory amazonS3ClientFactory = new AmazonS3ClientFactory();
 		AmazonS3 amazonS3 = AmazonS3ClientBuilder.standard().withRegion(Regions.EU_WEST_1)

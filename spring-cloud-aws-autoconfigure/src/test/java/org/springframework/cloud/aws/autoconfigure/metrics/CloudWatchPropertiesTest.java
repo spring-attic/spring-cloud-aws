@@ -30,10 +30,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Bernardo Martins
  */
-public class CloudWatchPropertiesTest {
+class CloudWatchPropertiesTest {
 
 	@Test
-	public void properties_notSet_shouldHaveDefaultValues() {
+	void properties_notSet_shouldHaveDefaultValues() {
 		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(
 				CloudWatchPropertiesConfiguration.class);
 
@@ -44,7 +44,7 @@ public class CloudWatchPropertiesTest {
 	}
 
 	@Test
-	public void properties_set_shouldOverrideValues() {
+	void properties_set_shouldOverrideValues() {
 		Properties properties = new Properties();
 		properties.setProperty("management.metrics.export.cloudwatch.namespace", "test");
 		properties.setProperty("management.metrics.export.cloudwatch.batch-size", "5");

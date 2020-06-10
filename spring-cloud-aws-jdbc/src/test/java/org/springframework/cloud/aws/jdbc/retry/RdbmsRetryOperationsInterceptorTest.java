@@ -37,10 +37,10 @@ import static org.mockito.Mockito.when;
  *
  * @author Agim Emruli
  */
-public class RdbmsRetryOperationsInterceptorTest {
+class RdbmsRetryOperationsInterceptorTest {
 
 	@Test
-	public void testRetryContextIsAvailable() throws Throwable {
+	void testRetryContextIsAvailable() throws Throwable {
 		RetryContext retryContext = mock(RetryContext.class);
 		RetrySynchronizationManager.register(retryContext);
 
@@ -58,7 +58,7 @@ public class RdbmsRetryOperationsInterceptorTest {
 	}
 
 	@Test
-	public void testRetryContextIsNotAvailable() throws Throwable {
+	void testRetryContextIsNotAvailable() throws Throwable {
 
 		ProxyMethodInvocation methodInvocation = mock(ProxyMethodInvocation.class);
 
@@ -77,7 +77,7 @@ public class RdbmsRetryOperationsInterceptorTest {
 	}
 
 	@Test
-	public void testRetryContextWithoutTransaction() throws Throwable {
+	void testRetryContextWithoutTransaction() throws Throwable {
 		TransactionSynchronizationManager.setActualTransactionActive(true);
 		try {
 			RdbmsRetryOperationsInterceptor operationsInterceptor = new RdbmsRetryOperationsInterceptor();

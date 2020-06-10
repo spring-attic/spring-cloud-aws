@@ -32,12 +32,12 @@ import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ContextInstanceDataConfigurationTest {
+class ContextInstanceDataConfigurationTest {
 
 	private AnnotationConfigApplicationContext context;
 
 	@AfterEach
-	public void tearDown() throws Exception {
+	void tearDown() throws Exception {
 		if (this.context != null) {
 			this.context.close();
 		}
@@ -45,7 +45,7 @@ public class ContextInstanceDataConfigurationTest {
 	}
 
 	@Test
-	public void propertySource_nonCloudEnvironment_noBeanConfigured() throws Exception {
+	void propertySource_nonCloudEnvironment_noBeanConfigured() throws Exception {
 		// Arrange
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ApplicationConfiguration.class);
@@ -58,8 +58,7 @@ public class ContextInstanceDataConfigurationTest {
 	}
 
 	@Test
-	public void propertySource_enableInstanceData_propertySourceConfigured()
-			throws Exception {
+	void propertySource_enableInstanceData_propertySourceConfigured() throws Exception {
 		// Arrange
 		HttpServer httpServer = MetaDataServer.setupHttpServer();
 		HttpContext httpContext = httpServer.createContext(
@@ -78,7 +77,7 @@ public class ContextInstanceDataConfigurationTest {
 
 	// @checkstyle:off
 	@Test
-	public void propertySource_enableInstanceDataWithCustomAttributeSeparator_propertySourceConfiguredAndUsesCustomAttributeSeparator()
+	void propertySource_enableInstanceDataWithCustomAttributeSeparator_propertySourceConfiguredAndUsesCustomAttributeSeparator()
 			throws Exception {
 		// @checkstyle:on
 		// Arrange
@@ -99,7 +98,7 @@ public class ContextInstanceDataConfigurationTest {
 
 	// @checkstyle:off
 	@Test
-	public void propertySource_enableInstanceDataWithCustomValueSeparator_propertySourceConfiguredAndUsesCustomValueSeparator()
+	void propertySource_enableInstanceDataWithCustomValueSeparator_propertySourceConfiguredAndUsesCustomValueSeparator()
 			throws Exception {
 		// @checkstyle:on
 		// Arrange
@@ -119,7 +118,7 @@ public class ContextInstanceDataConfigurationTest {
 	}
 
 	@BeforeEach
-	public void restContextInstanceDataCondition() throws IllegalAccessException {
+	void restContextInstanceDataCondition() throws IllegalAccessException {
 		Field field = ReflectionUtils.findField(AwsCloudEnvironmentCheckUtils.class,
 				"isCloudEnvironment");
 		assertThat(field).isNotNull();
@@ -129,19 +128,19 @@ public class ContextInstanceDataConfigurationTest {
 
 	@Configuration(proxyBeanMethods = false)
 	@EnableContextInstanceData
-	public static class ApplicationConfiguration {
+	static class ApplicationConfiguration {
 
 	}
 
 	@Configuration(proxyBeanMethods = false)
 	@EnableContextInstanceData(attributeSeparator = "/")
-	public static class ApplicationConfigurationWithCustomAttributeSeparator {
+	static class ApplicationConfigurationWithCustomAttributeSeparator {
 
 	}
 
 	@Configuration(proxyBeanMethods = false)
 	@EnableContextInstanceData(valueSeparator = "=")
-	public static class ApplicationConfigurationWithCustomValueSeparator {
+	static class ApplicationConfigurationWithCustomValueSeparator {
 
 	}
 

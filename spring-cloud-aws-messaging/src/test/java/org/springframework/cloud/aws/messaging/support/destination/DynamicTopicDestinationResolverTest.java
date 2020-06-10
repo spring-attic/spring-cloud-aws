@@ -35,11 +35,11 @@ import static org.mockito.Mockito.when;
  * @author Agim Emruli
  * @since 1.0
  */
-public class DynamicTopicDestinationResolverTest {
+class DynamicTopicDestinationResolverTest {
 
 	// @checkstyle:off
 	@Test
-	public void resolveDestination_withNonExistentTopicAndWithoutMarkerReturnedOnListTopics_shouldThrowIllegalArgumentException()
+	void resolveDestination_withNonExistentTopicAndWithoutMarkerReturnedOnListTopics_shouldThrowIllegalArgumentException()
 			throws Exception {
 		// @checkstyle:on
 		// Arrange
@@ -58,7 +58,7 @@ public class DynamicTopicDestinationResolverTest {
 
 	// @checkstyle:off
 	@Test
-	public void resolveDestination_withNonExistentTopicAndWithMarkerReturnedOnListTopics_shouldCallListMultipleTimeWithMarkerAndThrowIllegalArgumentException()
+	void resolveDestination_withNonExistentTopicAndWithMarkerReturnedOnListTopics_shouldCallListMultipleTimeWithMarkerAndThrowIllegalArgumentException()
 			// @checkstyle:on
 			throws Exception {
 		// Arrange
@@ -78,7 +78,7 @@ public class DynamicTopicDestinationResolverTest {
 	}
 
 	@Test
-	public void resolveDestination_withExistentTopic_returnsTopicArnFoundWhileListingTopic()
+	void resolveDestination_withExistentTopic_returnsTopicArnFoundWhileListingTopic()
 			throws Exception {
 		// Arrange
 		String topicArn = "arn:aws:sns:eu-west:123456789012:test";
@@ -98,7 +98,7 @@ public class DynamicTopicDestinationResolverTest {
 	}
 
 	@Test
-	public void resolveDestination_withExistentTopicAndMarker_returnsTopicArnFoundWhileListingTopic()
+	void resolveDestination_withExistentTopicAndMarker_returnsTopicArnFoundWhileListingTopic()
 			throws Exception {
 		// Arrange
 
@@ -121,7 +121,7 @@ public class DynamicTopicDestinationResolverTest {
 	}
 
 	@Test
-	public void resolveDestination_withAlreadyExistingArn_returnsArnWithoutValidatingIt()
+	void resolveDestination_withAlreadyExistingArn_returnsArnWithoutValidatingIt()
 			throws Exception {
 		// Arrange
 		String topicArn = "arn:aws:sns:eu-west:123456789012:test";
@@ -138,7 +138,7 @@ public class DynamicTopicDestinationResolverTest {
 	}
 
 	@Test
-	public void resolveDestination_withAutoCreateEnabled_shouldCreateTopicDirectly()
+	void resolveDestination_withAutoCreateEnabled_shouldCreateTopicDirectly()
 			throws Exception {
 		// Arrange
 		String topicArn = "arn:aws:sns:eu-west:123456789012:test";
@@ -159,8 +159,7 @@ public class DynamicTopicDestinationResolverTest {
 	}
 
 	@Test
-	public void resolveDestination_withResourceIdResolver_shouldCallIt()
-			throws Exception {
+	void resolveDestination_withResourceIdResolver_shouldCallIt() throws Exception {
 		// Arrange
 		String physicalTopicName = "arn:aws:sns:eu-west:123456789012:myTopic";
 		String logicalTopicName = "myTopic";

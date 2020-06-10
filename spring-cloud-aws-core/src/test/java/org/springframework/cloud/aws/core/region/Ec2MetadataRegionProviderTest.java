@@ -26,11 +26,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /**
  * @author Agim Emruli
  */
-public class Ec2MetadataRegionProviderTest {
+class Ec2MetadataRegionProviderTest {
 
 	@Test
-	public void getRegion_availabilityZoneWithMatchingRegion_returnsRegion()
-			throws Exception {
+	void getRegion_availabilityZoneWithMatchingRegion_returnsRegion() throws Exception {
 		// Arrange
 		Ec2MetadataRegionProvider regionProvider = new Ec2MetadataRegionProvider() {
 
@@ -48,8 +47,7 @@ public class Ec2MetadataRegionProviderTest {
 	}
 
 	@Test
-	public void getRegion_noMetadataAvailable_throwsIllegalStateException()
-			throws Exception {
+	void getRegion_noMetadataAvailable_throwsIllegalStateException() throws Exception {
 		// Arrange
 		Ec2MetadataRegionProvider regionProvider = new Ec2MetadataRegionProvider() {
 

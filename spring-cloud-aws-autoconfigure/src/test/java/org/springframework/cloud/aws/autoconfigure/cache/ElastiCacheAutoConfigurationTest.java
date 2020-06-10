@@ -45,22 +45,22 @@ import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ElastiCacheAutoConfigurationTest {
+class ElastiCacheAutoConfigurationTest {
 
 	private AnnotationConfigApplicationContext context;
 
 	@AfterAll
-	public static void shutDownHttpServer() {
+	static void shutDownHttpServer() {
 		MetaDataServer.shutdownHttpServer();
 	}
 
 	@AfterAll
-	public static void shutdownCacheServer() throws Exception {
+	static void shutdownCacheServer() throws Exception {
 		TestMemcacheServer.stopServer();
 	}
 
 	@BeforeEach
-	public void restContextInstanceDataCondition() throws IllegalAccessException {
+	void restContextInstanceDataCondition() throws IllegalAccessException {
 		Field field = ReflectionUtils.findField(AwsCloudEnvironmentCheckUtils.class,
 				"isCloudEnvironment");
 		assertThat(field).isNotNull();
@@ -69,12 +69,12 @@ public class ElastiCacheAutoConfigurationTest {
 	}
 
 	@AfterEach
-	public void tearDown() throws Exception {
+	void tearDown() throws Exception {
 		this.context.close();
 	}
 
 	@Test
-	public void cacheManager_configuredMultipleCachesWithStack_configuresCacheManager()
+	void cacheManager_configuredMultipleCachesWithStack_configuresCacheManager()
 			throws Exception {
 		// Arrange
 		HttpServer httpServer = MetaDataServer.setupHttpServer();
@@ -102,7 +102,7 @@ public class ElastiCacheAutoConfigurationTest {
 	}
 
 	@Test
-	public void cacheManager_configuredNoCachesWithNoStack_configuresNoCacheManager()
+	void cacheManager_configuredNoCachesWithNoStack_configuresNoCacheManager()
 			throws Exception {
 		// Arrange
 		HttpServer httpServer = MetaDataServer.setupHttpServer();
@@ -125,10 +125,10 @@ public class ElastiCacheAutoConfigurationTest {
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	public static class MockCacheConfigurationWithStackCaches {
+	static class MockCacheConfigurationWithStackCaches {
 
 		@Bean
-		public AmazonElastiCache amazonElastiCache() {
+		AmazonElastiCache amazonElastiCache() {
 			AmazonElastiCache amazonElastiCache = Mockito.mock(AmazonElastiCache.class);
 			int port = TestMemcacheServer.startServer();
 			DescribeCacheClustersRequest sampleCacheOneLogical = new DescribeCacheClustersRequest()
@@ -166,7 +166,7 @@ public class ElastiCacheAutoConfigurationTest {
 		}
 
 		@Bean
-		public ListableStackResourceFactory stackResourceFactory() {
+		ListableStackResourceFactory stackResourceFactory() {
 			ListableStackResourceFactory resourceFactory = Mockito
 					.mock(ListableStackResourceFactory.class);
 			Mockito.when(

@@ -32,10 +32,10 @@ import org.springframework.web.context.request.ServletWebRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class NotificationSubjectHandlerMethodArgumentResolverTest {
+class NotificationSubjectHandlerMethodArgumentResolverTest {
 
 	@Test
-	public void resolveArgument_wrongMessageType_reportsErrors() throws Exception {
+	void resolveArgument_wrongMessageType_reportsErrors() throws Exception {
 		// Arrange
 		NotificationSubjectHandlerMethodArgumentResolver resolver = new NotificationSubjectHandlerMethodArgumentResolver();
 
@@ -59,7 +59,7 @@ public class NotificationSubjectHandlerMethodArgumentResolverTest {
 	}
 
 	@Test
-	public void resolveArgument_notificationMessageTypeWithSubject_reportsErrors()
+	void resolveArgument_notificationMessageTypeWithSubject_reportsErrors()
 			throws Exception {
 		// Arrange
 		NotificationSubjectHandlerMethodArgumentResolver resolver = new NotificationSubjectHandlerMethodArgumentResolver();
@@ -84,8 +84,7 @@ public class NotificationSubjectHandlerMethodArgumentResolverTest {
 	}
 
 	@Test
-	public void supportsParameter_withWrongParameterType_shouldReturnFalse()
-			throws Exception {
+	void supportsParameter_withWrongParameterType_shouldReturnFalse() throws Exception {
 		// Arrange
 		NotificationSubjectHandlerMethodArgumentResolver resolver = new NotificationSubjectHandlerMethodArgumentResolver();
 		Method methodWithWrongParameterType = this.getClass()
