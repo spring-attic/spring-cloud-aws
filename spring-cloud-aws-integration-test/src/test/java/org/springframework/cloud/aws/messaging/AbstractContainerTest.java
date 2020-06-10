@@ -34,14 +34,14 @@ abstract class AbstractContainerTest {
 	protected SimpleMessageListenerContainer simpleMessageListenerContainer;
 
 	@BeforeEach
-	public void setUp() throws Exception {
+	void setUp() throws Exception {
 		if (!this.simpleMessageListenerContainer.isRunning()) {
 			this.simpleMessageListenerContainer.start();
 		}
 	}
 
 	@AfterEach
-	public void tearDown() throws Exception {
+	void tearDown() throws Exception {
 		if (this.simpleMessageListenerContainer.isRunning()) {
 			CountDownLatch countDownLatch = new CountDownLatch(1);
 			this.simpleMessageListenerContainer.stop(countDownLatch::countDown);

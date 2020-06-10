@@ -17,10 +17,10 @@
 package org.springframework.cloud.aws.core.env.ec2;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanExpressionContext;
@@ -43,31 +43,31 @@ public class AmazonEc2InstanceUserTagsFactoryBeanAwsTest {
 	private ConfigurableApplicationContext context;
 
 	@BeforeEach
-	public void enableInstanceIdMetadataService() {
+	void enableInstanceIdMetadataService() {
 		this.testStackInstanceIdService.enable();
 	}
 
 	@AfterEach
-	public void disableInstanceIdMetadataService() {
+	void disableInstanceIdMetadataService() {
 		this.testStackInstanceIdService.disable();
 	}
 
 	@Test
-	public void testGetUserProperties() throws Exception {
+	void testGetUserProperties() throws Exception {
 
-		Assert.assertEquals("tagv1",
+		Assertions.assertEquals("tagv1",
 				this.context.getBeanFactory().getBeanExpressionResolver().evaluate(
 						"#{instanceData['tag1']}",
 						new BeanExpressionContext(this.context.getBeanFactory(), null)));
-		Assert.assertEquals("tagv2",
+		Assertions.assertEquals("tagv2",
 				this.context.getBeanFactory().getBeanExpressionResolver().evaluate(
 						"#{instanceData['tag2']}",
 						new BeanExpressionContext(this.context.getBeanFactory(), null)));
-		Assert.assertEquals("tagv3",
+		Assertions.assertEquals("tagv3",
 				this.context.getBeanFactory().getBeanExpressionResolver().evaluate(
 						"#{instanceData['tag3']}",
 						new BeanExpressionContext(this.context.getBeanFactory(), null)));
-		Assert.assertEquals("tagv4",
+		Assertions.assertEquals("tagv4",
 				this.context.getBeanFactory().getBeanExpressionResolver().evaluate(
 						"#{instanceData['tag4']}",
 						new BeanExpressionContext(this.context.getBeanFactory(), null)));

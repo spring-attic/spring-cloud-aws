@@ -16,9 +16,9 @@
 
 package org.springframework.cloud.aws.core.env.stack;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,11 +43,11 @@ public class StackResourceUserTagsAwsTest {
 	private TestStackEnvironment testStackEnvironment;
 
 	@Test
-	public void getObject_retrieveAttributesOfStackStartedByTestEnvironment_returnsStackUserTags()
+	void getObject_retrieveAttributesOfStackStartedByTestEnvironment_returnsStackUserTags()
 			throws Exception {
 		if (this.testStackEnvironment.isStackCreatedAutomatically()) {
-			Assert.assertEquals("value1", this.stackTag1);
-			Assert.assertEquals("value2", this.stackTag2);
+			Assertions.assertEquals("value1", this.stackTag1);
+			Assertions.assertEquals("value2", this.stackTag2);
 		}
 	}
 

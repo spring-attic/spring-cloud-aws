@@ -17,7 +17,7 @@
 package org.springframework.cloud.aws.mail;
 
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,7 +45,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
  * @author Agim Emruli
  */
 @ExtendWith(SpringExtension.class)
-public abstract class MailSenderAwsTest {
+abstract class MailSenderAwsTest {
 
 	@Autowired
 	private MailSender mailSender;
@@ -60,7 +60,7 @@ public abstract class MailSenderAwsTest {
 	private String recipientAddress;
 
 	@Test
-	public void send_sendMailWithoutAnyAttachmentUsingTheSimpleMailApi_noExceptionThrownDuringSendAndForget()
+	void send_sendMailWithoutAnyAttachmentUsingTheSimpleMailApi_noExceptionThrownDuringSendAndForget()
 			throws Exception {
 		SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
 		simpleMailMessage.setFrom(this.senderAddress);
@@ -72,7 +72,7 @@ public abstract class MailSenderAwsTest {
 	}
 
 	@Test
-	public void send_sendMailWithAttachmentUsingTheJavaMailMimeMessageFormat_noExceptionThrownDuringMessaegConstructionAndSend()
+	void send_sendMailWithAttachmentUsingTheJavaMailMimeMessageFormat_noExceptionThrownDuringMessaegConstructionAndSend()
 			throws Exception {
 		this.javaMailSender.send(mimeMessage -> {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");

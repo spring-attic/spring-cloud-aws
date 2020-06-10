@@ -32,19 +32,19 @@ public class AmazonEc2InstanceIdProviderAwsTest {
 	private TestStackInstanceIdService testStackInstanceIdService;
 
 	@BeforeEach
-	public void enableInstanceIdMetadataService() {
+	void enableInstanceIdMetadataService() {
 		this.testStackInstanceIdService = TestStackInstanceIdService
 				.fromInstanceId("i-abcdefg");
 		this.testStackInstanceIdService.enable();
 	}
 
 	@AfterEach
-	public void disableInstanceIdMetadataService() {
+	void disableInstanceIdMetadataService() {
 		this.testStackInstanceIdService.disable();
 	}
 
 	@Test
-	public void getCurrentInstanceId_instanceIdAvailableViaMetadataService_returnsInstanceIdFromMetadataService()
+	void getCurrentInstanceId_instanceIdAvailableViaMetadataService_returnsInstanceIdFromMetadataService()
 			throws IOException {
 		// Arrange
 		AmazonEc2InstanceIdProvider amazonEc2InstanceIdProvider = new AmazonEc2InstanceIdProvider();

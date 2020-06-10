@@ -18,7 +18,7 @@ package org.springframework.cloud.aws.cache;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.aws.support.profile.AmazonWebserviceProfileValueSource;
@@ -26,7 +26,7 @@ import org.springframework.cloud.aws.support.profile.IfAmazonWebserviceEnvironme
 import org.springframework.test.annotation.ProfileValueSourceConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @ProfileValueSourceConfiguration(AmazonWebserviceProfileValueSource.class)

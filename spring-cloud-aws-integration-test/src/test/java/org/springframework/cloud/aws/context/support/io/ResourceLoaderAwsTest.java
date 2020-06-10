@@ -38,7 +38,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.aws.core.env.stack.StackResourceRegistry;
@@ -50,16 +50,16 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.FileCopyUtils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Agim Emruli
  */
 @ExtendWith(SpringExtension.class)
-public abstract class ResourceLoaderAwsTest {
+abstract class ResourceLoaderAwsTest {
 
 	private static final String S3_PREFIX = "s3://";
 
@@ -77,7 +77,7 @@ public abstract class ResourceLoaderAwsTest {
 	private StackResourceRegistry stackResourceRegistry;
 
 	@Test
-	public void testUploadAndDownloadOfSmallFileWithInjectedResourceLoader()
+	void testUploadAndDownloadOfSmallFileWithInjectedResourceLoader()
 			throws Exception {
 		String bucketName = this.stackResourceRegistry
 				.lookupPhysicalResourceId("EmptyBucket");
@@ -95,7 +95,7 @@ public abstract class ResourceLoaderAwsTest {
 	}
 
 	@Test
-	public void testUploadFileWithRelativePath() throws Exception {
+	void testUploadFileWithRelativePath() throws Exception {
 		String bucketName = this.stackResourceRegistry
 				.lookupPhysicalResourceId("EmptyBucket");
 		uploadFileTestFile(bucketName, "testUploadFileWithRelativePathParent",
@@ -131,7 +131,7 @@ public abstract class ResourceLoaderAwsTest {
 	}
 
 	@Test
-	public void testUploadFileWithMoreThenFiveMegabytes() throws Exception {
+	void testUploadFileWithMoreThenFiveMegabytes() throws Exception {
 		String bucketName = this.stackResourceRegistry
 				.lookupPhysicalResourceId("EmptyBucket");
 		Resource resource = this.resourceLoader.getResource(
@@ -147,7 +147,7 @@ public abstract class ResourceLoaderAwsTest {
 	}
 
 	@Test
-	public void testUploadBigFileAndCompareChecksum()
+	void testUploadBigFileAndCompareChecksum()
 			throws IOException, NoSuchAlgorithmException {
 		String bucketName = this.stackResourceRegistry
 				.lookupPhysicalResourceId("EmptyBucket");
@@ -192,7 +192,7 @@ public abstract class ResourceLoaderAwsTest {
 	}
 
 	@Test
-	public void exists_withNonExistingObject_shouldReturnFalse() throws Exception {
+	void exists_withNonExistingObject_shouldReturnFalse() throws Exception {
 		// Arrange
 		String bucketName = this.stackResourceRegistry
 				.lookupPhysicalResourceId("EmptyBucket");
@@ -203,7 +203,7 @@ public abstract class ResourceLoaderAwsTest {
 	}
 
 	@Test
-	public void exists_withNonExistingBucket_shouldReturnFalse() throws Exception {
+	void exists_withNonExistingBucket_shouldReturnFalse() throws Exception {
 		assertFalse(this.resourceLoader
 				.getResource(
 						S3_PREFIX + "dummy-bucket-does-not-really-exist/dummy-file.txt")
@@ -213,7 +213,7 @@ public abstract class ResourceLoaderAwsTest {
 	// Cleans up the bucket. Because if the bucket is not cleaned up, then the bucket will
 	// not be deleted after the test run.
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		String bucketName = this.stackResourceRegistry
 				.lookupPhysicalResourceId("EmptyBucket");
 		for (String createdObject : this.createdObjects) {

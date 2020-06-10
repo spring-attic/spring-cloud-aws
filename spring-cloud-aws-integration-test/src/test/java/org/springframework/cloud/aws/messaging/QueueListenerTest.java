@@ -26,7 +26,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,9 +43,9 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Agim Emruli
@@ -55,7 +55,7 @@ import static org.junit.Assert.assertTrue;
 @SuppressWarnings({ "AbstractClassWithoutAbstractMethods",
 		"SpringJavaAutowiringInspection" })
 @ExtendWith(SpringExtension.class)
-public abstract class QueueListenerTest extends AbstractContainerTest {
+abstract class QueueListenerTest extends AbstractContainerTest {
 
 	@Autowired
 	private MessageListener messageListener;
@@ -73,7 +73,7 @@ public abstract class QueueListenerTest extends AbstractContainerTest {
 	private ManualDeletionPolicyTestListener manualDeletionPolicyTestListener;
 
 	@Test
-	public void messageMapping_singleMessageOnQueue_messageReceived() throws Exception {
+	void messageMapping_singleMessageOnQueue_messageReceived() throws Exception {
 		// Arrange
 		this.messageListener.setCountDownLatch(new CountDownLatch(1));
 		this.messageListener.getReceivedMessages().clear();
@@ -88,7 +88,7 @@ public abstract class QueueListenerTest extends AbstractContainerTest {
 	}
 
 	@Test
-	public void send_simpleString_shouldBeReceivedWithoutDoubleQuotes() throws Exception {
+	void send_simpleString_shouldBeReceivedWithoutDoubleQuotes() throws Exception {
 		// Arrange
 		this.messageListener.setCountDownLatch(new CountDownLatch(1));
 		this.messageListener.getReceivedMessages().clear();
@@ -102,7 +102,7 @@ public abstract class QueueListenerTest extends AbstractContainerTest {
 	}
 
 	@Test
-	public void sendToAnnotation_WithAValidDestination_messageIsSent() throws Exception {
+	void sendToAnnotation_WithAValidDestination_messageIsSent() throws Exception {
 		// Arrange
 		this.messageListener.setCountDownLatch(new CountDownLatch(1));
 		this.messageListener.getReceivedMessages().clear();
@@ -119,7 +119,7 @@ public abstract class QueueListenerTest extends AbstractContainerTest {
 	}
 
 	@Test
-	public void receiveMessage_withArgumentAnnotatedWithHeaderOrHeaders_shouldReceiveHeaderValues()
+	void receiveMessage_withArgumentAnnotatedWithHeaderOrHeaders_shouldReceiveHeaderValues()
 			throws Exception {
 		// Arrange
 		this.messageListener.setCountDownLatch(new CountDownLatch(1));
@@ -148,7 +148,7 @@ public abstract class QueueListenerTest extends AbstractContainerTest {
 	}
 
 	@Test
-	public void redrivePolicy_withMessageMappingThrowingAnException_messageShouldAppearInDeadLetterQueue()
+	void redrivePolicy_withMessageMappingThrowingAnException_messageShouldAppearInDeadLetterQueue()
 			throws Exception {
 		// Arrange
 		CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -162,7 +162,7 @@ public abstract class QueueListenerTest extends AbstractContainerTest {
 	}
 
 	@Test
-	public void manualDeletion_withAcknowledgmentCalled_shouldSucceedAndDeleteMessage()
+	void manualDeletion_withAcknowledgmentCalled_shouldSucceedAndDeleteMessage()
 			throws Exception {
 		// Act
 		this.queueMessagingTemplate.convertAndSend("ManualDeletionQueue", "Message");

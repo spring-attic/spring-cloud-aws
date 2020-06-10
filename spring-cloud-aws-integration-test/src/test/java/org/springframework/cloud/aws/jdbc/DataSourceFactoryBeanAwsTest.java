@@ -19,12 +19,12 @@ package org.springframework.cloud.aws.jdbc;
 import java.util.Date;
 
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * AWS backed integration test for the datasource feature of the jdbc module
@@ -33,13 +33,13 @@ import static org.junit.Assert.assertEquals;
  * @since 1.0
  */
 @ExtendWith(SpringExtension.class)
-public abstract class DataSourceFactoryBeanAwsTest {
+abstract class DataSourceFactoryBeanAwsTest {
 
 	@Autowired
 	private DatabaseService databaseService;
 
 	@Test
-	public void testWriteAndReadWithReadReplicaEnabled() throws Exception {
+	void testWriteAndReadWithReadReplicaEnabled() throws Exception {
 		Date lastAccessDatabase = this.databaseService.updateLastAccessDatabase();
 		Date checkDatabase = this.databaseService.getLastUpdate(lastAccessDatabase);
 		assertEquals(lastAccessDatabase.getTime(), checkDatabase.getTime());
