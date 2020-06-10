@@ -115,7 +115,7 @@
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
-					<groupId>org.junit</groupId>
+					<groupId>junit</groupId>
 					<artifactId>junit</artifactId>
 				</exclusion>
 			</exclusions>
