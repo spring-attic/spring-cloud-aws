@@ -54,6 +54,18 @@ public class ContextCredentialsAutoConfiguration {
 	public AWSCredentialsProvider awsCredentialsProvider(
 			AwsCredentialsProperties properties) {
 
+		List<AWSCredentialsProvider> providers = resolveCredentialsProviders(properties);
+
+		if (providers.isEmpty()) {
+			return new DefaultAWSCredentialsProviderChain();
+		}
+		else {
+			return new AWSCredentialsProviderChain(providers);
+		}
+	}
+
+	private List<AWSCredentialsProvider> resolveCredentialsProviders(
+			AwsCredentialsProperties properties) {
 		List<AWSCredentialsProvider> providers = new ArrayList<>();
 
 		if (StringUtils.hasText(properties.getAccessKey())
@@ -73,12 +85,7 @@ public class ContextCredentialsAutoConfiguration {
 					: new ProfileCredentialsProvider(properties.getProfileName()));
 		}
 
-		if (providers.isEmpty()) {
-			return new DefaultAWSCredentialsProviderChain();
-		}
-		else {
-			return new AWSCredentialsProviderChain(providers);
-		}
+		return providers;
 	}
 
 }
