@@ -39,11 +39,11 @@ public class AwsSecretsManagerPropertiesFailTest {
 		{
 			put(ErrorCode.PREF_NULL, "prefix should not be empty or null.");
 			put(ErrorCode.PREF_PATTERN_WRONG,
-					"\"The prefix must have pattern of:  (/[a-zA-Z0-9.\\\\-_]+)*\"");
+					"The prefix must have pattern of:  (/[a-zA-Z0-9.\\-_]+)*");
 			put(ErrorCode.DC_NULL, "defaultContext should not be empty or null.");
 			put(ErrorCode.PS_NULL, "profileSeparator should not be empty or null.");
 			put(ErrorCode.PS_PATTERN_WRONG,
-					"\"The profileSeparator must have pattern of:  [a-zA-Z0-9.\\\\-_/]+");
+					"The profileSeparator must have pattern of:  [a-zA-Z0-9.\\-_]+");
 		}
 	};
 
@@ -56,7 +56,7 @@ public class AwsSecretsManagerPropertiesFailTest {
 		Errors errors = new BeanPropertyBindingResult(properties, "properties");
 		properties.validate(properties, errors);
 		assertThat(errors.getAllErrors().stream().filter(error -> Objects
-			.equals(error.getDefaultMessage(), message)).findAny());
+			.equals(error.getDefaultMessage(), message)).findAny()).isNotEmpty();
 	}
 
 	private static Stream<Arguments> provideCase() {
