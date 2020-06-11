@@ -28,7 +28,7 @@ import org.springframework.validation.Validator;
  * Spring Cloud Consul Configuration equivalent.
  *
  * @author Joris Kuipers
- * @author Matejn
+ * @author Matej Nedic
  * @since 2.0.0
  */
 @ConfigurationProperties(AwsParamStoreProperties.CONFIG_PREFIX)
@@ -40,10 +40,13 @@ public class AwsParamStoreProperties implements Validator {
 	public static final String CONFIG_PREFIX = "aws.paramstore";
 
 	/**
-	 * Patterns used for validating prefix and profileSeparator values.
+	 * Pattern used for prefix validity.
 	 */
 	private static final Pattern prefixPattern = Pattern.compile("(/[a-zA-Z0-9.\\-_]+)*");
 
+	/**
+	 * Pattern used for profileSeparator validity.
+	 */
 	private static final Pattern profileSeparatorPatten = Pattern
 			.compile("[a-zA-Z0-9.\\-_/]+");
 

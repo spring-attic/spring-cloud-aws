@@ -16,128 +16,75 @@
 
 package org.springframework.cloud.aws.paramstore;
 
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.stream.Stream;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.context.properties.ConfigurationPropertiesBindException;
-import org.springframework.boot.context.properties.bind.validation.BindValidationException;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertiesPropertySource;
-import org.springframework.core.env.StandardEnvironment;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Tests for AwsParamStoreProperties validity.
+ *
+ * @author Matej Nedic
+ */
 public class AwsParamStorePropertiesFailTest {
 
-	SpringApplication application;
+	private static final HashMap errorCodes = new HashMap() {
+		{
+			put(ErrorCode.PREF_NULL, "prefix should not be empty or null.");
+			put(ErrorCode.PREF_PATTERN_WRONG,
+					"\"The prefix must have pattern of:  (/[a-zA-Z0-9.\\\\-_]+)*\"");
+			put(ErrorCode.DC_NULL, "defaultContext should not be empty or null.");
+			put(ErrorCode.PS_NULL, "profileSeparator should not be empty or null.");
+			put(ErrorCode.PS_PATTERN_WRONG,
+					"\"The profileSeparator must have pattern of:  [a-zA-Z0-9.\\\\-_/]+");
+		}
+	};
 
-	Properties properties;
-
-	private static String prefix = AwsParamStoreProperties.CONFIG_PREFIX
-			.concat(".prefix");
-
-	private static String defaultContext = AwsParamStoreProperties.CONFIG_PREFIX
-			.concat(".default-context");
-
-	private static String profileSeparator = AwsParamStoreProperties.CONFIG_PREFIX
-			.concat(".profile-separator");
-
-	@BeforeEach
-	public void setup() {
-		// create Spring Application dynamically
-		application = new SpringApplication(AwsParamStorePropertiesValidationTest.class);
-
-		// setting test properties for our Spring Application
-		properties = new Properties();
-
-		ConfigurableEnvironment environment = new StandardEnvironment();
-		MutablePropertySources propertySources = environment.getPropertySources();
-		propertySources.addFirst(new PropertiesPropertySource(
-				"application-validation.properties", properties));
-		application.setEnvironment(environment);
+	@ParameterizedTest
+	@MethodSource("provideCase")
+	public void AwsParamStoreProperties_Fail(String prefix, String defaultContext,
+			String profileSeparator, String message) {
+		AwsParamStoreProperties properties = buildAwsParamStoreProperties(prefix,
+				defaultContext, profileSeparator);
+		Errors errors = new BeanPropertyBindingResult(properties, "properties");
+		assertThat(errors.getAllErrors().stream()
+				.filter(error -> Objects.equals(error.getDefaultMessage(), message))
+				.findAny());
 	}
 
-	@Test
-	public void whenGivenPrefixNotInPattern_thenFail() {
-
-		properties.put(prefix, "!/secret");
-		properties.put(defaultContext, "app");
-		properties.put(profileSeparator, "_");
-
-		assertThatThrownBy(application::run)
-				.isInstanceOf(ConfigurationPropertiesBindException.class)
-				.hasRootCauseInstanceOf(BindValidationException.class)
-				.hasStackTraceContaining(prefix.concat(
-						"\" from property source \"application-validation.properties"))
-				.hasStackTraceContaining(
-						"The prefix must have pattern of:  (/[a-zA-Z0-9.\\-_]+)*");
-
+	private static Stream<Arguments> provideCase() {
+		return Stream.of(
+				Arguments.of("", "application", "_", errorCodes.get(ErrorCode.PREF_NULL)),
+				Arguments.of("!.", "application", "_",
+						errorCodes.get(ErrorCode.PREF_PATTERN_WRONG)),
+				Arguments.of("/config", "", "_", errorCodes.get(ErrorCode.DC_NULL)),
+				Arguments.of("/config", "application", "",
+						errorCodes.get(ErrorCode.PS_NULL)),
+				Arguments.of("/config", "application", "!_",
+						errorCodes.get(ErrorCode.PS_PATTERN_WRONG)));
 	}
 
-	@Test
-	public void whenGivenEmptyPrefix_thenFail() {
-
-		properties.put(prefix, "");
-		properties.put(defaultContext, "app");
-		properties.put(profileSeparator, "_");
-
-		assertThatThrownBy(application::run)
-				.isInstanceOf(ConfigurationPropertiesBindException.class)
-				.hasRootCauseInstanceOf(BindValidationException.class)
-				.hasStackTraceContaining((prefix.concat(
-						"\" from property source \"application-validation.properties")))
-				.hasStackTraceContaining("prefix should not be empty or null.");
-
+	private static AwsParamStoreProperties buildAwsParamStoreProperties(String prefix,
+			String defaultContext, String profileSeparator) {
+		AwsParamStoreProperties awsParamStoreProperties = new AwsParamStoreProperties();
+		awsParamStoreProperties.setPrefix(prefix);
+		awsParamStoreProperties.setDefaultContext(defaultContext);
+		awsParamStoreProperties.setProfileSeparator(profileSeparator);
+		return awsParamStoreProperties;
 	}
 
-	@Test
-	public void whenGivenEmptyProfileSeparator_thenFail() {
+	private enum ErrorCode {
 
-		properties.put(prefix, "/secert");
-		properties.put(defaultContext, "app");
-		properties.put(profileSeparator, "");
+		PREF_NULL, PREF_PATTERN_WRONG, DC_NULL, PS_NULL, PS_PATTERN_WRONG
 
-		assertThatThrownBy(application::run)
-				.isInstanceOf(ConfigurationPropertiesBindException.class)
-				.hasRootCauseInstanceOf(BindValidationException.class)
-				.hasStackTraceContaining((profileSeparator.concat(
-						"\" from property source \"application-validation.properties")))
-				.hasStackTraceContaining("profileSeparator should not be empty or null.");
-	}
-
-	@Test
-	public void whenGivenEmptyDefaultContext_thenFail() {
-
-		properties.put(prefix, "/secert");
-		properties.put(defaultContext, "");
-		properties.put(profileSeparator, "_");
-
-		assertThatThrownBy(application::run)
-				.isInstanceOf(ConfigurationPropertiesBindException.class)
-				.hasRootCauseInstanceOf(BindValidationException.class)
-				.hasStackTraceContaining((defaultContext.concat(
-						"\" from property source \"application-validation.properties")))
-				.hasStackTraceContaining("defaultContext should not be empty or null.");
-	}
-
-	@Test
-	public void whenGivenProfileSeparatorNotInPattern_thenFail() {
-
-		properties.put(prefix, "/secret");
-		properties.put(defaultContext, "app");
-		properties.put(profileSeparator, "!");
-
-		assertThatThrownBy(application::run)
-				.isInstanceOf(ConfigurationPropertiesBindException.class)
-				.hasRootCauseInstanceOf(BindValidationException.class)
-				.hasStackTraceContaining(profileSeparator.concat(
-						"\" from property source \"application-validation.properties"))
-				.hasStackTraceContaining(
-						"The profileSeparator must have pattern of:  [a-zA-Z0-9.\\-_/]+");
 	}
 
 }

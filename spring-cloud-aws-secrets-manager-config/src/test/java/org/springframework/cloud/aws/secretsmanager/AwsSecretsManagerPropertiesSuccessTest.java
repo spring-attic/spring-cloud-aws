@@ -18,22 +18,16 @@ package org.springframework.cloud.aws.secretsmanager;
 
 import org.junit.jupiter.api.Test;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(properties = { AwsSecretsManagerProperties.CONFIG_PREFIX + ".prefix=/sec",
-		AwsSecretsManagerProperties.CONFIG_PREFIX + ".default-context=app",
-		AwsSecretsManagerProperties.CONFIG_PREFIX + ".profile-separator=." }, classes = {
-				AwsSecretsManagerConfiguration.class })
+/**
+ * @author Matej Nedic
+ */
 public class AwsSecretsManagerPropertiesSuccessTest {
-
-	@Autowired
-	AwsSecretsManagerProperties awsSecretsManagerProperties;
 
 	@Test
 	void awsSecretsManagerPropertiesAreLoaded() {
+		AwsSecretsManagerProperties awsSecretsManagerProperties = buildProperties();
 		assertThat(awsSecretsManagerProperties).isNotNull();
 		assertThat(awsSecretsManagerProperties.getPrefix()).isEqualTo("/sec");
 		assertThat(awsSecretsManagerProperties.getPrefix()).isNotNull();
@@ -41,5 +35,13 @@ public class AwsSecretsManagerPropertiesSuccessTest {
 		assertThat(awsSecretsManagerProperties.getDefaultContext()).isNotNull();
 		assertThat(awsSecretsManagerProperties.getProfileSeparator()).isEqualTo(".");
 		assertThat(awsSecretsManagerProperties.getProfileSeparator()).isNotNull();
+	}
+
+	private static AwsSecretsManagerProperties buildProperties() {
+		AwsSecretsManagerProperties awsSecretsManagerProperties = new AwsSecretsManagerProperties();
+		awsSecretsManagerProperties.setPrefix("/sec");
+		awsSecretsManagerProperties.setDefaultContext("app");
+		awsSecretsManagerProperties.setProfileSeparator(".");
+		return awsSecretsManagerProperties;
 	}
 }

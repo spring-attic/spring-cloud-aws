@@ -18,23 +18,16 @@ package org.springframework.cloud.aws.paramstore;
 
 import org.junit.jupiter.api.Test;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(
-		properties = { AwsParamStoreProperties.CONFIG_PREFIX + ".prefix=/con",
-				AwsParamStoreProperties.CONFIG_PREFIX + ".default-context=app",
-				AwsParamStoreProperties.CONFIG_PREFIX + ".profile-separator=." },
-		classes = { AwsParamStoreConfiguration.class })
+/**
+ * @author Matej Nedic
+ */
 public class AwsParamStorePropertiesSuccessTest {
-
-	@Autowired
-	AwsParamStoreProperties awsParamStoreProperties;
 
 	@Test
 	void awsParamStorePropertiesAreLoaded() {
+		AwsParamStoreProperties awsParamStoreProperties = buildProperties();
 		assertThat(awsParamStoreProperties).isNotNull();
 		assertThat(awsParamStoreProperties.getPrefix()).isEqualTo("/con");
 		assertThat(awsParamStoreProperties.getPrefix()).isNotNull();
@@ -42,6 +35,14 @@ public class AwsParamStorePropertiesSuccessTest {
 		assertThat(awsParamStoreProperties.getDefaultContext()).isNotNull();
 		assertThat(awsParamStoreProperties.getProfileSeparator()).isEqualTo(".");
 		assertThat(awsParamStoreProperties.getProfileSeparator()).isNotNull();
+	}
+
+	private static AwsParamStoreProperties buildProperties() {
+		AwsParamStoreProperties awsParamStoreProperties = new AwsParamStoreProperties();
+		awsParamStoreProperties.setPrefix("/con");
+		awsParamStoreProperties.setDefaultContext("app");
+		awsParamStoreProperties.setProfileSeparator(".");
+		return awsParamStoreProperties;
 	}
 
 }

@@ -29,7 +29,7 @@ import org.springframework.validation.Validator;
  * Spring Cloud Consul Configuration equivalent.
  *
  * @author Fabio Maia
- * @author Matejn
+ * @author Matej Nedic
  * @since 2.0.0
  */
 @ConfigurationProperties(prefix = AwsSecretsManagerProperties.CONFIG_PREFIX)
@@ -41,10 +41,13 @@ public class AwsSecretsManagerProperties implements Validator {
 	public static final String CONFIG_PREFIX = "aws.secretsmanager";
 
 	/**
-	 * Patterns used for validating prefix and profileSeparator values.
+	 * Pattern used for validating prefix validity.
 	 */
 	private static final Pattern prefixPattern = Pattern.compile("(/[a-zA-Z0-9.\\-_]+)*");
 
+	/**
+	 * Pattern used for profileSeparator validity.
+	 */
 	private static final Pattern profileSeparatorPatten = Pattern
 			.compile("[a-zA-Z0-9.\\-_]+");
 
