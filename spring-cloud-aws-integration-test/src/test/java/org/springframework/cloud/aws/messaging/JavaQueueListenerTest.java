@@ -31,7 +31,8 @@ import org.springframework.test.context.ContextConfiguration;
  * @author Alain Sahli
  * @author Philip Riecks
  */
-@ContextConfiguration(classes = JavaQueueListenerTest.JavaQueueListenerTestConfiguration.class)
+@ContextConfiguration(
+		classes = JavaQueueListenerTest.JavaQueueListenerTestConfiguration.class)
 class JavaQueueListenerTest extends QueueListenerTest {
 
 	@Configuration

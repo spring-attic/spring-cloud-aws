@@ -23,7 +23,8 @@ import org.springframework.context.annotation.PropertySource;
 /**
  * @author Agim Emruli
  */
-@SpringBootTest(classes = BootStackConfigurationAwsTest.BootStackConfigurationAwsTestConfig.class)
+@SpringBootTest(
+		classes = BootStackConfigurationAwsTest.BootStackConfigurationAwsTestConfig.class)
 class BootStackConfigurationAwsTest extends StackConfigurationAwsTest {
 
 	@SpringBootApplication

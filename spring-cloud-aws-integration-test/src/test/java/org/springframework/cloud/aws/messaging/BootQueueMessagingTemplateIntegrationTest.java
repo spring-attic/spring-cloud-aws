@@ -31,12 +31,13 @@ import org.springframework.context.annotation.Configuration;
  * @author Alain Sahli
  * @author Philip Riecks
  */
-@SpringBootTest(classes = BootQueueMessagingTemplateIntegrationTest.QueueMessagingTemplateIntegrationTestConfiguration.class)
+@SpringBootTest(
+		classes = BootQueueMessagingTemplateIntegrationTest.QueueMessagingTemplateIntegrationTestConfiguration.class)
 class BootQueueMessagingTemplateIntegrationTest
 		extends QueueMessagingTemplateIntegrationTest {
 
 	@Configuration
-	@ImportAutoConfiguration({MessagingAutoConfiguration.class})
+	@ImportAutoConfiguration({ MessagingAutoConfiguration.class })
 	protected static class QueueMessagingTemplateIntegrationTestConfiguration {
 
 		@Bean

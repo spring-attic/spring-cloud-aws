@@ -30,12 +30,13 @@ import org.springframework.context.annotation.Configuration;
  * @author Alain Sahli
  * @author Philip Riecks
  */
-@SpringBootTest(classes = BootNotificationMessagingTemplateIntegrationTest.NotificationMessagingTemplateIntegrationTestConfiguration.class)
+@SpringBootTest(
+		classes = BootNotificationMessagingTemplateIntegrationTest.NotificationMessagingTemplateIntegrationTestConfiguration.class)
 class BootNotificationMessagingTemplateIntegrationTest
 		extends NotificationMessagingTemplateIntegrationTest {
 
 	@Configuration
-	@ImportAutoConfiguration({MessagingAutoConfiguration.class})
+	@ImportAutoConfiguration({ MessagingAutoConfiguration.class })
 	protected static class NotificationMessagingTemplateIntegrationTestConfiguration {
 
 		@Bean

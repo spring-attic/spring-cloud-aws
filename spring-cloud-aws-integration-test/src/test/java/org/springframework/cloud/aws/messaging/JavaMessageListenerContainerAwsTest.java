@@ -30,7 +30,8 @@ import org.springframework.test.context.ContextConfiguration;
  * @author Alain Sahli
  * @author Philip Riecks
  */
-@ContextConfiguration(classes = JavaMessageListenerContainerAwsTest.MessageListenerContainerAwsTestConfiguration.class)
+@ContextConfiguration(
+		classes = JavaMessageListenerContainerAwsTest.MessageListenerContainerAwsTestConfiguration.class)
 class JavaMessageListenerContainerAwsTest extends MessageListenerContainerAwsTest {
 
 	@Configuration

@@ -31,8 +31,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 /**
  * Test that uses the Amazon Simple Mail service to send mail.
  * <p>
- * <br>
- * Note:</br>
+ * Note:<br/>
  * This test is a fire and forget test as the amazon simple mail service does not provide
  * timely feedback if a message is send or not. Using the
  * {@link com.amazonaws.services.simpleemail.AmazonSimpleEmailService} method to get the

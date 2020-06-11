@@ -39,17 +39,18 @@ public class AmazonMessagingSdkConfig {
 	@Primary
 	public AmazonSQSAsync amazonSQSAsync() {
 		return AmazonSQSAsyncClientBuilder.standard()
-			.withCredentials(localStack.getDefaultCredentialsProvider())
-			.withEndpointConfiguration(localStack.getEndpointConfiguration(SQS))
-			.build();
+				.withCredentials(localStack.getDefaultCredentialsProvider())
+				.withEndpointConfiguration(localStack.getEndpointConfiguration(SQS))
+				.build();
 	}
 
 	@Bean
 	@Primary
 	public AmazonSNSAsync amazonSNSAsync() {
 		return AmazonSNSAsyncClientBuilder.standard()
-			.withCredentials(localStack.getDefaultCredentialsProvider())
-			.withEndpointConfiguration(localStack.getEndpointConfiguration(SNS))
-			.build();
+				.withCredentials(localStack.getDefaultCredentialsProvider())
+				.withEndpointConfiguration(localStack.getEndpointConfiguration(SNS))
+				.build();
 	}
+
 }

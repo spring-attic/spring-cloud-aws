@@ -36,7 +36,7 @@ import org.springframework.context.annotation.Configuration;
 class BootQueueListenerTest extends QueueListenerTest {
 
 	@Configuration
-	@ImportAutoConfiguration({MessagingAutoConfiguration.class})
+	@ImportAutoConfiguration({ MessagingAutoConfiguration.class })
 	protected static class QueueListenerTestConfiguration {
 
 		@Bean

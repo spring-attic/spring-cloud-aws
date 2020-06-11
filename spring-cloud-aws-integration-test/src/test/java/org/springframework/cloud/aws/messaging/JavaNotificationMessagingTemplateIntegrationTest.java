@@ -30,7 +30,8 @@ import org.springframework.test.context.ContextConfiguration;
  * @author Alain Sahli
  * @author Philip Riecks
  */
-@ContextConfiguration(classes = JavaNotificationMessagingTemplateIntegrationTest.NotificationMessagingTemplateIntegrationTestConfiguration.class)
+@ContextConfiguration(
+		classes = JavaNotificationMessagingTemplateIntegrationTest.NotificationMessagingTemplateIntegrationTestConfiguration.class)
 class JavaNotificationMessagingTemplateIntegrationTest
 		extends NotificationMessagingTemplateIntegrationTest {
 
