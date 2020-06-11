@@ -54,7 +54,7 @@ public class AwsParamStorePropertiesFailTest {
 		AwsParamStoreProperties properties = buildAwsParamStoreProperties(prefix,
 				defaultContext, profileSeparator);
 		Errors errors = new BeanPropertyBindingResult(properties, "properties");
-		properties.validate(properties,errors);
+		properties.validate(properties, errors);
 		assertThat(errors.getAllErrors().stream()
 				.filter(error -> Objects.equals(error.getDefaultMessage(), message))
 				.findAny()).isNotEmpty();
