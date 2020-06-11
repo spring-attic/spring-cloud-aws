@@ -54,9 +54,12 @@ public class TestStackEnvironment
 	private static final String EC2_INSTANCE_NAME = "UserTagAndUserDataInstance";
 
 	private static final String TEMPLATE_PATH = "IntegrationTestStack.yaml";
+
 	private final AmazonCloudFormation amazonCloudFormationClient;
+
 	@Value("${rdsPassword}")
 	private String rdsPassword;
+
 	private DescribeStackResourcesResult stackResources;
 
 	private boolean stackCreatedByThisInstance;

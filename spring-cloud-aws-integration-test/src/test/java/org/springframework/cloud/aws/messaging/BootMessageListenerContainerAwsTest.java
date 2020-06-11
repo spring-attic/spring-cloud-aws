@@ -30,7 +30,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 /**
  * @author Alain Sahli
  */
-@SpringBootTest(classes = BootMessageListenerContainerAwsTest.MessageListenerContainerAwsTestConfiguration.class)
+@SpringBootTest(
+		classes = BootMessageListenerContainerAwsTest.MessageListenerContainerAwsTestConfiguration.class)
 class BootMessageListenerContainerAwsTest extends MessageListenerContainerAwsTest {
 
 	@Configuration

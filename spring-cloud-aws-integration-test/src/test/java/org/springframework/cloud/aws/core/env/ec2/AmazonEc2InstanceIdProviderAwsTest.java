@@ -24,8 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.cloud.aws.support.TestStackInstanceIdService;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AmazonEc2InstanceIdProviderAwsTest {
 
@@ -53,7 +52,7 @@ public class AmazonEc2InstanceIdProviderAwsTest {
 		String currentInstanceId = amazonEc2InstanceIdProvider.getCurrentInstanceId();
 
 		// Assert
-		assertThat(currentInstanceId, is("i-abcdefg"));
+		assertThat(currentInstanceId).isEqualTo("i-abcdefg");
 	}
 
 }

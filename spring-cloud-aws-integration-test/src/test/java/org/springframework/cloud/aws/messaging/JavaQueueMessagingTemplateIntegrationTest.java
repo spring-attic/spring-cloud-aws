@@ -31,7 +31,8 @@ import org.springframework.test.context.ContextConfiguration;
 /**
  * @author Alain Sahli
  */
-@ContextConfiguration(classes = JavaQueueMessagingTemplateIntegrationTest.QueueMessagingTemplateIntegrationTestConfiguration.class)
+@ContextConfiguration(
+		classes = JavaQueueMessagingTemplateIntegrationTest.QueueMessagingTemplateIntegrationTestConfiguration.class)
 class JavaQueueMessagingTemplateIntegrationTest
 		extends QueueMessagingTemplateIntegrationTest {
 

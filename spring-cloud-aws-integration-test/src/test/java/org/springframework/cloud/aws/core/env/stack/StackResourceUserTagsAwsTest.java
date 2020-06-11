@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.aws.core.env.stack;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -25,6 +24,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.aws.support.TestStackEnvironment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Agim Emruli
@@ -46,8 +47,8 @@ public class StackResourceUserTagsAwsTest {
 	void getObject_retrieveAttributesOfStackStartedByTestEnvironment_returnsStackUserTags()
 			throws Exception {
 		if (this.testStackEnvironment.isStackCreatedAutomatically()) {
-			Assertions.assertEquals("value1", this.stackTag1);
-			Assertions.assertEquals("value2", this.stackTag2);
+			assertThat(this.stackTag1).isEqualTo("value1");
+			assertThat(this.stackTag2).isEqualTo("value2");
 		}
 	}
 

@@ -26,10 +26,7 @@ import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.cloud.aws.support.TestStackEnvironment;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 abstract class StackConfigurationAwsTest {
@@ -41,8 +38,7 @@ abstract class StackConfigurationAwsTest {
 	private ResourceIdResolver resourceIdResolver;
 
 	@Test
-	void resourcesByType_withResourceType_containsMinimumResources()
-			throws Exception {
+	void resourcesByType_withResourceType_containsMinimumResources() throws Exception {
 		// Arrange
 
 		// Act
@@ -50,16 +46,15 @@ abstract class StackConfigurationAwsTest {
 				.resourcesByType("AWS::EC2::Instance");
 
 		// Assert
-		assertEquals(1, resourcesByType.size());
+		assertThat(resourcesByType.size()).isEqualTo(1);
 
 		StackResource stackResource = resourcesByType.iterator().next();
-		assertEquals("UserTagAndUserDataInstance", stackResource.getLogicalId());
-		assertEquals("AWS::EC2::Instance", stackResource.getType());
+		assertThat(stackResource.getLogicalId()).isEqualTo("UserTagAndUserDataInstance");
+		assertThat(stackResource.getType()).isEqualTo("AWS::EC2::Instance");
 	}
 
 	@Test
-	void lookupPhysicalResourceId_withEC2Instance_returnsPhysicalName()
-			throws Exception {
+	void lookupPhysicalResourceId_withEC2Instance_returnsPhysicalName() throws Exception {
 		// Arrange
 
 		// Act
@@ -67,8 +62,8 @@ abstract class StackConfigurationAwsTest {
 				.lookupPhysicalResourceId("UserTagAndUserDataInstance");
 
 		// Assert
-		assertNotNull(physicalResourceId);
-		assertNotEquals("UserTagAndUserDataInstance", physicalResourceId);
+		assertThat(physicalResourceId).isNotNull();
+		assertThat(physicalResourceId).isNotEqualTo("UserTagAndUserDataInstance");
 	}
 
 	@Test
@@ -81,7 +76,7 @@ abstract class StackConfigurationAwsTest {
 				.getAllResources();
 
 		// Assert
-		assertFalse(allResources.isEmpty());
+		assertThat(allResources.isEmpty()).isFalse();
 	}
 
 	@Test
@@ -93,9 +88,8 @@ abstract class StackConfigurationAwsTest {
 		String stackName = this.stackResourceFactory.getStackName();
 
 		// Assert
-		assertEquals(TestStackEnvironment.DEFAULT_STACK_NAME, stackName);
+		assertThat(stackName).isEqualTo(TestStackEnvironment.DEFAULT_STACK_NAME);
 	}
-
 
 	@Test
 	void resourceIdResolver_configuredByDefault_notNull() {
@@ -104,7 +98,7 @@ abstract class StackConfigurationAwsTest {
 		// Act
 
 		// Assert
-		assertNotNull(this.resourceIdResolver);
+		assertThat(this.resourceIdResolver).isNotNull();
 	}
 
 }

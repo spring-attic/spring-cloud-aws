@@ -24,7 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * AWS backed integration test for the datasource feature of the jdbc module
@@ -42,7 +42,7 @@ abstract class DataSourceFactoryBeanAwsTest {
 	void testWriteAndReadWithReadReplicaEnabled() throws Exception {
 		Date lastAccessDatabase = this.databaseService.updateLastAccessDatabase();
 		Date checkDatabase = this.databaseService.getLastUpdate(lastAccessDatabase);
-		assertEquals(lastAccessDatabase.getTime(), checkDatabase.getTime());
+		assertThat(checkDatabase.getTime()).isEqualTo(lastAccessDatabase.getTime());
 	}
 
 }

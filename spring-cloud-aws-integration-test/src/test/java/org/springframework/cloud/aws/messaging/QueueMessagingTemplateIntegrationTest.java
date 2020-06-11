@@ -28,7 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.cloud.aws.messaging.core.QueueMessagingTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Agim Emruli
@@ -62,7 +62,7 @@ abstract class QueueMessagingTemplateIntegrationTest {
 				.receiveAndConvert(STRING_QUEUE_NAME, String.class);
 
 		// Assert
-		assertEquals(messageContent, receivedMessage);
+		assertThat(receivedMessage).isEqualTo(messageContent);
 	}
 
 	@Test
@@ -77,7 +77,7 @@ abstract class QueueMessagingTemplateIntegrationTest {
 				.receiveAndConvert(StringList.class);
 
 		// Assert
-		assertEquals("myString", result.get(0));
+		assertThat(result.get(0)).isEqualTo("myString");
 	}
 
 	@Test
@@ -92,8 +92,8 @@ abstract class QueueMessagingTemplateIntegrationTest {
 				.receiveAndConvert(DummyObject.class);
 
 		// Assert
-		assertEquals("Hello", result.getValue());
-		assertEquals(100, result.getAnotherValue());
+		assertThat(result.getValue()).isEqualTo("Hello");
+		assertThat(result.getAnotherValue()).isEqualTo(100);
 	}
 
 	@Test
@@ -105,14 +105,14 @@ abstract class QueueMessagingTemplateIntegrationTest {
 		// Assert
 		String result = this.defaultQueueMessagingTemplate
 				.receiveAndConvert(JSON_QUEUE_NAME, String.class);
-		assertEquals("A String", result);
+		assertThat(result).isEqualTo("A String");
 	}
 
 	private interface StringList extends List<String> {
 
 	}
 
-	private static class DummyObject {
+	private static final class DummyObject {
 
 		private final String value;
 
