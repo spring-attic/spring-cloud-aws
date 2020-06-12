@@ -202,7 +202,7 @@ class QueueMessagingTemplateTest {
 		// Assert
 		assertThat(
 				((CompositeMessageConverter) queueMessagingTemplate.getMessageConverter())
-						.getConverters().size()).isEqualTo(2);
+						.getConverters()).hasSize(2);
 		assertThat(
 				((CompositeMessageConverter) queueMessagingTemplate.getMessageConverter())
 						.getConverters().get(1)).isEqualTo(simpleMessageConverter);
@@ -217,7 +217,7 @@ class QueueMessagingTemplateTest {
 		// Assert
 		assertThat(
 				((CompositeMessageConverter) queueMessagingTemplate.getMessageConverter())
-						.getConverters().size()).isEqualTo(2);
+						.getConverters()).hasSize(2);
 		assertThat(
 				((CompositeMessageConverter) queueMessagingTemplate.getMessageConverter())
 						.getConverters().get(1))
