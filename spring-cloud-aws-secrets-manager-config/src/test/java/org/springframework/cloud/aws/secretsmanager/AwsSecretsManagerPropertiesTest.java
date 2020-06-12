@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -33,9 +34,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for AwsSecretsManagerProperties
  * @author Matej Nedic
  **/
-public class AwsSecretsManagerPropertiesFailTest {
+public class AwsSecretsManagerPropertiesTest {
 
-	private static final HashMap<ErrorCode, String> errorCodes = new HashMap() {
+	private static final HashMap<ErrorCode, String> ERROR_CODES = new HashMap() {
 		{
 			put(ErrorCode.PREF_NULL, "prefix should not be empty or null.");
 			put(ErrorCode.PREF_PATTERN_WRONG,
@@ -49,7 +50,7 @@ public class AwsSecretsManagerPropertiesFailTest {
 
 	@ParameterizedTest
 	@MethodSource("provideCase")
-	public void AwsSecretsManagerProperties_Fail(String prefix, String defaultContext, String profileSeparator,
+	public void awsSecretsManagerProperties_ValidationFails(String prefix, String defaultContext, String profileSeparator,
 			String message) {
 		AwsSecretsManagerProperties properties = buildAwsParamStoreProperties(prefix,
 				defaultContext, profileSeparator);
@@ -59,15 +60,23 @@ public class AwsSecretsManagerPropertiesFailTest {
 			.equals(error.getDefaultMessage(), message)).findAny()).isNotEmpty();
 	}
 
+	@Test
+	void awsSecretsManagerProperties_ValidationSucceeds() {
+		AwsSecretsManagerProperties properties = buildAwsParamStoreProperties("/sec", "app", "_");
+		Errors errors = new BeanPropertyBindingResult(properties, "properties");
+		properties.validate(properties, errors);
+		assertThat(errors.getAllErrors()).isEmpty();
+	}
+
 	private static Stream<Arguments> provideCase() {
 		return Stream.of(
-				Arguments.of("", "application", "_", errorCodes.get(ErrorCode.PREF_NULL)),
+				Arguments.of("", "application", "_", ERROR_CODES.get(ErrorCode.PREF_NULL)),
 				Arguments.of("!.", "application", "_",
-						errorCodes.get(ErrorCode.PREF_PATTERN_WRONG)),
-				Arguments.of("/secret", "", "_", errorCodes.get(ErrorCode.DC_NULL)),
-				Arguments.of("/secret", "application", "", errorCodes.get(ErrorCode.PS_NULL)),
+						ERROR_CODES.get(ErrorCode.PREF_PATTERN_WRONG)),
+				Arguments.of("/secret", "", "_", ERROR_CODES.get(ErrorCode.DC_NULL)),
+				Arguments.of("/secret", "application", "", ERROR_CODES.get(ErrorCode.PS_NULL)),
 				Arguments.of("/secret", "application", "!_",
-						errorCodes.get(ErrorCode.PS_PATTERN_WRONG)));
+						ERROR_CODES.get(ErrorCode.PS_PATTERN_WRONG)));
 	}
 
 	private static AwsSecretsManagerProperties buildAwsParamStoreProperties(String prefix,

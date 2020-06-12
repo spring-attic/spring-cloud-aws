@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -34,23 +35,24 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Matej Nedic
  */
-public class AwsParamStorePropertiesFailTest {
+public class AwsParamStorePropertiesTest {
 
-	private static final HashMap errorCodes = new HashMap() {
+	private static final HashMap ERROR_CODES = new HashMap() {
 		{
 			put(ErrorCode.PREF_NULL, "prefix should not be empty or null.");
 			put(ErrorCode.PREF_PATTERN_WRONG,
-				"The prefix must have pattern of:  (/[a-zA-Z0-9.\\-_]+)*");
+					"The prefix must have pattern of:  (/[a-zA-Z0-9.\\-_]+)*");
 			put(ErrorCode.DC_NULL, "defaultContext should not be empty or null.");
 			put(ErrorCode.PS_NULL, "profileSeparator should not be empty or null.");
 			put(ErrorCode.PS_PATTERN_WRONG,
-				"The profileSeparator must have pattern of:  [a-zA-Z0-9.\\-_/]+");
+					"The profileSeparator must have pattern of:  [a-zA-Z0-9.\\-_/]+");
 		}
 	};
+
 	@ParameterizedTest
 	@MethodSource("provideCase")
-	public void AwsParamStoreProperties_Fail(String prefix, String defaultContext,
-			String profileSeparator, String message) {
+	public void awsParamStoreProperties_ValidationFails(String prefix,
+			String defaultContext, String profileSeparator, String message) {
 		AwsParamStoreProperties properties = buildAwsParamStoreProperties(prefix,
 				defaultContext, profileSeparator);
 		Errors errors = new BeanPropertyBindingResult(properties, "properties");
@@ -60,16 +62,26 @@ public class AwsParamStorePropertiesFailTest {
 				.findAny()).isNotEmpty();
 	}
 
+	@Test
+	void awsParamStoreProperties_ValidationSucceeds() {
+		AwsParamStoreProperties properties = buildAwsParamStoreProperties("/con", "app",
+				"_");
+		Errors errors = new BeanPropertyBindingResult(properties, "properties");
+		properties.validate(properties, errors);
+		assertThat(errors.getAllErrors()).isEmpty();
+	}
+
 	private static Stream<Arguments> provideCase() {
 		return Stream.of(
-				Arguments.of("", "application", "_", errorCodes.get(ErrorCode.PREF_NULL)),
+				Arguments.of("", "application", "_",
+						ERROR_CODES.get(ErrorCode.PREF_NULL)),
 				Arguments.of("!.", "application", "_",
-						errorCodes.get(ErrorCode.PREF_PATTERN_WRONG)),
-				Arguments.of("/config", "", "_", errorCodes.get(ErrorCode.DC_NULL)),
+						ERROR_CODES.get(ErrorCode.PREF_PATTERN_WRONG)),
+				Arguments.of("/config", "", "_", ERROR_CODES.get(ErrorCode.DC_NULL)),
 				Arguments.of("/config", "application", "",
-						errorCodes.get(ErrorCode.PS_NULL)),
+						ERROR_CODES.get(ErrorCode.PS_NULL)),
 				Arguments.of("/config", "application", "!_",
-						errorCodes.get(ErrorCode.PS_PATTERN_WRONG)));
+						ERROR_CODES.get(ErrorCode.PS_PATTERN_WRONG)));
 	}
 
 	private static AwsParamStoreProperties buildAwsParamStoreProperties(String prefix,

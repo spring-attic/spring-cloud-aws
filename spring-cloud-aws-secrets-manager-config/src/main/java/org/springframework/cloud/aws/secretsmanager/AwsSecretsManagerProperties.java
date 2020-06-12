@@ -41,15 +41,15 @@ public class AwsSecretsManagerProperties implements Validator {
 	public static final String CONFIG_PREFIX = "aws.secretsmanager";
 
 	/**
-	 * Pattern used for validating prefix validity.
+	 * Pattern used for checking prefix validity.
 	 */
-	private static final Pattern prefixPattern = Pattern.compile("(/[a-zA-Z0-9.\\-_]+)*");
+	private static final Pattern PREFIX_PATTERN = Pattern.compile("(/[a-zA-Z0-9.\\-_]+)*");
 
 	/**
-	 * Pattern used for profileSeparator validity.
+	 * Pattern used for checking profileSeparator validity.
 	 */
-	private static final Pattern profileSeparatorPatten = Pattern
-			.compile("[a-zA-Z0-9.\\-_]+");
+	private static final Pattern PROFILE_SEPARATOR_PATTERN = Pattern
+		.compile("[a-zA-Z0-9.\\-_]+");
 
 	/**
 	 * Prefix indicating first level for every property. Value must start with a forward
@@ -81,26 +81,25 @@ public class AwsSecretsManagerProperties implements Validator {
 	@Override
 	public void validate(Object target, Errors errors) {
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "prefix", "field.required",
-				new Object[] { prefix }, "prefix should not be empty or null.");
+			"prefix should not be empty or null.");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "defaultContext",
-				"field.required", new Object[] { defaultContext },
-				"defaultContext should not be empty or null.");
+			"field.required",
+			"defaultContext should not be empty or null.");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "profileSeparator",
-				"field.required", new Object[] { profileSeparator },
-				"profileSeparator should not be empty or null.");
+			"field.required",
+			"profileSeparator should not be empty or null.");
 
 		AwsSecretsManagerProperties awsSecretsManagerProperties = (AwsSecretsManagerProperties) target;
 
-		if (!prefixPattern.matcher(awsSecretsManagerProperties.getPrefix()).matches()) {
-			errors.rejectValue("prefix", "prefix.pattern.wrong", new Object[] { prefix },
-					"The prefix must have pattern of:  " + prefixPattern.toString());
+		if (!PREFIX_PATTERN.matcher(awsSecretsManagerProperties.getPrefix()).matches()) {
+			errors.rejectValue("prefix", "prefix.pattern.wrong",
+				"The prefix must have pattern of:  " + PREFIX_PATTERN.toString());
 		}
-		if (!profileSeparatorPatten
-				.matcher(awsSecretsManagerProperties.getProfileSeparator()).matches()) {
+		if (!PROFILE_SEPARATOR_PATTERN
+			.matcher(awsSecretsManagerProperties.getProfileSeparator()).matches()) {
 			errors.rejectValue("profileSeparator", "separator.pattern.wrong",
-					new Object[] { profileSeparator },
-					"The profileSeparator must have pattern of:  "
-							+ profileSeparatorPatten.toString());
+				"The profileSeparator must have pattern of:  "
+					+ PROFILE_SEPARATOR_PATTERN.toString());
 		}
 	}
 
