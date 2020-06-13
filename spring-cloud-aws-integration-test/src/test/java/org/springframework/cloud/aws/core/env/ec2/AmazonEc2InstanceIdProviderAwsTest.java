@@ -22,10 +22,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.cloud.aws.AWSIntegration;
 import org.springframework.cloud.aws.support.TestStackInstanceIdService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@AWSIntegration
 public class AmazonEc2InstanceIdProviderAwsTest {
 
 	private TestStackInstanceIdService testStackInstanceIdService;

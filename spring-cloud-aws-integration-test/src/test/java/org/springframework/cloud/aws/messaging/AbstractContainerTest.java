@@ -23,11 +23,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.aws.AWSIntegration;
 import org.springframework.cloud.aws.messaging.listener.SimpleMessageListenerContainer;
 
 /**
  * @author Alain Sahli
  */
+@AWSIntegration
 abstract class AbstractContainerTest {
 
 	@Autowired

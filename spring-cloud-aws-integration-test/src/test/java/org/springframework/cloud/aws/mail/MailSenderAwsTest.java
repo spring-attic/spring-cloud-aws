@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.aws.AWSIntegration;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
@@ -45,6 +46,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
  * @author Agim Emruli
  */
 @ExtendWith(SpringExtension.class)
+@AWSIntegration
 abstract class MailSenderAwsTest {
 
 	@Autowired

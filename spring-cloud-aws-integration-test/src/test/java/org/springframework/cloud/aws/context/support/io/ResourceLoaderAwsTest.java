@@ -41,6 +41,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.aws.AWSIntegration;
 import org.springframework.cloud.aws.core.env.stack.StackResourceRegistry;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -56,6 +57,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Agim Emruli
  */
 @ExtendWith(SpringExtension.class)
+@AWSIntegration
 abstract class ResourceLoaderAwsTest {
 
 	private static final String S3_PREFIX = "s3://";

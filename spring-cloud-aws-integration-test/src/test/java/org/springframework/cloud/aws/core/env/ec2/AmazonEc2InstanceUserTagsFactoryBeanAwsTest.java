@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanExpressionContext;
+import org.springframework.cloud.aws.AWSIntegration;
 import org.springframework.cloud.aws.support.TestStackInstanceIdService;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -35,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
+@AWSIntegration
 public class AmazonEc2InstanceUserTagsFactoryBeanAwsTest {
 
 	@Autowired

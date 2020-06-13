@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.aws.AWSIntegration;
 import org.springframework.cloud.aws.core.env.stack.StackResourceRegistry;
 import org.springframework.cloud.aws.core.io.s3.PathMatchingSimpleStorageResourcePatternResolver;
 import org.springframework.context.ApplicationContext;
@@ -43,8 +44,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Agim Emruli
  * @since 1.0
  */
-@SuppressWarnings("SpringJavaAutowiringInspection")
 @ExtendWith(SpringExtension.class)
+@AWSIntegration
 abstract class PathMatchingResourceLoaderAwsTest {
 
 	private static final List<String> FILES_FOR_HIERARCHY = Arrays.asList(

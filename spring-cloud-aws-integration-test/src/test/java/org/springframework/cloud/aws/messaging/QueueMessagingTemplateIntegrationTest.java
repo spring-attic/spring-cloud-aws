@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import org.springframework.cloud.aws.AWSIntegration;
 import org.springframework.cloud.aws.messaging.core.QueueMessagingTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -35,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Alain Sahli
  */
 @ExtendWith(SpringExtension.class)
+@AWSIntegration
 abstract class QueueMessagingTemplateIntegrationTest {
 
 	private static final String JSON_QUEUE_NAME = "JsonQueue";
