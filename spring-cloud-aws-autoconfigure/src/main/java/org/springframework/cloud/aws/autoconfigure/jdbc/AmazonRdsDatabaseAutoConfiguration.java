@@ -117,27 +117,20 @@ public class AmazonRdsDatabaseAutoConfiguration {
 			Map<String, Map<String, String>> dbConfigurationMap = new HashMap<>(
 					subProperties.keySet().size());
 			for (Map.Entry<String, Object> subProperty : subProperties.entrySet()) {
-				String instanceName = subProperty.getKey();
-				if (!dbConfigurationMap.containsKey(instanceName)) {
-					dbConfigurationMap.put(instanceName, new HashMap<>());
-				}
-
-				Object value = subProperty.getValue();
-
-				if (value instanceof Map) {
-					Map<String, String> map = (Map) value;
-					for (Map.Entry<String, String> entry : map.entrySet()) {
-						dbConfigurationMap.get(instanceName).put(entry.getKey(),
-								entry.getValue());
+				if (subProperty.getValue() instanceof Map) {
+					Map<String, String> map = (Map) subProperty.getValue();
+					Assert.isTrue(map.containsKey("dbInstanceIdentifier"), "Amazon RDS auto configuration requires dbInstanceIdentifier property definition");
+					String instanceName = map.get("dbInstanceIdentifier");
+					if (!dbConfigurationMap.containsKey(instanceName)) {
+						dbConfigurationMap.put(instanceName, new HashMap<>());
 					}
+					map.entrySet().stream()
+						.filter(entry -> !entry.getKey().equals("dbInstanceIdentifier"))
+						.forEach(entry -> dbConfigurationMap.get(instanceName).put(entry.getKey(), entry.getValue()));
 				}
-				else if (value instanceof String) {
-					String subPropertyName = extractConfigurationSubPropertyName(
-							subProperty.getKey());
-					if (StringUtils.hasText(subPropertyName)) {
-						dbConfigurationMap.get(instanceName).put(subPropertyName,
-								(String) subProperty.getValue());
-					}
+				else if (subProperty.getValue() instanceof String) {
+					Assert.isInstanceOf(String.class, subProperty.getValue(),
+						"Amazon RDS auto configuration requires a map properties");
 				}
 			}
 			return dbConfigurationMap;
