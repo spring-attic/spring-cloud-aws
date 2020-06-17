@@ -18,8 +18,12 @@ package org.springframework.cloud.aws.messaging.listener;
 
 import java.util.concurrent.Future;
 
+import com.amazonaws.handlers.AsyncHandler;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
+import com.amazonaws.services.sqs.model.DeleteMessageResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Alain Sahli
@@ -33,6 +37,8 @@ public class QueueMessageAcknowledgment implements Acknowledgment {
 
 	private final String receiptHandle;
 
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
 	public QueueMessageAcknowledgment(AmazonSQSAsync amazonSqsAsync, String queueUrl,
 			String receiptHandle) {
 		this.amazonSqsAsync = amazonSqsAsync;
@@ -43,7 +49,22 @@ public class QueueMessageAcknowledgment implements Acknowledgment {
 	@Override
 	public Future<?> acknowledge() {
 		return this.amazonSqsAsync.deleteMessageAsync(
-				new DeleteMessageRequest(this.queueUrl, this.receiptHandle));
+				new DeleteMessageRequest(this.queueUrl, this.receiptHandle),
+				new AsyncHandler<DeleteMessageRequest, DeleteMessageResult>() {
+					@Override
+					public void onError(Exception exception) {
+						logger.warn(
+								"An exception occurred while deleting '{}' receiptHandle",
+								receiptHandle, exception);
+					}
+
+					@Override
+					public void onSuccess(DeleteMessageRequest request,
+							DeleteMessageResult deleteMessageResult) {
+						logger.trace("'{}' receiptHandle is deleted successfully",
+								request.getReceiptHandle());
+					}
+				});
 	}
 
 }

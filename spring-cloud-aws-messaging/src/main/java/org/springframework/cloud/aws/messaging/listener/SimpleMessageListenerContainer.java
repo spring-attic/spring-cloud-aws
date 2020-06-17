@@ -25,7 +25,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import com.amazonaws.handlers.AsyncHandler;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
+import com.amazonaws.services.sqs.model.DeleteMessageResult;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 
@@ -440,7 +442,23 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 
 		private void deleteMessage(String receiptHandle) {
 			getAmazonSqs().deleteMessageAsync(
-					new DeleteMessageRequest(this.queueUrl, receiptHandle));
+					new DeleteMessageRequest(this.queueUrl, receiptHandle),
+					new AsyncHandler<DeleteMessageRequest, DeleteMessageResult>() {
+						@Override
+						public void onError(Exception exception) {
+							getLogger().warn(
+									"An exception occurred while deleting '{}' receiptHandle",
+									receiptHandle, exception);
+						}
+
+						@Override
+						public void onSuccess(DeleteMessageRequest request,
+								DeleteMessageResult deleteMessageResult) {
+							getLogger().trace(
+									"'{}' receiptHandle is deleted successfully",
+									request.getReceiptHandle());
+						}
+					});
 		}
 
 		private org.springframework.messaging.Message<String> getMessageForExecution() {
