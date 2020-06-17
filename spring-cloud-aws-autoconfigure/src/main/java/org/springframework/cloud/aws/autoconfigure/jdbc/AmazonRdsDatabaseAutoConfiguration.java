@@ -39,7 +39,6 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 /**
  * @author Agim Emruli
@@ -119,18 +118,20 @@ public class AmazonRdsDatabaseAutoConfiguration {
 			for (Map.Entry<String, Object> subProperty : subProperties.entrySet()) {
 				if (subProperty.getValue() instanceof Map) {
 					Map<String, String> map = (Map) subProperty.getValue();
-					Assert.isTrue(map.containsKey("dbInstanceIdentifier"), "Amazon RDS auto configuration requires dbInstanceIdentifier property definition");
+					Assert.isTrue(map.containsKey("dbInstanceIdentifier"),
+							"Amazon RDS auto configuration requires dbInstanceIdentifier property definition");
 					String instanceName = map.get("dbInstanceIdentifier");
 					if (!dbConfigurationMap.containsKey(instanceName)) {
 						dbConfigurationMap.put(instanceName, new HashMap<>());
 					}
-					map.entrySet().stream()
-						.filter(entry -> !entry.getKey().equals("dbInstanceIdentifier"))
-						.forEach(entry -> dbConfigurationMap.get(instanceName).put(entry.getKey(), entry.getValue()));
+					map.entrySet().stream().filter(
+							entry -> !entry.getKey().equals("dbInstanceIdentifier"))
+							.forEach(entry -> dbConfigurationMap.get(instanceName)
+									.put(entry.getKey(), entry.getValue()));
 				}
 				else if (subProperty.getValue() instanceof String) {
 					Assert.isInstanceOf(String.class, subProperty.getValue(),
-						"Amazon RDS auto configuration requires a map properties");
+							"Amazon RDS auto configuration requires a map properties");
 				}
 			}
 			return dbConfigurationMap;

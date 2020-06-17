@@ -71,7 +71,9 @@ class AmazonRdsDatabaseAutoConfigurationTest {
 	void configureBean_withDefaultClientSpecifiedAndNoReadReplica_configuresFactoryBeanWithoutReadReplica() {
 		this.contextRunner
 				.withUserConfiguration(ApplicationConfigurationWithoutReadReplica.class)
-				.withPropertyValues("cloud.aws.rds[0].dbInstanceIdentifier:test", "cloud.aws.rds[0].password:secret").run(context -> {
+				.withPropertyValues("cloud.aws.rds[0].dbInstanceIdentifier:test",
+						"cloud.aws.rds[0].password:secret")
+				.run(context -> {
 					assertThat(context.getBean(DataSource.class)).isNotNull();
 					assertThat(context.getBean(AmazonRdsDataSourceFactoryBean.class))
 							.isNotNull();
@@ -82,7 +84,8 @@ class AmazonRdsDatabaseAutoConfigurationTest {
 	void configureBean_withCustomDataBaseName_configuresFactoryBeanWithCustomDatabaseName() {
 		this.contextRunner
 				.withUserConfiguration(ApplicationConfigurationWithoutReadReplica.class)
-				.withPropertyValues("cloud.aws.rds[0].dbInstanceIdentifier:test", "cloud.aws.rds[0].password:secret",
+				.withPropertyValues("cloud.aws.rds[0].dbInstanceIdentifier:test",
+						"cloud.aws.rds[0].password:secret",
 						"cloud.aws.rds[0].databaseName:fooDb")
 				.run(context -> {
 					DataSource dataSource = context.getBean(DataSource.class);
@@ -104,9 +107,9 @@ class AmazonRdsDatabaseAutoConfigurationTest {
 				.withUserConfiguration(
 						ApplicationConfigurationWithMultipleDatabases.class)
 				.withPropertyValues("cloud.aws.rds[0].dbInstanceIdentifier:test",
-					"cloud.aws.rds[0].password:secret",
-					"cloud.aws.rds[1].dbInstanceIdentifier:anotherOne",
-					"cloud.aws.rds[1].password:verySecret")
+						"cloud.aws.rds[0].password:secret",
+						"cloud.aws.rds[1].dbInstanceIdentifier:anotherOne",
+						"cloud.aws.rds[1].password:verySecret")
 				.run(context -> {
 					assertThat(context.getBean("test", DataSource.class)).isNotNull();
 					assertThat(context.getBean("&test",
@@ -123,7 +126,8 @@ class AmazonRdsDatabaseAutoConfigurationTest {
 	void configureBean_withDefaultClientSpecifiedAndReadReplica_configuresFactoryBeanWithReadReplicaEnabled() {
 		this.contextRunner
 				.withUserConfiguration(ApplicationConfigurationWithReadReplica.class)
-				.withPropertyValues("cloud.aws.rds[0].dbInstanceIdentifier:test","cloud.aws.rds[0].password:secret",
+				.withPropertyValues("cloud.aws.rds[0].dbInstanceIdentifier:test",
+						"cloud.aws.rds[0].password:secret",
 						"cloud.aws.rds[0].readReplicaSupport:true")
 				.run(context -> {
 					assertThat(context.getBean(DataSource.class)).isNotNull();
