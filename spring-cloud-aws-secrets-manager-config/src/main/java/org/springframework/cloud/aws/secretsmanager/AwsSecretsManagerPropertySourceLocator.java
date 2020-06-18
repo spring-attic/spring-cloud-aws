@@ -92,7 +92,7 @@ public class AwsSecretsManagerPropertySourceLocator implements PropertySourceLoc
 		this.contexts.add(defaultContext);
 		addProfiles(this.contexts, defaultContext, profiles);
 
-		if (appName != null && !appName.equals(this.properties.getDefaultContext())) {
+		if (!this.properties.getDefaultContext().equals(appName)) {
 			String baseContext = prefix + "/" + appName;
 			this.contexts.add(baseContext);
 			addProfiles(this.contexts, baseContext, profiles);

@@ -114,5 +114,4 @@ public class AwsSecretsManagerProperties {
 		this.enabled = enabled;
 	}
 
-
 }

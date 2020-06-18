@@ -19,7 +19,7 @@ package org.springframework.cloud.aws.secretsmanager;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.springframework.core.env.PropertySource;
 import org.springframework.mock.env.MockEnvironment;
@@ -78,7 +78,7 @@ public class AwsSecretsManagerPropertySourceLocatorTest {
 		AwsSecretsManagerProperties properties = new AwsSecretsManagerPropertiesBuilder()
 			.withDefaultContext("application")
 			.withName("application").build();
-		Integer sizeOfContextList = 2;
+		int sizeOfContextList = 2;
 		GetSecretValueResult secretValueResult = new GetSecretValueResult();
 		secretValueResult.setSecretString("{\"key1\": \"value1\", \"key2\": \"value2\"}");
 		when(smClient.getSecretValue(any(GetSecretValueRequest.class)))
@@ -95,7 +95,7 @@ public class AwsSecretsManagerPropertySourceLocatorTest {
 		AwsSecretsManagerProperties properties = new AwsSecretsManagerPropertiesBuilder()
 			.withDefaultContext("application")
 			.withName("messaging-service").build();
-		Integer sizeOfContextList = 4;
+		int sizeOfContextList = 4;
 		GetSecretValueResult secretValueResult = new GetSecretValueResult();
 		secretValueResult.setSecretString("{\"key1\": \"value1\", \"key2\": \"value2\"}");
 		when(smClient.getSecretValue(any(GetSecretValueRequest.class)))

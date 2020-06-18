@@ -86,7 +86,7 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 		this.contexts.add(defaultContext + "/");
 		addProfiles(this.contexts, defaultContext, profiles);
 
-		if (appName != null && !appName.equals(defaultContext)) {
+		if (!this.properties.getDefaultContext().equals(appName)) {
 			String baseContext = prefix + "/" + appName;
 			this.contexts.add(baseContext + "/");
 			addProfiles(this.contexts, baseContext, profiles);
