@@ -19,10 +19,11 @@ package org.springframework.cloud.aws.secretsmanager;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.core.env.PropertySource;
 import org.springframework.mock.env.MockEnvironment;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,6 +34,7 @@ import static org.mockito.Mockito.when;
  * Unit test for {@link AwsSecretsManagerPropertySourceLocator}.
  *
  * @author Anthony Foulfoin
+ * @author Matej Nedic
  */
 public class AwsSecretsManagerPropertySourceLocatorTest {
 
@@ -45,11 +47,11 @@ public class AwsSecretsManagerPropertySourceLocatorTest {
 		GetSecretValueResult secretValueResult = new GetSecretValueResult();
 		secretValueResult.setSecretString("{\"key1\": \"value1\", \"key2\": \"value2\"}");
 		when(smClient.getSecretValue(any(GetSecretValueRequest.class)))
-				.thenReturn(secretValueResult);
+			.thenReturn(secretValueResult);
 
 		AwsSecretsManagerProperties properties = new AwsSecretsManagerProperties();
 		AwsSecretsManagerPropertySourceLocator locator = new AwsSecretsManagerPropertySourceLocator(
-				"my-name", smClient, properties);
+			"my-name", smClient, properties);
 
 		PropertySource propertySource = locator.locate(env);
 
@@ -61,15 +63,88 @@ public class AwsSecretsManagerPropertySourceLocatorTest {
 		GetSecretValueResult secretValueResult = new GetSecretValueResult();
 		secretValueResult.setSecretString("{\"key1\": \"value1\", \"key2\": \"value2\"}");
 		when(smClient.getSecretValue(any(GetSecretValueRequest.class)))
-				.thenReturn(secretValueResult);
+			.thenReturn(secretValueResult);
 
 		AwsSecretsManagerProperties properties = new AwsSecretsManagerProperties();
 		AwsSecretsManagerPropertySourceLocator locator = new AwsSecretsManagerPropertySourceLocator(
-				smClient, properties);
-
+			smClient, properties);
 		PropertySource propertySource = locator.locate(env);
 
 		assertThat(propertySource.getName()).isEqualTo("aws-secrets-manager");
 	}
+
+	@Test
+	public void contextExpectedToHave2Elements() {
+		AwsSecretsManagerProperties properties = new AwsSecretsManagerPropertiesBuilder()
+			.withDefaultContext("application")
+			.withName("application").build();
+		Integer sizeOfContextList = 2;
+		GetSecretValueResult secretValueResult = new GetSecretValueResult();
+		secretValueResult.setSecretString("{\"key1\": \"value1\", \"key2\": \"value2\"}");
+		when(smClient.getSecretValue(any(GetSecretValueRequest.class)))
+			.thenReturn(secretValueResult);
+		AwsSecretsManagerPropertySourceLocator locator = new AwsSecretsManagerPropertySourceLocator(
+			smClient, properties);
+		env.setActiveProfiles("test");
+		locator.locate(env);
+		assertThat(locator.getContexts().size()).isEqualTo(sizeOfContextList);
+	}
+
+	@Test
+	public void contextExpectedToHave4Elements() {
+		AwsSecretsManagerProperties properties = new AwsSecretsManagerPropertiesBuilder()
+			.withDefaultContext("application")
+			.withName("messaging-service").build();
+		Integer sizeOfContextList = 4;
+		GetSecretValueResult secretValueResult = new GetSecretValueResult();
+		secretValueResult.setSecretString("{\"key1\": \"value1\", \"key2\": \"value2\"}");
+		when(smClient.getSecretValue(any(GetSecretValueRequest.class)))
+			.thenReturn(secretValueResult);
+		AwsSecretsManagerPropertySourceLocator locator = new AwsSecretsManagerPropertySourceLocator(
+			smClient, properties);
+		env.setActiveProfiles("test");
+		locator.locate(env);
+		assertThat(locator.getContexts().size()).isEqualTo(sizeOfContextList);
+	}
+
+	private final static class AwsSecretsManagerPropertiesBuilder {
+		private String prefix = "/secret";
+		private String defaultContext = "application";
+		private String profileSeparator = "_";
+		private boolean failFast = true;
+		private String name;
+		private boolean enabled = true;
+
+		private AwsSecretsManagerPropertiesBuilder() {
+		}
+
+		public static AwsSecretsManagerPropertiesBuilder anAwsSecretsManagerProperties() {
+			return new AwsSecretsManagerPropertiesBuilder();
+		}
+
+
+		public AwsSecretsManagerPropertiesBuilder withDefaultContext(String defaultContext) {
+			this.defaultContext = defaultContext;
+			return this;
+		}
+
+
+		public AwsSecretsManagerPropertiesBuilder withName(String name) {
+			this.name = name;
+			return this;
+		}
+
+		public AwsSecretsManagerProperties build() {
+			AwsSecretsManagerProperties awsSecretsManagerProperties = new AwsSecretsManagerProperties();
+			awsSecretsManagerProperties.setPrefix(prefix);
+			awsSecretsManagerProperties.setDefaultContext(defaultContext);
+			awsSecretsManagerProperties.setProfileSeparator(profileSeparator);
+			awsSecretsManagerProperties.setFailFast(failFast);
+			awsSecretsManagerProperties.setName(name);
+			awsSecretsManagerProperties.setEnabled(enabled);
+			return awsSecretsManagerProperties;
+		}
+	}
+
 
 }

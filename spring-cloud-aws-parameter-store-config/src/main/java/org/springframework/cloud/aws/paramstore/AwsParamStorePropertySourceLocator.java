@@ -41,6 +41,7 @@ import org.springframework.util.ReflectionUtils;
  * characters for a parameter value.
  *
  * @author Joris Kuipers
+ * @author Matej Nedic
  * @since 2.0.0
  */
 public class AwsParamStorePropertySourceLocator implements PropertySourceLocator {
@@ -85,9 +86,11 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 		this.contexts.add(defaultContext + "/");
 		addProfiles(this.contexts, defaultContext, profiles);
 
-		String baseContext = prefix + "/" + appName;
-		this.contexts.add(baseContext + "/");
-		addProfiles(this.contexts, baseContext, profiles);
+		if (appName != null && !appName.equals(defaultContext)) {
+			String baseContext = prefix + "/" + appName;
+			this.contexts.add(baseContext + "/");
+			addProfiles(this.contexts, baseContext, profiles);
+		}
 
 		Collections.reverse(this.contexts);
 

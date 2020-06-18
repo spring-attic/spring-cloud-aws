@@ -39,6 +39,7 @@ import org.springframework.util.ReflectionUtils;
  * support.
  *
  * @author Fabio Maia
+ * @author Matej Nedic
  * @since 2.0.0
  */
 public class AwsSecretsManagerPropertySourceLocator implements PropertySourceLocator {
@@ -91,9 +92,11 @@ public class AwsSecretsManagerPropertySourceLocator implements PropertySourceLoc
 		this.contexts.add(defaultContext);
 		addProfiles(this.contexts, defaultContext, profiles);
 
-		String baseContext = prefix + "/" + appName;
-		this.contexts.add(baseContext);
-		addProfiles(this.contexts, baseContext, profiles);
+		if (appName != null && !appName.equals(this.properties.getDefaultContext())) {
+			String baseContext = prefix + "/" + appName;
+			this.contexts.add(baseContext);
+			addProfiles(this.contexts, baseContext, profiles);
+		}
 
 		Collections.reverse(this.contexts);
 
