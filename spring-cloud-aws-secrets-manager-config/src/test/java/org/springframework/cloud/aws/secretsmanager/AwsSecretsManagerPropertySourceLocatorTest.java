@@ -79,14 +79,17 @@ public class AwsSecretsManagerPropertySourceLocatorTest {
 			.withDefaultContext("application")
 			.withName("application").build();
 		int sizeOfContextList = 2;
+
 		GetSecretValueResult secretValueResult = new GetSecretValueResult();
 		secretValueResult.setSecretString("{\"key1\": \"value1\", \"key2\": \"value2\"}");
 		when(smClient.getSecretValue(any(GetSecretValueRequest.class)))
 			.thenReturn(secretValueResult);
+
 		AwsSecretsManagerPropertySourceLocator locator = new AwsSecretsManagerPropertySourceLocator(
 			smClient, properties);
 		env.setActiveProfiles("test");
 		locator.locate(env);
+
 		assertThat(locator.getContexts().size()).isEqualTo(sizeOfContextList);
 	}
 
@@ -96,14 +99,17 @@ public class AwsSecretsManagerPropertySourceLocatorTest {
 			.withDefaultContext("application")
 			.withName("messaging-service").build();
 		int sizeOfContextList = 4;
+
 		GetSecretValueResult secretValueResult = new GetSecretValueResult();
 		secretValueResult.setSecretString("{\"key1\": \"value1\", \"key2\": \"value2\"}");
 		when(smClient.getSecretValue(any(GetSecretValueRequest.class)))
 			.thenReturn(secretValueResult);
+
 		AwsSecretsManagerPropertySourceLocator locator = new AwsSecretsManagerPropertySourceLocator(
 			smClient, properties);
 		env.setActiveProfiles("test");
 		locator.locate(env);
+
 		assertThat(locator.getContexts().size()).isEqualTo(sizeOfContextList);
 	}
 
