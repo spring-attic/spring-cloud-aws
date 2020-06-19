@@ -17,6 +17,7 @@
 package org.springframework.cloud.aws.secretsmanager;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -50,7 +51,7 @@ public class AwsSecretsManagerPropertySourceLocator implements PropertySourceLoc
 
 	private AwsSecretsManagerProperties properties;
 
-	private final Set<String> contexts = new TreeSet<>();
+	private final Set<String> contexts = new TreeSet<>(Collections.reverseOrder());
 
 	private Log logger = LogFactory.getLog(getClass());
 
@@ -95,7 +96,6 @@ public class AwsSecretsManagerPropertySourceLocator implements PropertySourceLoc
 		String baseContext = prefix + "/" + appName;
 		this.contexts.add(baseContext);
 		addProfiles(this.contexts, baseContext, profiles);
-
 
 		CompositePropertySource composite = new CompositePropertySource(
 				this.propertySourceName);

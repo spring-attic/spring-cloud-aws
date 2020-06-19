@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.aws.secretsmanager;
 
+import java.util.TreeSet;
+
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
@@ -108,6 +110,31 @@ public class AwsSecretsManagerPropertySourceLocatorTest {
 		locator.locate(env);
 
 		assertThat(locator.getContexts().size()).isEqualTo(4);
+	}
+
+	@Test
+	public void contextSpecificOrderExpected() {
+		AwsSecretsManagerProperties properties = new AwsSecretsManagerPropertiesBuilder()
+			.withDefaultContext("application")
+			.withName("messaging-service").build();
+
+		GetSecretValueResult secretValueResult = new GetSecretValueResult();
+		secretValueResult.setSecretString("{\"key1\": \"value1\", \"key2\": \"value2\"}");
+		when(smClient.getSecretValue(any(GetSecretValueRequest.class)))
+			.thenReturn(secretValueResult);
+
+		AwsSecretsManagerPropertySourceLocator locator = new AwsSecretsManagerPropertySourceLocator(
+			smClient, properties);
+		env.setActiveProfiles("test");
+		locator.locate(env);
+
+		TreeSet contextToBeTested = (TreeSet) locator.getContexts();
+
+		assertThat(contextToBeTested.pollFirst()).isEqualTo("/secret/messaging-service_test");
+		assertThat(contextToBeTested.pollFirst()).isEqualTo("/secret/messaging-service");
+		assertThat(contextToBeTested.pollFirst()).isEqualTo("/secret/application_test");
+		assertThat(contextToBeTested.pollFirst()).isEqualTo("/secret/application");
+
 	}
 
 	private final static class AwsSecretsManagerPropertiesBuilder {

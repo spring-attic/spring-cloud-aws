@@ -17,6 +17,7 @@
 package org.springframework.cloud.aws.paramstore;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -50,7 +51,7 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 
 	private AwsParamStoreProperties properties;
 
-	private final Set<String> contexts = new TreeSet<>();
+	private final Set<String> contexts = new TreeSet<>(Collections.reverseOrder());
 
 	private Log logger = LogFactory.getLog(getClass());
 
