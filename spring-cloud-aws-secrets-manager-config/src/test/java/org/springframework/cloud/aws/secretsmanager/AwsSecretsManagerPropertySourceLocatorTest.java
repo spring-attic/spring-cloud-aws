@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.springframework.core.env.PropertySource;
 import org.springframework.mock.env.MockEnvironment;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -78,7 +77,6 @@ public class AwsSecretsManagerPropertySourceLocatorTest {
 		AwsSecretsManagerProperties properties = new AwsSecretsManagerPropertiesBuilder()
 			.withDefaultContext("application")
 			.withName("application").build();
-		int sizeOfContextList = 2;
 
 		GetSecretValueResult secretValueResult = new GetSecretValueResult();
 		secretValueResult.setSecretString("{\"key1\": \"value1\", \"key2\": \"value2\"}");
@@ -90,7 +88,7 @@ public class AwsSecretsManagerPropertySourceLocatorTest {
 		env.setActiveProfiles("test");
 		locator.locate(env);
 
-		assertThat(locator.getContexts().size()).isEqualTo(sizeOfContextList);
+		assertThat(locator.getContexts().size()).isEqualTo(2);
 	}
 
 	@Test
@@ -98,7 +96,6 @@ public class AwsSecretsManagerPropertySourceLocatorTest {
 		AwsSecretsManagerProperties properties = new AwsSecretsManagerPropertiesBuilder()
 			.withDefaultContext("application")
 			.withName("messaging-service").build();
-		int sizeOfContextList = 4;
 
 		GetSecretValueResult secretValueResult = new GetSecretValueResult();
 		secretValueResult.setSecretString("{\"key1\": \"value1\", \"key2\": \"value2\"}");
@@ -110,16 +107,12 @@ public class AwsSecretsManagerPropertySourceLocatorTest {
 		env.setActiveProfiles("test");
 		locator.locate(env);
 
-		assertThat(locator.getContexts().size()).isEqualTo(sizeOfContextList);
+		assertThat(locator.getContexts().size()).isEqualTo(4);
 	}
 
 	private final static class AwsSecretsManagerPropertiesBuilder {
-		private String prefix = "/secret";
-		private String defaultContext = "application";
-		private String profileSeparator = "_";
-		private boolean failFast = true;
-		private String name;
-		private boolean enabled = true;
+
+		private final AwsSecretsManagerProperties properties = new AwsSecretsManagerProperties();
 
 		private AwsSecretsManagerPropertiesBuilder() {
 		}
@@ -130,25 +123,18 @@ public class AwsSecretsManagerPropertySourceLocatorTest {
 
 
 		public AwsSecretsManagerPropertiesBuilder withDefaultContext(String defaultContext) {
-			this.defaultContext = defaultContext;
+			this.properties.setDefaultContext(defaultContext);
 			return this;
 		}
 
 
 		public AwsSecretsManagerPropertiesBuilder withName(String name) {
-			this.name = name;
+			this.properties.setName(name);
 			return this;
 		}
 
 		public AwsSecretsManagerProperties build() {
-			AwsSecretsManagerProperties awsSecretsManagerProperties = new AwsSecretsManagerProperties();
-			awsSecretsManagerProperties.setPrefix(prefix);
-			awsSecretsManagerProperties.setDefaultContext(defaultContext);
-			awsSecretsManagerProperties.setProfileSeparator(profileSeparator);
-			awsSecretsManagerProperties.setFailFast(failFast);
-			awsSecretsManagerProperties.setName(name);
-			awsSecretsManagerProperties.setEnabled(enabled);
-			return awsSecretsManagerProperties;
+		return this.properties;
 		}
 	}
 

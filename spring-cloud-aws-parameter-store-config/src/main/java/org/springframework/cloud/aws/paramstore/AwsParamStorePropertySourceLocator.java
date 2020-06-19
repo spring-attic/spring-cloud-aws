@@ -16,10 +16,10 @@
 
 package org.springframework.cloud.aws.paramstore;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import org.apache.commons.logging.Log;
@@ -50,7 +50,7 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 
 	private AwsParamStoreProperties properties;
 
-	private List<String> contexts = new ArrayList<>();
+	private final Set<String> contexts = new TreeSet<>();
 
 	private Log logger = LogFactory.getLog(getClass());
 
@@ -60,7 +60,7 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 		this.properties = properties;
 	}
 
-	public List<String> getContexts() {
+	public Set<String> getContexts() {
 		return contexts;
 	}
 
@@ -91,8 +91,6 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 			this.contexts.add(baseContext + "/");
 			addProfiles(this.contexts, baseContext, profiles);
 		}
-
-		Collections.reverse(this.contexts);
 
 		CompositePropertySource composite = new CompositePropertySource(
 				"aws-param-store");
@@ -125,7 +123,7 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 		return propertySource;
 	}
 
-	private void addProfiles(List<String> contexts, String baseContext,
+	private void addProfiles(Set<String> contexts, String baseContext,
 			List<String> profiles) {
 		for (String profile : profiles) {
 			contexts.add(

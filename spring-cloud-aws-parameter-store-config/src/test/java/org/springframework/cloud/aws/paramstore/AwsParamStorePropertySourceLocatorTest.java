@@ -44,7 +44,6 @@ public class AwsParamStorePropertySourceLocatorTest {
 	public void contextExpectedToHave2Elements() {
 		AwsParamStoreProperties properties = new AwsParamStorePropertiesBuilder()
 				.withDefaultContext("application").withName("application").build();
-		int sizeOfContextList = 2;
 
 		GetParametersByPathResult firstResult = getFirstResult();
 		GetParametersByPathResult nextResult = getNextResult();
@@ -55,14 +54,13 @@ public class AwsParamStorePropertySourceLocatorTest {
 		env.setActiveProfiles("test");
 		locator.locate(env);
 
-		assertThat(locator.getContexts().size()).isEqualTo(sizeOfContextList);
+		assertThat(locator.getContexts().size()).isEqualTo(2);
 	}
 
 	@Test
 	public void contextExpectedToHave4Elements() {
 		AwsParamStoreProperties properties = new AwsParamStorePropertiesBuilder()
 				.withDefaultContext("application").withName("messaging-service").build();
-		int sizeOfContextList = 4;
 
 		GetParametersByPathResult firstResult = getFirstResult();
 		GetParametersByPathResult nextResult = getNextResult();
@@ -74,7 +72,7 @@ public class AwsParamStorePropertySourceLocatorTest {
 		env.setActiveProfiles("test");
 		locator.locate(env);
 
-		assertThat(locator.getContexts().size()).isEqualTo(sizeOfContextList);
+		assertThat(locator.getContexts().size()).isEqualTo(4);
 	}
 
 	private static GetParametersByPathResult getNextResult() {
@@ -91,40 +89,23 @@ public class AwsParamStorePropertySourceLocatorTest {
 
 	private static final class AwsParamStorePropertiesBuilder {
 
-		private String prefix = "/config";
-
-		private String defaultContext = "application";
-
-		private String profileSeparator = "_";
-
-		private boolean failFast = true;
-
-		private String name;
-
-		private boolean enabled = true;
+		private final AwsParamStoreProperties properties = new AwsParamStoreProperties();
 
 		private AwsParamStorePropertiesBuilder() {
 		}
 
 		public AwsParamStorePropertiesBuilder withDefaultContext(String defaultContext) {
-			this.defaultContext = defaultContext;
+			this.properties.setPrefix(defaultContext);
 			return this;
 		}
 
 		public AwsParamStorePropertiesBuilder withName(String name) {
-			this.name = name;
+			this.properties.setName(name);
 			return this;
 		}
 
 		public AwsParamStoreProperties build() {
-			AwsParamStoreProperties awsParamStoreProperties = new AwsParamStoreProperties();
-			awsParamStoreProperties.setPrefix(prefix);
-			awsParamStoreProperties.setDefaultContext(defaultContext);
-			awsParamStoreProperties.setProfileSeparator(profileSeparator);
-			awsParamStoreProperties.setFailFast(failFast);
-			awsParamStoreProperties.setName(name);
-			awsParamStoreProperties.setEnabled(enabled);
-			return awsParamStoreProperties;
+			return this.properties;
 		}
 
 	}
