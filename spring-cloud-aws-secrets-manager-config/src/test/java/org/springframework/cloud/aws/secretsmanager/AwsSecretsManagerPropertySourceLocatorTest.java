@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.aws.secretsmanager;
 
-import java.util.TreeSet;
+import java.util.ArrayList;
 
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
@@ -128,12 +128,12 @@ public class AwsSecretsManagerPropertySourceLocatorTest {
 		env.setActiveProfiles("test");
 		locator.locate(env);
 
-		TreeSet contextToBeTested = (TreeSet) locator.getContexts();
+		ArrayList contextToBeTested = new ArrayList(locator.getContexts());
 
-		assertThat(contextToBeTested.pollFirst()).isEqualTo("/secret/messaging-service_test");
-		assertThat(contextToBeTested.pollFirst()).isEqualTo("/secret/messaging-service");
-		assertThat(contextToBeTested.pollFirst()).isEqualTo("/secret/application_test");
-		assertThat(contextToBeTested.pollFirst()).isEqualTo("/secret/application");
+		assertThat(contextToBeTested.get(0)).isEqualTo("/secret/messaging-service_test");
+		assertThat(contextToBeTested.get(1)).isEqualTo("/secret/application_test");
+		assertThat(contextToBeTested.get(2)).isEqualTo("/secret/messaging-service");
+		assertThat(contextToBeTested.get(3)).isEqualTo("/secret/application");
 
 	}
 

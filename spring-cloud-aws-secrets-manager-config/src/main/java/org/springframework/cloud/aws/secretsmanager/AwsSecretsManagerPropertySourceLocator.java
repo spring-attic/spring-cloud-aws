@@ -17,10 +17,9 @@
 package org.springframework.cloud.aws.secretsmanager;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import org.apache.commons.logging.Log;
@@ -51,7 +50,7 @@ public class AwsSecretsManagerPropertySourceLocator implements PropertySourceLoc
 
 	private AwsSecretsManagerProperties properties;
 
-	private final Set<String> contexts = new TreeSet<>(Collections.reverseOrder());
+	private final Set<String> contexts = new LinkedHashSet();
 
 	private Log logger = LogFactory.getLog(getClass());
 
@@ -90,12 +89,15 @@ public class AwsSecretsManagerPropertySourceLocator implements PropertySourceLoc
 		String prefix = this.properties.getPrefix();
 
 		String defaultContext = prefix + "/" + this.properties.getDefaultContext();
-		this.contexts.add(defaultContext);
+		String appContext = prefix + "/" + appName;
+
+
+		addProfiles(this.contexts, appContext, profiles);
 		addProfiles(this.contexts, defaultContext, profiles);
 
-		String baseContext = prefix + "/" + appName;
-		this.contexts.add(baseContext);
-		addProfiles(this.contexts, baseContext, profiles);
+		this.contexts.add(appContext);
+		this.contexts.add(defaultContext);
+
 
 		CompositePropertySource composite = new CompositePropertySource(
 				this.propertySourceName);

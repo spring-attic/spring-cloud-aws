@@ -16,7 +16,8 @@
 
 package org.springframework.cloud.aws.paramstore;
 
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.model.GetParametersByPathRequest;
@@ -80,7 +81,8 @@ public class AwsParamStorePropertySourceLocatorTest {
 	@Test
 	public void contextSpecificOrderExpected() {
 		AwsParamStoreProperties properties = new AwsParamStorePropertiesBuilder()
-			.withDefaultContext("application").withName("messaging-service").build();
+			.withDefaultContext("application")
+			.withName("messaging-service").build();
 
 		GetParametersByPathResult firstResult = getFirstResult();
 		GetParametersByPathResult nextResult = getNextResult();
@@ -93,12 +95,12 @@ public class AwsParamStorePropertySourceLocatorTest {
 		locator.locate(env);
 
 
-		TreeSet contextToBeTested = (TreeSet) locator.getContexts();
+		List contextToBeTested =  new ArrayList(locator.getContexts());
 
-		assertThat(contextToBeTested.pollFirst()).isEqualTo("application/messaging-service_test/");
-		assertThat(contextToBeTested.pollFirst()).isEqualTo("application/messaging-service/");
-		assertThat(contextToBeTested.pollFirst()).isEqualTo("application/application_test/");
-		assertThat(contextToBeTested.pollFirst()).isEqualTo("application/application/");
+		assertThat(contextToBeTested.get(0)).isEqualTo("application/messaging-service_test/");
+		assertThat(contextToBeTested.get(1)).isEqualTo("application/application_test/");
+		assertThat(contextToBeTested.get(2)).isEqualTo("application/messaging-service/");
+		assertThat(contextToBeTested.get(3)).isEqualTo("application/application/");
 	}
 
 	private static GetParametersByPathResult getNextResult() {
