@@ -32,7 +32,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.PropertySource;
 import org.springframework.util.ReflectionUtils;
 
-
 /**
  * Builds a {@link CompositePropertySource} with various
  * {@link AwsParamStorePropertySource} instances based on active profiles, application
