@@ -14,25 +14,31 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.aws.messaging.config.annotation;
+package org.springframework.cloud.aws.messaging.endpoint;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import org.springframework.context.annotation.Import;
+import com.amazonaws.services.sns.AmazonSNS;
 
 /**
- * @author Alain Sahli
  * @author Agim Emruli
- * @author Isabek Tashiev
- * @since 1.0
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Import({ SnsConfiguration.class, SnsWebConfiguration.class,
-		SnsWebFluxConfiguration.class })
-public @interface EnableSns {
+public class AmazonSnsNotificationStatus implements NotificationStatus {
+
+	private final AmazonSNS amazonSns;
+
+	private final String topicArn;
+
+	private final String token;
+
+	public AmazonSnsNotificationStatus(AmazonSNS amazonSns, String topicArn,
+			String token) {
+		this.amazonSns = amazonSns;
+		this.topicArn = topicArn;
+		this.token = token;
+	}
+
+	@Override
+	public void confirmSubscription() {
+		this.amazonSns.confirmSubscription(this.topicArn, this.token);
+	}
 
 }

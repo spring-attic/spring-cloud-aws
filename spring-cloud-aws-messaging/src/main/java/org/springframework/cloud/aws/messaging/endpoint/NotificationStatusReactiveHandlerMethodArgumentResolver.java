@@ -20,17 +20,17 @@ import com.amazonaws.services.sns.AmazonSNS;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import org.springframework.core.MethodParameter;
-import org.springframework.http.HttpInputMessage;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 
 /**
- * @author Agim Emruli
+ * @author Isabek Tashiev
  */
-public class NotificationStatusHandlerMethodArgumentResolver
-		extends AbstractNotificationMessageHandlerMethodArgumentResolver {
+public class NotificationStatusReactiveHandlerMethodArgumentResolver
+		extends AbstractNotificationMessageReactiveHandlerMethodArgumentResolver {
 
 	private final AmazonSNS amazonSns;
 
-	public NotificationStatusHandlerMethodArgumentResolver(AmazonSNS amazonSns) {
+	public NotificationStatusReactiveHandlerMethodArgumentResolver(AmazonSNS amazonSns) {
 		this.amazonSns = amazonSns;
 	}
 
@@ -40,15 +40,20 @@ public class NotificationStatusHandlerMethodArgumentResolver
 	}
 
 	@Override
-	protected Object doResolveArgumentFromNotificationMessage(JsonNode content,
-			HttpInputMessage request, Class<?> parameterType) {
-		if (!"SubscriptionConfirmation".equals(content.get("Type").asText())
-				&& !"UnsubscribeConfirmation".equals(content.get("Type").asText())) {
-			throw new IllegalArgumentException(
-					"NotificationStatus is only available for subscription and unsubscription requests");
+	protected Object doResolveArgumentFromNotificationMessage(JsonNode body,
+			MethodParameter methodParameter, ServerHttpRequest request) {
+		final String type = body.get("Type").asText();
+
+		if ("SubscriptionConfirmation".equals(type)
+				|| "UnsubscribeConfirmation".equals(type)) {
+			final String topicArn = body.get("TopicArn").asText();
+			final String token = body.get("Token").asText();
+
+			return new AmazonSnsNotificationStatus(this.amazonSns, topicArn, token);
 		}
-		return new AmazonSnsNotificationStatus(this.amazonSns,
-				content.get("TopicArn").asText(), content.get("Token").asText());
+
+		throw new IllegalArgumentException(
+				"NotificationStatus is only available for subscription and unsubscription requests");
 	}
 
 }
