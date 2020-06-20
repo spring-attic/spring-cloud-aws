@@ -98,8 +98,8 @@ public class AwsParamStorePropertySourceLocatorTest {
 		List contextToBeTested =  new ArrayList(locator.getContexts());
 
 		assertThat(contextToBeTested.get(0)).isEqualTo("application/messaging-service_test/");
-		assertThat(contextToBeTested.get(1)).isEqualTo("application/application_test/");
-		assertThat(contextToBeTested.get(2)).isEqualTo("application/messaging-service/");
+		assertThat(contextToBeTested.get(1)).isEqualTo("application/messaging-service/");
+		assertThat(contextToBeTested.get(2)).isEqualTo("application/application_test/");
 		assertThat(contextToBeTested.get(3)).isEqualTo("application/application/");
 	}
 
