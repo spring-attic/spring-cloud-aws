@@ -26,7 +26,6 @@ import com.amazonaws.services.sqs.model.MessageAttributeValue;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.MessagingException;
-import org.springframework.messaging.support.GenericMessage;
 import org.springframework.util.MimeType;
 import org.springframework.util.NumberUtils;
 
@@ -62,8 +61,8 @@ public final class QueueMessageUtils {
 		messageHeaders.putAll(getAttributesAsMessageHeaders(message));
 		messageHeaders.putAll(getMessageAttributesAsMessageHeaders(message));
 
-		return new GenericMessage<>(message.getBody(),
-				new SqsMessageHeaders(messageHeaders));
+		return new SqsMessage(message.getBody(), new SqsMessageHeaders(messageHeaders),
+				message);
 	}
 
 	public static Object getNumberValue(String attributeValue, String attributeType) {

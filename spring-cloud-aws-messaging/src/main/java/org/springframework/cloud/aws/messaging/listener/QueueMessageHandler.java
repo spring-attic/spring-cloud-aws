@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.config.BeanExpressionContext;
 import org.springframework.beans.factory.config.BeanExpressionResolver;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.cloud.aws.messaging.core.SqsMessage;
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
 import org.springframework.cloud.aws.messaging.listener.support.AcknowledgmentHandlerMethodArgumentResolver;
 import org.springframework.cloud.aws.messaging.listener.support.VisibilityHandlerMethodArgumentResolver;
@@ -44,6 +45,7 @@ import org.springframework.messaging.converter.CompositeMessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.converter.SimpleMessageConverter;
 import org.springframework.messaging.converter.StringMessageConverter;
+import org.springframework.messaging.handler.DestinationPatternsMessageCondition;
 import org.springframework.messaging.handler.HandlerMethod;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.support.AnnotationExceptionHandlerMethodResolver;
@@ -55,6 +57,8 @@ import org.springframework.messaging.handler.invocation.AbstractMethodMessageHan
 import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
 import org.springframework.messaging.handler.invocation.HandlerMethodReturnValueHandler;
 import org.springframework.messaging.handler.invocation.InvocableHandlerMethod;
+import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.comparator.ComparableComparator;
 import org.springframework.validation.Errors;
@@ -89,6 +93,44 @@ public class QueueMessageHandler
 	}
 
 	@Override
+	public void handleMessage(Message<?> message) throws MessagingException {
+		String destination = getDestination(message);
+		if (destination == null) {
+			return;
+		}
+		String lookupDestination = getLookupDestination(destination);
+		if (lookupDestination == null) {
+			return;
+		}
+
+		MessageHeaderAccessor headerAccessor = MessageHeaderAccessor
+				.getMutableAccessor(message);
+		headerAccessor.setHeader(
+				DestinationPatternsMessageCondition.LOOKUP_DESTINATION_HEADER,
+				lookupDestination);
+		headerAccessor.setLeaveMutable(true);
+
+		if (message instanceof SqsMessage) {
+			message = new SqsMessage((String) message.getPayload(),
+					headerAccessor.getMessageHeaders(),
+					((SqsMessage) message).getOriginalMessage());
+		}
+		else {
+			message = MessageBuilder.createMessage(message.getPayload(),
+					headerAccessor.getMessageHeaders());
+		}
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("Searching methods to handle "
+					+ headerAccessor.getShortLogMessage(message.getPayload())
+					+ ", lookupDestination='" + lookupDestination + "'");
+		}
+
+		handleMessageInternal(message, lookupDestination);
+		headerAccessor.setImmutable();
+	}
+
+	@Override
 	protected List<? extends HandlerMethodArgumentResolver> initArgumentResolvers() {
 		List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>(
 				getCustomArgumentResolvers());
@@ -105,6 +147,7 @@ public class QueueMessageHandler
 		resolvers.add(new MessageMethodArgumentResolver(
 				this.messageConverters.isEmpty() ? new StringMessageConverter()
 						: new CompositeMessageConverter(this.messageConverters)));
+		resolvers.add(new SqsMessageMethodArgumentResolver());
 		resolvers.add(new PayloadArgumentResolver(compositeMessageConverter,
 				new NoOpValidator()));
 
