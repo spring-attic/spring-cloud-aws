@@ -115,7 +115,10 @@ public class AmazonRdsInstanceConfiguration {
 
 			// Constructor (mandatory) args
 			datasourceBuilder.addConstructorArgReference(amazonRdsClientBeanName);
+			Assert.hasText(dbInstanceIdentifier,
+					"The dbInstanceIdentifier can't be empty.");
 			datasourceBuilder.addConstructorArgValue(dbInstanceIdentifier);
+			Assert.hasText(password, "The password can't be empty.");
 			datasourceBuilder.addConstructorArgValue(password);
 
 			// optional args
