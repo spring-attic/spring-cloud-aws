@@ -20,6 +20,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import com.amazonaws.regions.Region;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
@@ -53,6 +54,8 @@ public class AwsParamStoreProperties {
 	@NotNull
 	@Pattern(regexp = "[a-zA-Z0-9.\\-_/\\\\]+")
 	private String profileSeparator = "_";
+
+	private String region;
 
 	/** Throw exceptions during config lookup if true, otherwise, log warnings. */
 	private boolean failFast = true;
@@ -114,4 +117,11 @@ public class AwsParamStoreProperties {
 		this.enabled = enabled;
 	}
 
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(final String region) {
+		this.region = region;
+	}
 }
