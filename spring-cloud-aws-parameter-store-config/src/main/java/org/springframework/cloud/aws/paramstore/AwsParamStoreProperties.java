@@ -20,7 +20,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-import com.amazonaws.regions.Region;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
@@ -29,6 +28,7 @@ import org.springframework.validation.annotation.Validated;
  * Spring Cloud Consul Configuration equivalent.
  *
  * @author Joris Kuipers
+ * @author Matej Nedic
  * @since 2.0.0
  */
 @ConfigurationProperties(AwsParamStoreProperties.CONFIG_PREFIX)
@@ -55,6 +55,9 @@ public class AwsParamStoreProperties {
 	@Pattern(regexp = "[a-zA-Z0-9.\\-_/\\\\]+")
 	private String profileSeparator = "_";
 
+	/**
+	 * If region value is not null or empty it will be used in creation of AWSSimpleSystemsManagement.
+	 */
 	private String region;
 
 	/** Throw exceptions during config lookup if true, otherwise, log warnings. */

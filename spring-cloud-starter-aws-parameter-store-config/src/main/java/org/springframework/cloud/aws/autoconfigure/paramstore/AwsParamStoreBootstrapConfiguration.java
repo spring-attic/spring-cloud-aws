@@ -18,9 +18,8 @@ package org.springframework.cloud.aws.autoconfigure.paramstore;
 
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
-
 import com.amazonaws.util.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -30,11 +29,13 @@ import org.springframework.cloud.aws.paramstore.AwsParamStorePropertySourceLocat
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+
 /**
  * Spring Cloud Bootstrap Configuration for setting up an
  * {@link AwsParamStorePropertySourceLocator} and its dependencies.
  *
  * @author Joris Kuipers
+ * @author Matej Nedic
  * @since 2.0.0
  */
 @Configuration(proxyBeanMethods = false)
@@ -45,9 +46,6 @@ import org.springframework.context.annotation.Configuration;
 		matchIfMissing = true)
 public class AwsParamStoreBootstrapConfiguration {
 
-	@Autowired
-	AwsParamStoreProperties awsParamStoreProperties;
-
 	@Bean
 	AwsParamStorePropertySourceLocator awsParamStorePropertySourceLocator(
 			AWSSimpleSystemsManagement ssmClient, AwsParamStoreProperties properties) {
@@ -56,12 +54,10 @@ public class AwsParamStoreBootstrapConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	AWSSimpleSystemsManagement ssmClient() {
-		AWSSimpleSystemsManagementClientBuilder awsSimpleSystemsManagementClientBuilder = AWSSimpleSystemsManagementClientBuilder.standard();
-		if (StringUtils.isNullOrEmpty(awsParamStoreProperties.getRegion())) {
-		awsSimpleSystemsManagementClientBuilder.setRegion(awsParamStoreProperties.getRegion());
-		}
-		return awsSimpleSystemsManagementClientBuilder.build();
+	AWSSimpleSystemsManagement ssmClient(AwsParamStoreProperties awsParamStoreProperties) {
+		return StringUtils.isNullOrEmpty(awsParamStoreProperties.getRegion()) ?
+			AWSSimpleSystemsManagementClientBuilder.defaultClient() :
+			AWSSimpleSystemsManagementClientBuilder.standard().withRegion(awsParamStoreProperties.getRegion()).build();
 	}
 
 }
