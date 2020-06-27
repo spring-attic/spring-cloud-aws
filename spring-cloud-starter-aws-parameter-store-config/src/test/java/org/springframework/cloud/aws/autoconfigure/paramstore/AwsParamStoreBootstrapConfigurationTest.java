@@ -16,15 +16,16 @@
 
 package org.springframework.cloud.aws.autoconfigure.paramstore;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClient;
-import org.junit.Assert;
 import org.junit.Test;
 
 import org.springframework.cloud.aws.paramstore.AwsParamStoreProperties;
+import org.springframework.util.ReflectionUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit test for {@link AwsParamStoreBootstrapConfiguration}.
@@ -35,40 +36,23 @@ public class AwsParamStoreBootstrapConfigurationTest {
 	AwsParamStoreBootstrapConfiguration bootstrapConfig = new AwsParamStoreBootstrapConfiguration();
 
 	@Test
-	public void setRegion() throws NoSuchMethodException, InvocationTargetException,
-			IllegalAccessException {
+	public void testWithStaticRegion() {
 		String region = "us-east-2";
-		AwsParamStoreProperties awsParamStoreProperties = new AwsParamStorePropertiesBuilder()
-				.withRegion(region).build();
+		AwsParamStoreProperties awsParamStoreProperties = new AwsParamStoreProperties();
+		awsParamStoreProperties.setRegion(region);
 
-		Method SSMClientMethod = AwsParamStoreBootstrapConfiguration.class
-				.getDeclaredMethod("ssmClient", AwsParamStoreProperties.class);
+		Method SSMClientMethod = ReflectionUtils.findMethod(
+			AwsParamStoreBootstrapConfiguration.class, "ssmClient", AwsParamStoreProperties.class);
 		SSMClientMethod.setAccessible(true);
-		AWSSimpleSystemsManagementClient awsSimpleClient = (AWSSimpleSystemsManagementClient) SSMClientMethod
-				.invoke(bootstrapConfig, awsParamStoreProperties);
+		AWSSimpleSystemsManagementClient awsSimpleClient = (AWSSimpleSystemsManagementClient) ReflectionUtils
+				.invokeMethod(SSMClientMethod, bootstrapConfig, awsParamStoreProperties);
 
-		Method signingRegionMethod = AmazonWebServiceClient.class.getDeclaredMethod("getSigningRegion");
+		Method signingRegionMethod = ReflectionUtils
+			.findMethod(AmazonWebServiceClient.class, "getSigningRegion");
 		signingRegionMethod.setAccessible(true);
-		String signedRegion = (String) signingRegionMethod.invoke(awsSimpleClient);
+		String signedRegion = (String) ReflectionUtils.invokeMethod(signingRegionMethod, awsSimpleClient);
 
-		Assert.assertEquals(signedRegion, region);
+		assertThat(signedRegion).isEqualTo(region);
 	}
 
-	private static final class AwsParamStorePropertiesBuilder {
-
-		private final AwsParamStoreProperties properties = new AwsParamStoreProperties();
-
-		private AwsParamStorePropertiesBuilder() {
-		}
-
-		public AwsParamStorePropertiesBuilder withRegion(String region) {
-			this.properties.setRegion(region);
-			return this;
-		}
-
-		public AwsParamStoreProperties build() {
-			return this.properties;
-		}
-
-	}
 }
