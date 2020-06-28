@@ -24,6 +24,7 @@ import com.amazonaws.auth.AWSCredentialsProviderChain;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.auth.EC2ContainerCredentialsProviderWrapper;
+import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import org.apache.http.client.CredentialsProvider;
 import org.junit.jupiter.api.Test;
@@ -170,6 +171,33 @@ class ContextCredentialsAutoConfigurationTest {
 							.isEqualTo("testAccessKey");
 					assertThat(provider.getCredentials().getAWSSecretKey())
 							.isEqualTo("testSecretKey");
+				});
+	}
+
+	@Test
+	void credentialsProvider_roleArnAndroleSessionNameConfigured_configuresSTSAssumeRoleSessionCredentialsProvider() {
+		this.contextRunner.withPropertyValues("cloud.aws.credentials.roleArn:foo",
+				"cloud.aws.credentials.roleSessionName:bar").run((context) -> {
+					AWSCredentialsProvider awsCredentialsProvider = context.getBean(
+							AmazonWebserviceClientConfigurationUtils.CREDENTIALS_PROVIDER_BEAN_NAME,
+							AWSCredentialsProviderChain.class);
+					assertThat(awsCredentialsProvider).isNotNull();
+
+					@SuppressWarnings("unchecked")
+					List<AWSCredentialsProvider> credentialsProviders = (List<AWSCredentialsProvider>) ReflectionTestUtils
+							.getField(awsCredentialsProvider, "credentialsProviders");
+					assertThat(credentialsProviders).isNotEmpty();
+
+					AWSCredentialsProvider credentialsProvider = credentialsProviders
+							.get(0);
+					assertThat(credentialsProvider).isExactlyInstanceOf(
+							STSAssumeRoleSessionCredentialsProvider.class);
+
+					assertThat(
+							ReflectionTestUtils.getField(credentialsProvider, "roleArn"))
+									.isEqualTo("foo");
+					assertThat(ReflectionTestUtils.getField(credentialsProvider,
+							"roleSessionName")).isEqualTo("bar");
 				});
 	}
 
