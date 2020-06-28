@@ -25,6 +25,7 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.auth.EC2ContainerCredentialsProviderWrapper;
+import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -67,6 +68,12 @@ public class ContextCredentialsAutoConfiguration {
 	private List<AWSCredentialsProvider> resolveCredentialsProviders(
 			AwsCredentialsProperties properties) {
 		List<AWSCredentialsProvider> providers = new ArrayList<>();
+
+		if (StringUtils.hasText(properties.getRoleArn())
+				&& StringUtils.hasText(properties.getRoleSessionName())) {
+			providers.add(new STSAssumeRoleSessionCredentialsProvider.Builder(
+					properties.getRoleArn(), properties.getRoleSessionName()).build());
+		}
 
 		if (StringUtils.hasText(properties.getAccessKey())
 				&& StringUtils.hasText(properties.getSecretKey())) {

@@ -53,6 +53,16 @@ public class AwsCredentialsProperties {
 	 */
 	private String profilePath;
 
+	/**
+	 * The arn of the role to be assumed.
+	 */
+	private String roleArn;
+
+	/**
+	 * An identifier for the assumed role session.
+	 */
+	private String roleSessionName;
+
 	public String getAccessKey() {
 		return this.accessKey;
 	}
@@ -91,6 +101,22 @@ public class AwsCredentialsProperties {
 
 	public void setProfilePath(String profilePath) {
 		this.profilePath = profilePath;
+	}
+
+	public String getRoleArn() {
+		return roleArn;
+	}
+
+	public void setRoleArn(String roleArn) {
+		this.roleArn = roleArn;
+	}
+
+	public String getRoleSessionName() {
+		return roleSessionName;
+	}
+
+	public void setRoleSessionName(String roleSessionName) {
+		this.roleSessionName = roleSessionName;
 	}
 
 }
