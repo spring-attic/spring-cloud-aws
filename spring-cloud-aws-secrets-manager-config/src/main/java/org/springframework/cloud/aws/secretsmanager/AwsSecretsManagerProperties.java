@@ -19,8 +19,8 @@ package org.springframework.cloud.aws.secretsmanager;
 import java.util.regex.Pattern;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
-import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
 /**
@@ -49,7 +49,7 @@ public class AwsSecretsManagerProperties implements Validator {
 	 * Pattern used for profileSeparator validation.
 	 */
 	private static final Pattern PROFILE_SEPARATOR_PATTERN = Pattern
-			.compile("[a-zA-Z0-9.\\-_]+");
+			.compile("[a-zA-Z0-9.\\-_/\\\\]+");
 
 	/**
 	 * Prefix indicating first level for every property. Value must start with a forward
@@ -63,6 +63,12 @@ public class AwsSecretsManagerProperties implements Validator {
 
 	/** Throw exceptions during config lookup if true, otherwise, log warnings. */
 	private boolean failFast = true;
+
+	/**
+	 * If region value is not null or empty it will be used in creation of
+	 * AWSSecretsManager.
+	 */
+	private String region;
 
 	/**
 	 * Alternative to spring.application.name to use in looking up values in AWS Secrets
@@ -80,21 +86,29 @@ public class AwsSecretsManagerProperties implements Validator {
 
 	@Override
 	public void validate(Object target, Errors errors) {
-		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "prefix", "NotEmpty",
-				"prefix should not be empty or null.");
-		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "defaultContext", "NotEmpty",
-				"defaultContext should not be empty or null.");
-		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "profileSeparator", "NotEmpty",
-				"profileSeparator should not be empty or null.");
+		AwsSecretsManagerProperties properties = (AwsSecretsManagerProperties) target;
 
-		AwsSecretsManagerProperties awsSecretsManagerProperties = (AwsSecretsManagerProperties) target;
+		if (StringUtils.isEmpty(properties.getPrefix())) {
+			errors.rejectValue("prefix", "NotEmpty",
+					"prefix should not be empty or null.");
+		}
 
-		if (!PREFIX_PATTERN.matcher(awsSecretsManagerProperties.getPrefix()).matches()) {
+		if (StringUtils.isEmpty(properties.getDefaultContext())) {
+			errors.rejectValue("defaultContext", "NotEmpty",
+					"defaultContext should not be empty or null.");
+		}
+
+		if (StringUtils.isEmpty(properties.getProfileSeparator())) {
+			errors.rejectValue("profileSeparator", "NotEmpty",
+					"profileSeparator should not be empty or null.");
+		}
+
+		if (!PREFIX_PATTERN.matcher(properties.getPrefix()).matches()) {
 			errors.rejectValue("prefix", "Pattern",
 					"The prefix must have pattern of:  " + PREFIX_PATTERN.toString());
 		}
-		if (!PROFILE_SEPARATOR_PATTERN
-				.matcher(awsSecretsManagerProperties.getProfileSeparator()).matches()) {
+		if (!PROFILE_SEPARATOR_PATTERN.matcher(properties.getProfileSeparator())
+				.matches()) {
 			errors.rejectValue("profileSeparator", "Pattern",
 					"The profileSeparator must have pattern of:  "
 							+ PROFILE_SEPARATOR_PATTERN.toString());
@@ -147,6 +161,14 @@ public class AwsSecretsManagerProperties implements Validator {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(final String region) {
+		this.region = region;
 	}
 
 }

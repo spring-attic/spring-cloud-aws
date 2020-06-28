@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,13 @@ import org.springframework.context.annotation.Conditional;
  * internal services like Elasticache)
  *
  * @author Agim Emruli
+ * @deprecated use annotation from the autoconfigure module.
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Conditional(OnAwsCloudEnvironmentCondition.class)
+@Deprecated
 public @interface ConditionalOnAwsCloudEnvironment {
 
 }

@@ -23,6 +23,7 @@ import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 
 /**
  * @author Alain Sahli
+ * @author Mete Alpaslan Katircioglu
  * @since 1.1
  */
 public class QueueMessageAcknowledgment implements Acknowledgment {
@@ -43,7 +44,8 @@ public class QueueMessageAcknowledgment implements Acknowledgment {
 	@Override
 	public Future<?> acknowledge() {
 		return this.amazonSqsAsync.deleteMessageAsync(
-				new DeleteMessageRequest(this.queueUrl, this.receiptHandle));
+				new DeleteMessageRequest(this.queueUrl, this.receiptHandle),
+				new DeleteMessageHandler(this.receiptHandle));
 	}
 
 }

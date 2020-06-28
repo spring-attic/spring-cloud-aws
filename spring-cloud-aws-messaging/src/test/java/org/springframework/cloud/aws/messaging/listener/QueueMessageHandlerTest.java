@@ -19,7 +19,9 @@ package org.springframework.cloud.aws.messaging.listener;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import ch.qos.logback.classic.Level;
@@ -42,13 +44,14 @@ import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
+import org.springframework.boot.context.annotation.UserConfigurations;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.aws.core.support.documentation.RuntimeUse;
 import org.springframework.cloud.aws.messaging.config.annotation.NotificationMessage;
 import org.springframework.cloud.aws.messaging.config.annotation.NotificationSubject;
+import org.springframework.cloud.aws.messaging.core.SqsMessageHeaders;
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.StaticApplicationContext;
@@ -73,7 +76,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -85,6 +87,7 @@ import static org.mockito.Mockito.when;
  * @author Agim Emruli
  * @author Alain Sahli
  * @author Maciej Walkowiak
+ * @author Wojciech Mąka
  * @since 1.0
  */
 @ExtendWith(MockitoExtension.class)
@@ -121,47 +124,59 @@ class QueueMessageHandlerTest {
 
 	@Test
 	void receiveMessage_methodWithCustomObjectAsParameter_parameterIsConverted() {
-		ApplicationContext applicationContext = new AnnotationConfigApplicationContext(
-				QueueMessageHandlerWithJacksonConfiguration.class);
+		new ApplicationContextRunner()
+				.withConfiguration(UserConfigurations
+						.of(QueueMessageHandlerWithJacksonMappingConfiguration.class))
+				.withBean(IncomingMessageHandlerWithCustomParameter.class)
+				.run((context) -> {
+					DummyKeyValueHolder messagePayload = new DummyKeyValueHolder("myKey",
+							"A value");
+					MappingJackson2MessageConverter jsonMapper = context
+							.getBean(MappingJackson2MessageConverter.class);
+					Message<?> message = jsonMapper.toMessage(messagePayload,
+							new MessageHeaders(Collections.singletonMap(
+									QueueMessageHandler.LOGICAL_RESOURCE_ID,
+									"testQueue")));
 
-		DummyKeyValueHolder messagePayload = new DummyKeyValueHolder("myKey", "A value");
-		MappingJackson2MessageConverter jsonMapper = applicationContext
-				.getBean(MappingJackson2MessageConverter.class);
-		Message<?> message = jsonMapper.toMessage(messagePayload,
-				new MessageHeaders(Collections.singletonMap(
-						QueueMessageHandler.LOGICAL_RESOURCE_ID, "testQueue")));
+					MessageHandler messageHandler = context.getBean(MessageHandler.class);
+					messageHandler.handleMessage(message);
 
-		MessageHandler messageHandler = applicationContext.getBean(MessageHandler.class);
-		messageHandler.handleMessage(message);
-
-		IncomingMessageHandlerWithCustomParameter messageListener = applicationContext
-				.getBean(IncomingMessageHandlerWithCustomParameter.class);
-		assertThat(messageListener.getLastReceivedMessage()).isNotNull();
-		assertThat(messageListener.getLastReceivedMessage().getKey()).isEqualTo("myKey");
-		assertThat(messageListener.getLastReceivedMessage().getValue())
-				.isEqualTo("A value");
+					IncomingMessageHandlerWithCustomParameter messageListener = context
+							.getBean(IncomingMessageHandlerWithCustomParameter.class);
+					assertThat(messageListener.getLastReceivedMessage()).isNotNull();
+					assertThat(messageListener.getLastReceivedMessage().getKey())
+							.isEqualTo("myKey");
+					assertThat(messageListener.getLastReceivedMessage().getValue())
+							.isEqualTo("A value");
+				});
 	}
 
 	// @checkstyle:off
 	@Test
-	void receiveAndReplyMessage_methodAnnotatedWithSqsListenerAnnotation_methodInvokedForIncomingMessageAndReplySentBackToSendToDestination() {
-		// @checkstyle:on
-		StaticApplicationContext applicationContext = new StaticApplicationContext();
-		applicationContext.registerSingleton("incomingMessageHandler",
-				IncomingMessageHandler.class);
-		applicationContext.registerBeanDefinition("queueMessageHandler",
-				getQueueMessageHandlerBeanDefinition());
-		applicationContext.refresh();
+	void receiveMessage_methodWithMessageAsParameter_parameterIsConverted() {
+		new ApplicationContextRunner()
+				.withConfiguration(UserConfigurations
+						.of(QueueMessageHandlerWithJacksonMappingConfiguration.class))
+				.withBean(IncomingMessageHandlerWithMessageParameter.class)
+				.run((context) -> {
+					DummyKeyValueHolder messagePayload = new DummyKeyValueHolder("myKey",
+							"A value");
+					MappingJackson2MessageConverter jsonMapper = context
+							.getBean(MappingJackson2MessageConverter.class);
+					Message<?> message = jsonMapper.toMessage(messagePayload,
+							new MessageHeaders(Collections.singletonMap(
+									QueueMessageHandler.LOGICAL_RESOURCE_ID,
+									"testQueue")));
 
-		MessageHandler messageHandler = applicationContext.getBean(MessageHandler.class);
-		messageHandler.handleMessage(MessageBuilder.withPayload("testContent")
-				.setHeader(QueueMessageHandler.LOGICAL_RESOURCE_ID, "receiveAndReply")
-				.build());
+					MessageHandler messageHandler = context.getBean(MessageHandler.class);
+					messageHandler.handleMessage(message);
 
-		IncomingMessageHandler messageListener = applicationContext
-				.getBean(IncomingMessageHandler.class);
-		assertThat(messageListener.getLastReceivedMessage()).isEqualTo("testContent");
-		verify(this.messageTemplate).convertAndSend(eq("sendTo"), eq("TESTCONTENT"));
+					IncomingMessageHandlerWithMessageParameter messageListener = context
+							.getBean(IncomingMessageHandlerWithMessageParameter.class);
+					assertThat(messageListener.getLastReceivedMessage()).isNotNull();
+					assertThat(messageListener.getLastReceivedMessage().getPayload())
+							.isEqualTo(messagePayload);
+				});
 	}
 
 	private AbstractBeanDefinition getQueueMessageHandlerBeanDefinition() {
@@ -367,11 +382,98 @@ class QueueMessageHandlerTest {
 		queueMessageHandler
 				.handleMessage(MessageBuilder.withPayload("Hello from a sender")
 						.setHeader(QueueMessageHandler.LOGICAL_RESOURCE_ID, "testQueue")
-						.setHeader("SenderId", "ID").build());
+						.setHeader("SenderId", "ID").setHeader("SentTimestamp", "1000")
+						.setHeader("ApproximateFirstReceiveTimestamp", "2000").build());
 
 		// Assert
 		assertThat(messageReceiver.getHeaders()).isNotNull();
 		assertThat(messageReceiver.getHeaders().get("SenderId")).isEqualTo("ID");
+		assertThat(
+				messageReceiver.getHeaders().get(QueueMessageHandler.LOGICAL_RESOURCE_ID))
+						.isEqualTo("testQueue");
+	}
+
+	@Test
+	public void receiveMessage_withSqsMessageHeadersObject_shouldReceiveAllHeaders() {
+		// Arrange
+		StaticApplicationContext applicationContext = new StaticApplicationContext();
+		applicationContext.registerSingleton("messageHandlerWithMessageHeaderObject",
+				MessageReceiverWithSqsMessageHeadersObject.class);
+		applicationContext.registerSingleton("queueMessageHandler",
+				QueueMessageHandler.class);
+		applicationContext.refresh();
+
+		QueueMessageHandler queueMessageHandler = applicationContext
+				.getBean(QueueMessageHandler.class);
+		MessageReceiverWithSqsMessageHeadersObject messageReceiver = applicationContext
+				.getBean(MessageReceiverWithSqsMessageHeadersObject.class);
+
+		// Act
+		queueMessageHandler
+				.handleMessage(MessageBuilder.createMessage("Hello from a sender",
+						new SqsMessageHeaders(new HashMap<String, Object>() {
+							{
+								put(QueueMessageHandler.LOGICAL_RESOURCE_ID, "testQueue");
+								put("SenderId", "ID");
+								put(SqsMessageHeaders.SQS_SENT_TIMESTAMP, "1000");
+								put(SqsMessageHeaders.SQS_APPROXIMATE_RECEIVE_COUNT, "1");
+								put(SqsMessageHeaders.SQS_APPROXIMATE_FIRST_RECEIVE_TIMESTAMP,
+										"2000");
+							}
+						})));
+
+		// Assert
+		assertThat(messageReceiver.getHeaders()).isNotNull();
+		assertThat(messageReceiver.getHeaders().getTimestamp()).isEqualTo(1000);
+		assertThat(messageReceiver.getHeaders().getSentTimestamp()).isEqualTo(1000);
+		assertThat(messageReceiver.getHeaders().getApproximateReceiveCount())
+				.isEqualTo(1);
+		assertThat(messageReceiver.getHeaders().getApproximateFirstReceiveTimestamp())
+				.isEqualTo(2000);
+		assertThat(
+				messageReceiver.getHeaders().get(QueueMessageHandler.LOGICAL_RESOURCE_ID))
+						.isEqualTo("testQueue");
+	}
+
+	@Test
+	public void receiveMessage_withMessageHeadersObject_shouldReceiveAllHeaders() {
+		// Arrange
+		StaticApplicationContext applicationContext = new StaticApplicationContext();
+		applicationContext.registerSingleton("messageHandlerWithMessageHeaderObject",
+				MessageReceiverWithMessageHeadersObject.class);
+		applicationContext.registerSingleton("queueMessageHandler",
+				QueueMessageHandler.class);
+		applicationContext.refresh();
+
+		QueueMessageHandler queueMessageHandler = applicationContext
+				.getBean(QueueMessageHandler.class);
+		MessageReceiverWithMessageHeadersObject messageReceiver = applicationContext
+				.getBean(MessageReceiverWithMessageHeadersObject.class);
+
+		// Act
+		queueMessageHandler
+				.handleMessage(MessageBuilder.createMessage("Hello from a sender",
+						new SqsMessageHeaders(new HashMap<String, Object>() {
+							{
+								put(QueueMessageHandler.LOGICAL_RESOURCE_ID, "testQueue");
+								put("SenderId", "ID");
+								put(SqsMessageHeaders.SQS_SENT_TIMESTAMP, "1000");
+								put(SqsMessageHeaders.SQS_APPROXIMATE_RECEIVE_COUNT, "1");
+								put(SqsMessageHeaders.SQS_APPROXIMATE_FIRST_RECEIVE_TIMESTAMP,
+										"2000");
+							}
+						})));
+
+		// Assert
+		assertThat(messageReceiver.getHeaders()).isNotNull();
+		assertThat(messageReceiver.getHeaders().getTimestamp()).isEqualTo(1000);
+		assertThat(messageReceiver.getHeaders().get(SqsMessageHeaders.SQS_SENT_TIMESTAMP))
+				.isEqualTo("1000");
+		assertThat(messageReceiver.getHeaders()
+				.get(SqsMessageHeaders.SQS_APPROXIMATE_FIRST_RECEIVE_TIMESTAMP))
+						.isEqualTo("2000");
+		assertThat(messageReceiver.getHeaders()
+				.get(SqsMessageHeaders.SQS_APPROXIMATE_RECEIVE_COUNT)).isEqualTo("1");
 		assertThat(
 				messageReceiver.getHeaders().get(QueueMessageHandler.LOGICAL_RESOURCE_ID))
 						.isEqualTo("testQueue");
@@ -713,6 +815,23 @@ class QueueMessageHandlerTest {
 			return this.value;
 		}
 
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (o == null || getClass() != o.getClass()) {
+				return false;
+			}
+			DummyKeyValueHolder that = (DummyKeyValueHolder) o;
+			return Objects.equals(key, that.key) && Objects.equals(value, that.value);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(key, value);
+		}
+
 	}
 
 	private static class IncomingMessageHandlerWithCustomParameter {
@@ -780,6 +899,54 @@ class QueueMessageHandlerTest {
 
 	}
 
+	private static class MessageReceiverWithSqsMessageHeadersObject {
+
+		private String payload;
+
+		private SqsMessageHeaders headers;
+
+		@RuntimeUse
+		public String getPayload() {
+			return this.payload;
+		}
+
+		public SqsMessageHeaders getHeaders() {
+			return this.headers;
+		}
+
+		@RuntimeUse
+		@SqsListener("testQueue")
+		public void receive(@Payload String payload, SqsMessageHeaders headers) {
+			this.payload = payload;
+			this.headers = headers;
+		}
+
+	}
+
+	private static class MessageReceiverWithMessageHeadersObject {
+
+		private String payload;
+
+		private MessageHeaders headers;
+
+		@RuntimeUse
+		public String getPayload() {
+			return this.payload;
+		}
+
+		public MessageHeaders getHeaders() {
+			return this.headers;
+		}
+
+		@RuntimeUse
+		@SqsListener("testQueue")
+		public void receive(@Payload String payload, MessageHeaders headers) {
+			this.payload = payload;
+			this.headers = headers;
+		}
+
+	}
+
 	private static class NotificationMessageReceiver {
 
 		private String subject;
@@ -841,18 +1008,29 @@ class QueueMessageHandlerTest {
 
 	}
 
+	private static class IncomingMessageHandlerWithMessageParameter {
+
+		private Message<DummyKeyValueHolder> lastReceivedMessage;
+
+		public Message<DummyKeyValueHolder> getLastReceivedMessage() {
+			return this.lastReceivedMessage;
+		}
+
+		@RuntimeUse
+		@SqsListener("testQueue")
+		public void receive(Message<DummyKeyValueHolder> value) {
+			this.lastReceivedMessage = value;
+		}
+
+	}
+
 	@TestConfiguration
-	static class QueueMessageHandlerWithJacksonConfiguration {
+	static class QueueMessageHandlerWithJacksonMappingConfiguration {
 
 		@Bean
 		QueueMessageHandler queueMessageHandler() {
 			return new QueueMessageHandler(
 					Arrays.asList(mappingJackson2MessageConverter()));
-		}
-
-		@Bean
-		IncomingMessageHandlerWithCustomParameter incomingMessageHandlerWithCustomParameter() {
-			return new IncomingMessageHandlerWithCustomParameter();
 		}
 
 		@Bean

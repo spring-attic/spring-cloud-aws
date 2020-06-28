@@ -685,8 +685,8 @@ You can configure the following settings in a Spring Cloud `bootstrap.properties
 
 |`aws.paramstore.profileSeparator`
 |`_`
-|String that separates an appended profile from the context name. Note that an AWS parameter key can only contain
- dots, dashes and underscores next to alphanumeric characters.
+|String that separates an appended profile from the context name. Can only contain
+ dots, dashes, forward slashes, backward slashes and underscores next to alphanumeric characters.
 
 |`aws.paramstore.failFast`
 |`true`
@@ -768,7 +768,8 @@ You can configure the following settings in a Spring Cloud `bootstrap.properties
 
 |`aws.secretsmanager.profileSeparator`
 |`_`
-|String that separates an appended profile from the context name.
+|String that separates an appended profile from the context name. Can only contain
+ dots, dashes, forward slashes, backward slashes and underscores next to alphanumeric characters.
 
 |`aws.secretsmanager.failFast`
 |`true`
@@ -1178,6 +1179,32 @@ In this example the `extractLeafs` method will receive messages coming from the 
 `aws-messaging:annotation-driven-queue-listener` XML element there is an attribute `send-to-message-template`
 that specifies `QueueMessagingTemplate` as the messaging template to be used to send the return value of the message
 listener method.
+
+===== Handling Exceptions
+
+Exception thrown inside `@SqsListener` annotated methods can be handled by methods annotated with `@MessageExceptionHandler`.
+
+[source,java,indent=0]
+----
+import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MyMessageHandler {
+
+	@SqsListener("queueName")
+	void handle(String message) {
+		...
+		throw new MyException("something went wrong");
+	}
+
+	@MessageExceptionHandler(MyException.class)
+	void handleException(MyException e) {
+		...
+	}
+}
+----
 
 ==== The SimpleMessageListenerContainerFactory
 The `SimpleMessageListenerContainer` can also be configured with Java by creating a bean of type `SimpleMessageListenerContainerFactory`.
@@ -2326,13 +2353,13 @@ public class SimpleResourceLoadingBean {
 ----
 == CloudWatch Metrics
 Spring Cloud AWS provides Spring Boot auto-configuration for Micrometer CloudWatch integration.
-To send metrics to CloudWatch add a dependency to `spring-cloud-aws-actuator` module:
+To send metrics to CloudWatch add a dependency to `micrometer-registry-cloudwatch` module:
 
 [source,xml,indent=0]
 ----
 <dependency>
-	<groupId>org.springframework.cloud</groupId>
-	<artifactId>spring-cloud-aws-actuator</artifactId>
+	<groupId>io.micrometer</groupId>
+	<artifactId>micrometer-registry-cloudwatch</artifactId>
 </dependency>
 ----
 
