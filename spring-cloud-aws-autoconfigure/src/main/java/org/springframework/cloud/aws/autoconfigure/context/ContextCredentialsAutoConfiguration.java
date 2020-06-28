@@ -27,12 +27,14 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.auth.EC2ContainerCredentialsProviderWrapper;
 import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.aws.autoconfigure.context.properties.AwsCredentialsProperties;
+import org.springframework.cloud.aws.core.region.RegionProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
@@ -44,6 +46,7 @@ import static org.springframework.cloud.aws.core.config.AmazonWebserviceClientCo
  *
  * @author Agim Emruli
  * @author Maciej Walkowiak
+ * @author Andrey Shlykov
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(AwsCredentialsProperties.class)
@@ -53,27 +56,23 @@ public class ContextCredentialsAutoConfiguration {
 	@Bean(name = CREDENTIALS_PROVIDER_BEAN_NAME)
 	@ConditionalOnMissingBean(name = CREDENTIALS_PROVIDER_BEAN_NAME)
 	public AWSCredentialsProvider awsCredentialsProvider(
-			AwsCredentialsProperties properties) {
+			AwsCredentialsProperties properties, RegionProvider regionProvider) {
 
-		List<AWSCredentialsProvider> providers = resolveCredentialsProviders(properties);
+		List<AWSCredentialsProvider> providers = resolveCredentialsProviders(properties,
+				regionProvider);
 
-		if (providers.isEmpty()) {
-			return new DefaultAWSCredentialsProviderChain();
-		}
-		else {
-			return new AWSCredentialsProviderChain(providers);
-		}
+		return buildCredentialsProviderChain(providers);
+	}
+
+	private AWSCredentialsProvider buildCredentialsProviderChain(
+			List<AWSCredentialsProvider> providers) {
+		return providers.isEmpty() ? new DefaultAWSCredentialsProviderChain()
+				: new AWSCredentialsProviderChain(providers);
 	}
 
 	private List<AWSCredentialsProvider> resolveCredentialsProviders(
-			AwsCredentialsProperties properties) {
+			AwsCredentialsProperties properties, RegionProvider regionProvider) {
 		List<AWSCredentialsProvider> providers = new ArrayList<>();
-
-		if (StringUtils.hasText(properties.getRoleArn())
-				&& StringUtils.hasText(properties.getRoleSessionName())) {
-			providers.add(new STSAssumeRoleSessionCredentialsProvider.Builder(
-					properties.getRoleArn(), properties.getRoleSessionName()).build());
-		}
 
 		if (StringUtils.hasText(properties.getAccessKey())
 				&& StringUtils.hasText(properties.getSecretKey())) {
@@ -90,6 +89,23 @@ public class ContextCredentialsAutoConfiguration {
 					? new ProfileCredentialsProvider(properties.getProfilePath(),
 							properties.getProfileName())
 					: new ProfileCredentialsProvider(properties.getProfileName()));
+		}
+
+		if (StringUtils.hasText(properties.getRoleArn())
+				&& StringUtils.hasText(properties.getRoleSessionName())) {
+
+			AWSCredentialsProvider provider = new STSAssumeRoleSessionCredentialsProvider.Builder(
+					properties.getRoleArn(), properties.getRoleSessionName())
+							.withRoleSessionDurationSeconds(
+									properties.getRoleSessionDurationSeconds())
+							.withStsClient(AWSSecurityTokenServiceClientBuilder.standard()
+									.withRegion(regionProvider.getRegion().getName())
+									.withCredentials(
+											buildCredentialsProviderChain(providers))
+									.build())
+							.build();
+
+			providers.add(0, provider);
 		}
 
 		return providers;

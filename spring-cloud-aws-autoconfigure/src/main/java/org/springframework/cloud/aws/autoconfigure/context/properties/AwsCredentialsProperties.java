@@ -22,6 +22,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Properties related to AWS credentials.
  *
  * @author Tom Gianos
+ * @author Andrey Shlykov
  * @since 2.0.2
  * @see org.springframework.cloud.aws.autoconfigure.context.ContextCredentialsAutoConfiguration
  */
@@ -62,6 +63,11 @@ public class AwsCredentialsProperties {
 	 * An identifier for the assumed role session.
 	 */
 	private String roleSessionName;
+
+	/**
+	 * The Duration for assume role sessions.
+	 */
+	private int roleSessionDurationSeconds = 900;
 
 	public String getAccessKey() {
 		return this.accessKey;
@@ -117,6 +123,14 @@ public class AwsCredentialsProperties {
 
 	public void setRoleSessionName(String roleSessionName) {
 		this.roleSessionName = roleSessionName;
+	}
+
+	public int getRoleSessionDurationSeconds() {
+		return roleSessionDurationSeconds;
+	}
+
+	public void setRoleSessionDurationSeconds(int roleSessionDurationSeconds) {
+		this.roleSessionDurationSeconds = roleSessionDurationSeconds;
 	}
 
 }
