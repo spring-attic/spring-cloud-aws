@@ -29,6 +29,7 @@ import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -56,7 +57,8 @@ public class ContextCredentialsAutoConfiguration {
 	@Bean(name = CREDENTIALS_PROVIDER_BEAN_NAME)
 	@ConditionalOnMissingBean(name = CREDENTIALS_PROVIDER_BEAN_NAME)
 	public AWSCredentialsProvider awsCredentialsProvider(
-			AwsCredentialsProperties properties, RegionProvider regionProvider) {
+			AwsCredentialsProperties properties,
+			ObjectProvider<RegionProvider> regionProvider) {
 
 		List<AWSCredentialsProvider> providers = resolveCredentialsProviders(properties,
 				regionProvider);
@@ -71,7 +73,8 @@ public class ContextCredentialsAutoConfiguration {
 	}
 
 	private List<AWSCredentialsProvider> resolveCredentialsProviders(
-			AwsCredentialsProperties properties, RegionProvider regionProvider) {
+			AwsCredentialsProperties properties,
+			ObjectProvider<RegionProvider> regionObjectProvider) {
 		List<AWSCredentialsProvider> providers = new ArrayList<>();
 
 		if (StringUtils.hasText(properties.getAccessKey())
@@ -94,16 +97,18 @@ public class ContextCredentialsAutoConfiguration {
 		if (StringUtils.hasText(properties.getRoleArn())
 				&& StringUtils.hasText(properties.getRoleSessionName())) {
 
+			AWSSecurityTokenServiceClientBuilder stsClientBuilder = AWSSecurityTokenServiceClientBuilder
+					.standard().withCredentials(buildCredentialsProviderChain(providers));
+			RegionProvider regionProvider = regionObjectProvider.getIfAvailable();
+			if (regionProvider != null) {
+				stsClientBuilder.withRegion(regionProvider.getRegion().getName());
+			}
+
 			AWSCredentialsProvider provider = new STSAssumeRoleSessionCredentialsProvider.Builder(
 					properties.getRoleArn(), properties.getRoleSessionName())
 							.withRoleSessionDurationSeconds(
 									properties.getRoleSessionDurationSeconds())
-							.withStsClient(AWSSecurityTokenServiceClientBuilder.standard()
-									.withRegion(regionProvider.getRegion().getName())
-									.withCredentials(
-											buildCredentialsProviderChain(providers))
-									.build())
-							.build();
+							.withStsClient(stsClientBuilder.build()).build();
 
 			providers.add(0, provider);
 		}

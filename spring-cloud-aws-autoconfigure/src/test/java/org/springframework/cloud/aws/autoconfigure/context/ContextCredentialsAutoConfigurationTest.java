@@ -47,7 +47,8 @@ class ContextCredentialsAutoConfigurationTest {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(
-					AutoConfigurations.of(ContextCredentialsAutoConfiguration.class));
+					AutoConfigurations.of(ContextRegionProviderAutoConfiguration.class,
+							ContextCredentialsAutoConfiguration.class));
 
 	// @checkstyle:off
 	@Test
@@ -175,9 +176,10 @@ class ContextCredentialsAutoConfigurationTest {
 	}
 
 	@Test
-	void credentialsProvider_roleArnAndroleSessionNameConfigured_configuresSTSAssumeRoleSessionCredentialsProvider() {
+	void credentialsProvider_roleArnAndRoleSessionNameConfigured_configuresSTSAssumeRoleSessionCredentialsProvider() {
 		this.contextRunner.withPropertyValues("cloud.aws.credentials.roleArn:foo",
-				"cloud.aws.credentials.roleSessionName:bar").run((context) -> {
+				"cloud.aws.credentials.roleSessionName:bar",
+				"cloud.aws.region.static:us-east-1").run((context) -> {
 					AWSCredentialsProvider awsCredentialsProvider = context.getBean(
 							AmazonWebserviceClientConfigurationUtils.CREDENTIALS_PROVIDER_BEAN_NAME,
 							AWSCredentialsProviderChain.class);
