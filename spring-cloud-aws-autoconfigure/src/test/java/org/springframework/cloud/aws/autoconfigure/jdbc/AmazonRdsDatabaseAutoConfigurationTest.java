@@ -146,7 +146,7 @@ class AmazonRdsDatabaseAutoConfigurationTest {
 
 	@Test
 	void rdsIsDisabled() {
-		this.contextRunner.withPropertyValues(".enabled:falsecloud.aws.rds")
+		this.contextRunner.withPropertyValues("cloud.aws.rds.enabled:false")
 				.run(context -> assertThat(context).doesNotHaveBean(DataSource.class));
 	}
 

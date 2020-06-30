@@ -41,10 +41,12 @@ import org.springframework.util.Assert;
 
 /**
  * @author Agim Emruli
+ * @deprecated use auto-configuration
  */
 // @checkstyle:off
 @Configuration(proxyBeanMethods = false)
 @Import(ContextDefaultConfigurationRegistrar.class)
+@Deprecated
 public class AmazonRdsInstanceConfiguration {
 
 	// @checkstyle:on

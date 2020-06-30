@@ -26,7 +26,7 @@ import org.springframework.core.style.ToStringCreator;
 /**
  * Properties related to AWS Rds.
  *
- * @author Mete Alpaslan Katircioglu
+ * @author Mete Alpaslan Katırcıoğlu
  * @see org.springframework.cloud.aws.autoconfigure.jdbc.AmazonRdsDatabaseAutoConfiguration
  */
 @ConfigurationProperties(prefix = "cloud.aws.rds")
@@ -47,8 +47,7 @@ public class AmazonRdsDatabaseProperties {
 
 	@Override
 	public String toString() {
-		return new ToStringCreator(this).append("instanceDefinitions", instances)
-				.toString();
+		return new ToStringCreator(this).append("instances", instances).toString();
 	}
 
 	public static class RdsInstance {

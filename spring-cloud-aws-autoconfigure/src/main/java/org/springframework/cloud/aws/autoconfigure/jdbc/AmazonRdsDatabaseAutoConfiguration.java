@@ -43,7 +43,7 @@ import org.springframework.util.StringUtils;
  * @author Alain Sahli
  * @author Maciej Walkowiak
  * @author Eddú Meléndez
- * @author Mete Alpaslan Katircioglu
+ * @author Mete Alpaslan Katırcıoğlu
  */
 // @checkstyle:off
 @Configuration(proxyBeanMethods = false)
