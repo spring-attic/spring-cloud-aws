@@ -180,4 +180,5 @@ public class AwsParamStoreProperties implements Validator {
 	public void setProfileSuffixEnabled(boolean profileSuffixEnabled) {
 		this.profileSuffixEnabled = enabled;
 	}
+
 }
