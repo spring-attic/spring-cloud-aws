@@ -61,6 +61,8 @@ public class AwsParamStoreProperties implements Validator {
 
 	private String profileSeparator = "_";
 
+	private boolean profileSuffixEnabled = true;
+
 	/**
 	 * If region value is not null or empty it will be used in creation of
 	 * AWSSimpleSystemsManagement.
@@ -171,4 +173,11 @@ public class AwsParamStoreProperties implements Validator {
 		this.region = region;
 	}
 
+	public boolean isProfileSuffixEnabled() {
+		return profileSuffixEnabled;
+	}
+
+	public void setProfileSuffixEnabled(boolean profileSuffixEnabled) {
+		this.profileSuffixEnabled = enabled;
+	}
 }

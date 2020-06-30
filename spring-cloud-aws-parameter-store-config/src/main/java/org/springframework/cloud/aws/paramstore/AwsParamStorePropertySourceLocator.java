@@ -124,9 +124,11 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 
 	private void addProfiles(Set<String> contexts, String baseContext,
 			List<String> profiles) {
-		for (String profile : profiles) {
-			contexts.add(
+		if (this.properties.isProfileSuffixEnabled()) {
+			for (String profile : profiles) {
+				contexts.add(
 					baseContext + this.properties.getProfileSeparator() + profile + "/");
+			}
 		}
 	}
 
