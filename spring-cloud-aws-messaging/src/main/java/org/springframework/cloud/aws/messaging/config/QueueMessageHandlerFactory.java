@@ -110,8 +110,8 @@ public class QueueMessageHandlerFactory {
 
 	/**
 	 * Configures global deletion Policy.
-	 * @param globalDeletionPolicy If set it will use SqsMessageDeletionPolicy param as global default value
-	 * if SqsMessageDeletionPolicy it is omitted from @SqsListener annotation.
+	 * @param globalDeletionPolicy if set it will use SqsMessageDeletionPolicy param as global default value only
+	 * if SqsMessageDeletionPolicy is omitted from @SqsListener annotation.
 	 */
 	public void setGlobalDeletionPolicy(final SqsMessageDeletionPolicy globalDeletionPolicy) {
 		this.globalDeletionPolicy = globalDeletionPolicy;
