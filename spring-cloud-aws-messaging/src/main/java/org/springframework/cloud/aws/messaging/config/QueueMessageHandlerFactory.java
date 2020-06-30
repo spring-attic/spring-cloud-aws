@@ -28,6 +28,7 @@ import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.cloud.aws.messaging.core.QueueMessagingTemplate;
 import org.springframework.cloud.aws.messaging.listener.QueueMessageHandler;
 import org.springframework.cloud.aws.messaging.listener.SendToHandlerMethodReturnValueHandler;
+import org.springframework.cloud.aws.messaging.listener.SqsMessageDeletionPolicy;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.core.DestinationResolvingMessageSendingOperations;
@@ -38,6 +39,7 @@ import org.springframework.util.CollectionUtils;
 /**
  * @author Alain Sahli
  * @author Maciej Walkowiak
+ * @author Matej Nedic
  * @since 1.0
  */
 public class QueueMessageHandlerFactory {
@@ -51,6 +53,8 @@ public class QueueMessageHandlerFactory {
 	private AmazonSQSAsync amazonSqs;
 
 	private ResourceIdResolver resourceIdResolver;
+
+	private SqsMessageDeletionPolicy globalDeletionPolicy = SqsMessageDeletionPolicy.NO_REDRIVE;
 
 	private BeanFactory beanFactory;
 
@@ -102,6 +106,15 @@ public class QueueMessageHandlerFactory {
 	 */
 	public void setAmazonSqs(AmazonSQSAsync amazonSqs) {
 		this.amazonSqs = amazonSqs;
+	}
+
+	/**
+	 * Configures global deletion Policy.
+	 * @param globalDeletionPolicy If set it will use SqsMessageDeletionPolicy param as global default value
+	 * if SqsMessageDeletionPolicy it is omitted from @SqsListener annotation.
+	 */
+	public void setGlobalDeletionPolicy(final SqsMessageDeletionPolicy globalDeletionPolicy) {
+		this.globalDeletionPolicy = globalDeletionPolicy;
 	}
 
 	/**
@@ -162,6 +175,7 @@ public class QueueMessageHandlerFactory {
 							this.resourceIdResolver));
 
 		}
+		queueMessageHandler.setGlobalSqsMessageDeletionPolicy(this.globalDeletionPolicy);
 		sendToHandlerMethodReturnValueHandler.setBeanFactory(this.beanFactory);
 		queueMessageHandler.getCustomReturnValueHandlers()
 				.add(sendToHandlerMethodReturnValueHandler);

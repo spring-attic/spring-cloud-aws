@@ -39,6 +39,7 @@ package org.springframework.cloud.aws.messaging.listener;
  * </ul>
  *
  * @author Alain Sahli
+ * @author Matej Nedic
  * @since 1.1
  * @see org.springframework.cloud.aws.messaging.listener.annotation.SqsListener
  */
@@ -72,6 +73,12 @@ public enum SqsMessageDeletionPolicy {
 	 * Deletes message when successfully executed by the listener method. If an exception
 	 * is thrown by the listener method, the message will not be deleted.
 	 */
-	ON_SUCCESS
+	ON_SUCCESS,
+
+	/**
+	 * If this is set it will use global value set in QueueMessageHandlerFactory.
+	 * Default if not changed is set to NO_REDRIVE.
+	 */
+	GLOBAL
 
 }

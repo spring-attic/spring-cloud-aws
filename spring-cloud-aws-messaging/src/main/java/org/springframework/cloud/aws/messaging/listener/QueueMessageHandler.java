@@ -65,6 +65,7 @@ import org.springframework.validation.Validator;
  * @author Alain Sahli
  * @author Maciej Walkowiak
  * @author Wojciech Mąka
+ * @author Matej Nedic
  * @since 1.0
  */
 public class QueueMessageHandler
@@ -73,6 +74,7 @@ public class QueueMessageHandler
 	static final String LOGICAL_RESOURCE_ID = "LogicalResourceId";
 	static final String ACKNOWLEDGMENT = "Acknowledgment";
 	static final String VISIBILITY = "Visibility";
+	private  SqsMessageDeletionPolicy globalSqsMessageDeletionPolicy = SqsMessageDeletionPolicy.NO_REDRIVE;
 
 	private final List<MessageConverter> messageConverters;
 
@@ -127,7 +129,9 @@ public class QueueMessageHandler
 		SqsListener sqsListenerAnnotation = AnnotationUtils.findAnnotation(method,
 				SqsListener.class);
 		if (sqsListenerAnnotation != null && sqsListenerAnnotation.value().length > 0) {
-			if (sqsListenerAnnotation.deletionPolicy() == SqsMessageDeletionPolicy.NEVER
+			SqsMessageDeletionPolicy tempDeletionPolicy = sqsListenerAnnotation.deletionPolicy() == SqsMessageDeletionPolicy.GLOBAL ?
+				globalSqsMessageDeletionPolicy : sqsListenerAnnotation.deletionPolicy();
+			if (tempDeletionPolicy == SqsMessageDeletionPolicy.NEVER
 					&& hasNoAcknowledgmentParameter(method.getParameterTypes())) {
 				this.logger.warn("Listener method '" + method.getName() + "' in type '"
 						+ method.getDeclaringClass().getName()
@@ -135,7 +139,7 @@ public class QueueMessageHandler
 			}
 			return new MappingInformation(
 					resolveDestinationNames(sqsListenerAnnotation.value()),
-					sqsListenerAnnotation.deletionPolicy());
+					tempDeletionPolicy);
 		}
 
 		MessageMapping messageMappingAnnotation = AnnotationUtils.findAnnotation(method,
@@ -263,6 +267,15 @@ public class QueueMessageHandler
 		payloadArgumentConverters.add(new SimpleMessageConverter());
 
 		return new CompositeMessageConverter(payloadArgumentConverters);
+	}
+
+
+	public  void setGlobalSqsMessageDeletionPolicy(final SqsMessageDeletionPolicy globalSqsMessageDeletionPolicy) {
+		this.globalSqsMessageDeletionPolicy = globalSqsMessageDeletionPolicy;
+	}
+
+	public SqsMessageDeletionPolicy getGlobalSqsMessageDeletionPolicy() {
+		return globalSqsMessageDeletionPolicy;
 	}
 
 	@SuppressWarnings("ComparableImplementedButEqualsNotOverridden")
