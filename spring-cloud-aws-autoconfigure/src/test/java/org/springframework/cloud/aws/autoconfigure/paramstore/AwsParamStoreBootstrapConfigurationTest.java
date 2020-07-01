@@ -16,18 +16,30 @@
 
 package org.springframework.cloud.aws.autoconfigure.paramstore;
 
+import java.lang.reflect.Method;
+
+import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
+import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClient;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.cloud.aws.paramstore.AwsParamStoreProperties;
 import org.springframework.cloud.aws.paramstore.AwsParamStorePropertySourceLocator;
 import org.springframework.context.annotation.Bean;
+import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+/**
+ * Test for {@link AwsParamStoreBootstrapConfiguration}.
+ *
+ * @author Matej Nedic
+ * @author Eddú Meléndez
+ */
 class AwsParamStoreBootstrapConfigurationTest {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
@@ -46,6 +58,30 @@ class AwsParamStoreBootstrapConfigurationTest {
 		this.contextRunner.withPropertyValues("aws.paramstore.enabled=false")
 				.run((context) -> assertThat(context)
 						.doesNotHaveBean(AwsParamStorePropertySourceLocator.class));
+	}
+
+	@Test
+	void testWithStaticRegion() {
+		AwsParamStoreBootstrapConfiguration bootstrapConfig = new AwsParamStoreBootstrapConfiguration();
+
+		String region = "us-east-2";
+		AwsParamStoreProperties awsParamStoreProperties = new AwsParamStoreProperties();
+		awsParamStoreProperties.setRegion(region);
+
+		Method SSMClientMethod = ReflectionUtils.findMethod(
+				AwsParamStoreBootstrapConfiguration.class, "ssmClient",
+				AwsParamStoreProperties.class);
+		SSMClientMethod.setAccessible(true);
+		AWSSimpleSystemsManagementClient awsSimpleClient = (AWSSimpleSystemsManagementClient) ReflectionUtils
+				.invokeMethod(SSMClientMethod, bootstrapConfig, awsParamStoreProperties);
+
+		Method signingRegionMethod = ReflectionUtils
+				.findMethod(AmazonWebServiceClient.class, "getSigningRegion");
+		signingRegionMethod.setAccessible(true);
+		String signedRegion = (String) ReflectionUtils.invokeMethod(signingRegionMethod,
+				awsSimpleClient);
+
+		assertThat(signedRegion).isEqualTo(region);
 	}
 
 	@TestConfiguration
