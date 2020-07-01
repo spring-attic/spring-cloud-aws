@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.springframework.validation.Validator;
  *
  * @author Fabio Maia
  * @author Matej Nedic
+ * @author Eddú Meléndez
  * @since 2.0.0
  */
 @ConfigurationProperties(prefix = AwsSecretsManagerProperties.CONFIG_PREFIX)
@@ -75,9 +76,6 @@ public class AwsSecretsManagerProperties implements Validator {
 	 * Manager.
 	 */
 	private String name;
-
-	/** Is AWS Secrets Manager support enabled. */
-	private boolean enabled = true;
 
 	@Override
 	public boolean supports(Class<?> clazz) {
@@ -153,14 +151,6 @@ public class AwsSecretsManagerProperties implements Validator {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public boolean isEnabled() {
-		return enabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
 	}
 
 	public String getRegion() {
