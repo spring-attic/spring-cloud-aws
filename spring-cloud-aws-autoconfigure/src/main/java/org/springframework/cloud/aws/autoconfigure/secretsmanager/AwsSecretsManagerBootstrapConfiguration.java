@@ -26,6 +26,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.aws.secretsmanager.AwsSecretsManagerProperties;
 import org.springframework.cloud.aws.secretsmanager.AwsSecretsManagerPropertySourceLocator;
+import org.springframework.cloud.bootstrap.config.PropertySourceLocator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,6 +36,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author Fabio Maia
  * @author Matej Nedic
+ * @author Eddú Meléndez
  * @since 2.0.0
  */
 @Configuration(proxyBeanMethods = false)
@@ -46,7 +48,7 @@ import org.springframework.context.annotation.Configuration;
 public class AwsSecretsManagerBootstrapConfiguration {
 
 	@Bean
-	AwsSecretsManagerPropertySourceLocator awsSecretsManagerPropertySourceLocator(
+	PropertySourceLocator awsSecretsManagerPropertySourceLocator(
 			AWSSecretsManager smClient, AwsSecretsManagerProperties properties) {
 		return new AwsSecretsManagerPropertySourceLocator(smClient, properties);
 	}

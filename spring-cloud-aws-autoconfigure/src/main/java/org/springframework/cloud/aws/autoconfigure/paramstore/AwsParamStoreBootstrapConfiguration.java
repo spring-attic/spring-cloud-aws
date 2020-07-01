@@ -26,6 +26,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.aws.paramstore.AwsParamStoreProperties;
 import org.springframework.cloud.aws.paramstore.AwsParamStorePropertySourceLocator;
+import org.springframework.cloud.bootstrap.config.PropertySourceLocator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,6 +36,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author Joris Kuipers
  * @author Matej Nedic
+ * @author Eddú Meléndez
  * @since 2.0.0
  */
 @Configuration(proxyBeanMethods = false)
@@ -46,7 +48,7 @@ import org.springframework.context.annotation.Configuration;
 public class AwsParamStoreBootstrapConfiguration {
 
 	@Bean
-	AwsParamStorePropertySourceLocator awsParamStorePropertySourceLocator(
+	PropertySourceLocator awsParamStorePropertySourceLocator(
 			AWSSimpleSystemsManagement ssmClient, AwsParamStoreProperties properties) {
 		return new AwsParamStorePropertySourceLocator(ssmClient, properties);
 	}
