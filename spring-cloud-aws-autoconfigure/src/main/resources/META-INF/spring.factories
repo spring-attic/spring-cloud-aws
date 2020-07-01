@@ -11,4 +11,5 @@ org.springframework.cloud.aws.autoconfigure.jdbc.AmazonRdsDatabaseAutoConfigurat
 org.springframework.cloud.aws.autoconfigure.metrics.CloudWatchExportAutoConfiguration
 
 org.springframework.cloud.bootstrap.BootstrapConfiguration=\
-org.springframework.cloud.aws.autoconfigure.paramstore.AwsParamStoreBootstrapConfiguration
+org.springframework.cloud.aws.autoconfigure.paramstore.AwsParamStoreBootstrapConfiguration,\
+org.springframework.cloud.aws.autoconfigure.secretsmanager.AwsSecretsManagerBootstrapConfiguration
