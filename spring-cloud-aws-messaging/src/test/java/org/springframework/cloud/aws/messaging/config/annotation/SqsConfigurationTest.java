@@ -121,8 +121,8 @@ class SqsConfigurationTest {
 		assertThat(messageHandler.getCustomReturnValueHandlers().get(0)).isEqualTo(
 				ConfigurationWithCustomizedMessageHandler.CUSTOM_RETURN_VALUE_HANDLER);
 
-
-		assertThat(messageHandler.getGlobalSqsMessageDeletionPolicy()).isEqualTo(SqsMessageDeletionPolicy.NO_REDRIVE);
+		Object sqsMessageDeletionPolicy = ReflectionTestUtils.getField(messageHandler,"defaultSqsMessageDeletionPolicy");
+		assertThat(sqsMessageDeletionPolicy).isEqualTo(SqsMessageDeletionPolicy.NO_REDRIVE);
 
 		Object sendToMessageTemplate = ReflectionTestUtils.getField(
 				messageHandler.getReturnValueHandlers().get(1), "messageTemplate");
@@ -157,7 +157,9 @@ class SqsConfigurationTest {
 		assertThat(messageHandler.getCustomReturnValueHandlers().get(0)).isEqualTo(
 			ConfigurationWithCustomizedMessageHandlerGlobalDeletionPolicy.CUSTOM_RETURN_VALUE_HANDLER);
 
-		assertThat(messageHandler.getGlobalSqsMessageDeletionPolicy()).isEqualTo(SqsMessageDeletionPolicy.ON_SUCCESS);
+
+		Object sqsMessageDeletionPolicy = ReflectionTestUtils.getField(messageHandler,"defaultSqsMessageDeletionPolicy");
+		assertThat(sqsMessageDeletionPolicy).isEqualTo(SqsMessageDeletionPolicy.ON_SUCCESS);
 
 		Object sendToMessageTemplate = ReflectionTestUtils.getField(
 			messageHandler.getReturnValueHandlers().get(1), "messageTemplate");
@@ -373,7 +375,7 @@ class SqsConfigurationTest {
 				Collections.singletonList(CUSTOM_ARGUMENT_RESOLVER));
 			factory.setReturnValueHandlers(
 				Collections.singletonList(CUSTOM_RETURN_VALUE_HANDLER));
-			factory.setGlobalDeletionPolicy(SqsMessageDeletionPolicy.ON_SUCCESS);
+			factory.setDefaultSqsMessageDeletionPolicy(SqsMessageDeletionPolicy.ON_SUCCESS);
 			factory.setAmazonSqs(CUSTOM_AMAZON_SQS);
 			factory.setResourceIdResolver(CUSTOM_RESOURCE_ID_RESOLVER);
 

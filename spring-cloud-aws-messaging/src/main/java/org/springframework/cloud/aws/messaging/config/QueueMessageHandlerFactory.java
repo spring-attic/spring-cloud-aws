@@ -54,7 +54,7 @@ public class QueueMessageHandlerFactory {
 
 	private ResourceIdResolver resourceIdResolver;
 
-	private SqsMessageDeletionPolicy globalDeletionPolicy = SqsMessageDeletionPolicy.NO_REDRIVE;
+	private SqsMessageDeletionPolicy defaultSqsMessageDeletionPolicy = SqsMessageDeletionPolicy.NO_REDRIVE;
 
 	private BeanFactory beanFactory;
 
@@ -110,11 +110,11 @@ public class QueueMessageHandlerFactory {
 
 	/**
 	 * Configures global deletion Policy.
-	 * @param globalDeletionPolicy if set it will use SqsMessageDeletionPolicy param as global default value only
-	 * if SqsMessageDeletionPolicy is omitted from @SqsListener annotation.
+	 * @param defaultSqsMessageDeletionPolicy if set it will use SqsMessageDeletionPolicy param as global default value only
+	 * if SqsMessageDeletionPolicy is omitted from @SqsListener annotation. Should not be null.
 	 */
-	public void setGlobalDeletionPolicy(final SqsMessageDeletionPolicy globalDeletionPolicy) {
-		this.globalDeletionPolicy = globalDeletionPolicy;
+	public void setDefaultSqsMessageDeletionPolicy(final SqsMessageDeletionPolicy defaultSqsMessageDeletionPolicy) {
+		this.defaultSqsMessageDeletionPolicy = defaultSqsMessageDeletionPolicy;
 	}
 
 	/**
@@ -153,7 +153,7 @@ public class QueueMessageHandlerFactory {
 		QueueMessageHandler queueMessageHandler = new QueueMessageHandler(
 				CollectionUtils.isEmpty(this.messageConverters) ? Arrays.asList(
 						getDefaultMappingJackson2MessageConverter(this.objectMapper))
-						: this.messageConverters);
+						: this.messageConverters, this.defaultSqsMessageDeletionPolicy);
 
 		if (!CollectionUtils.isEmpty(this.argumentResolvers)) {
 			queueMessageHandler.getCustomArgumentResolvers()
@@ -175,7 +175,6 @@ public class QueueMessageHandlerFactory {
 							this.resourceIdResolver));
 
 		}
-		queueMessageHandler.setGlobalSqsMessageDeletionPolicy(this.globalDeletionPolicy);
 		sendToHandlerMethodReturnValueHandler.setBeanFactory(this.beanFactory);
 		queueMessageHandler.getCustomReturnValueHandlers()
 				.add(sendToHandlerMethodReturnValueHandler);

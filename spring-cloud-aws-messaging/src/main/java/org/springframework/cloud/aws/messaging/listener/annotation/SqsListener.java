@@ -86,6 +86,6 @@ public @interface SqsListener {
 	 * called.
 	 * @return deletion policy
 	 */
-	SqsMessageDeletionPolicy deletionPolicy() default SqsMessageDeletionPolicy.GLOBAL;
+	SqsMessageDeletionPolicy deletionPolicy() default SqsMessageDeletionPolicy.DEFAULT;
 
 }

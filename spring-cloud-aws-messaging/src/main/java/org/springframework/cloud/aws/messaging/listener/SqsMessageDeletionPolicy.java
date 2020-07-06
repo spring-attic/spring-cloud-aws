@@ -76,9 +76,9 @@ public enum SqsMessageDeletionPolicy {
 	ON_SUCCESS,
 
 	/**
-	 * If this is set in SqsListener, it will use global value set for specific QueueMessageHandlerFactory.
+	 * If this is set in SqsListener, it will use default value set for specific QueueMessageHandlerFactory.
 	 * Default, if not changed is set to NO_REDRIVE.
 	 */
-	GLOBAL
+	DEFAULT
 
 }

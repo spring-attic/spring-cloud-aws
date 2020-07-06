@@ -74,16 +74,18 @@ public class QueueMessageHandler
 	static final String LOGICAL_RESOURCE_ID = "LogicalResourceId";
 	static final String ACKNOWLEDGMENT = "Acknowledgment";
 	static final String VISIBILITY = "Visibility";
-	private  SqsMessageDeletionPolicy globalSqsMessageDeletionPolicy = SqsMessageDeletionPolicy.NO_REDRIVE;
+	private final   SqsMessageDeletionPolicy defaultSqsMessageDeletionPolicy;
 
 	private final List<MessageConverter> messageConverters;
 
-	public QueueMessageHandler(List<MessageConverter> messageConverters) {
+	public QueueMessageHandler(List<MessageConverter> messageConverters, SqsMessageDeletionPolicy sqsMessageDeletionPolicy) {
 		this.messageConverters = messageConverters;
+		this.defaultSqsMessageDeletionPolicy = sqsMessageDeletionPolicy;
 	}
 
 	public QueueMessageHandler() {
 		this.messageConverters = Collections.emptyList();
+		this.defaultSqsMessageDeletionPolicy = SqsMessageDeletionPolicy.NO_REDRIVE;
 	}
 
 	private static String[] wrapInStringArray(Object valueToWrap) {
@@ -129,8 +131,8 @@ public class QueueMessageHandler
 		SqsListener sqsListenerAnnotation = AnnotationUtils.findAnnotation(method,
 				SqsListener.class);
 		if (sqsListenerAnnotation != null && sqsListenerAnnotation.value().length > 0) {
-			SqsMessageDeletionPolicy tempDeletionPolicy = sqsListenerAnnotation.deletionPolicy() == SqsMessageDeletionPolicy.GLOBAL ?
-				globalSqsMessageDeletionPolicy : sqsListenerAnnotation.deletionPolicy();
+			SqsMessageDeletionPolicy tempDeletionPolicy = sqsListenerAnnotation.deletionPolicy() == SqsMessageDeletionPolicy.DEFAULT ?
+				defaultSqsMessageDeletionPolicy : sqsListenerAnnotation.deletionPolicy();
 			if (tempDeletionPolicy == SqsMessageDeletionPolicy.NEVER
 					&& hasNoAcknowledgmentParameter(method.getParameterTypes())) {
 				this.logger.warn("Listener method '" + method.getName() + "' in type '"
@@ -267,15 +269,6 @@ public class QueueMessageHandler
 		payloadArgumentConverters.add(new SimpleMessageConverter());
 
 		return new CompositeMessageConverter(payloadArgumentConverters);
-	}
-
-
-	public  void setGlobalSqsMessageDeletionPolicy(final SqsMessageDeletionPolicy globalSqsMessageDeletionPolicy) {
-		this.globalSqsMessageDeletionPolicy = globalSqsMessageDeletionPolicy;
-	}
-
-	public SqsMessageDeletionPolicy getGlobalSqsMessageDeletionPolicy() {
-		return globalSqsMessageDeletionPolicy;
 	}
 
 	@SuppressWarnings("ComparableImplementedButEqualsNotOverridden")
