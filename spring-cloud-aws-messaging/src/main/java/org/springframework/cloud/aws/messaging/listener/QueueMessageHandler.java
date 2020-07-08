@@ -71,9 +71,9 @@ import org.springframework.validation.Validator;
 public class QueueMessageHandler
 		extends AbstractMethodMessageHandler<QueueMessageHandler.MappingInformation> {
 
-	static final String                    LOGICAL_RESOURCE_ID = "LogicalResourceId";
-	static final String                    ACKNOWLEDGMENT = "Acknowledgment";
-	static final String                    VISIBILITY = "Visibility";
+	static final String LOGICAL_RESOURCE_ID = "LogicalResourceId";
+	static final String ACKNOWLEDGMENT = "Acknowledgment";
+	static final String VISIBILITY = "Visibility";
 	private final SqsMessageDeletionPolicy sqsMessageDeletionPolicy;
 
 	private final List<MessageConverter> messageConverters;
