@@ -27,15 +27,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.annotation.Order;
 
 /**
  * @author Agim Emruli
  */
 @Configuration
-@EnableContextCredentials(accessKey = "${cloud.aws.credentials.accessKey}", secretKey = "${cloud.aws.credentials.secretKey}")
+@EnableContextCredentials(accessKey = "${cloud.aws.credentials.accessKey}",
+		secretKey = "${cloud.aws.credentials.secretKey}")
 @EnableStackConfiguration(stackName = "IntegrationTestStack")
 @PropertySource("file://${els.config.dir}/access.properties")
 @EnableContextRegion(region = "eu-west-1")
+@Order(1)
 public class IntegrationTestConfig {
 
 	@Bean

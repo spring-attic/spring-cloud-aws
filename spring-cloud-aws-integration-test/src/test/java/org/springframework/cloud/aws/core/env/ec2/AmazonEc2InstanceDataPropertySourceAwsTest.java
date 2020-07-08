@@ -47,8 +47,10 @@ import static org.junit.Assert.assertNotNull;
 public abstract class AmazonEc2InstanceDataPropertySourceAwsTest {
 
 	private static final int HTTP_SERVER_TEST_PORT = SocketUtils.findAvailableTcpPort();
+
 	@SuppressWarnings("StaticNonFinalField")
 	private static HttpServer httpServer;
+
 	@Autowired
 	private SimpleConfigurationBean simpleConfigurationBean;
 

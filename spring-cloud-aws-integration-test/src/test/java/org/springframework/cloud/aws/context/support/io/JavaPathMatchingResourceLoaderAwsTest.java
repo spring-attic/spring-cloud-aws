@@ -24,7 +24,8 @@ import org.springframework.test.context.ContextConfiguration;
 /**
  * @author Agim Emruli
  */
-@ContextConfiguration(classes = JavaPathMatchingResourceLoaderAwsTest.JavaPathMatchingResourceLoaderAwsTestConfig.class)
+@ContextConfiguration(
+		classes = JavaPathMatchingResourceLoaderAwsTest.JavaPathMatchingResourceLoaderAwsTestConfig.class)
 public class JavaPathMatchingResourceLoaderAwsTest
 		extends PathMatchingResourceLoaderAwsTest {
 

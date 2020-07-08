@@ -250,7 +250,8 @@ public abstract class QueueListenerTest extends AbstractContainerTest {
 		}
 
 		@RuntimeUse
-		@SqsListener(value = "QueueWithRedrivePolicy", deletionPolicy = SqsMessageDeletionPolicy.NO_REDRIVE)
+		@SqsListener(value = "QueueWithRedrivePolicy",
+				deletionPolicy = SqsMessageDeletionPolicy.NO_REDRIVE)
 		public void receiveThrowingException(String message) {
 			throw new RuntimeException();
 		}
@@ -273,7 +274,8 @@ public abstract class QueueListenerTest extends AbstractContainerTest {
 
 		private final CountDownLatch countDownLatch = new CountDownLatch(1);
 
-		@SqsListener(value = "ManualDeletionQueue", deletionPolicy = SqsMessageDeletionPolicy.NEVER)
+		@SqsListener(value = "ManualDeletionQueue",
+				deletionPolicy = SqsMessageDeletionPolicy.NEVER)
 		public void receive(String message, Acknowledgment acknowledgment)
 				throws ExecutionException, InterruptedException {
 			acknowledgment.acknowledge().get();
