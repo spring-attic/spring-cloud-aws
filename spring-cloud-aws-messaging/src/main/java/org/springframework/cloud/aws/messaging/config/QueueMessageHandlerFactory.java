@@ -54,7 +54,7 @@ public class QueueMessageHandlerFactory {
 
 	private ResourceIdResolver resourceIdResolver;
 
-	private SqsMessageDeletionPolicy defaultSqsMessageDeletionPolicy = SqsMessageDeletionPolicy.NO_REDRIVE;
+	private SqsMessageDeletionPolicy sqsMessageDeletionPolicy = SqsMessageDeletionPolicy.NO_REDRIVE;
 
 	private BeanFactory beanFactory;
 
@@ -110,11 +110,11 @@ public class QueueMessageHandlerFactory {
 
 	/**
 	 * Configures global deletion Policy.
-	 * @param defaultSqsMessageDeletionPolicy if set it will use SqsMessageDeletionPolicy param as global default value only
+	 * @param sqsMessageDeletionPolicy if set it will use SqsMessageDeletionPolicy param as global default value only
 	 * if SqsMessageDeletionPolicy is omitted from @SqsListener annotation. Should not be null.
 	 */
-	public void setDefaultSqsMessageDeletionPolicy(final SqsMessageDeletionPolicy defaultSqsMessageDeletionPolicy) {
-		this.defaultSqsMessageDeletionPolicy = defaultSqsMessageDeletionPolicy;
+	public void setSqsMessageDeletionPolicy(final SqsMessageDeletionPolicy sqsMessageDeletionPolicy) {
+		this.sqsMessageDeletionPolicy = sqsMessageDeletionPolicy;
 	}
 
 	/**
@@ -153,7 +153,7 @@ public class QueueMessageHandlerFactory {
 		QueueMessageHandler queueMessageHandler = new QueueMessageHandler(
 				CollectionUtils.isEmpty(this.messageConverters) ? Arrays.asList(
 						getDefaultMappingJackson2MessageConverter(this.objectMapper))
-						: this.messageConverters, this.defaultSqsMessageDeletionPolicy);
+						: this.messageConverters, this.sqsMessageDeletionPolicy);
 
 		if (!CollectionUtils.isEmpty(this.argumentResolvers)) {
 			queueMessageHandler.getCustomArgumentResolvers()

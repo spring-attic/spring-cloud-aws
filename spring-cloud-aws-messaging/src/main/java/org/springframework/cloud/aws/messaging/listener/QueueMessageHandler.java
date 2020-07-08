@@ -71,21 +71,21 @@ import org.springframework.validation.Validator;
 public class QueueMessageHandler
 		extends AbstractMethodMessageHandler<QueueMessageHandler.MappingInformation> {
 
-	static final String LOGICAL_RESOURCE_ID = "LogicalResourceId";
-	static final String ACKNOWLEDGMENT = "Acknowledgment";
-	static final String VISIBILITY = "Visibility";
-	private final   SqsMessageDeletionPolicy defaultSqsMessageDeletionPolicy;
+	static final String                    LOGICAL_RESOURCE_ID = "LogicalResourceId";
+	static final String                    ACKNOWLEDGMENT = "Acknowledgment";
+	static final String                    VISIBILITY = "Visibility";
+	private final SqsMessageDeletionPolicy sqsMessageDeletionPolicy;
 
 	private final List<MessageConverter> messageConverters;
 
 	public QueueMessageHandler(List<MessageConverter> messageConverters, SqsMessageDeletionPolicy sqsMessageDeletionPolicy) {
 		this.messageConverters = messageConverters;
-		this.defaultSqsMessageDeletionPolicy = sqsMessageDeletionPolicy;
+		this.sqsMessageDeletionPolicy = sqsMessageDeletionPolicy;
 	}
 
 	public QueueMessageHandler() {
 		this.messageConverters = Collections.emptyList();
-		this.defaultSqsMessageDeletionPolicy = SqsMessageDeletionPolicy.NO_REDRIVE;
+		this.sqsMessageDeletionPolicy = SqsMessageDeletionPolicy.NO_REDRIVE;
 	}
 
 	private static String[] wrapInStringArray(Object valueToWrap) {
@@ -132,7 +132,7 @@ public class QueueMessageHandler
 				SqsListener.class);
 		if (sqsListenerAnnotation != null && sqsListenerAnnotation.value().length > 0) {
 			SqsMessageDeletionPolicy tempDeletionPolicy = sqsListenerAnnotation.deletionPolicy() == SqsMessageDeletionPolicy.DEFAULT ?
-				defaultSqsMessageDeletionPolicy : sqsListenerAnnotation.deletionPolicy();
+				sqsMessageDeletionPolicy : sqsListenerAnnotation.deletionPolicy();
 			if (tempDeletionPolicy == SqsMessageDeletionPolicy.NEVER
 					&& hasNoAcknowledgmentParameter(method.getParameterTypes())) {
 				this.logger.warn("Listener method '" + method.getName() + "' in type '"
