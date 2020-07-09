@@ -26,6 +26,7 @@ import com.amazonaws.services.sqs.model.MessageAttributeValue;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.MessagingException;
+import org.springframework.messaging.support.GenericMessage;
 import org.springframework.util.MimeType;
 import org.springframework.util.NumberUtils;
 
@@ -39,6 +40,8 @@ public final class QueueMessageUtils {
 	private static final String RECEIPT_HANDLE_MESSAGE_ATTRIBUTE_NAME = "ReceiptHandle";
 
 	private static final String MESSAGE_ID_MESSAGE_ATTRIBUTE_NAME = "MessageId";
+
+	private static final String SOURCE_DATA_HEADER = "sourceData";
 
 	private QueueMessageUtils() {
 		// Avoid instantiation
@@ -56,13 +59,14 @@ public final class QueueMessageUtils {
 		messageHeaders.put(MESSAGE_ID_MESSAGE_ATTRIBUTE_NAME, message.getMessageId());
 		messageHeaders.put(RECEIPT_HANDLE_MESSAGE_ATTRIBUTE_NAME,
 				message.getReceiptHandle());
+		messageHeaders.put(SOURCE_DATA_HEADER, message);
 
 		messageHeaders.putAll(additionalHeaders);
 		messageHeaders.putAll(getAttributesAsMessageHeaders(message));
 		messageHeaders.putAll(getMessageAttributesAsMessageHeaders(message));
 
-		return new SqsMessage(message.getBody(), new SqsMessageHeaders(messageHeaders),
-				message);
+		return new GenericMessage<>(message.getBody(),
+				new SqsMessageHeaders(messageHeaders));
 	}
 
 	public static Object getNumberValue(String attributeValue, String attributeType) {
@@ -75,6 +79,12 @@ public final class QueueMessageUtils {
 							+ "into a Number because target class was not found.",
 					attributeValue, attributeType), e);
 		}
+	}
+
+	public static com.amazonaws.services.sqs.model.Message getSourceData(
+			Message<?> message) {
+		return (com.amazonaws.services.sqs.model.Message) message.getHeaders()
+				.get(SOURCE_DATA_HEADER);
 	}
 
 	private static Map<String, Object> getAttributesAsMessageHeaders(

@@ -16,10 +16,16 @@
 
 package org.springframework.cloud.aws.messaging.listener;
 
-import org.springframework.cloud.aws.messaging.core.SqsMessage;
+import org.springframework.cloud.aws.messaging.core.QueueMessageUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.messaging.Message;
 
+/**
+ * Resolves original SQS message object {@link com.amazonaws.services.sqs.model.Message}
+ * from Spring Messaging message object {@link Message}.
+ *
+ * @author Maciej Walkowiak
+ */
 public class SqsMessageMethodArgumentResolver implements
 		org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver {
 
@@ -32,12 +38,7 @@ public class SqsMessageMethodArgumentResolver implements
 	@Override
 	public Object resolveArgument(MethodParameter parameter, Message<?> message)
 			throws Exception {
-		if (message instanceof SqsMessage) {
-			return ((SqsMessage) message).getOriginalMessage();
-		}
-		else {
-			return null;
-		}
+		return QueueMessageUtils.getSourceData(message);
 	}
 
 }
