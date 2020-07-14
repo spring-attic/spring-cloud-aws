@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.cloud.aws.messaging.listener;
 import org.springframework.cloud.aws.messaging.core.QueueMessageUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
 
 /**
  * Resolves original SQS message object {@link com.amazonaws.services.sqs.model.Message}
@@ -26,8 +27,7 @@ import org.springframework.messaging.Message;
  *
  * @author Maciej Walkowiak
  */
-public class SqsMessageMethodArgumentResolver implements
-		org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver {
+public class SqsMessageMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
