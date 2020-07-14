@@ -54,20 +54,7 @@ public class AwsCredentialsProperties {
 	 */
 	private String profilePath;
 
-	/**
-	 * The arn of the role to be assumed.
-	 */
-	private String roleArn;
-
-	/**
-	 * An identifier for the assumed role session.
-	 */
-	private String roleSessionName;
-
-	/**
-	 * The Duration for assume role sessions.
-	 */
-	private int roleSessionDurationSeconds = 900;
+	private StsCredentialsProperties sts = new StsCredentialsProperties();
 
 	public String getAccessKey() {
 		return this.accessKey;
@@ -109,28 +96,55 @@ public class AwsCredentialsProperties {
 		this.profilePath = profilePath;
 	}
 
-	public String getRoleArn() {
-		return roleArn;
+	public StsCredentialsProperties getSts() {
+		return sts;
 	}
 
-	public void setRoleArn(String roleArn) {
-		this.roleArn = roleArn;
+	public void setSts(StsCredentialsProperties sts) {
+		this.sts = sts;
 	}
 
-	public String getRoleSessionName() {
-		return roleSessionName;
-	}
+	public static class StsCredentialsProperties {
 
-	public void setRoleSessionName(String roleSessionName) {
-		this.roleSessionName = roleSessionName;
-	}
+		/**
+		 * The arn of the role to be assumed.
+		 */
+		private String roleArn;
 
-	public int getRoleSessionDurationSeconds() {
-		return roleSessionDurationSeconds;
-	}
+		/**
+		 * An identifier for the assumed role session.
+		 */
+		private String roleSessionName;
 
-	public void setRoleSessionDurationSeconds(int roleSessionDurationSeconds) {
-		this.roleSessionDurationSeconds = roleSessionDurationSeconds;
+		/**
+		 * The Duration for assume role sessions.
+		 */
+		private int roleSessionDurationSeconds = 900;
+
+		public String getRoleArn() {
+			return roleArn;
+		}
+
+		public void setRoleArn(String roleArn) {
+			this.roleArn = roleArn;
+		}
+
+		public String getRoleSessionName() {
+			return roleSessionName;
+		}
+
+		public void setRoleSessionName(String roleSessionName) {
+			this.roleSessionName = roleSessionName;
+		}
+
+		public int getRoleSessionDurationSeconds() {
+			return roleSessionDurationSeconds;
+		}
+
+		public void setRoleSessionDurationSeconds(int roleSessionDurationSeconds) {
+			this.roleSessionDurationSeconds = roleSessionDurationSeconds;
+		}
+
 	}
 
 }

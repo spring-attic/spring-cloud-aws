@@ -94,8 +94,10 @@ public class ContextCredentialsAutoConfiguration {
 					: new ProfileCredentialsProvider(properties.getProfileName()));
 		}
 
-		if (StringUtils.hasText(properties.getRoleArn())
-				&& StringUtils.hasText(properties.getRoleSessionName())) {
+		AwsCredentialsProperties.StsCredentialsProperties stsProperties = properties
+				.getSts();
+		if (StringUtils.hasText(stsProperties.getRoleArn())
+				&& StringUtils.hasText(stsProperties.getRoleSessionName())) {
 
 			AWSSecurityTokenServiceClientBuilder stsClientBuilder = AWSSecurityTokenServiceClientBuilder
 					.standard().withCredentials(buildCredentialsProviderChain(providers));
@@ -105,9 +107,9 @@ public class ContextCredentialsAutoConfiguration {
 			}
 
 			AWSCredentialsProvider provider = new STSAssumeRoleSessionCredentialsProvider.Builder(
-					properties.getRoleArn(), properties.getRoleSessionName())
+					stsProperties.getRoleArn(), stsProperties.getRoleSessionName())
 							.withRoleSessionDurationSeconds(
-									properties.getRoleSessionDurationSeconds())
+									stsProperties.getRoleSessionDurationSeconds())
 							.withStsClient(stsClientBuilder.build()).build();
 
 			providers.add(0, provider);

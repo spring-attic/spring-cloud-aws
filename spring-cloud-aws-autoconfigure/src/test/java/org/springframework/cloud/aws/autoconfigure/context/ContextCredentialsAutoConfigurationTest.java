@@ -177,8 +177,8 @@ class ContextCredentialsAutoConfigurationTest {
 
 	@Test
 	void credentialsProvider_roleArnAndRoleSessionNameConfigured_configuresSTSAssumeRoleSessionCredentialsProvider() {
-		this.contextRunner.withPropertyValues("cloud.aws.credentials.roleArn:foo",
-				"cloud.aws.credentials.roleSessionName:bar",
+		this.contextRunner.withPropertyValues("cloud.aws.credentials.sts.roleArn:foo",
+				"cloud.aws.credentials.sts.roleSessionName:bar",
 				"cloud.aws.region.static:us-east-1").run((context) -> {
 					AWSCredentialsProvider awsCredentialsProvider = context.getBean(
 							AmazonWebserviceClientConfigurationUtils.CREDENTIALS_PROVIDER_BEAN_NAME,
