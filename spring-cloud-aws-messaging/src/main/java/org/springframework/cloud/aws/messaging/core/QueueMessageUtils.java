@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.cloud.aws.messaging.core;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.amazonaws.services.sqs.model.MessageAttributeValue;
@@ -33,6 +34,7 @@ import org.springframework.util.NumberUtils;
 /**
  * @author Alain Sahli
  * @author Maciej Walkowiak
+ * @author Wojciech Mąka
  * @since 1.0
  */
 public final class QueueMessageUtils {
@@ -112,24 +114,50 @@ public final class QueueMessageUtils {
 				messageHeaders.put(MessageHeaders.ID,
 						UUID.fromString(messageAttribute.getValue().getStringValue()));
 			}
-			else if (MessageAttributeDataTypes.STRING
-					.equals(messageAttribute.getValue().getDataType())) {
-				messageHeaders.put(messageAttribute.getKey(),
-						messageAttribute.getValue().getStringValue());
-			}
 			else if (messageAttribute.getValue().getDataType()
 					.startsWith(MessageAttributeDataTypes.NUMBER)) {
 				messageHeaders.put(messageAttribute.getKey(),
 						getNumberValue(messageAttribute.getValue()));
 			}
-			else if (MessageAttributeDataTypes.BINARY
-					.equals(messageAttribute.getValue().getDataType())) {
-				messageHeaders.put(messageAttribute.getKey(),
-						messageAttribute.getValue().getBinaryValue());
+			else if (isValidBinaryOrStringMessageAttribute(messageAttribute.getValue())) {
+				putMessageAttributeValue(messageHeaders, messageAttribute);
 			}
 		}
-
 		return messageHeaders;
+	}
+
+	private static Object getRawValue(MessageAttributeValue messageAttributeValue) {
+		if (messageAttributeValue.getDataType()
+				.startsWith(MessageAttributeDataTypes.BINARY)) {
+			return messageAttributeValue.getBinaryValue();
+		}
+		else if (messageAttributeValue.getDataType()
+				.startsWith(MessageAttributeDataTypes.STRING)) {
+			return messageAttributeValue.getStringValue();
+		}
+		return null;
+	}
+
+	private static boolean isValidBinaryOrStringMessageAttribute(
+			MessageAttributeValue messageAttributeValue) {
+		return messageAttributeValue.getDataType()
+				.startsWith(MessageAttributeDataTypes.BINARY)
+				|| messageAttributeValue.getDataType()
+						.startsWith(MessageAttributeDataTypes.STRING);
+	}
+
+	private static void putMessageAttributeValue(Map<String, Object> messageHeaders,
+			Map.Entry<String, MessageAttributeValue> messageAttribute) {
+		final String dataType = messageAttribute.getValue().getDataType();
+		int idx = dataType.indexOf('.');
+		final String baseType = idx > 0 ? dataType.substring(0, idx) : dataType;
+		final Optional<String> typeLabel = Optional
+				.ofNullable(idx > 0 ? dataType.substring(idx + 1) : null);
+		messageHeaders.put(messageAttribute.getKey(),
+				typeLabel
+						.map(label -> (Object) new CustomTypeMessageAttribute(baseType,
+								label, getRawValue(messageAttribute.getValue())))
+						.orElseGet(() -> getRawValue(messageAttribute.getValue())));
 	}
 
 	private static Object getNumberValue(MessageAttributeValue value) {
