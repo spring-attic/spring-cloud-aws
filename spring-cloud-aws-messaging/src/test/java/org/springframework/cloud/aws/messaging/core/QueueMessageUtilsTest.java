@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,11 @@
 package org.springframework.cloud.aws.messaging.core;
 
 import java.math.BigDecimal;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
 import com.amazonaws.services.sqs.model.Message;
@@ -31,8 +36,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for {@link QueueMessageUtils}.
  *
  * @author Maciej Walkowiak
+ * @author Wojciech Mąka
  */
 class QueueMessageUtilsTest {
+
+	public static Charset charset = StandardCharsets.UTF_8;
+
+	public static CharsetEncoder encoder = charset.newEncoder();
 
 	@ParameterizedTest
 	@MethodSource("validArguments")
@@ -67,6 +77,76 @@ class QueueMessageUtilsTest {
 				Arguments.of("3.4", "Number.double", 3.4d),
 				Arguments.of("3.4", "Number.Double", 3.4d),
 				Arguments.of("3.4", "Number.java.lang.Double", 3.4d));
+	}
+
+	@ParameterizedTest
+	@MethodSource("typeLabelledMessageAttributesArguments")
+	void createsMessageWithTypeLabelledMessageAttributes(String type, String extendedType,
+			String value, CustomTypeMessageAttribute expected)
+			throws CharacterCodingException {
+		final MessageAttributeValue messageAttributeValue = MessageAttributeDataTypes.BINARY
+				.equals(type)
+						? new MessageAttributeValue()
+								.withBinaryValue(encoder.encode(CharBuffer.wrap(value)))
+								.withDataType(extendedType)
+						: new MessageAttributeValue().withStringValue(value)
+								.withDataType(extendedType);
+
+		Message message = new Message().withBody("some body").addMessageAttributesEntry(
+				"custom-type-attribute", messageAttributeValue);
+
+		org.springframework.messaging.Message<String> result = QueueMessageUtils
+				.createMessage(message);
+
+		assertThat(result.getHeaders().get("custom-type-attribute")).isEqualTo(expected);
+	}
+
+	private static Stream<Arguments> typeLabelledMessageAttributesArguments()
+			throws CharacterCodingException {
+		return Stream.of(
+				Arguments.of(MessageAttributeDataTypes.BINARY, "Binary.png", "cmFuZG9t",
+						new CustomTypeMessageAttribute(MessageAttributeDataTypes.BINARY,
+								"png", encoder.encode(CharBuffer.wrap("cmFuZG9t")))),
+				Arguments.of(MessageAttributeDataTypes.STRING, "String.title",
+						"Hello world",
+						new CustomTypeMessageAttribute(MessageAttributeDataTypes.STRING,
+								"title", "Hello world")),
+				Arguments.of(MessageAttributeDataTypes.STRING,
+						"String.title.with.some.other.info.delimited.with.dots",
+						"Hello world",
+						new CustomTypeMessageAttribute(MessageAttributeDataTypes.STRING,
+								"title.with.some.other.info.delimited.with.dots",
+								"Hello world")));
+	}
+
+	@ParameterizedTest
+	@MethodSource("basicTypeMessageAttributesArguments")
+	void createsMessageWithBaseTypeMessageAttributes(String type, String value,
+			Object expected) throws CharacterCodingException {
+		final MessageAttributeValue messageAttributeValue = MessageAttributeDataTypes.BINARY
+				.equals(type)
+						? new MessageAttributeValue()
+								.withBinaryValue(encoder.encode(CharBuffer.wrap(value)))
+								.withDataType(type)
+						: new MessageAttributeValue().withStringValue(value)
+								.withDataType(type);
+
+		Message message = new Message().withBody("some body").addMessageAttributesEntry(
+				"custom-type-attribute", messageAttributeValue);
+
+		org.springframework.messaging.Message<String> result = QueueMessageUtils
+				.createMessage(message);
+
+		assertThat(result.getHeaders().get("custom-type-attribute")).isEqualTo(expected);
+	}
+
+	private static Stream<Arguments> basicTypeMessageAttributesArguments()
+			throws CharacterCodingException {
+		return Stream.of(
+				Arguments.of(MessageAttributeDataTypes.BINARY, "cmFuZG9t",
+						encoder.encode(CharBuffer.wrap("cmFuZG9t"))),
+				Arguments.of(MessageAttributeDataTypes.STRING, "Hello world",
+						"Hello world"));
 	}
 
 }
