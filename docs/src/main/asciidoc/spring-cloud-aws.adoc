@@ -310,9 +310,10 @@ By default Spring Cloud AWS configures https://docs.aws.amazon.com/AWSJavaSDK/la
 
 If other credentials providers are configured, https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/auth/DefaultAWSCredentialsProviderChain.html[DefaultAWSCredentialsProviderChain] is not used and Spring Cloud AWS configures following credentials chain:
 
-1. `AWSStaticCredentialsProvider` if `cloud.aws.credentials.access-key` is provided
-2. `EC2ContainerCredentialsProviderWrapper` if `cloud.aws.credentials.instance-profile` is set to `true`
-3. `ProfileCredentialsProvider` if `cloud.aws.credentials.profile-name` is provided
+1. `STSAssumeRoleSessionCredentialsProvider` if `cloud.aws.credentials.sts.role-arn` and `cloud.aws.credentials.sts.role-session-name` are provided
+2. `AWSStaticCredentialsProvider` if `cloud.aws.credentials.access-key` is provided
+3. `EC2ContainerCredentialsProviderWrapper` if `cloud.aws.credentials.instance-profile` is set to `true`
+4. `ProfileCredentialsProvider` if `cloud.aws.credentials.profile-name` is provided
 
 Spring Cloud AWS provides the following properties to configure the credentials setup for the whole application.
 
@@ -341,6 +342,18 @@ Spring Cloud AWS provides the following properties to configure the credentials 
 |cloud.aws.credentials.profile-path
 |`~/.aws/credentials`
 |The file path where the profile configuration file is located. Defaults to `~/.aws/credentials` if value is not provided
+
+|cloud.aws.credentials.sts.role-arn
+|arn:aws:iam::01234567890:role/sts-test
+|The arn of the role to be assumed
+
+|cloud.aws.credentials.sts.role-session-name
+|testRoleSessionName
+|An identifier for the assumed role session
+
+|cloud.aws.credentials.sts.role-session-duration-seconds
+|900
+|The duration for assume role sessions
 |===
 
 ===== Configuring region
