@@ -22,6 +22,7 @@ import java.util.Objects;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.style.ToStringCreator;
+import org.springframework.util.StringUtils;
 
 /**
  * Properties related to AWS Rds.
@@ -29,8 +30,10 @@ import org.springframework.core.style.ToStringCreator;
  * @author Mete Alpaslan Katırcıoğlu
  * @see org.springframework.cloud.aws.autoconfigure.jdbc.AmazonRdsDatabaseAutoConfiguration
  */
-@ConfigurationProperties(prefix = "cloud.aws.rds")
+@ConfigurationProperties(prefix = AmazonRdsDatabaseProperties.PREFIX)
 public class AmazonRdsDatabaseProperties {
+
+	static final String PREFIX = "cloud.aws.rds";
 
 	/**
 	 * List of RdsInstances.
@@ -76,6 +79,11 @@ public class AmazonRdsDatabaseProperties {
 		 * The readReplicaSupport used to connect to the datasource.
 		 */
 		private boolean readReplicaSupport = false;
+
+		public boolean hasRequiredPropertiesSet() {
+			return !StringUtils.isEmpty(this.getDbInstanceIdentifier())
+					&& !StringUtils.isEmpty(this.getPassword());
+		}
 
 		public String getDbInstanceIdentifier() {
 			return dbInstanceIdentifier;
