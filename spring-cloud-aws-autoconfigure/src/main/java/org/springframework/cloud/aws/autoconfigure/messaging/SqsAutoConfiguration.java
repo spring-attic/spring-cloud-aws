@@ -111,14 +111,24 @@ public class SqsAutoConfiguration {
 			this.simpleMessageListenerContainerFactory = simpleMessageListenerContainerFactory
 					.getIfAvailable(() -> createSimpleMessageListenerContainerFactory(
 							sqsProperties));
-			this.queueMessageHandlerFactory = queueMessageHandlerFactory
-					.getIfAvailable(QueueMessageHandlerFactory::new);
+			this.queueMessageHandlerFactory = queueMessageHandlerFactory.getIfAvailable(
+					() -> createQueueMessageHandlerFactory(sqsProperties));
 			this.beanFactory = beanFactory;
 			this.resourceIdResolver = resourceIdResolver.getIfAvailable();
 			this.mappingJackson2MessageConverter = mappingJackson2MessageConverter
 					.getIfAvailable();
 			this.objectMapper = objectMapper.getIfAvailable();
 			this.sqsProperties = sqsProperties;
+		}
+
+		private static QueueMessageHandlerFactory createQueueMessageHandlerFactory(
+				SqsProperties sqsProperties) {
+			QueueMessageHandlerFactory factory = new QueueMessageHandlerFactory();
+
+			Optional.ofNullable(sqsProperties.getHandler().getDefaultDeletionPolicy())
+					.ifPresent(factory::setSqsMessageDeletionPolicy);
+
+			return factory;
 		}
 
 		private static SimpleMessageListenerContainerFactory createSimpleMessageListenerContainerFactory(
@@ -186,10 +196,6 @@ public class SqsAutoConfiguration {
 
 			this.queueMessageHandlerFactory.setBeanFactory(this.beanFactory);
 			this.queueMessageHandlerFactory.setObjectMapper(this.objectMapper);
-
-			Optional.ofNullable(sqsProperties.getHandler().getDefaultDeletionPolicy())
-					.ifPresent(
-							this.queueMessageHandlerFactory::setSqsMessageDeletionPolicy);
 
 			return this.queueMessageHandlerFactory.createQueueMessageHandler();
 		}
