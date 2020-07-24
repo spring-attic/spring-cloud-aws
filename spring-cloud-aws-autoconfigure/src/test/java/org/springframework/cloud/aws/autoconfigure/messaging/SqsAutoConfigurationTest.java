@@ -64,15 +64,6 @@ class SqsAutoConfigurationTest {
 			.withUserConfiguration(MinimalConfiguration.class);
 
 	@Test
-	void configuresContainerAndHandler() {
-		this.contextRunner.run((context) -> {
-			assertThat(context.getBean(SimpleMessageListenerContainer.class)).isNotNull();
-			assertThat(context.getBean(QueueMessageHandler.class)).isNotNull();
-			assertThat(context.getBean(AmazonSQS.class)).isNotNull();
-		});
-	}
-
-	@Test
 	void configuration_withCustomClient_shouldBeUsedByContainer() {
 		this.contextRunner
 				.withUserConfiguration(ConfigurationWithCustomAmazonClient.class)
@@ -111,6 +102,28 @@ class SqsAutoConfigurationTest {
 					"awsCredentialsProvider")).isNotNull();
 		});
 
+	}
+
+	@Test
+	void configuration_withCustomProperties_shouldBeUsedByTheContainer() {
+		this.contextRunner.withPropertyValues(
+				"cloud.aws.sqs.listener.max-number-of-messages=5",
+				"cloud.aws.sqs.listener.visibility-timeout=10",
+				"cloud.aws.sqs.listener.wait-timeout=5",
+				"cloud.aws.sqs.listener.queue-stop-timeout=10",
+				"cloud.aws.sqs.listener.back-off-time=15",
+				"cloud.aws.sqs.listener.auto-startup=false"
+				).run((context) -> {
+			SimpleMessageListenerContainer container = context
+					.getBean(SimpleMessageListenerContainer.class);
+
+			assertThat(container.getBackOffTime()).isEqualTo(15);
+			assertThat(container.getQueueStopTimeout()).isEqualTo(10);
+			assertThat(container).hasFieldOrPropertyWithValue("maxNumberOfMessages", 5);
+			assertThat(container).hasFieldOrPropertyWithValue("visibilityTimeout", 10);
+			assertThat(container).hasFieldOrPropertyWithValue("waitTimeOut", 5);
+			assertThat(container).hasFieldOrPropertyWithValue("autoStartup", false);
+		});
 	}
 
 	@Test
