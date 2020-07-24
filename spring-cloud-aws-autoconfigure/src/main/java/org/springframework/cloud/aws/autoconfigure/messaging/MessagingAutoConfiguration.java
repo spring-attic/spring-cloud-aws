@@ -17,10 +17,8 @@
 package org.springframework.cloud.aws.autoconfigure.messaging;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.aws.messaging.config.annotation.EnableSns;
-import org.springframework.cloud.aws.messaging.config.annotation.EnableSqs;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -34,17 +32,6 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(name = "cloud.aws.messaging.enabled", havingValue = "true",
 		matchIfMissing = true)
 public class MessagingAutoConfiguration {
-
-	/**
-	 * Auto configuration for SQS.
-	 */
-	@ConditionalOnMissingBean(
-			type = "org.springframework.cloud.aws.messaging.listener.SimpleMessageListenerContainer")
-	@EnableSqs
-	@Configuration(proxyBeanMethods = false)
-	public static class SqsAutoConfiguration {
-
-	}
 
 	/**
 	 * Auto configuration for SNS.
