@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -47,6 +48,8 @@ import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.util.CollectionUtils;
 
 /**
+ * {@link EnableAutoConfiguration Auto-configuration} for SQS integration.
+ *
  * @author Maciej Walkowiak
  */
 @ConditionalOnClass(SimpleMessageListenerContainer.class)
