@@ -133,7 +133,7 @@ public class SqsAutoConfiguration {
 					.ifPresent(factory::setQueueStopTimeout);
 			Optional.ofNullable(sqsProperties.getListener().getVisibilityTimeout())
 					.ifPresent(factory::setVisibilityTimeout);
-			Optional.ofNullable(sqsProperties.getListener().getWaitTimeOut())
+			Optional.ofNullable(sqsProperties.getListener().getWaitTimeout())
 					.ifPresent(factory::setWaitTimeOut);
 			factory.setAutoStartup(sqsProperties.getListener().isAutoStartup());
 

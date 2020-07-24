@@ -53,7 +53,7 @@ public class SqsProperties {
 
 		private Integer visibilityTimeout;
 
-		private Integer waitTimeOut = 20;
+		private Integer waitTimeout = 20;
 
 		private Long queueStopTimeout;
 
@@ -77,12 +77,12 @@ public class SqsProperties {
 			this.visibilityTimeout = visibilityTimeout;
 		}
 
-		public Integer getWaitTimeOut() {
-			return waitTimeOut;
+		public Integer getWaitTimeout() {
+			return waitTimeout;
 		}
 
-		public void setWaitTimeOut(Integer waitTimeOut) {
-			this.waitTimeOut = waitTimeOut;
+		public void setWaitTimeout(Integer waitTimeout) {
+			this.waitTimeout = waitTimeout;
 		}
 
 		public Long getQueueStopTimeout() {
