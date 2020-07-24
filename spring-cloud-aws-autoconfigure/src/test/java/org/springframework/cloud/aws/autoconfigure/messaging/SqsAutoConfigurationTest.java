@@ -106,24 +106,41 @@ class SqsAutoConfigurationTest {
 
 	@Test
 	void configuration_withCustomProperties_shouldBeUsedByTheContainer() {
-		this.contextRunner.withPropertyValues(
-				"cloud.aws.sqs.listener.max-number-of-messages=5",
-				"cloud.aws.sqs.listener.visibility-timeout=10",
-				"cloud.aws.sqs.listener.wait-timeout=5",
-				"cloud.aws.sqs.listener.queue-stop-timeout=10",
-				"cloud.aws.sqs.listener.back-off-time=15",
-				"cloud.aws.sqs.listener.auto-startup=false"
-				).run((context) -> {
-			SimpleMessageListenerContainer container = context
-					.getBean(SimpleMessageListenerContainer.class);
+		this.contextRunner
+				.withPropertyValues("cloud.aws.sqs.listener.max-number-of-messages=5",
+						"cloud.aws.sqs.listener.visibility-timeout=10",
+						"cloud.aws.sqs.listener.wait-timeout=5",
+						"cloud.aws.sqs.listener.queue-stop-timeout=10",
+						"cloud.aws.sqs.listener.back-off-time=15",
+						"cloud.aws.sqs.listener.auto-startup=false")
+				.run((context) -> {
+					SimpleMessageListenerContainer container = context
+							.getBean(SimpleMessageListenerContainer.class);
 
-			assertThat(container.getBackOffTime()).isEqualTo(15);
-			assertThat(container.getQueueStopTimeout()).isEqualTo(10);
-			assertThat(container).hasFieldOrPropertyWithValue("maxNumberOfMessages", 5);
-			assertThat(container).hasFieldOrPropertyWithValue("visibilityTimeout", 10);
-			assertThat(container).hasFieldOrPropertyWithValue("waitTimeOut", 5);
-			assertThat(container).hasFieldOrPropertyWithValue("autoStartup", false);
-		});
+					assertThat(container.getBackOffTime()).isEqualTo(15);
+					assertThat(container.getQueueStopTimeout()).isEqualTo(10);
+					assertThat(container)
+							.hasFieldOrPropertyWithValue("maxNumberOfMessages", 5);
+					assertThat(container).hasFieldOrPropertyWithValue("visibilityTimeout",
+							10);
+					assertThat(container).hasFieldOrPropertyWithValue("waitTimeOut", 5);
+					assertThat(container).hasFieldOrPropertyWithValue("autoStartup",
+							false);
+				});
+	}
+
+	@Test
+	void configuration_withCustomProperties_shouldBeUsedByTheQueueMessageHandler() {
+		this.contextRunner
+				.withPropertyValues(
+						"cloud.aws.sqs.handler.default-deletion-policy=ALWAYS")
+				.run((context) -> {
+					QueueMessageHandler handler = context
+							.getBean(QueueMessageHandler.class);
+
+					assertThat(handler).hasFieldOrPropertyWithValue(
+							"sqsMessageDeletionPolicy", SqsMessageDeletionPolicy.ALWAYS);
+				});
 	}
 
 	@Test
