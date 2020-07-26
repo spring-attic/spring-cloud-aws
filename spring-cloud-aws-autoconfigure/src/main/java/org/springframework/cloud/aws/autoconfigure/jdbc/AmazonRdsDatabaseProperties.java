@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,27 +134,13 @@ public class AmazonRdsDatabaseProperties {
 				return false;
 			}
 			RdsInstance that = (RdsInstance) o;
-			return readReplicaSupport == that.readReplicaSupport
-					&& Objects.equals(this.dbInstanceIdentifier,
-							that.dbInstanceIdentifier)
-					&& Objects.equals(this.username, that.username)
-					&& Objects.equals(this.databaseName, that.databaseName)
-					&& Objects.equals(this.password, that.password);
+			return Objects.equals(this.dbInstanceIdentifier, that.dbInstanceIdentifier);
 		}
 
 		@Override
 		public int hashCode() {
 			return Objects.hash(this.dbInstanceIdentifier, this.username,
 					this.databaseName, this.password, this.readReplicaSupport);
-		}
-
-		@Override
-		public String toString() {
-			return new ToStringCreator(this)
-					.append("dbInstanceIdentifier", dbInstanceIdentifier)
-					.append("username", username).append("databaseName", databaseName)
-					.append("password", password)
-					.append("readReplicaSupport", readReplicaSupport).toString();
 		}
 
 	}
