@@ -73,7 +73,7 @@ public class SnsAutoConfiguration {
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnClass(org.springframework.web.servlet.config.annotation.WebMvcConfigurer.class)
+	@ConditionalOnClass(WebMvcConfigurer.class)
 	static class SnsWebConfiguration {
 
 		@Bean
