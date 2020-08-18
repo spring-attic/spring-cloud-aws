@@ -75,8 +75,9 @@ public class ContextCredentialsAutoConfiguration {
 				registry.registerBeanDefinition(CREDENTIALS_PROVIDER_BEAN_NAME,
 						resolveCredentialsProviderBeanDefinition(
 								resolveCredentialsProviders(awsCredentialsProperties())));
-				AmazonWebserviceClientConfigurationUtils.replaceDefaultCredentialsProvider(
-					registry, CredentialsProviderFactoryBean.CREDENTIALS_PROVIDER_BEAN_NAME);
+				AmazonWebserviceClientConfigurationUtils
+						.replaceDefaultCredentialsProvider(registry,
+								CredentialsProviderFactoryBean.CREDENTIALS_PROVIDER_BEAN_NAME);
 			}
 		}
 
