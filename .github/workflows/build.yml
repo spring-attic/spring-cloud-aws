@@ -1,0 +1,28 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+      - 2.2.x
+      - 2.3.x
+  pull_request:
+    types: [labeled]
+
+jobs:
+  build:
+    # Job name is Greeting
+    name: Greeting
+    # This job runs on Linux
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || contains( github.event.pull_request.labels.*.name, 'run integration tests') }}
+    steps:
+      # This step uses GitHub's hello-world-javascript-action: https://github.com/actions/hello-world-javascript-action
+      - name: Hello world
+        uses: actions/hello-world-javascript-action@v1
+        with:
+          who-to-greet: 'Mona the Octocat'
+        id: hello
+      # This step prints an output (time) from the previous step's action.
+      - name: Echo the greeting's time
+        run: echo 'Sent by ${{ toJson(github) }}.'
