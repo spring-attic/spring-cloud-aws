@@ -81,7 +81,7 @@ itself. The last password rdsPassword is used to access the database
 inside the integration tests. This password has a minimum length of 8
 characters.
 
-Also you have to prepare the sender and recipient mail addresses to test the
+Also you must prepare the sender and recipient mail addresses to test the
 https://aws.amazon.com/ses/[Amazon Simple E-Mail Service]. These two
 addresses must be verified for the Amazon SES Service.
 
