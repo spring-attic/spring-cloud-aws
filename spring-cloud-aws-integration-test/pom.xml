@@ -148,6 +148,19 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>com.github.davidmoten</groupId>
+				<artifactId>aws-maven-plugin</artifactId>
+				<version>0.2.26</version>
+				<configuration>
+					<stackName>IntegrationTestStack</stackName>
+					<template>src/test/resources/IntegrationTestStack.yaml</template>
+					<parameters>
+						<RdsPassword>${rdsPassword}</RdsPassword>
+					</parameters>
+					<intervalSeconds>2</intervalSeconds>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -170,35 +183,6 @@
 								<goals>
 									<goal>integration-test</goal>
 									<goal>verify</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>com.github.davidmoten</groupId>
-						<artifactId>aws-maven-plugin</artifactId>
-						<version>0.2.26</version>
-						<configuration>
-							<stackName>IntegrationTestStack</stackName>
-							<template>src/test/resources/IntegrationTestStack.yaml</template>
-							<parameters>
-								<RdsPassword>${rdsPassword}</RdsPassword>
-							</parameters>
-							<intervalSeconds>2</intervalSeconds>
-						</configuration>
-						<executions>
-							<execution>
-								<id>deploy-cf-stack</id>
-								<phase>pre-integration-test</phase>
-								<goals>
-									<goal>deployCf</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>destroy-cf-stack</id>
-								<phase>post-integration-test</phase>
-								<goals>
-									<goal>destroyCf</goal>
 								</goals>
 							</execution>
 						</executions>
