@@ -445,6 +445,7 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 					new DeleteMessageHandler(receiptHandle));
 		}
 
+		@SuppressWarnings("unchecked")
 		private org.springframework.messaging.Message<String> getMessageForExecution() {
 			HashMap<String, Object> additionalHeaders = new HashMap<>();
 			additionalHeaders.put(QueueMessageHandler.LOGICAL_RESOURCE_ID,
@@ -461,7 +462,7 @@ public class SimpleMessageListenerContainer extends AbstractMessageListenerConta
 							SimpleMessageListenerContainer.this.getAmazonSqs(),
 							this.queueUrl, this.message.getReceiptHandle()));
 
-			return createMessage(this.message, additionalHeaders);
+			return (org.springframework.messaging.Message<String>) createMessage(this.message, additionalHeaders);
 		}
 
 	}

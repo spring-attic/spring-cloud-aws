@@ -37,6 +37,7 @@ import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageResult;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -57,6 +58,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.cloud.aws.messaging.core.QueueMessageChannel.CONTENT_TYPE;
 
 /**
  * @author Agim Emruli
@@ -86,6 +88,32 @@ class QueueMessageChannelTest {
 		verify(amazonSqs, only()).sendMessage(any(SendMessageRequest.class));
 		assertThat(sendMessageRequestArgumentCaptor.getValue().getMessageBody())
 				.isEqualTo("message content");
+		assertThat(sent).isTrue();
+	}
+
+	@Test
+	void sendMessage_validPojoreturnsTrue() throws Exception {
+		// Arrange
+		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
+		ArgumentCaptor<SendMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor
+			.forClass(SendMessageRequest.class);
+		when(amazonSqs.sendMessage(sendMessageRequestArgumentCaptor.capture()))
+			.thenReturn(new SendMessageResult());
+
+		Message<TestPerson> stringMessage = MessageBuilder.withPayload(new TestPerson())
+											.build();
+		MessageChannel messageChannel = new QueueMessageChannel(amazonSqs,
+																"http://testQueue");
+
+		// Act
+		boolean sent = messageChannel.send(stringMessage);
+
+		// Assert
+		verify(amazonSqs, only()).sendMessage(any(SendMessageRequest.class));
+		assertThat(sendMessageRequestArgumentCaptor.getValue().getMessageBody())
+			.isEqualTo(new ObjectMapper().writeValueAsString(stringMessage.getPayload()));
+		assertThat(sendMessageRequestArgumentCaptor.getValue().getMessageAttributes().get(CONTENT_TYPE).getStringValue())
+			.isEqualTo(TestPerson.class.getName());
 		assertThat(sent).isTrue();
 	}
 

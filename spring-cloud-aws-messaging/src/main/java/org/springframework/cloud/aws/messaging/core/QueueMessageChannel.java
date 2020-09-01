@@ -32,6 +32,8 @@ import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageResult;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageDeliveryException;
@@ -47,6 +49,7 @@ import static org.springframework.cloud.aws.messaging.core.QueueMessageUtils.cre
 /**
  * @author Agim Emruli
  * @author Alain Sahli
+ * @author Matej Nedic
  * @since 1.0
  */
 public class QueueMessageChannel extends AbstractMessageChannel
@@ -54,9 +57,13 @@ public class QueueMessageChannel extends AbstractMessageChannel
 
 	static final String ATTRIBUTE_NAMES = "All";
 
+	static final String CONTENT_TYPE = "ContentType";
+
 	private static final String MESSAGE_ATTRIBUTE_NAMES = "All";
 
 	private final AmazonSQSAsync amazonSqs;
+
+	private final static ObjectMapper objectMapper = new ObjectMapper();
 
 	private final String queueUrl;
 
@@ -85,13 +92,17 @@ public class QueueMessageChannel extends AbstractMessageChannel
 		catch (TimeoutException e) {
 			return false;
 		}
+		catch (JsonProcessingException e) {
+			logger.error(e.getMessage());
+			throw new MessageDeliveryException(message, e.getMessage(), e.getCause());
+		}
 
 		return true;
 	}
 
-	private SendMessageRequest prepareSendMessageRequest(Message<?> message) {
+	private SendMessageRequest prepareSendMessageRequest(Message<?> message) throws JsonProcessingException {
 		SendMessageRequest sendMessageRequest = new SendMessageRequest(this.queueUrl,
-				String.valueOf(message.getPayload()));
+				message.getPayload() instanceof String ? String.valueOf(message.getPayload()) : objectMapper.writeValueAsString(message.getPayload()));
 
 		if (message.getHeaders().containsKey(SqsMessageHeaders.SQS_GROUP_ID_HEADER)) {
 			sendMessageRequest.setMessageGroupId(message.getHeaders()
@@ -111,6 +122,9 @@ public class QueueMessageChannel extends AbstractMessageChannel
 
 		Map<String, MessageAttributeValue> messageAttributes = getMessageAttributes(
 				message);
+		if (!(message.getPayload() instanceof  String)) {
+			messageAttributes.put(CONTENT_TYPE, new MessageAttributeValue().withStringValue(message.getPayload().getClass().getName()));
+		}
 		if (!messageAttributes.isEmpty()) {
 			sendMessageRequest.withMessageAttributes(messageAttributes);
 		}
@@ -218,12 +232,12 @@ public class QueueMessageChannel extends AbstractMessageChannel
 	}
 
 	@Override
-	public Message<String> receive() {
+	public Message<?> receive() {
 		return this.receive(0);
 	}
 
 	@Override
-	public Message<String> receive(long timeout) {
+	public Message<?> receive(long timeout) {
 		ReceiveMessageResult receiveMessageResult = this.amazonSqs.receiveMessage(
 				new ReceiveMessageRequest(this.queueUrl).withMaxNumberOfMessages(1)
 						.withWaitTimeSeconds(Long.valueOf(timeout).intValue())
@@ -234,7 +248,7 @@ public class QueueMessageChannel extends AbstractMessageChannel
 		}
 		com.amazonaws.services.sqs.model.Message amazonMessage = receiveMessageResult
 				.getMessages().get(0);
-		Message<String> message = createMessage(amazonMessage);
+		Message<?> message = createMessage(amazonMessage);
 		this.amazonSqs.deleteMessage(new DeleteMessageRequest(this.queueUrl,
 				amazonMessage.getReceiptHandle()));
 		return message;
