@@ -22,24 +22,17 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.amazonaws.services.sqs.model.MessageAttributeValue;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.support.GenericMessage;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.MimeType;
 import org.springframework.util.NumberUtils;
-
-import static org.springframework.cloud.aws.messaging.core.QueueMessageChannel.CONTENT_TYPE;
-
 
 /**
  * @author Alain Sahli
  * @author Maciej Walkowiak
- * @author Matej Nedic
  * @since 1.0
  */
 public final class QueueMessageUtils {
@@ -50,18 +43,16 @@ public final class QueueMessageUtils {
 
 	private static final String SOURCE_DATA_HEADER = "sourceData";
 
-	private static final ObjectMapper objectMapper = new ObjectMapper();
-
 	private QueueMessageUtils() {
 		// Avoid instantiation
 	}
 
-	public static Message<?> createMessage(
+	public static Message<String> createMessage(
 			com.amazonaws.services.sqs.model.Message message) {
 		return createMessage(message, Collections.emptyMap());
 	}
 
-	public static Message<?> createMessage(
+	public static Message<String> createMessage(
 			com.amazonaws.services.sqs.model.Message message,
 			Map<String, Object> additionalHeaders) {
 		HashMap<String, Object> messageHeaders = new HashMap<>();
@@ -74,30 +65,10 @@ public final class QueueMessageUtils {
 		messageHeaders.putAll(getAttributesAsMessageHeaders(message));
 		messageHeaders.putAll(getMessageAttributesAsMessageHeaders(message));
 
-		Class classToBeCasted = getClassNameFromHeader(messageHeaders);
-		try {
-			return new GenericMessage(classToBeCasted != null ? objectMapper.readValue(message.getBody(), classToBeCasted) : message.getBody(),
-									new SqsMessageHeaders(messageHeaders));
-		}
-		catch (JsonProcessingException e) {
-			return null;
-		}
+		return new GenericMessage<>(message.getBody(), new SqsMessageHeaders(messageHeaders));
 	}
 
-	private static Class getClassNameFromHeader(final HashMap<String, Object> messageHeaders) {
-		try {
-			String className = ((MessageAttributeValue) messageHeaders.get(CONTENT_TYPE)).getStringValue();
-			Class classForName = null;
-			if (className != null) {
-				classForName = ClassUtils.resolveClassName(className,
-					ClassUtils.getDefaultClassLoader());
-			}
-			return classForName;
-		}
-		catch (Exception e) {
-			return null;
-		}
-	}
+
 
 	public static Object getNumberValue(String attributeValue, String attributeType) {
 		try {
@@ -141,9 +112,6 @@ public final class QueueMessageUtils {
 			else if (MessageHeaders.ID.equals(messageAttribute.getKey())) {
 				messageHeaders.put(MessageHeaders.ID,
 						UUID.fromString(messageAttribute.getValue().getStringValue()));
-			}
-			else if (CONTENT_TYPE.equals(messageAttribute.getKey())) {
-				messageHeaders.put(messageAttribute.getKey(), messageAttribute.getValue());
 			}
 			else if (MessageAttributeDataTypes.STRING
 					.equals(messageAttribute.getValue().getDataType())) {

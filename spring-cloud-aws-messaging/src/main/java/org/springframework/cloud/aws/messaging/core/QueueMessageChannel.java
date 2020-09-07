@@ -57,7 +57,7 @@ public class QueueMessageChannel extends AbstractMessageChannel
 
 	static final String ATTRIBUTE_NAMES = "All";
 
-	static final String CONTENT_TYPE = "ContentType";
+	static final String CONTENT_TYPE = "CONTENT_TYPE";
 
 	private static final String MESSAGE_ATTRIBUTE_NAMES = "All";
 
@@ -101,9 +101,14 @@ public class QueueMessageChannel extends AbstractMessageChannel
 	}
 
 	private SendMessageRequest prepareSendMessageRequest(Message<?> message) throws JsonProcessingException {
-		SendMessageRequest sendMessageRequest = new SendMessageRequest(this.queueUrl,
-				message.getPayload() instanceof String ? String.valueOf(message.getPayload()) : objectMapper.writeValueAsString(message.getPayload()));
-
+		String contentType = (String) message.getHeaders().get(CONTENT_TYPE);
+		SendMessageRequest sendMessageRequest;
+		if (contentType != null && contentType.toLowerCase().equals("application/json")) {
+			sendMessageRequest = new SendMessageRequest(this.queueUrl, objectMapper.writeValueAsString(message.getPayload()));
+		}
+		else {
+			sendMessageRequest = new SendMessageRequest(this.queueUrl, String.valueOf(message.getPayload()));
+		}
 		if (message.getHeaders().containsKey(SqsMessageHeaders.SQS_GROUP_ID_HEADER)) {
 			sendMessageRequest.setMessageGroupId(message.getHeaders()
 					.get(SqsMessageHeaders.SQS_GROUP_ID_HEADER, String.class));
@@ -122,9 +127,6 @@ public class QueueMessageChannel extends AbstractMessageChannel
 
 		Map<String, MessageAttributeValue> messageAttributes = getMessageAttributes(
 				message);
-		if (!(message.getPayload() instanceof  String)) {
-			messageAttributes.put(CONTENT_TYPE, new MessageAttributeValue().withStringValue(message.getPayload().getClass().getName()));
-		}
 		if (!messageAttributes.isEmpty()) {
 			sendMessageRequest.withMessageAttributes(messageAttributes);
 		}
@@ -232,12 +234,12 @@ public class QueueMessageChannel extends AbstractMessageChannel
 	}
 
 	@Override
-	public Message<?> receive() {
+	public Message<String> receive() {
 		return this.receive(0);
 	}
 
 	@Override
-	public Message<?> receive(long timeout) {
+	public Message<String> receive(long timeout) {
 		ReceiveMessageResult receiveMessageResult = this.amazonSqs.receiveMessage(
 				new ReceiveMessageRequest(this.queueUrl).withMaxNumberOfMessages(1)
 						.withWaitTimeSeconds(Long.valueOf(timeout).intValue())
@@ -248,7 +250,7 @@ public class QueueMessageChannel extends AbstractMessageChannel
 		}
 		com.amazonaws.services.sqs.model.Message amazonMessage = receiveMessageResult
 				.getMessages().get(0);
-		Message<?> message = createMessage(amazonMessage);
+		Message<String> message = createMessage(amazonMessage);
 		this.amazonSqs.deleteMessage(new DeleteMessageRequest(this.queueUrl,
 				amazonMessage.getReceiptHandle()));
 		return message;

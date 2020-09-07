@@ -16,13 +16,11 @@
 
 package org.springframework.cloud.aws.messaging.core;
 
-import java.util.HashMap;
 import java.util.Locale;
 
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.model.GetQueueUrlRequest;
 import com.amazonaws.services.sqs.model.GetQueueUrlResult;
-import com.amazonaws.services.sqs.model.MessageAttributeValue;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
@@ -45,7 +43,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.cloud.aws.messaging.core.QueueMessageChannel.CONTENT_TYPE;
 
 /**
  * @author Alain Sahli
@@ -161,16 +158,16 @@ class QueueMessagingTemplateTest {
 
 	@Test
 	void receive_withDestination_usesDestination_Pojo() throws JsonProcessingException {
-		AmazonSQSAsync amazonSqs = createAmazonSqsPojo();
+		AmazonSQSAsync amazonSqs = createAmazonSqs("Object");
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
 			amazonSqs);
 
-		Message<TestPerson> testPersonMessage = (Message<TestPerson>) queueMessagingTemplate.receive("my-queue");
+		TestPerson testPerson = queueMessagingTemplate.receiveAndConvert("my-queue", TestPerson.class);
 
 		ArgumentCaptor<ReceiveMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor
 			.forClass(ReceiveMessageRequest.class);
 		verify(amazonSqs).receiveMessage(sendMessageRequestArgumentCaptor.capture());
-		assertThat(testPersonMessage.getPayload().getFirstName()).isEqualTo("Spring");
+		assertThat(testPerson.getFirstName()).isEqualTo("Spring");
 		assertThat(sendMessageRequestArgumentCaptor.getValue().getQueueUrl())
 			.isEqualTo("https://queue-url.com");
 	}
@@ -244,39 +241,41 @@ class QueueMessagingTemplateTest {
 	}
 
 	private AmazonSQSAsync createAmazonSqs() {
-		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
-
-		GetQueueUrlResult queueUrl = new GetQueueUrlResult();
-		queueUrl.setQueueUrl("https://queue-url.com");
-		when(amazonSqs.getQueueUrl(any(GetQueueUrlRequest.class))).thenReturn(queueUrl);
-
-		ReceiveMessageResult receiveMessageResult = new ReceiveMessageResult();
-		com.amazonaws.services.sqs.model.Message message = new com.amazonaws.services.sqs.model.Message();
-		message.setBody("My message");
-		receiveMessageResult.withMessages(message);
-		when(amazonSqs.receiveMessage(any(ReceiveMessageRequest.class)))
-				.thenReturn(receiveMessageResult);
-
-		return amazonSqs;
+		return createAmazonSqs("String");
 	}
 
-	private AmazonSQSAsync createAmazonSqsPojo() throws JsonProcessingException {
+	private AmazonSQSAsync createAmazonSqs(String type) {
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
-		ObjectMapper objectMapper = new ObjectMapper();
+
 		GetQueueUrlResult queueUrl = new GetQueueUrlResult();
 		queueUrl.setQueueUrl("https://queue-url.com");
 		when(amazonSqs.getQueueUrl(any(GetQueueUrlRequest.class))).thenReturn(queueUrl);
+		return createAmazonSqs(amazonSqs, type);
+	}
 
-		ReceiveMessageResult receiveMessageResult = new ReceiveMessageResult();
-		com.amazonaws.services.sqs.model.Message message = new com.amazonaws.services.sqs.model.Message();
-		message.setBody(objectMapper.writeValueAsString(new TestPerson()));
-		HashMap<String, MessageAttributeValue> hashMap = new HashMap();
-		hashMap.put(CONTENT_TYPE, new MessageAttributeValue().withStringValue(TestPerson.class.getName()));
-		message.setMessageAttributes(hashMap);
-		receiveMessageResult.withMessages(message);
-		when(amazonSqs.receiveMessage(any(ReceiveMessageRequest.class)))
-			.thenReturn(receiveMessageResult);
-
+	private AmazonSQSAsync createAmazonSqs(AmazonSQSAsync amazonSqs, String type) {
+		if (type.equals("String")) {
+			ReceiveMessageResult receiveMessageResult = new ReceiveMessageResult();
+			com.amazonaws.services.sqs.model.Message message = new com.amazonaws.services.sqs.model.Message();
+			message.setBody("My message");
+			receiveMessageResult.withMessages(message);
+			when(amazonSqs.receiveMessage(any(ReceiveMessageRequest.class)))
+				.thenReturn(receiveMessageResult);
+		}
+		else {
+			try {
+				ObjectMapper objectMapper = new ObjectMapper();
+				ReceiveMessageResult receiveMessageResult = new ReceiveMessageResult();
+				com.amazonaws.services.sqs.model.Message message = new com.amazonaws.services.sqs.model.Message();
+				message.setBody(objectMapper.writeValueAsString(new TestPerson()));
+				receiveMessageResult.withMessages(message);
+				when(amazonSqs.receiveMessage(any(ReceiveMessageRequest.class)))
+					.thenReturn(receiveMessageResult);
+			}
+			catch (Throwable t) {
+				return null;
+			}
+		}
 		return amazonSqs;
 	}
 

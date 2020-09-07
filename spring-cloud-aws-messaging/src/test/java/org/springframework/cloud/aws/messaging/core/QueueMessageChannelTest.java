@@ -58,7 +58,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.cloud.aws.messaging.core.QueueMessageChannel.CONTENT_TYPE;
 
 /**
  * @author Agim Emruli
@@ -100,20 +99,20 @@ class QueueMessageChannelTest {
 		when(amazonSqs.sendMessage(sendMessageRequestArgumentCaptor.capture()))
 			.thenReturn(new SendMessageResult());
 
-		Message<TestPerson> stringMessage = MessageBuilder.withPayload(new TestPerson())
-											.build();
+		Message<TestPerson> testMessage = MessageBuilder.withPayload(new TestPerson())
+														.setHeader("CONTENT_TYPE", "application/json")
+														.build();
+
 		MessageChannel messageChannel = new QueueMessageChannel(amazonSqs,
 																"http://testQueue");
 
 		// Act
-		boolean sent = messageChannel.send(stringMessage);
+		boolean sent = messageChannel.send(testMessage);
 
 		// Assert
 		verify(amazonSqs, only()).sendMessage(any(SendMessageRequest.class));
 		assertThat(sendMessageRequestArgumentCaptor.getValue().getMessageBody())
-			.isEqualTo(new ObjectMapper().writeValueAsString(stringMessage.getPayload()));
-		assertThat(sendMessageRequestArgumentCaptor.getValue().getMessageAttributes().get(CONTENT_TYPE).getStringValue())
-			.isEqualTo(TestPerson.class.getName());
+			.isEqualTo(new ObjectMapper().writeValueAsString(testMessage.getPayload()));
 		assertThat(sent).isTrue();
 	}
 
