@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-
 package org.springframework.cloud.aws.messaging.core;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-
 
 public class TestPerson {
 
@@ -55,7 +52,6 @@ public class TestPerson {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
-
 
 	@Override
 	public boolean equals(final Object o) {
