@@ -24,7 +24,6 @@ import com.amazonaws.services.sqs.model.GetQueueUrlResult;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -157,10 +156,28 @@ class QueueMessagingTemplateTest {
 	}
 
 	@Test
-	void receive_withDestination_usesDestination_Pojo() throws JsonProcessingException {
+	void receive_withDestination_usesDestination_PojoNull() {
 		AmazonSQSAsync amazonSqs = createAmazonSqs("Object");
+		SimpleMessageConverter simpleMessageConverter = new SimpleMessageConverter();
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
-			amazonSqs);
+			amazonSqs, (ResourceIdResolver) null, simpleMessageConverter);
+
+		TestPerson testPerson = queueMessagingTemplate.receiveAndConvert("my-queue", TestPerson.class);
+
+		ArgumentCaptor<ReceiveMessageRequest> sendMessageRequestArgumentCaptor = ArgumentCaptor
+			.forClass(ReceiveMessageRequest.class);
+		verify(amazonSqs).receiveMessage(sendMessageRequestArgumentCaptor.capture());
+		assertThat(testPerson == null);
+		assertThat(sendMessageRequestArgumentCaptor.getValue().getQueueUrl())
+			.isEqualTo("https://queue-url.com");
+	}
+
+	@Test
+	void receive_withDestination_usesDestination_Pojo() {
+		AmazonSQSAsync amazonSqs = createAmazonSqs("Object");
+		SimpleMessageConverter simpleMessageConverter = new SimpleMessageConverter();
+		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
+			amazonSqs, (ResourceIdResolver) null, simpleMessageConverter);
 
 		TestPerson testPerson = queueMessagingTemplate.receiveAndConvert("my-queue", TestPerson.class);
 
