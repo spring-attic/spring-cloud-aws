@@ -41,7 +41,7 @@ class QueueMessageUtilsTest {
 				"number-attribute",
 				new MessageAttributeValue().withStringValue(value).withDataType(type));
 
-		org.springframework.messaging.Message<String> result = (org.springframework.messaging.Message<String>) QueueMessageUtils
+		org.springframework.messaging.Message<String> result = QueueMessageUtils
 				.createMessage(message);
 
 		assertThat(result.getHeaders().get("number-attribute")).isEqualTo(expected);

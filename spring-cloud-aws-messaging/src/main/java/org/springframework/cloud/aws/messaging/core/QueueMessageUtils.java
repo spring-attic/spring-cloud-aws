@@ -68,8 +68,6 @@ public final class QueueMessageUtils {
 		return new GenericMessage<>(message.getBody(), new SqsMessageHeaders(messageHeaders));
 	}
 
-
-
 	public static Object getNumberValue(String attributeValue, String attributeType) {
 		try {
 			return NumberParser.parseNumber(attributeValue, attributeType);

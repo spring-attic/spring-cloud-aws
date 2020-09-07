@@ -295,5 +295,4 @@ class QueueMessagingTemplateTest {
 		}
 		return amazonSqs;
 	}
-
 }
