@@ -27,7 +27,6 @@ public class TestPerson {
 
 	private String lastName = "Cloud";
 
-
 	private TestPerson(String firstName, @JsonProperty String lastName,
 					@JsonProperty LocalDate activeSince) {
 		this.firstName = firstName;
