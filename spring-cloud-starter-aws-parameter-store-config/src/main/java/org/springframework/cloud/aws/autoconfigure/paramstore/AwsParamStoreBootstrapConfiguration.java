@@ -55,6 +55,10 @@ public class AwsParamStoreBootstrapConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	AWSSimpleSystemsManagement ssmClient(AwsParamStoreProperties properties) {
+		return createSimpleSystemManagementClient(properties);
+	}
+
+	public static AWSSimpleSystemsManagement createSimpleSystemManagementClient(AwsParamStoreProperties properties) {
 		AWSSimpleSystemsManagementClientBuilder builder = AWSSimpleSystemsManagementClientBuilder.standard()
 				.withClientConfiguration(SpringCloudClientConfiguration.getClientConfiguration());
 		if (!StringUtils.isNullOrEmpty(properties.getRegion())) {

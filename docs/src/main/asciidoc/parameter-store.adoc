@@ -88,3 +88,19 @@ turn on `DEBUG` logging on `org.springframework.cloud.aws.paramstore.AwsParamSto
 logging.level.org.springframework.cloud.aws.paramstore.AwsParamStorePropertySource=debug
 ----
 ====
+
+In `spring-cloud` `2020.0.0` (aka Ilford), the bootstrap phase is no longer enabled by default. In order
+enable it you need an additional dependency:
+
+[source,xml,indent=0]
+----
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-bootstrap</artifactId>
+  <version>{spring-cloud-version}</version>
+</dependency>
+----
+
+However, starting at `spring-cloud-aws` `2.3`, allows import default aws' parameterstore keys
+(`spring.config.import=aws-parameterstore:`) or individual keys
+(`spring.config.import=aws-parameterstore:secret-key;other-secret-key`)
