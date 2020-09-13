@@ -127,7 +127,7 @@ public class NotificationMessageHandlerMethodArgumentResolver
 
 		private Charset getCharset() {
 			return this.mediaType.getCharset() != null ? this.mediaType.getCharset()
-					: Charset.forName(WebUtils.DEFAULT_CHARACTER_ENCODING);
+					: Charset.defaultCharset();
 		}
 
 		@Override
