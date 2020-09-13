@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,10 @@ package org.springframework.cloud.aws.autoconfigure.context;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.aws.autoconfigure.context.properties.AwsS3ResourceLoaderProperties;
 import org.springframework.cloud.aws.context.config.annotation.ContextResourceLoaderConfiguration;
 import org.springframework.context.EnvironmentAware;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
@@ -31,27 +30,13 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * @author Agim Emruli
+ * @author Eddú Meléndez
  */
 @Configuration(proxyBeanMethods = false)
 @Import(ContextResourceLoaderAutoConfiguration.Registrar.class)
+@EnableConfigurationProperties(AwsS3ResourceLoaderProperties.class)
 @ConditionalOnClass(name = "com.amazonaws.services.s3.AmazonS3Client")
 public class ContextResourceLoaderAutoConfiguration {
-
-	/**
-	 * The prefix used for properties related to S3 resource loading via the
-	 * ResourceLoader.
-	 */
-	public static final String AWS_LOADER_PROPERTY_PREFIX = "cloud.aws.loader";
-
-	/**
-	 * Bind AWS resource loader related properties to a property instance.
-	 * @return An {@link AwsS3ResourceLoaderProperties} instance
-	 */
-	@Bean
-	@ConfigurationProperties(prefix = AWS_LOADER_PROPERTY_PREFIX)
-	public AwsS3ResourceLoaderProperties awsS3ResourceLoaderProperties() {
-		return new AwsS3ResourceLoaderProperties();
-	}
 
 	/**
 	 * Sets additional properties for the task executor definition.
@@ -91,11 +76,12 @@ public class ContextResourceLoaderAutoConfiguration {
 
 		private boolean containsProperty(String name) {
 			return this.environment
-					.containsProperty(AWS_LOADER_PROPERTY_PREFIX + "." + name);
+					.containsProperty(AwsS3ResourceLoaderProperties.PREFIX + "." + name);
 		}
 
 		private String getProperty(String name) {
-			return this.environment.getProperty(AWS_LOADER_PROPERTY_PREFIX + "." + name);
+			return this.environment
+					.getProperty(AwsS3ResourceLoaderProperties.PREFIX + "." + name);
 		}
 
 		private void setPropertyIfConfigured(BeanDefinitionBuilder builder, String name) {

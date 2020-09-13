@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,24 @@
 
 package org.springframework.cloud.aws.autoconfigure.context.properties;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 /**
  * Properties related to S3 client behavior within the application
  * {@link org.springframework.core.io.ResourceLoader}.
  *
  * @author Tom Gianos
+ * @author Eddú Meléndez
  * @since 2.0.2
  * @see org.springframework.cloud.aws.autoconfigure.context.ContextResourceLoaderAutoConfiguration
  */
+@ConfigurationProperties(prefix = AwsS3ResourceLoaderProperties.PREFIX)
 public class AwsS3ResourceLoaderProperties {
+
+	/**
+	 * The prefix used for AWS S3 Resource Loader related properties.
+	 */
+	public static final String PREFIX = "cloud.aws.loader";
 
 	/**
 	 * The core pool size of the Task Executor used for parallel S3 interaction.
