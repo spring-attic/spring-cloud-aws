@@ -16,15 +16,19 @@
 
 package org.springframework.cloud.aws.autoconfigure.context;
 
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.cloud.aws.autoconfigure.context.properties.AwsS3ResourceLoaderProperties;
 import org.springframework.cloud.aws.context.config.annotation.ContextResourceLoaderConfiguration;
-import org.springframework.context.EnvironmentAware;
+import org.springframework.cloud.aws.core.config.AmazonWebserviceClientFactoryBean;
+import org.springframework.cloud.aws.core.io.s3.SimpleStorageProtocolResolver;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -33,63 +37,52 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  * @author Eddú Meléndez
  */
 @Configuration(proxyBeanMethods = false)
-@Import(ContextResourceLoaderAutoConfiguration.Registrar.class)
 @EnableConfigurationProperties(AwsS3ResourceLoaderProperties.class)
-@ConditionalOnClass(name = "com.amazonaws.services.s3.AmazonS3Client")
-public class ContextResourceLoaderAutoConfiguration {
+@ConditionalOnClass(AmazonS3Client.class)
+public class ContextResourceLoaderAutoConfiguration
+		extends ContextResourceLoaderConfiguration {
 
-	/**
-	 * Sets additional properties for the task executor definition.
-	 */
-	public static class Registrar extends ContextResourceLoaderConfiguration.Registrar
-			implements EnvironmentAware {
+	private final Environment environment;
 
-		private static final String CORE_POOL_SIZE_PROPERTY_NAME = "corePoolSize";
+	public ContextResourceLoaderAutoConfiguration(Environment environment) {
+		this.environment = environment;
+	}
 
-		private static final String MAX_POOL_SIZE_PROPERTY_NAME = "maxPoolSize";
+	@ConditionalOnMissingBean(AmazonS3.class)
+	@Bean
+	public AmazonWebserviceClientFactoryBean<AmazonS3Client> amazonS3() {
+		return new AmazonWebserviceClientFactoryBean<>(AmazonS3Client.class, null, null);
+	}
 
-		private static final String QUEUE_CAPACITY_PROPERTY_NAME = "queueCapacity";
-
-		private Environment environment;
-
-		@Override
-		public void setEnvironment(Environment environment) {
-			this.environment = environment;
-		}
-
-		@Override
-		protected BeanDefinition getTaskExecutorDefinition() {
-			if (containsProperty(CORE_POOL_SIZE_PROPERTY_NAME)
-					|| containsProperty(MAX_POOL_SIZE_PROPERTY_NAME)
-					|| containsProperty(QUEUE_CAPACITY_PROPERTY_NAME)) {
-				BeanDefinitionBuilder builder = BeanDefinitionBuilder
-						.rootBeanDefinition(ThreadPoolTaskExecutor.class);
-
-				setPropertyIfConfigured(builder, CORE_POOL_SIZE_PROPERTY_NAME);
-				setPropertyIfConfigured(builder, MAX_POOL_SIZE_PROPERTY_NAME);
-				setPropertyIfConfigured(builder, QUEUE_CAPACITY_PROPERTY_NAME);
-
-				return builder.getBeanDefinition();
+	protected void applyProperties(SimpleStorageProtocolResolver protocolResolver) {
+		if (this.environment
+				.containsProperty(AwsS3ResourceLoaderProperties.PREFIX + ".corePoolSize")
+				|| this.environment.containsProperty(
+						AwsS3ResourceLoaderProperties.PREFIX + ".maxPoolSize")
+				|| this.environment.containsProperty(
+						AwsS3ResourceLoaderProperties.PREFIX + ".queueCapacity")) {
+			AwsS3ResourceLoaderProperties properties = awsS3ResourceLoaderProperties();
+			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+			if (this.environment.containsProperty(
+					AwsS3ResourceLoaderProperties.PREFIX + ".corePoolSize")) {
+				taskExecutor.setCorePoolSize(properties.getCorePoolSize());
 			}
-			return super.getTaskExecutorDefinition();
-		}
-
-		private boolean containsProperty(String name) {
-			return this.environment
-					.containsProperty(AwsS3ResourceLoaderProperties.PREFIX + "." + name);
-		}
-
-		private String getProperty(String name) {
-			return this.environment
-					.getProperty(AwsS3ResourceLoaderProperties.PREFIX + "." + name);
-		}
-
-		private void setPropertyIfConfigured(BeanDefinitionBuilder builder, String name) {
-			if (containsProperty(name)) {
-				builder.addPropertyValue(name, getProperty(name));
+			if (this.environment.containsProperty(
+					AwsS3ResourceLoaderProperties.PREFIX + ".maxPoolSize")) {
+				taskExecutor.setMaxPoolSize(properties.getMaxPoolSize());
 			}
+			if (this.environment.containsProperty(
+					AwsS3ResourceLoaderProperties.PREFIX + ".queueCapacity")) {
+				taskExecutor.setQueueCapacity(properties.getQueueCapacity());
+			}
+			protocolResolver.setTaskExecutor(taskExecutor);
 		}
+	}
 
+	private AwsS3ResourceLoaderProperties awsS3ResourceLoaderProperties() {
+		return Binder.get(this.environment).bindOrCreate(
+				AwsS3ResourceLoaderProperties.PREFIX,
+				AwsS3ResourceLoaderProperties.class);
 	}
 
 }

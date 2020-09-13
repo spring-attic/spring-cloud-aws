@@ -19,9 +19,6 @@ package org.springframework.cloud.aws.context.support.io;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.cloud.aws.core.io.s3.SimpleStorageProtocolResolver;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.Ordered;
@@ -39,14 +36,12 @@ import org.springframework.core.io.ResourceLoader;
  * @since 1.0
  */
 public class SimpleStorageProtocolResolverConfigurer
-		implements BeanFactoryPostProcessor, Ordered, ResourceLoaderAware {
+		implements Ordered, ResourceLoaderAware {
 
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(SimpleStorageProtocolResolverConfigurer.class);
 
 	private final ProtocolResolver protocolResolver;
-
-	private ResourceLoader resourceLoader;
 
 	public SimpleStorageProtocolResolverConfigurer(
 			SimpleStorageProtocolResolver simpleStorageProtocolResolver) {
@@ -59,8 +54,7 @@ public class SimpleStorageProtocolResolverConfigurer
 	}
 
 	@Override
-	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
-			throws BeansException {
+	public void setResourceLoader(ResourceLoader resourceLoader) {
 		if (DefaultResourceLoader.class.isAssignableFrom(resourceLoader.getClass())) {
 			((DefaultResourceLoader) resourceLoader)
 					.addProtocolResolver(this.protocolResolver);
@@ -69,11 +63,6 @@ public class SimpleStorageProtocolResolverConfigurer
 			LOGGER.warn("The provided delegate resource loader is not an implementation "
 					+ "of DefaultResourceLoader. Custom Protocol using s3:// prefix will not be enabled.");
 		}
-	}
-
-	@Override
-	public void setResourceLoader(ResourceLoader resourceLoader) {
-		this.resourceLoader = resourceLoader;
 	}
 
 }

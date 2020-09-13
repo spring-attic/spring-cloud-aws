@@ -16,17 +16,23 @@
 
 package org.springframework.cloud.aws.autoconfigure.context;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import org.junit.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.aws.core.io.s3.SimpleStorageProtocolResolver;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 public class ContextResourceLoaderAutoConfigurationTest {
 
@@ -56,6 +62,23 @@ public class ContextResourceLoaderAutoConfigurationTest {
 	}
 
 	@Test
+	public void createResourceLoaderWithCustomS3Client() {
+		this.contextRunner.withUserConfiguration(TestConfig.class).run(context -> {
+			AmazonS3Client s3Client = context.getBean(AmazonS3Client.class);
+			assertThat(s3Client.getBucketLocation("spring-bucket"))
+					.isEqualTo("s3://spring-bucket");
+
+			SimpleStorageProtocolResolver simpleStorageProtocolResolver =
+					(SimpleStorageProtocolResolver) context
+							.getSourceApplicationContext(AnnotationConfigApplicationContext.class)
+							.getProtocolResolvers().iterator().next();
+			SyncTaskExecutor taskExecutor = (SyncTaskExecutor) ReflectionTestUtils
+					.getField(simpleStorageProtocolResolver, "taskExecutor");
+			assertThat(taskExecutor).isNotNull();
+		});
+	}
+
+	@Test
 	public void createResourceLoader_withoutExecutorSettings_executorConfigured() {
 		this.contextRunner.run(context -> {
 			SimpleStorageProtocolResolver simpleStorageProtocolResolver = (SimpleStorageProtocolResolver) context
@@ -65,6 +88,19 @@ public class ContextResourceLoaderAutoConfigurationTest {
 					.getField(simpleStorageProtocolResolver, "taskExecutor");
 			assertThat(taskExecutor).isNotNull();
 		});
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class TestConfig {
+
+		@Bean
+		public AmazonS3 amazonS3Client() {
+			AmazonS3Client s3Client = mock(AmazonS3Client.class);
+			given(s3Client.getBucketLocation("spring-bucket"))
+					.willReturn("s3://spring-bucket");
+			return s3Client;
+		}
+
 	}
 
 }

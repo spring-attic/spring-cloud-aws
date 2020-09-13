@@ -18,7 +18,6 @@ package org.springframework.cloud.aws.core.io.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cloud.aws.core.support.documentation.RuntimeUse;
 import org.springframework.core.io.ProtocolResolver;
 import org.springframework.core.io.Resource;
@@ -31,7 +30,7 @@ import org.springframework.core.task.TaskExecutor;
  * @author Alain Sahli
  * @since 1.0
  */
-public class SimpleStorageProtocolResolver implements ProtocolResolver, InitializingBean {
+public class SimpleStorageProtocolResolver implements ProtocolResolver {
 
 	private final AmazonS3 amazonS3;
 
@@ -40,7 +39,7 @@ public class SimpleStorageProtocolResolver implements ProtocolResolver, Initiali
 	 * huge memory consumption. The reason is that each multipart of 5MB will be put in
 	 * the queue to be uploaded. Therefore a bounded queue is recommended.
 	 */
-	private TaskExecutor taskExecutor;
+	private TaskExecutor taskExecutor = new SyncTaskExecutor();
 
 	public SimpleStorageProtocolResolver(AmazonS3 amazonS3) {
 		this.amazonS3 = AmazonS3ProxyFactory.createProxy(amazonS3);
@@ -49,13 +48,6 @@ public class SimpleStorageProtocolResolver implements ProtocolResolver, Initiali
 	@RuntimeUse
 	public void setTaskExecutor(TaskExecutor taskExecutor) {
 		this.taskExecutor = taskExecutor;
-	}
-
-	@Override
-	public void afterPropertiesSet() {
-		if (this.taskExecutor == null) {
-			this.taskExecutor = new SyncTaskExecutor();
-		}
 	}
 
 	@Override
