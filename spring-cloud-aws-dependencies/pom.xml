@@ -101,7 +101,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-starter-aws-appconfig-config</artifactId>
+				<artifactId>spring-cloud-starter-aws-appconfig</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -141,7 +141,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-aws-appconfig-config</artifactId>
+				<artifactId>spring-cloud-aws-appconfig</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
