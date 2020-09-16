@@ -38,6 +38,8 @@ public class CloudWatchProperties extends StepRegistryProperties {
 	 */
 	private String namespace = "";
 
+	private String region;
+
 	public CloudWatchProperties() {
 		setBatchSize(DEFAULT_BATCH_SIZE);
 	}
@@ -48,6 +50,14 @@ public class CloudWatchProperties extends StepRegistryProperties {
 
 	public void setNamespace(String namespace) {
 		this.namespace = namespace;
+	}
+
+	public String getRegion() {
+		return this.region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
 	}
 
 }
