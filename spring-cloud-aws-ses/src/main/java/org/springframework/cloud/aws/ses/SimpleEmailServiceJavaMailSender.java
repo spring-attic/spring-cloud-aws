@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.aws.mail.simplemail;
+package org.springframework.cloud.aws.ses;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -55,12 +55,14 @@ import org.springframework.util.ClassUtils;
  * also allows the use of attachment and other mime parts inside mail messages.
  *
  * @author Agim Emruli
+ * @author Eddú Meléndez
  * @since 1.0
- * @deprecated Use `spring-cloud-starter-aws-ses`
  */
-public class SimpleEmailServiceJavaMailSender extends SimpleEmailServiceMailSender implements JavaMailSender {
+public class SimpleEmailServiceJavaMailSender extends SimpleEmailServiceMailSender
+		implements JavaMailSender {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleEmailServiceMailSender.class);
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(SimpleEmailServiceMailSender.class);
 
 	private static final String SMART_MIME_MESSAGE_CLASS_NAME = "org.springframework.mail.javamail.SmartMimeMessage";
 
@@ -72,7 +74,8 @@ public class SimpleEmailServiceJavaMailSender extends SimpleEmailServiceMailSend
 
 	private FileTypeMap defaultFileTypeMap;
 
-	public SimpleEmailServiceJavaMailSender(AmazonSimpleEmailService amazonSimpleEmailService) {
+	public SimpleEmailServiceJavaMailSender(
+			AmazonSimpleEmailService amazonSimpleEmailService) {
 		super(amazonSimpleEmailService);
 	}
 
@@ -164,14 +167,15 @@ public class SimpleEmailServiceJavaMailSender extends SimpleEmailServiceMailSend
 	public MimeMessage createMimeMessage() {
 
 		// We have to use reflection as SmartMimeMessage is not package-private
-		if (ClassUtils.isPresent(SMART_MIME_MESSAGE_CLASS_NAME, ClassUtils.getDefaultClassLoader())) {
-			Class<?> smartMimeMessage = ClassUtils.resolveClassName(SMART_MIME_MESSAGE_CLASS_NAME,
-					ClassUtils.getDefaultClassLoader());
-			Constructor<?> constructor = ClassUtils.getConstructorIfAvailable(smartMimeMessage, Session.class,
-					String.class, FileTypeMap.class);
+		if (ClassUtils.isPresent(SMART_MIME_MESSAGE_CLASS_NAME,
+				ClassUtils.getDefaultClassLoader())) {
+			Class<?> smartMimeMessage = ClassUtils.resolveClassName(
+					SMART_MIME_MESSAGE_CLASS_NAME, ClassUtils.getDefaultClassLoader());
+			Constructor<?> constructor = ClassUtils.getConstructorIfAvailable(
+					smartMimeMessage, Session.class, String.class, FileTypeMap.class);
 			if (constructor != null) {
-				Object mimeMessage = BeanUtils.instantiateClass(constructor, getSession(), this.defaultEncoding,
-						this.defaultFileTypeMap);
+				Object mimeMessage = BeanUtils.instantiateClass(constructor, getSession(),
+						this.defaultEncoding, this.defaultFileTypeMap);
 				return (MimeMessage) mimeMessage;
 			}
 		}
@@ -202,9 +206,11 @@ public class SimpleEmailServiceJavaMailSender extends SimpleEmailServiceMailSend
 		for (MimeMessage mimeMessage : mimeMessages) {
 			try {
 				RawMessage rm = createRawMessage(mimeMessage);
-				SendRawEmailResult sendRawEmailResult = getEmailService().sendRawEmail(new SendRawEmailRequest(rm));
+				SendRawEmailResult sendRawEmailResult = getEmailService()
+						.sendRawEmail(new SendRawEmailRequest(rm));
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Message with id: {} successfully send", sendRawEmailResult.getMessageId());
+					LOGGER.debug("Message with id: {} successfully send",
+							sendRawEmailResult.getMessageId());
 				}
 				mimeMessage.setHeader("Message-ID", sendRawEmailResult.getMessageId());
 			}
@@ -227,7 +233,8 @@ public class SimpleEmailServiceJavaMailSender extends SimpleEmailServiceMailSend
 
 	@SuppressWarnings("OverloadedVarargsMethod")
 	@Override
-	public void send(MimeMessagePreparator... mimeMessagePreparators) throws MailException {
+	public void send(MimeMessagePreparator... mimeMessagePreparators)
+			throws MailException {
 		MimeMessage mimeMessage = createMimeMessage();
 		for (MimeMessagePreparator mimeMessagePreparator : mimeMessagePreparators) {
 			try {
