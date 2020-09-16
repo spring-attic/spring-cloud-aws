@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.aws.autoconfigure.metrics;
 
-import java.lang.reflect.Field;
-
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchAsyncClient;
 import io.micrometer.cloudwatch.CloudWatchConfig;
@@ -28,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.mock.env.MockEnvironment;
-import org.springframework.util.ReflectionUtils;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -79,12 +77,8 @@ class CloudWatchExportAutoConfigurationTest {
 					AmazonCloudWatchAsyncClient client = context
 							.getBean(AmazonCloudWatchAsyncClient.class);
 
-					Field regionField = ReflectionUtils.findField(client.getClass(),
-							"signingRegion");
-					ReflectionUtils.makeAccessible(regionField);
-					Object regionValue = ReflectionUtils.getField(regionField, client);
-
-					assertThat(regionValue).isEqualTo(Regions.DEFAULT_REGION.getName());
+					Object region = ReflectionTestUtils.getField(client, "signingRegion");
+					assertThat(region).isEqualTo(Regions.DEFAULT_REGION.getName());
 				});
 	}
 
@@ -115,12 +109,8 @@ class CloudWatchExportAutoConfigurationTest {
 					AmazonCloudWatchAsyncClient client = context
 							.getBean(AmazonCloudWatchAsyncClient.class);
 
-					Field regionField = ReflectionUtils.findField(client.getClass(),
-							"signingRegion");
-					ReflectionUtils.makeAccessible(regionField);
-					Object regionValue = ReflectionUtils.getField(regionField, client);
-
-					assertThat(regionValue).isEqualTo(Regions.US_EAST_1.getName());
+					Object region = ReflectionTestUtils.getField(client, "signingRegion");
+					assertThat(region).isEqualTo(Regions.US_EAST_1.getName());
 				});
 	}
 
