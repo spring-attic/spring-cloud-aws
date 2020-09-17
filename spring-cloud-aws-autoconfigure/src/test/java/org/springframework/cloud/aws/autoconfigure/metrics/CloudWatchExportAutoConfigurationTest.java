@@ -19,11 +19,10 @@ package org.springframework.cloud.aws.autoconfigure.metrics;
 import io.micrometer.cloudwatch.CloudWatchConfig;
 import io.micrometer.cloudwatch.CloudWatchMeterRegistry;
 import io.micrometer.core.instrument.Clock;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.mock.env.MockEnvironment;
+import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,51 +30,38 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Test for the {@link CloudWatchExportAutoConfiguration}.
  *
  * @author Dawid Kublik
+ * @author Matej Nedic
  */
 class CloudWatchExportAutoConfigurationTest {
 
-	private MockEnvironment env;
-
-	private AnnotationConfigApplicationContext context;
-
-	@BeforeEach
-	void before() {
-		this.env = new MockEnvironment();
-		this.context = new AnnotationConfigApplicationContext();
-		this.context.setEnvironment(this.env);
-	}
+	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+			.withConfiguration(
+					AutoConfigurations.of(CloudWatchExportAutoConfiguration.class));
 
 	@Test
 	void testWithoutSettingAnyConfigProperties() {
-		this.context.register(CloudWatchExportAutoConfiguration.class);
-		this.context.refresh();
-		assertThat(this.context.getBeansOfType(CloudWatchMeterRegistry.class).isEmpty())
+		this.contextRunner.run(context -> {
+			assertThat(context.getBeansOfType(CloudWatchMeterRegistry.class).isEmpty())
 				.isTrue();
+		});
 	}
 
 	@Test
-	void testConfiguration() throws Exception {
-		this.env.setProperty("management.metrics.export.cloudwatch.namespace", "test");
-
-		this.context.register(CloudWatchExportAutoConfiguration.class);
-		this.context.refresh();
-
-		CloudWatchMeterRegistry metricsExporter = this.context
-				.getBean(CloudWatchMeterRegistry.class);
-		assertThat(metricsExporter).isNotNull();
-
-		CloudWatchConfig cloudWatchConfig = this.context.getBean(CloudWatchConfig.class);
-		assertThat(cloudWatchConfig).isNotNull();
-
-		Clock clock = this.context.getBean(Clock.class);
-		assertThat(clock).isNotNull();
-
-		CloudWatchProperties cloudWatchProperties = this.context
-				.getBean(CloudWatchProperties.class);
-		assertThat(cloudWatchProperties).isNotNull();
-
-		assertThat(cloudWatchProperties.getNamespace())
-				.isEqualTo(cloudWatchConfig.namespace());
+	void testConfiguration() {
+		this.contextRunner
+				.withPropertyValues("management.metrics.export.cloudwatch.namespace:test")
+				.run(context -> {
+					CloudWatchConfig cloudWatchConfig = context
+							.getBean(CloudWatchConfig.class);
+					CloudWatchProperties cloudWatchProperties = context
+							.getBean(CloudWatchProperties.class);
+					assertThat(context.getBean(CloudWatchMeterRegistry.class))
+							.isNotNull();
+					assertThat(context.getBean(Clock.class)).isNotNull();
+					assertThat(cloudWatchConfig).isNotNull();
+					assertThat(cloudWatchProperties).isNotNull();
+					assertThat(cloudWatchProperties.getNamespace())
+							.isEqualTo(cloudWatchConfig.namespace());
+				});
 	}
-
 }
