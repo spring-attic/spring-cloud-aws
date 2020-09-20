@@ -25,6 +25,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author Jon Schneider
  * @author Dawid Kublik
  * @author Bernardo Martins
+ * @author Eddú Meléndez
+ *
  * @since 2.0.0
  */
 @ConfigurationProperties(prefix = "management.metrics.export.cloudwatch")
@@ -38,6 +40,9 @@ public class CloudWatchProperties extends StepRegistryProperties {
 	 */
 	private String namespace = "";
 
+	/**
+	 * Overrides the default region.
+	 */
 	private String region;
 
 	public CloudWatchProperties() {
