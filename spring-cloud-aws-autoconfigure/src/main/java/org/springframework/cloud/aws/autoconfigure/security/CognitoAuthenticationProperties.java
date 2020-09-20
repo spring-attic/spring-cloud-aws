@@ -27,9 +27,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("spring.cloud.aws.security.cognito")
 public class CognitoAuthenticationProperties {
 
-	private static final String COGNITO_ISSUER = "https//cognito-idp.%s.amazonaws.com/%s";
+	private static final String COGNITO_ISSUER = "https://cognito-idp.%s.amazonaws.com/%s";
 
-	private static final String COGNITO_REGISTRY = "https//cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json";
+	private static final String COGNITO_REGISTRY = "https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json";
 
 	/**
 	 *

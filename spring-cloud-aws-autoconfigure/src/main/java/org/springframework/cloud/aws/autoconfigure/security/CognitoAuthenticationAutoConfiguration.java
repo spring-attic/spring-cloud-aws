@@ -21,11 +21,13 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -37,15 +39,15 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
 /**
- *
  * @author Eddú Meléndez
  * @since 2.3
  */
 @Configuration
 @AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class)
 @EnableConfigurationProperties(CognitoAuthenticationProperties.class)
-@ConditionalOnProperty(value = "spring.cloud.aws.security.cognito.enabled",
+@ConditionalOnProperty(prefix = "spring.cloud.aws.security.cognito", name = "enabled",
 		matchIfMissing = true)
+@Conditional(CognitoAuthenticationAutoConfiguration.OnUserPoolIdAndRegionPropertiesCondition.class)
 public class CognitoAuthenticationAutoConfiguration {
 
 	private final CognitoAuthenticationProperties properties;
@@ -69,7 +71,7 @@ public class CognitoAuthenticationAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public JwtDecoder iapJwtDecoder(
+	public JwtDecoder cognitoJwtDecoder(
 			@Qualifier("cognitoJwtDelegatingValidator") DelegatingOAuth2TokenValidator<Jwt> validator) {
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder
 				.withJwkSetUri(this.properties.getRegistry())
@@ -78,6 +80,24 @@ public class CognitoAuthenticationAutoConfiguration {
 		jwtDecoder.setJwtValidator(validator);
 
 		return jwtDecoder;
+	}
+
+	static class OnUserPoolIdAndRegionPropertiesCondition extends AllNestedConditions {
+
+		OnUserPoolIdAndRegionPropertiesCondition() {
+			super(ConfigurationPhase.PARSE_CONFIGURATION);
+		}
+
+		@ConditionalOnProperty("spring.cloud.aws.security.cognito.userPoolId")
+		static class HasUserPoolIdProperty {
+
+		}
+
+		@ConditionalOnProperty("spring.cloud.aws.security.cognito.region")
+		static class HasRegionProperty {
+
+		}
+
 	}
 
 }
