@@ -42,7 +42,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
  * @author Eddú Meléndez
  * @since 2.3
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class)
 @EnableConfigurationProperties(CognitoAuthenticationProperties.class)
 @ConditionalOnProperty(prefix = "spring.cloud.aws.security.cognito", name = "enabled",
