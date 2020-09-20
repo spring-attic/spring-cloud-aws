@@ -41,6 +41,9 @@ public class SqsProperties {
 	 */
 	private HandlerProperties handler = new HandlerProperties();
 
+	/**
+	 * Overrides the default region.
+	 */
 	private String region;
 
 	public ListenerProperties getListener() {
