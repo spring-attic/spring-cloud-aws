@@ -24,7 +24,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author Eddú Meléndez
  * @since 2.3
  */
-@ConfigurationProperties("spring.cloud.aws.security.cognito")
+@ConfigurationProperties(prefix = "spring.cloud.aws.security.cognito")
 public class CognitoAuthenticationProperties {
 
 	private static final String COGNITO_ISSUER = "https://cognito-idp.%s.amazonaws.com/%s";
