@@ -26,7 +26,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author Dawid Kublik
  * @author Bernardo Martins
  * @author Eddú Meléndez
- *
  * @since 2.0.0
  */
 @ConfigurationProperties(prefix = "management.metrics.export.cloudwatch")
