@@ -88,7 +88,7 @@ public class CognitoAuthenticationAutoConfiguration {
 			super(ConfigurationPhase.PARSE_CONFIGURATION);
 		}
 
-		@ConditionalOnProperty("spring.cloud.aws.security.cognito.userPoolId")
+		@ConditionalOnProperty("spring.cloud.aws.security.cognito.user-pool-id")
 		static class HasUserPoolIdProperty {
 
 		}

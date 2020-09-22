@@ -45,7 +45,7 @@ class CognitoAuthenticationAutoConfigurationTest {
 						CognitoAuthenticationAutoConfiguration.class,
 						OAuth2ResourceServerAutoConfiguration.class))
 				.withPropertyValues("spring.cloud.aws.security.cognito.region:us-west-1",
-						"spring.cloud.aws.security.cognito.userPoolId:my-user-pool-123")
+						"spring.cloud.aws.security.cognito.user-pool-id:my-user-pool-123")
 				.run(context -> {
 					JwtDecoder jwtDecoder = context.getBean(JwtDecoder.class);
 					assertThat(jwtDecoder).isNotNull();
