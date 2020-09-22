@@ -95,7 +95,7 @@ public class ElastiCacheRedisAutoConfiguration {
 
 		RedisProperties redisProperties = new RedisProperties();
 
-		boolean isCluster = cacheCluster.getNumCacheNodes() > 0;
+		boolean isCluster = cacheCluster.getConfigurationEndpoint() != null;
 		if (isCluster) {
 			String address = cacheCluster.getConfigurationEndpoint().getAddress();
 			int port = cacheCluster.getConfigurationEndpoint().getPort();
