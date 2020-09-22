@@ -1,3 +1,6 @@
+org.springframework.cloud.bootstrap.BootstrapConfiguration=\
+org.springframework.cloud.aws.autoconfigure.appconfig.AwsAppConfigBootstrapConfiguration
+
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 org.springframework.cloud.aws.autoconfigure.context.ContextInstanceDataAutoConfiguration,\
 org.springframework.cloud.aws.autoconfigure.context.ContextCredentialsAutoConfiguration,\
@@ -9,5 +12,4 @@ org.springframework.cloud.aws.autoconfigure.cache.ElastiCacheAutoConfiguration,\
 org.springframework.cloud.aws.autoconfigure.messaging.SqsAutoConfiguration,\
 org.springframework.cloud.aws.autoconfigure.messaging.SnsAutoConfiguration,\
 org.springframework.cloud.aws.autoconfigure.jdbc.AmazonRdsDatabaseAutoConfiguration,\
-org.springframework.cloud.aws.autoconfigure.metrics.CloudWatchExportAutoConfiguration,\
-org.springframework.cloud.aws.autoconfigure.appconfig.AwsAppConfigBootstrapConfiguration
+org.springframework.cloud.aws.autoconfigure.metrics.CloudWatchExportAutoConfiguration

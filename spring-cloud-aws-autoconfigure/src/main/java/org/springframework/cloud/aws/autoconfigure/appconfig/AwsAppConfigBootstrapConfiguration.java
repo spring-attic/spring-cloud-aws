@@ -16,17 +16,20 @@
 
 package org.springframework.cloud.aws.autoconfigure.appconfig;
 
-import com.amazonaws.services.appconfig.AmazonAppConfig;
-import com.amazonaws.services.appconfig.AmazonAppConfigAsync;
-import com.amazonaws.services.appconfig.AmazonAppConfigClientBuilder;
-import com.amazonaws.util.StringUtils;
+import java.util.Objects;
 
+import com.amazonaws.services.appconfig.AmazonAppConfigAsync;
+import com.amazonaws.services.appconfig.AmazonAppConfigClient;
+
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.aws.appconfig.AwsAppConfigPropertySourceLocator;
-import org.springframework.cloud.aws.core.SpringCloudClientConfiguration;
+import org.springframework.cloud.aws.core.config.AmazonWebserviceClientFactoryBean;
+import org.springframework.cloud.aws.core.region.RegionProvider;
+import org.springframework.cloud.aws.core.region.StaticRegionProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -37,12 +40,25 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(AwsAppConfigProperties.class)
 @ConditionalOnClass({ AmazonAppConfigAsync.class,
 		AwsAppConfigPropertySourceLocator.class })
-@ConditionalOnProperty(prefix = "aws.appconfig", name = "enabled", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "spring.cloud.aws.appconfig", name = "enabled",
+		matchIfMissing = true)
 public class AwsAppConfigBootstrapConfiguration {
+
+	private final AwsAppConfigProperties properties;
+
+	private final RegionProvider regionProvider;
+
+	public AwsAppConfigBootstrapConfiguration(AwsAppConfigProperties properties,
+			ObjectProvider<RegionProvider> regionProvider) {
+		this.properties = properties;
+		this.regionProvider = Objects.isNull(properties.getRegion())
+				? regionProvider.getIfAvailable()
+				: new StaticRegionProvider(properties.getRegion());
+	}
 
 	@Bean
 	AwsAppConfigPropertySourceLocator awsAppConfigPropertySourceLocator(
-			AmazonAppConfig appConfigClient, AwsAppConfigProperties properties) {
+			AmazonAppConfigClient appConfigClient) {
 		return new AwsAppConfigPropertySourceLocator(appConfigClient,
 				properties.getAccountId(), properties.getApplication(),
 				properties.getConfigurationProfile(), properties.getEnvironment(),
@@ -51,16 +67,9 @@ public class AwsAppConfigBootstrapConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public AmazonAppConfig appConfigClient(
-			AwsAppConfigProperties awsAppConfigProperties) {
-
-		AmazonAppConfigClientBuilder builder = AmazonAppConfigClientBuilder.standard()
-				.withClientConfiguration(
-						SpringCloudClientConfiguration.getClientConfiguration());
-
-		return StringUtils.isNullOrEmpty(awsAppConfigProperties.getRegion())
-				? builder.build()
-				: builder.withRegion(awsAppConfigProperties.getRegion()).build();
+	public AmazonWebserviceClientFactoryBean<AmazonAppConfigClient> appConfigClient() {
+		return new AmazonWebserviceClientFactoryBean<>(AmazonAppConfigClient.class, null,
+				regionProvider);
 	}
 
 }
