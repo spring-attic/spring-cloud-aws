@@ -45,7 +45,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-aws-parameter-store-config</artifactId>
+			<artifactId>spring-cloud-aws-parameter-store</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<dependency>

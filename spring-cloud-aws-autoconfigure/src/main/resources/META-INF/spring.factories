@@ -1,3 +1,6 @@
+org.springframework.cloud.bootstrap.BootstrapConfiguration=\
+org.springframework.cloud.aws.autoconfigure.config.AwsParameterStoreBootstrapConfiguration
+
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 org.springframework.cloud.aws.autoconfigure.context.ContextInstanceDataAutoConfiguration,\
 org.springframework.cloud.aws.autoconfigure.context.ContextCredentialsAutoConfiguration,\
