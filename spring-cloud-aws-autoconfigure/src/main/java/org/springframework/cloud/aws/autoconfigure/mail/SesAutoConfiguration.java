@@ -24,6 +24,7 @@ import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -53,8 +54,8 @@ import org.springframework.mail.javamail.JavaMailSender;
  */
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureAfter(MailSenderAutoConfiguration.class)
+@AutoConfigureBefore(SimpleEmailAutoConfiguration.class)
 @ConditionalOnClass({ AmazonSimpleEmailService.class, MailSender.class })
-@ConditionalOnMissingClass("org.springframework.cloud.aws.mail.simplemail.SimpleEmailServiceJavaMailSender")
 @ConditionalOnMissingBean(MailSender.class)
 @Import(ContextCredentialsAutoConfiguration.class)
 @EnableConfigurationProperties(SesProperties.class)

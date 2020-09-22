@@ -88,11 +88,22 @@ class SesAutoConfigurationTest {
 	}
 
 	@Test
-	void mailIsDisabled() {
+	void sesAutoConfigurationIsDisabled() {
 		this.contextRunner.withPropertyValues("spring.cloud.aws.ses.enabled:false")
 				.run(context -> {
 					assertThat(context).doesNotHaveBean(MailSender.class);
 					assertThat(context).doesNotHaveBean(JavaMailSender.class);
+				});
+	}
+
+	@Test
+	void sesAutoConfigurationIsDisabledButSimpleEmailAutoConfigurationIsEnabled() {
+		new ApplicationContextRunner()
+				.withConfiguration(AutoConfigurations.of(SesAutoConfiguration.class,
+						SimpleEmailAutoConfiguration.class))
+				.withPropertyValues("spring.cloud.aws.ses.enabled:false").run(context -> {
+					assertThat(context).hasSingleBean(MailSender.class);
+					assertThat(context).hasSingleBean(JavaMailSender.class);
 				});
 	}
 
