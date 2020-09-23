@@ -16,54 +16,52 @@
 
 package org.springframework.cloud.aws.autoconfigure.secretsmanager;
 
-import java.lang.reflect.Method;
-
-import com.amazonaws.AmazonWebServiceClient;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClient;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.util.ReflectionUtils;
+import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class AwsSecretsManagerBootstrapConfigurationTest {
 
-	AwsSecretsManagerBootstrapConfiguration bootstrapConfig = new AwsSecretsManagerBootstrapConfiguration();
+	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+			.withConfiguration(
+					AutoConfigurations.of(AwsSecretsManagerBootstrapConfiguration.class));
+
+	@Test
+	void testWithDefaultRegion() {
+		this.contextRunner.run(context -> {
+			AWSSecretsManagerClient client = context
+					.getBean(AWSSecretsManagerClient.class);
+			Object region = ReflectionTestUtils.getField(client, "signingRegion");
+			assertThat(region).isEqualTo(Regions.DEFAULT_REGION.getName());
+		});
+	}
 
 	@Test
 	void testWithStaticRegion() {
-		String region = "us-east-2";
-		AWSSecretsManagerClient awsSimpleClient = createSecretsManagerClient(region);
-
-		Method signingRegionMethod = ReflectionUtils
-				.findMethod(AmazonWebServiceClient.class, "getSigningRegion");
-		signingRegionMethod.setAccessible(true);
-		String signedRegion = (String) ReflectionUtils.invokeMethod(signingRegionMethod,
-				awsSimpleClient);
-
-		assertThat(signedRegion).isEqualTo(region);
+		this.contextRunner
+				.withPropertyValues("spring.cloud.aws.secretsmanager.region:us-east-1")
+				.run(context -> {
+					AWSSecretsManagerClient client = context
+							.getBean(AWSSecretsManagerClient.class);
+					Object region = ReflectionTestUtils.getField(client, "signingRegion");
+					assertThat(region).isEqualTo("us-east-1");
+				});
 	}
 
 	@Test
 	void testUserAgent() {
-		String region = "us-east-2";
-		AWSSecretsManagerClient awsSimpleClient = createSecretsManagerClient(region);
-
-		assertThat(awsSimpleClient.getClientConfiguration().getUserAgentSuffix())
-				.startsWith("spring-cloud-aws/");
-	}
-
-	private AWSSecretsManagerClient createSecretsManagerClient(String region) {
-		SecretsManagerProperties awsParamStoreProperties = new SecretsManagerProperties();
-		awsParamStoreProperties.setRegion(region);
-
-		Method SMClientMethod = ReflectionUtils.findMethod(
-				AwsSecretsManagerBootstrapConfiguration.class, "smClient",
-				SecretsManagerProperties.class);
-		SMClientMethod.setAccessible(true);
-		AWSSecretsManagerClient awsSimpleClient = (AWSSecretsManagerClient) ReflectionUtils
-				.invokeMethod(SMClientMethod, bootstrapConfig, awsParamStoreProperties);
-		return awsSimpleClient;
+		this.contextRunner.run(context -> {
+			AWSSecretsManagerClient client = context
+					.getBean(AWSSecretsManagerClient.class);
+			assertThat(client.getClientConfiguration().getUserAgentSuffix())
+					.startsWith("spring-cloud-aws/");
+		});
 	}
 
 }
