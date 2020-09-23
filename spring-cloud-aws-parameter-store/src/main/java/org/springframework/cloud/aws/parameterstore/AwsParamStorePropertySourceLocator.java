@@ -137,7 +137,7 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public void setName(String name) {
@@ -145,7 +145,7 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 	}
 
 	public String getPrefix() {
-		return prefix;
+		return this.prefix;
 	}
 
 	public void setPrefix(String prefix) {
@@ -153,7 +153,7 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 	}
 
 	public String getDefaultContext() {
-		return defaultContext;
+		return this.defaultContext;
 	}
 
 	public void setDefaultContext(String defaultContext) {
@@ -161,7 +161,7 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 	}
 
 	public boolean isFailFast() {
-		return failFast;
+		return this.failFast;
 	}
 
 	public void setFailFast(boolean failFast) {
@@ -169,7 +169,7 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 	}
 
 	public String getProfileSeparator() {
-		return profileSeparator;
+		return this.profileSeparator;
 	}
 
 	public void setProfileSeparator(String profileSeparator) {
