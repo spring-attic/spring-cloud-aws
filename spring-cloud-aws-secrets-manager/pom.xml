@@ -24,20 +24,14 @@
 		<version>2.3.0.BUILD-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>spring-cloud-aws-secrets-manager-config</artifactId>
-	<name>Spring Cloud AWS Secrets Manager Configuration (deprecated)</name>
-	<description>Spring Cloud AWS Secrets Manager Configuration</description>
+	<artifactId>spring-cloud-aws-secrets-manager</artifactId>
+	<name>Spring Cloud AWS Secrets Manager</name>
+	<description>Spring Cloud AWS Secrets Manager</description>
 
 	<dependencies>
-
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-autoconfigure</artifactId>
 		</dependency>
 
 		<dependency>
@@ -49,12 +43,5 @@
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk-secretsmanager</artifactId>
 		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-configuration-processor</artifactId>
-			<optional>true</optional>
-		</dependency>
-
 	</dependencies>
 </project>

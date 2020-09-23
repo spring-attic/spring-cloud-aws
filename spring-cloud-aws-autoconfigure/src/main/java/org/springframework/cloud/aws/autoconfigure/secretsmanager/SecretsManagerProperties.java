@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.aws.secretsmanager;
+package org.springframework.cloud.aws.autoconfigure.secretsmanager;
 
 import java.util.regex.Pattern;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.DeprecatedConfigurationProperty;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -31,25 +30,22 @@ import org.springframework.validation.Validator;
  * @author Fabio Maia
  * @author Matej Nedic
  * @author Eddú Meléndez
- * @since 2.0.0
+ * @since 2.3
  */
-@ConfigurationProperties(prefix = AwsSecretsManagerProperties.CONFIG_PREFIX)
-public class AwsSecretsManagerProperties implements Validator {
-
-	/**
-	 * Configuration prefix.
-	 */
-	public static final String CONFIG_PREFIX = "aws.secretsmanager";
+@ConfigurationProperties(prefix = "spring.cloud.aws.secretsmanager")
+public class SecretsManagerProperties implements Validator {
 
 	/**
 	 * Pattern used for prefix validation.
 	 */
-	private static final Pattern PREFIX_PATTERN = Pattern.compile("(/[a-zA-Z0-9.\\-_]+)*");
+	private static final Pattern PREFIX_PATTERN = Pattern
+			.compile("(/[a-zA-Z0-9.\\-_]+)*");
 
 	/**
 	 * Pattern used for profileSeparator validation.
 	 */
-	private static final Pattern PROFILE_SEPARATOR_PATTERN = Pattern.compile("[a-zA-Z0-9.\\-_/\\\\]+");
+	private static final Pattern PROFILE_SEPARATOR_PATTERN = Pattern
+			.compile("[a-zA-Z0-9.\\-_/\\\\]+");
 
 	/**
 	 * Prefix indicating first level for every property. Value must start with a forward
@@ -81,36 +77,40 @@ public class AwsSecretsManagerProperties implements Validator {
 
 	@Override
 	public boolean supports(Class<?> clazz) {
-		return AwsSecretsManagerProperties.class.isAssignableFrom(clazz);
+		return SecretsManagerProperties.class.isAssignableFrom(clazz);
 	}
 
 	@Override
 	public void validate(Object target, Errors errors) {
-		AwsSecretsManagerProperties properties = (AwsSecretsManagerProperties) target;
+		SecretsManagerProperties properties = (SecretsManagerProperties) target;
 
 		if (StringUtils.isEmpty(properties.getPrefix())) {
-			errors.rejectValue("prefix", "NotEmpty", "prefix should not be empty or null.");
+			errors.rejectValue("prefix", "NotEmpty",
+					"prefix should not be empty or null.");
 		}
 
 		if (StringUtils.isEmpty(properties.getDefaultContext())) {
-			errors.rejectValue("defaultContext", "NotEmpty", "defaultContext should not be empty or null.");
+			errors.rejectValue("defaultContext", "NotEmpty",
+					"defaultContext should not be empty or null.");
 		}
 
 		if (StringUtils.isEmpty(properties.getProfileSeparator())) {
-			errors.rejectValue("profileSeparator", "NotEmpty", "profileSeparator should not be empty or null.");
+			errors.rejectValue("profileSeparator", "NotEmpty",
+					"profileSeparator should not be empty or null.");
 		}
 
 		if (!PREFIX_PATTERN.matcher(properties.getPrefix()).matches()) {
-			errors.rejectValue("prefix", "Pattern", "The prefix must have pattern of:  " + PREFIX_PATTERN.toString());
+			errors.rejectValue("prefix", "Pattern",
+					"The prefix must have pattern of:  " + PREFIX_PATTERN.toString());
 		}
-		if (!PROFILE_SEPARATOR_PATTERN.matcher(properties.getProfileSeparator()).matches()) {
+		if (!PROFILE_SEPARATOR_PATTERN.matcher(properties.getProfileSeparator())
+				.matches()) {
 			errors.rejectValue("profileSeparator", "Pattern",
-					"The profileSeparator must have pattern of:  " + PROFILE_SEPARATOR_PATTERN.toString());
+					"The profileSeparator must have pattern of:  "
+							+ PROFILE_SEPARATOR_PATTERN.toString());
 		}
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.secretsmanager.prefix")
 	public String getPrefix() {
 		return prefix;
 	}
@@ -119,8 +119,6 @@ public class AwsSecretsManagerProperties implements Validator {
 		this.prefix = prefix;
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.secretsmanager.defaultContext")
 	public String getDefaultContext() {
 		return defaultContext;
 	}
@@ -129,8 +127,6 @@ public class AwsSecretsManagerProperties implements Validator {
 		this.defaultContext = defaultContext;
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.secretsmanager.profile-separator")
 	public String getProfileSeparator() {
 		return profileSeparator;
 	}
@@ -139,8 +135,6 @@ public class AwsSecretsManagerProperties implements Validator {
 		this.profileSeparator = profileSeparator;
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.secretsmanager.fail-fast")
 	public boolean isFailFast() {
 		return failFast;
 	}
@@ -149,7 +143,6 @@ public class AwsSecretsManagerProperties implements Validator {
 		this.failFast = failFast;
 	}
 
-	@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.secretsmanager.name")
 	public String getName() {
 		return name;
 	}
@@ -158,8 +151,6 @@ public class AwsSecretsManagerProperties implements Validator {
 		this.name = name;
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.secretsmanager.enabled")
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -168,8 +159,6 @@ public class AwsSecretsManagerProperties implements Validator {
 		this.enabled = enabled;
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.secretsmanager.region")
 	public String getRegion() {
 		return region;
 	}

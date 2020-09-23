@@ -47,6 +47,12 @@
       "name": "cloud.aws.stack.enabled",
       "description": "Enables Stack integration.",
       "type": "java.lang.Boolean"
+    },
+    {
+      "defaultValue": true,
+      "name": "spring.cloud.aws.secretsmanager.enabled",
+      "description": "Enables Secrets Manager integration.",
+      "type": "java.lang.Boolean"
     }
   ]
 }
