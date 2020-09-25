@@ -19,10 +19,14 @@ package org.springframework.cloud.aws.autoconfigure.paramstore;
 import java.lang.reflect.Method;
 
 import com.amazonaws.AmazonWebServiceClient;
+import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClient;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.aws.paramstore.AwsParamStoreProperties;
+import org.springframework.cloud.aws.paramstore.AwsParamStorePropertySourceLocator;
 import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,42 +39,53 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class AwsParamStoreBootstrapConfigurationTest {
 
-	AwsParamStoreBootstrapConfiguration bootstrapConfig = new AwsParamStoreBootstrapConfiguration();
+	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+			.withConfiguration(
+					AutoConfigurations.of(AwsParamStoreBootstrapConfiguration.class));
 
 	@Test
 	void testWithStaticRegion() {
-		String region = "us-east-2";
-		AWSSimpleSystemsManagementClient awsSimpleClient = createParamStoreClient(region);
+		this.contextRunner.withPropertyValues("aws.paramstore.enabled:true",
+				"aws.paramstore.region:us-east-2").run(context -> {
+					assertThat(context.getBean(AwsParamStorePropertySourceLocator.class))
+							.isNotNull();
+					assertThat(context.getBean(AWSSimpleSystemsManagement.class))
+							.isNotNull();
+					AwsParamStoreProperties awsParamStoreProperties = context
+							.getBean(AwsParamStoreProperties.class);
+					AWSSimpleSystemsManagementClient awsSimpleClient = context
+							.getBean(AWSSimpleSystemsManagementClient.class);
 
-		Method signingRegionMethod = ReflectionUtils
-				.findMethod(AmazonWebServiceClient.class, "getSigningRegion");
-		signingRegionMethod.setAccessible(true);
-		String signedRegion = (String) ReflectionUtils.invokeMethod(signingRegionMethod,
-				awsSimpleClient);
+					Method signingRegionMethod = ReflectionUtils
+							.findMethod(AmazonWebServiceClient.class, "getSigningRegion");
+					signingRegionMethod.setAccessible(true);
+					String signedRegion = (String) ReflectionUtils
+							.invokeMethod(signingRegionMethod, awsSimpleClient);
 
-		assertThat(signedRegion).isEqualTo(region);
+					assertThat(signedRegion)
+							.isEqualTo(awsParamStoreProperties.getRegion());
+				});
+	}
+
+	@Test
+	void testMissingAutoConfiguration() {
+		this.contextRunner.withPropertyValues("aws.paramstore.enabled:false")
+				.run(context -> {
+					assertThat(context)
+							.doesNotHaveBean(AwsParamStorePropertySourceLocator.class);
+					assertThat(context).doesNotHaveBean(AWSSimpleSystemsManagement.class);
+				});
 	}
 
 	@Test
 	void testUserAgent() {
-		String region = "us-east-2";
-		AWSSimpleSystemsManagementClient awsSimpleClient = createParamStoreClient(region);
+		this.contextRunner.withPropertyValues("aws.paramstore.region:us-east-2")
+				.run(context -> {
+					context.getBean(AWSSimpleSystemsManagementClient.class)
+							.getClientConfiguration().getUserAgentPrefix()
+							.startsWith("spring-cloud-aws/");
+				});
 
-		assertThat(awsSimpleClient.getClientConfiguration().getUserAgentSuffix())
-				.startsWith("spring-cloud-aws/");
-	}
-
-	private AWSSimpleSystemsManagementClient createParamStoreClient(String region) {
-		AwsParamStoreProperties awsParamStoreProperties = new AwsParamStoreProperties();
-		awsParamStoreProperties.setRegion(region);
-
-		Method SSMClientMethod = ReflectionUtils.findMethod(
-				AwsParamStoreBootstrapConfiguration.class, "ssmClient",
-				AwsParamStoreProperties.class);
-		SSMClientMethod.setAccessible(true);
-		AWSSimpleSystemsManagementClient awsSimpleClient = (AWSSimpleSystemsManagementClient) ReflectionUtils
-				.invokeMethod(SSMClientMethod, bootstrapConfig, awsParamStoreProperties);
-		return awsSimpleClient;
 	}
 
 }
