@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.aws.autoconfigure.cache;
 
+import java.util.List;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -30,7 +32,7 @@ public class ElasticCacheRedisProperties {
 	/**
 	 * Cluster id.
 	 */
-	private String name;
+	private List<String> names;
 
 	/**
 	 * Authentication token.
@@ -42,12 +44,12 @@ public class ElasticCacheRedisProperties {
 	 */
 	private String region;
 
-	public String getName() {
-		return this.name;
+	public List<String> getNames() {
+		return this.names;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setName(List<String> names) {
+		this.names = names;
 	}
 
 	public String getToken() {

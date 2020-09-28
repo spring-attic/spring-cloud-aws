@@ -16,8 +16,8 @@
 
 package org.springframework.cloud.aws.autoconfigure.cache;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.elasticache.AmazonElastiCache;
@@ -27,10 +27,12 @@ import com.amazonaws.services.elasticache.model.DescribeCacheClustersRequest;
 import com.amazonaws.services.elasticache.model.DescribeCacheClustersResult;
 
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.aws.core.config.AmazonWebserviceClientFactoryBean;
@@ -49,8 +51,9 @@ import org.springframework.data.redis.core.RedisOperations;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass({ RedisOperations.class, AmazonElastiCache.class })
+@AutoConfigureBefore(RedisAutoConfiguration.class)
 @EnableConfigurationProperties(ElasticCacheRedisProperties.class)
-@ConditionalOnProperty(value = "spring.cloud.aws.redis", name = "enabled",
+@ConditionalOnProperty(prefix = "spring.cloud.aws.redis", name = "enabled",
 		matchIfMissing = true)
 public class ElastiCacheRedisAutoConfiguration {
 
@@ -79,29 +82,29 @@ public class ElastiCacheRedisAutoConfiguration {
 	}
 
 	@ConditionalOnMissingBean
+	@ConditionalOnProperty(name = "spring.cloud.aws.redis.names")
 	@Primary
 	@Bean
 	public RedisProperties redisProperties(AmazonElastiCacheClient elastiCacheClient) {
-		String cacheName = this.properties.getName();
+		List<String> clusterNames = this.properties.getNames();
 
-		DescribeCacheClustersRequest describeCacheClustersRequest = new DescribeCacheClustersRequest()
-				.withCacheClusterId(cacheName).withShowCacheNodeInfo(true);
+		List<CacheCluster> clusters = clusterNames.stream().flatMap(name -> {
+			DescribeCacheClustersRequest describeCacheClustersRequest = new DescribeCacheClustersRequest()
+					.withCacheClusterId(name).withShowCacheNodeInfo(true);
 
-		DescribeCacheClustersResult cacheClustersResult = elastiCacheClient
-				.describeCacheClusters(describeCacheClustersRequest);
+			DescribeCacheClustersResult cacheClustersResult = elastiCacheClient
+					.describeCacheClusters(describeCacheClustersRequest);
+			return cacheClustersResult.getCacheClusters().stream();
+		}).collect(Collectors.toList());
 
-		List<CacheCluster> cacheClusters = cacheClustersResult.getCacheClusters();
-		CacheCluster cacheCluster = cacheClusters.get(0);
+		CacheCluster cacheCluster = clusters.get(0); // The first result is taken to set
+														// ssl and password
 
 		RedisProperties redisProperties = new RedisProperties();
 
-		boolean isCluster = cacheCluster.getConfigurationEndpoint() != null;
+		boolean isCluster = clusters.size() > 1;
 		if (isCluster) {
-			String address = cacheCluster.getConfigurationEndpoint().getAddress();
-			int port = cacheCluster.getConfigurationEndpoint().getPort();
-
-			RedisProperties.Cluster cluster = new RedisProperties.Cluster();
-			cluster.setNodes(Arrays.asList(address + ":" + port));
+			RedisProperties.Cluster cluster = resolveCluster(clusters);
 			redisProperties.setCluster(cluster);
 		}
 		else {
@@ -122,6 +125,17 @@ public class ElastiCacheRedisAutoConfiguration {
 		}
 
 		return redisProperties;
+	}
+
+	private RedisProperties.Cluster resolveCluster(List<CacheCluster> clusters) {
+		RedisProperties.Cluster cluster = new RedisProperties.Cluster();
+		List<String> nodes = clusters.stream().map(cacheCluster -> {
+			String address = cacheCluster.getConfigurationEndpoint().getAddress();
+			int port = cacheCluster.getConfigurationEndpoint().getPort();
+			return address + ":" + port;
+		}).collect(Collectors.toList());
+		cluster.setNodes(nodes);
+		return cluster;
 	}
 
 }
