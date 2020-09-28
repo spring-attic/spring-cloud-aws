@@ -63,8 +63,8 @@ public class CognitoAuthenticationAutoConfiguration {
 		List<OAuth2TokenValidator<Jwt>> validators = new ArrayList<>();
 		validators
 				.add(JwtValidators.createDefaultWithIssuer(this.properties.getIssuer()));
-		validators.add(new JwtClaimValidator<String>("aud",
-				aud -> aud != null && aud.equals(this.properties.getAppClientId())));
+		validators.add(new JwtClaimValidator<List<String>>("aud",
+				aud -> aud != null && aud.contains(this.properties.getAppClientId())));
 
 		return new DelegatingOAuth2TokenValidator<>(validators);
 	}
