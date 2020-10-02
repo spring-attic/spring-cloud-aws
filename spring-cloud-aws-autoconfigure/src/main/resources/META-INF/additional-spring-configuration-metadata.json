@@ -26,6 +26,12 @@
     },
     {
       "defaultValue": true,
+      "name": "spring.cloud.aws.sqs.enabled",
+      "description": "Enables SQS integration.",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "defaultValue": true,
       "name": "cloud.aws.sns.enabled",
       "description": "Enables SNS integration.",
       "type": "java.lang.Boolean"
