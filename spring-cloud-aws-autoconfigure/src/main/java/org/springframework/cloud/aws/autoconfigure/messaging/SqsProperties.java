@@ -17,6 +17,7 @@
 package org.springframework.cloud.aws.autoconfigure.messaging;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.DeprecatedConfigurationProperty;
 import org.springframework.cloud.aws.messaging.listener.QueueMessageHandler;
 import org.springframework.cloud.aws.messaging.listener.SimpleMessageListenerContainer;
 import org.springframework.cloud.aws.messaging.listener.SqsMessageDeletionPolicy;
@@ -62,6 +63,7 @@ public class SqsProperties {
 		this.handler = handler;
 	}
 
+	@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.sqs.region")
 	public String getRegion() {
 		return this.region;
 	}
@@ -112,6 +114,7 @@ public class SqsProperties {
 		 */
 		private boolean autoStartup = true;
 
+		@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.sqs.max-number-of-messages")
 		public Integer getMaxNumberOfMessages() {
 			return maxNumberOfMessages;
 		}
@@ -120,6 +123,7 @@ public class SqsProperties {
 			this.maxNumberOfMessages = maxNumberOfMessages;
 		}
 
+		@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.sqs.visibility-timeout")
 		public Integer getVisibilityTimeout() {
 			return visibilityTimeout;
 		}
@@ -128,6 +132,7 @@ public class SqsProperties {
 			this.visibilityTimeout = visibilityTimeout;
 		}
 
+		@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.sqs.wait-timeout")
 		public Integer getWaitTimeout() {
 			return waitTimeout;
 		}
@@ -136,6 +141,7 @@ public class SqsProperties {
 			this.waitTimeout = waitTimeout;
 		}
 
+		@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.sqs.queue-stop-timeout")
 		public Long getQueueStopTimeout() {
 			return queueStopTimeout;
 		}
@@ -144,6 +150,7 @@ public class SqsProperties {
 			this.queueStopTimeout = queueStopTimeout;
 		}
 
+		@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.sqs.back-off-timeout")
 		public Long getBackOffTime() {
 			return backOffTime;
 		}
@@ -152,6 +159,7 @@ public class SqsProperties {
 			this.backOffTime = backOffTime;
 		}
 
+		@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.sqs.auto-startup")
 		public boolean isAutoStartup() {
 			return autoStartup;
 		}
@@ -170,6 +178,7 @@ public class SqsProperties {
 		 */
 		private SqsMessageDeletionPolicy defaultDeletionPolicy = SqsMessageDeletionPolicy.NO_REDRIVE;
 
+		@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.sqs.handler.default-deletion-policy")
 		public SqsMessageDeletionPolicy getDefaultDeletionPolicy() {
 			return defaultDeletionPolicy;
 		}
