@@ -313,7 +313,7 @@ class SimpleQueueServiceAutoConfigurationTest {
 			throws Exception {
 		// Arrange & Act
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(SqsAutoConfiguration.class))
+				.withConfiguration(AutoConfigurations.of(SimpleQueueServiceAutoConfiguration.class))
 				.withUserConfiguration(ConfigurationWithMissingAwsCredentials.class)
 				.run((context) -> {
 					// Assert
