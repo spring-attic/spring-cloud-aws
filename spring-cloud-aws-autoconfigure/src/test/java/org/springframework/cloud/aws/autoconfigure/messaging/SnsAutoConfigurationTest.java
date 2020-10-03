@@ -95,10 +95,11 @@ class SnsAutoConfigurationTest {
 
 	@Test
 	void disableSns() {
-		this.contextRunner.withPropertyValues("cloud.aws.sns.enabled:false").run(context -> {
-			assertThat(context).doesNotHaveBean(AmazonSNS.class);
-			assertThat(context).doesNotHaveBean(AmazonSNSClient.class);
-		});
+		this.contextRunner.withPropertyValues("cloud.aws.sns.enabled:false")
+				.run(context -> {
+					assertThat(context).doesNotHaveBean(AmazonSNS.class);
+					assertThat(context).doesNotHaveBean(AmazonSNSClient.class);
+				});
 	}
 
 	@Test

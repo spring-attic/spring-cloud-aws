@@ -344,10 +344,12 @@ class SqsAutoConfigurationTest {
 
 	@Test
 	void disableSqs() {
-		this.contextRunner.withPropertyValues("cloud.aws.sqs.enabled:false").run(context -> {
-			assertThat(context).doesNotHaveBean(AmazonSQSAsync.class);
-			assertThat(context).doesNotHaveBean(AmazonSQSBufferedAsyncClient.class);
-		});
+		this.contextRunner.withPropertyValues("cloud.aws.sqs.enabled:false")
+				.run(context -> {
+					assertThat(context).doesNotHaveBean(AmazonSQSAsync.class);
+					assertThat(context)
+							.doesNotHaveBean(AmazonSQSBufferedAsyncClient.class);
+				});
 	}
 
 	@Test
