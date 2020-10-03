@@ -31,154 +31,156 @@ import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
 @ConfigurationProperties("spring.cloud.aws.sqs")
 public class SimpleQueueServiceProperties {
 
-		/**
-		 * Properties related to {@link SimpleMessageListenerContainer}.
-		 */
-		private org.springframework.cloud.aws.autoconfigure.messaging.SqsProperties.ListenerProperties listener = new org.springframework.cloud.aws.autoconfigure.messaging.SqsProperties.ListenerProperties();
+	/**
+	 * Properties related to {@link SimpleMessageListenerContainer}.
+	 */
+	private org.springframework.cloud.aws.autoconfigure.messaging.SqsProperties.ListenerProperties listener = new org.springframework.cloud.aws.autoconfigure.messaging.SqsProperties.ListenerProperties();
+
+	/**
+	 * Properties related to {@link QueueMessageHandler}.
+	 */
+	private org.springframework.cloud.aws.autoconfigure.messaging.SqsProperties.HandlerProperties handler = new org.springframework.cloud.aws.autoconfigure.messaging.SqsProperties.HandlerProperties();
+
+	/**
+	 * Overrides the default region.
+	 */
+	private String region;
+
+	public org.springframework.cloud.aws.autoconfigure.messaging.SqsProperties.ListenerProperties getListener() {
+		return listener;
+	}
+
+	public void setListener(
+			org.springframework.cloud.aws.autoconfigure.messaging.SqsProperties.ListenerProperties listener) {
+		this.listener = listener;
+	}
+
+	public org.springframework.cloud.aws.autoconfigure.messaging.SqsProperties.HandlerProperties getHandler() {
+		return handler;
+	}
+
+	public void setHandler(
+			org.springframework.cloud.aws.autoconfigure.messaging.SqsProperties.HandlerProperties handler) {
+		this.handler = handler;
+	}
+
+	public String getRegion() {
+		return this.region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
+	}
+
+	public static class ListenerProperties {
 
 		/**
-		 * Properties related to {@link QueueMessageHandler}.
+		 * The maximum number of messages that should be retrieved during one poll to the
+		 * Amazon SQS system. This number must be a positive, non-zero number that has a
+		 * maximum number of 10. Values higher then 10 are currently not supported by the
+		 * queueing system.
 		 */
-		private org.springframework.cloud.aws.autoconfigure.messaging.SqsProperties.HandlerProperties handler = new org.springframework.cloud.aws.autoconfigure.messaging.SqsProperties.HandlerProperties();
+		private Integer maxNumberOfMessages = 10;
 
 		/**
-		 * Overrides the default region.
+		 * The duration (in seconds) that the received messages are hidden from subsequent
+		 * poll requests after being retrieved from the system.
 		 */
-		private String region;
+		private Integer visibilityTimeout;
 
-		public org.springframework.cloud.aws.autoconfigure.messaging.SqsProperties.ListenerProperties getListener() {
-			return listener;
+		/**
+		 * The wait timeout that the poll request will wait for new message to arrive if
+		 * the are currently no messages on the queue. Higher values will reduce poll
+		 * request to the system significantly. The value should be between 1 and 20. For
+		 * more information read the <a href=
+		 * "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-long-polling.html">documentation</a>.
+		 */
+		private Integer waitTimeout = 20;
+
+		/**
+		 * The queue stop timeout that waits for a queue to stop before interrupting the
+		 * running thread.
+		 */
+		private Long queueStopTimeout;
+
+		/**
+		 * The number of milliseconds the polling thread must wait before trying to
+		 * recover when an error occurs (e.g. connection timeout).
+		 */
+		private Long backOffTime;
+
+		/**
+		 * Configures if this container should be automatically started.
+		 */
+		private boolean autoStartup = true;
+
+		public Integer getMaxNumberOfMessages() {
+			return maxNumberOfMessages;
 		}
 
-		public void setListener(org.springframework.cloud.aws.autoconfigure.messaging.SqsProperties.ListenerProperties listener) {
-			this.listener = listener;
+		public void setMaxNumberOfMessages(Integer maxNumberOfMessages) {
+			this.maxNumberOfMessages = maxNumberOfMessages;
 		}
 
-		public org.springframework.cloud.aws.autoconfigure.messaging.SqsProperties.HandlerProperties getHandler() {
-			return handler;
+		public Integer getVisibilityTimeout() {
+			return visibilityTimeout;
 		}
 
-		public void setHandler(org.springframework.cloud.aws.autoconfigure.messaging.SqsProperties.HandlerProperties handler) {
-			this.handler = handler;
+		public void setVisibilityTimeout(Integer visibilityTimeout) {
+			this.visibilityTimeout = visibilityTimeout;
 		}
 
-		public String getRegion() {
-			return this.region;
+		public Integer getWaitTimeout() {
+			return waitTimeout;
 		}
 
-		public void setRegion(String region) {
-			this.region = region;
+		public void setWaitTimeout(Integer waitTimeout) {
+			this.waitTimeout = waitTimeout;
 		}
 
-		public static class ListenerProperties {
-
-			/**
-			 * The maximum number of messages that should be retrieved during one poll to the
-			 * Amazon SQS system. This number must be a positive, non-zero number that has a
-			 * maximum number of 10. Values higher then 10 are currently not supported by the
-			 * queueing system.
-			 */
-			private Integer maxNumberOfMessages = 10;
-
-			/**
-			 * The duration (in seconds) that the received messages are hidden from subsequent
-			 * poll requests after being retrieved from the system.
-			 */
-			private Integer visibilityTimeout;
-
-			/**
-			 * The wait timeout that the poll request will wait for new message to arrive if
-			 * the are currently no messages on the queue. Higher values will reduce poll
-			 * request to the system significantly. The value should be between 1 and 20. For
-			 * more information read the <a href=
-			 * "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-long-polling.html">documentation</a>.
-			 */
-			private Integer waitTimeout = 20;
-
-			/**
-			 * The queue stop timeout that waits for a queue to stop before interrupting the
-			 * running thread.
-			 */
-			private Long queueStopTimeout;
-
-			/**
-			 * The number of milliseconds the polling thread must wait before trying to
-			 * recover when an error occurs (e.g. connection timeout).
-			 */
-			private Long backOffTime;
-
-			/**
-			 * Configures if this container should be automatically started.
-			 */
-			private boolean autoStartup = true;
-
-			public Integer getMaxNumberOfMessages() {
-				return maxNumberOfMessages;
-			}
-
-			public void setMaxNumberOfMessages(Integer maxNumberOfMessages) {
-				this.maxNumberOfMessages = maxNumberOfMessages;
-			}
-
-			public Integer getVisibilityTimeout() {
-				return visibilityTimeout;
-			}
-
-			public void setVisibilityTimeout(Integer visibilityTimeout) {
-				this.visibilityTimeout = visibilityTimeout;
-			}
-
-			public Integer getWaitTimeout() {
-				return waitTimeout;
-			}
-
-			public void setWaitTimeout(Integer waitTimeout) {
-				this.waitTimeout = waitTimeout;
-			}
-
-			public Long getQueueStopTimeout() {
-				return queueStopTimeout;
-			}
-
-			public void setQueueStopTimeout(Long queueStopTimeout) {
-				this.queueStopTimeout = queueStopTimeout;
-			}
-
-			public Long getBackOffTime() {
-				return backOffTime;
-			}
-
-			public void setBackOffTime(Long backOffTime) {
-				this.backOffTime = backOffTime;
-			}
-
-			public boolean isAutoStartup() {
-				return autoStartup;
-			}
-
-			public void setAutoStartup(boolean autoStartup) {
-				this.autoStartup = autoStartup;
-			}
-
+		public Long getQueueStopTimeout() {
+			return queueStopTimeout;
 		}
 
-		public static class HandlerProperties {
+		public void setQueueStopTimeout(Long queueStopTimeout) {
+			this.queueStopTimeout = queueStopTimeout;
+		}
 
-			/**
-			 * Configures global deletion policy used if deletion policy is not explicitly set
-			 * on {@link SqsListener}.
-			 */
-			private SqsMessageDeletionPolicy defaultDeletionPolicy = SqsMessageDeletionPolicy.NO_REDRIVE;
+		public Long getBackOffTime() {
+			return backOffTime;
+		}
 
-			public SqsMessageDeletionPolicy getDefaultDeletionPolicy() {
-				return defaultDeletionPolicy;
-			}
+		public void setBackOffTime(Long backOffTime) {
+			this.backOffTime = backOffTime;
+		}
 
-			public void setDefaultDeletionPolicy(
-				SqsMessageDeletionPolicy defaultDeletionPolicy) {
-				this.defaultDeletionPolicy = defaultDeletionPolicy;
-			}
+		public boolean isAutoStartup() {
+			return autoStartup;
+		}
 
+		public void setAutoStartup(boolean autoStartup) {
+			this.autoStartup = autoStartup;
 		}
 
 	}
+
+	public static class HandlerProperties {
+
+		/**
+		 * Configures global deletion policy used if deletion policy is not explicitly set
+		 * on {@link SqsListener}.
+		 */
+		private SqsMessageDeletionPolicy defaultDeletionPolicy = SqsMessageDeletionPolicy.NO_REDRIVE;
+
+		public SqsMessageDeletionPolicy getDefaultDeletionPolicy() {
+			return defaultDeletionPolicy;
+		}
+
+		public void setDefaultDeletionPolicy(
+				SqsMessageDeletionPolicy defaultDeletionPolicy) {
+			this.defaultDeletionPolicy = defaultDeletionPolicy;
+		}
+
+	}
+
+}
