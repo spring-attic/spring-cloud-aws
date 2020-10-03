@@ -343,6 +343,14 @@ class SqsAutoConfigurationTest {
 	}
 
 	@Test
+	void disableSqs() {
+		this.contextRunner.withPropertyValues("cloud.aws.sqs.enabled:false").run(context -> {
+			assertThat(context).doesNotHaveBean(AmazonSQSAsync.class);
+			assertThat(context).doesNotHaveBean(AmazonSQSBufferedAsyncClient.class);
+		});
+	}
+
+	@Test
 	void enableSqsWithSpecificRegion() {
 		this.contextRunner.withPropertyValues("cloud.aws.sqs.region:us-east-1")
 				.run(context -> {
