@@ -52,30 +52,26 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration(proxyBeanMethods = false)
 @Import(ContextCredentialsAutoConfiguration.class)
-@AutoConfigureBefore({ CompositeMeterRegistryAutoConfiguration.class,
-		SimpleMetricsExportAutoConfiguration.class })
+@AutoConfigureBefore({ CompositeMeterRegistryAutoConfiguration.class, SimpleMetricsExportAutoConfiguration.class })
 @AutoConfigureAfter(MetricsAutoConfiguration.class)
 @EnableConfigurationProperties(CloudWatchProperties.class)
-@ConditionalOnProperty(prefix = "management.metrics.export.cloudwatch",
-		name = "namespace")
+@ConditionalOnProperty(prefix = "management.metrics.export.cloudwatch", name = "namespace")
 @ConditionalOnClass({ CloudWatchMeterRegistry.class, RegionProvider.class })
 public class CloudWatchExportAutoConfiguration {
 
 	@Bean
-	@ConditionalOnProperty(value = "management.metrics.export.cloudwatch.enabled",
-			matchIfMissing = true)
-	public CloudWatchMeterRegistry cloudWatchMeterRegistry(CloudWatchConfig config,
-			Clock clock, AmazonCloudWatchAsync client) {
+	@ConditionalOnProperty(value = "management.metrics.export.cloudwatch.enabled", matchIfMissing = true)
+	public CloudWatchMeterRegistry cloudWatchMeterRegistry(CloudWatchConfig config, Clock clock,
+			AmazonCloudWatchAsync client) {
 		return new CloudWatchMeterRegistry(config, clock, client);
 	}
 
 	@Bean
 	@ConditionalOnMissingAmazonClient(AmazonCloudWatchAsync.class)
 	public AmazonWebserviceClientFactoryBean<AmazonCloudWatchAsyncClient> amazonCloudWatchAsync(
-			AWSCredentialsProvider credentialsProvider,
-			ObjectProvider<RegionProvider> regionProvider) {
-		return new AmazonWebserviceClientFactoryBean<>(AmazonCloudWatchAsyncClient.class,
-				credentialsProvider, regionProvider.getIfAvailable());
+			AWSCredentialsProvider credentialsProvider, ObjectProvider<RegionProvider> regionProvider) {
+		return new AmazonWebserviceClientFactoryBean<>(AmazonCloudWatchAsyncClient.class, credentialsProvider,
+				regionProvider.getIfAvailable());
 	}
 
 	@Bean

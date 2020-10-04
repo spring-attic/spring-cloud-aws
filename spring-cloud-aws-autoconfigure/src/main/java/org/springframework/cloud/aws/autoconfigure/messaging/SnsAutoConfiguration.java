@@ -46,8 +46,7 @@ import static org.springframework.cloud.aws.messaging.endpoint.config.Notificati
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(AmazonSNS.class)
-@ConditionalOnProperty(name = "cloud.aws.sns.enabled", havingValue = "true",
-		matchIfMissing = true)
+@ConditionalOnProperty(name = "cloud.aws.sns.enabled", havingValue = "true", matchIfMissing = true)
 public class SnsAutoConfiguration {
 
 	@Configuration(proxyBeanMethods = false)
@@ -66,8 +65,8 @@ public class SnsAutoConfiguration {
 		@ConditionalOnMissingAmazonClient(AmazonSNS.class)
 		@Bean
 		public AmazonWebserviceClientFactoryBean<AmazonSNSClient> amazonSNS() {
-			return new AmazonWebserviceClientFactoryBean<>(AmazonSNSClient.class,
-					this.awsCredentialsProvider, this.regionProvider);
+			return new AmazonWebserviceClientFactoryBean<>(AmazonSNSClient.class, this.awsCredentialsProvider,
+					this.regionProvider);
 		}
 
 	}
@@ -80,10 +79,8 @@ public class SnsAutoConfiguration {
 		public WebMvcConfigurer snsWebMvcConfigurer(AmazonSNS amazonSns) {
 			return new WebMvcConfigurer() {
 				@Override
-				public void addArgumentResolvers(
-						List<HandlerMethodArgumentResolver> resolvers) {
-					resolvers
-							.add(getNotificationHandlerMethodArgumentResolver(amazonSns));
+				public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+					resolvers.add(getNotificationHandlerMethodArgumentResolver(amazonSns));
 				}
 			};
 		}

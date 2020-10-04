@@ -49,8 +49,7 @@ class CloudWatchExportAutoConfigurationTest {
 	void testWithoutSettingAnyConfigProperties() {
 		this.context.register(CloudWatchExportAutoConfiguration.class);
 		this.context.refresh();
-		assertThat(this.context.getBeansOfType(CloudWatchMeterRegistry.class).isEmpty())
-				.isTrue();
+		assertThat(this.context.getBeansOfType(CloudWatchMeterRegistry.class).isEmpty()).isTrue();
 	}
 
 	@Test
@@ -60,8 +59,7 @@ class CloudWatchExportAutoConfigurationTest {
 		this.context.register(CloudWatchExportAutoConfiguration.class);
 		this.context.refresh();
 
-		CloudWatchMeterRegistry metricsExporter = this.context
-				.getBean(CloudWatchMeterRegistry.class);
+		CloudWatchMeterRegistry metricsExporter = this.context.getBean(CloudWatchMeterRegistry.class);
 		assertThat(metricsExporter).isNotNull();
 
 		CloudWatchConfig cloudWatchConfig = this.context.getBean(CloudWatchConfig.class);
@@ -70,12 +68,10 @@ class CloudWatchExportAutoConfigurationTest {
 		Clock clock = this.context.getBean(Clock.class);
 		assertThat(clock).isNotNull();
 
-		CloudWatchProperties cloudWatchProperties = this.context
-				.getBean(CloudWatchProperties.class);
+		CloudWatchProperties cloudWatchProperties = this.context.getBean(CloudWatchProperties.class);
 		assertThat(cloudWatchProperties).isNotNull();
 
-		assertThat(cloudWatchProperties.getNamespace())
-				.isEqualTo(cloudWatchConfig.namespace());
+		assertThat(cloudWatchProperties.getNamespace()).isEqualTo(cloudWatchConfig.namespace());
 	}
 
 }

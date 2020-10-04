@@ -52,81 +52,67 @@ class SnsAutoConfigurationTest {
 			.withConfiguration(AutoConfigurations.of(SnsAutoConfiguration.class));
 
 	@Test
-	void enableSns_withMinimalConfig_shouldConfigureACompositeArgumentResolver()
-			throws Exception {
+	void enableSns_withMinimalConfig_shouldConfigureACompositeArgumentResolver() throws Exception {
 		// Arrange & Act
-		this.contextRunner.withUserConfiguration(MinimalSnsConfiguration.class)
-				.run((context) -> {
-					RequestMappingHandlerAdapter requestMappingHandlerAdapter = context
-							.getBean(RequestMappingHandlerAdapter.class);
+		this.contextRunner.withUserConfiguration(MinimalSnsConfiguration.class).run((context) -> {
+			RequestMappingHandlerAdapter requestMappingHandlerAdapter = context
+					.getBean(RequestMappingHandlerAdapter.class);
 
-					// Assert
-					assertThat(requestMappingHandlerAdapter.getCustomArgumentResolvers())
-							.hasSize(1);
-					HandlerMethodArgumentResolver argumentResolver = requestMappingHandlerAdapter
-							.getCustomArgumentResolvers().get(0);
-					assertThat(argumentResolver)
-							.isInstanceOf(HandlerMethodArgumentResolverComposite.class);
+			// Assert
+			assertThat(requestMappingHandlerAdapter.getCustomArgumentResolvers()).hasSize(1);
+			HandlerMethodArgumentResolver argumentResolver = requestMappingHandlerAdapter.getCustomArgumentResolvers()
+					.get(0);
+			assertThat(argumentResolver).isInstanceOf(HandlerMethodArgumentResolverComposite.class);
 
-					HandlerMethodArgumentResolverComposite compositeArgumentResolver;
-					compositeArgumentResolver = (HandlerMethodArgumentResolverComposite) argumentResolver;
-					assertThat(compositeArgumentResolver.getResolvers()).hasSize(3);
-					assertThat(getNotificationStatusHandlerMethodArgumentResolver(
-							compositeArgumentResolver.getResolvers()))
-									.hasFieldOrProperty("amazonSns").isNotNull();
-				});
+			HandlerMethodArgumentResolverComposite compositeArgumentResolver;
+			compositeArgumentResolver = (HandlerMethodArgumentResolverComposite) argumentResolver;
+			assertThat(compositeArgumentResolver.getResolvers()).hasSize(3);
+			assertThat(getNotificationStatusHandlerMethodArgumentResolver(compositeArgumentResolver.getResolvers()))
+					.hasFieldOrProperty("amazonSns").isNotNull();
+		});
 	}
 
 	@Test
 	void enableSns_withProvidedCredentials_shouldBeUsedToCreateClient() throws Exception {
 		// Arrange & Act
-		this.contextRunner.withUserConfiguration(SnsConfigurationWithCredentials.class)
-				.run((context) -> {
-					AmazonSNS amazonSns = context.getBean(AmazonSNS.class);
+		this.contextRunner.withUserConfiguration(SnsConfigurationWithCredentials.class).run((context) -> {
+			AmazonSNS amazonSns = context.getBean(AmazonSNS.class);
 
-					// Assert
-					assertThat(amazonSns).hasFieldOrPropertyWithValue(
-							"awsCredentialsProvider",
-							SnsConfigurationWithCredentials.AWS_CREDENTIALS_PROVIDER);
-				});
+			// Assert
+			assertThat(amazonSns).hasFieldOrPropertyWithValue("awsCredentialsProvider",
+					SnsConfigurationWithCredentials.AWS_CREDENTIALS_PROVIDER);
+		});
 	}
 
 	@Test
-	void enableSns_withCustomAmazonSnsClient_shouldBeUsedByTheArgumentResolver()
-			throws Exception {
+	void enableSns_withCustomAmazonSnsClient_shouldBeUsedByTheArgumentResolver() throws Exception {
 		// Arrange & Act
-		this.contextRunner
-				.withUserConfiguration(SnsConfigurationWithCustomAmazonClient.class)
-				.run((context) -> {
-					RequestMappingHandlerAdapter requestMappingHandlerAdapter = context
-							.getBean(RequestMappingHandlerAdapter.class);
+		this.contextRunner.withUserConfiguration(SnsConfigurationWithCustomAmazonClient.class).run((context) -> {
+			RequestMappingHandlerAdapter requestMappingHandlerAdapter = context
+					.getBean(RequestMappingHandlerAdapter.class);
 
-					// Assert
-					HandlerMethodArgumentResolverComposite handlerMethodArgumentResolver;
-					handlerMethodArgumentResolver = (HandlerMethodArgumentResolverComposite) requestMappingHandlerAdapter
-							.getCustomArgumentResolvers().get(0);
-					NotificationStatusHandlerMethodArgumentResolver notificationStatusHandlerMethodArgumentResolver;
-					notificationStatusHandlerMethodArgumentResolver = getNotificationStatusHandlerMethodArgumentResolver(
-							handlerMethodArgumentResolver.getResolvers());
-					assertThat(notificationStatusHandlerMethodArgumentResolver)
-							.hasFieldOrPropertyWithValue("amazonSns",
-									SnsConfigurationWithCustomAmazonClient.AMAZON_SNS);
-				});
+			// Assert
+			HandlerMethodArgumentResolverComposite handlerMethodArgumentResolver;
+			handlerMethodArgumentResolver = (HandlerMethodArgumentResolverComposite) requestMappingHandlerAdapter
+					.getCustomArgumentResolvers().get(0);
+			NotificationStatusHandlerMethodArgumentResolver notificationStatusHandlerMethodArgumentResolver;
+			notificationStatusHandlerMethodArgumentResolver = getNotificationStatusHandlerMethodArgumentResolver(
+					handlerMethodArgumentResolver.getResolvers());
+			assertThat(notificationStatusHandlerMethodArgumentResolver).hasFieldOrPropertyWithValue("amazonSns",
+					SnsConfigurationWithCustomAmazonClient.AMAZON_SNS);
+		});
 	}
 
 	@Test
 	void enableSns_withRegionProvided_shouldBeUsedToCreateClient() throws Exception {
 		// Arrange & Act
-		this.contextRunner.withUserConfiguration(SnsConfigurationWithRegionProvider.class)
-				.run((context) -> {
-					AmazonSNS amazonSns = context.getBean(AmazonSNS.class);
+		this.contextRunner.withUserConfiguration(SnsConfigurationWithRegionProvider.class).run((context) -> {
+			AmazonSNS amazonSns = context.getBean(AmazonSNS.class);
 
-					// Assert
-					assertThat(ReflectionTestUtils.getField(amazonSns, "endpoint")
-							.toString()).isEqualTo(
-									"https://" + Region.getRegion(Regions.EU_WEST_1)
-											.getServiceEndpoint("sns"));
-				});
+			// Assert
+			assertThat(ReflectionTestUtils.getField(amazonSns, "endpoint").toString())
+					.isEqualTo("https://" + Region.getRegion(Regions.EU_WEST_1).getServiceEndpoint("sns"));
+		});
 	}
 
 	private NotificationStatusHandlerMethodArgumentResolver getNotificationStatusHandlerMethodArgumentResolver(
@@ -149,8 +135,7 @@ class SnsAutoConfigurationTest {
 	@EnableWebMvc
 	protected static class SnsConfigurationWithCredentials {
 
-		static final AWSCredentialsProvider AWS_CREDENTIALS_PROVIDER = mock(
-				AWSCredentialsProvider.class);
+		static final AWSCredentialsProvider AWS_CREDENTIALS_PROVIDER = mock(AWSCredentialsProvider.class);
 
 		@Bean
 		AWSCredentialsProvider awsCredentialsProvider() {

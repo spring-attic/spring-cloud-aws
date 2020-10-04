@@ -35,18 +35,16 @@ class SimpleEmailAutoConfigurationTest {
 		this.contextRunner.run(context -> {
 			assertThat(context.getBean(MailSender.class)).isNotNull();
 			assertThat(context.getBean(JavaMailSender.class)).isNotNull();
-			assertThat(context.getBean(JavaMailSender.class))
-					.isSameAs(context.getBean(MailSender.class));
+			assertThat(context.getBean(JavaMailSender.class)).isSameAs(context.getBean(MailSender.class));
 		});
 	}
 
 	@Test
 	void mailIsDisabled() {
-		this.contextRunner.withPropertyValues("cloud.aws.mail.enabled:false")
-				.run(context -> {
-					assertThat(context).doesNotHaveBean(MailSender.class);
-					assertThat(context).doesNotHaveBean(JavaMailSender.class);
-				});
+		this.contextRunner.withPropertyValues("cloud.aws.mail.enabled:false").run(context -> {
+			assertThat(context).doesNotHaveBean(MailSender.class);
+			assertThat(context).doesNotHaveBean(JavaMailSender.class);
+		});
 	}
 
 }
