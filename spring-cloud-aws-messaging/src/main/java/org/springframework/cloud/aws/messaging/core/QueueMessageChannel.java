@@ -74,8 +74,8 @@ public class QueueMessageChannel extends AbstractMessageChannel implements Polla
 
 	private static boolean isSkipHeader(String headerName) {
 		return SqsMessageHeaders.SQS_DELAY_HEADER.equals(headerName)
-				|| SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER.equals(headerName)
-				|| SqsMessageHeaders.SQS_GROUP_ID_HEADER.equals(headerName);
+			|| SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER.equals(headerName)
+			|| SqsMessageHeaders.SQS_GROUP_ID_HEADER.equals(headerName);
 	}
 
 	@Override
@@ -98,21 +98,21 @@ public class QueueMessageChannel extends AbstractMessageChannel implements Polla
 
 	private SendMessageRequest prepareSendMessageRequest(Message<?> message) {
 		SendMessageRequest sendMessageRequest = new SendMessageRequest(this.queueUrl,
-				String.valueOf(message.getPayload()));
+			String.valueOf(message.getPayload()));
 
 		if (message.getHeaders().containsKey(SqsMessageHeaders.SQS_GROUP_ID_HEADER)) {
 			sendMessageRequest
-					.setMessageGroupId(message.getHeaders().get(SqsMessageHeaders.SQS_GROUP_ID_HEADER, String.class));
+				.setMessageGroupId(message.getHeaders().get(SqsMessageHeaders.SQS_GROUP_ID_HEADER, String.class));
 		}
 
 		if (message.getHeaders().containsKey(SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER)) {
 			sendMessageRequest.setMessageDeduplicationId(
-					message.getHeaders().get(SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER, String.class));
+				message.getHeaders().get(SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER, String.class));
 		}
 
 		if (message.getHeaders().containsKey(SqsMessageHeaders.SQS_DELAY_HEADER)) {
 			sendMessageRequest
-					.setDelaySeconds(message.getHeaders().get(SqsMessageHeaders.SQS_DELAY_HEADER, Integer.class));
+				.setDelaySeconds(message.getHeaders().get(SqsMessageHeaders.SQS_DELAY_HEADER, Integer.class));
 		}
 
 		Map<String, MessageAttributeValue> messageAttributes = getMessageAttributes(message);
@@ -124,7 +124,7 @@ public class QueueMessageChannel extends AbstractMessageChannel implements Polla
 	}
 
 	private void sendMessageAndWaitForResult(SendMessageRequest sendMessageRequest, long timeout)
-			throws ExecutionException, TimeoutException {
+		throws ExecutionException, TimeoutException {
 		if (timeout > 0) {
 			Future<SendMessageResult> sendMessageFuture = this.amazonSqs.sendMessageAsync(sendMessageRequest);
 
@@ -167,9 +167,9 @@ public class QueueMessageChannel extends AbstractMessageChannel implements Polla
 			}
 			else {
 				this.logger.warn(String.format(
-						"Message header with name '%s' and type '%s' cannot be sent as"
-								+ " message attribute because it is not supported by SQS.",
-						messageHeaderName, messageHeaderValue != null ? messageHeaderValue.getClass().getName() : ""));
+					"Message header with name '%s' and type '%s' cannot be sent as"
+						+ " message attribute because it is not supported by SQS.",
+					messageHeaderName, messageHeaderValue != null ? messageHeaderValue.getClass().getName() : ""));
 			}
 		}
 
@@ -178,33 +178,33 @@ public class QueueMessageChannel extends AbstractMessageChannel implements Polla
 
 	private MessageAttributeValue getBinaryMessageAttribute(ByteBuffer messageHeaderValue) {
 		return new MessageAttributeValue().withDataType(MessageAttributeDataTypes.BINARY)
-				.withBinaryValue(messageHeaderValue);
+			.withBinaryValue(messageHeaderValue);
 	}
 
 	private MessageAttributeValue getContentTypeMessageAttribute(Object messageHeaderValue) {
 		if (messageHeaderValue instanceof MimeType) {
 			return new MessageAttributeValue().withDataType(MessageAttributeDataTypes.STRING)
-					.withStringValue(messageHeaderValue.toString());
+				.withStringValue(messageHeaderValue.toString());
 		}
 		else if (messageHeaderValue instanceof String) {
 			return new MessageAttributeValue().withDataType(MessageAttributeDataTypes.STRING)
-					.withStringValue((String) messageHeaderValue);
+				.withStringValue((String) messageHeaderValue);
 		}
 		return null;
 	}
 
 	private MessageAttributeValue getStringMessageAttribute(String messageHeaderValue) {
 		return new MessageAttributeValue().withDataType(MessageAttributeDataTypes.STRING)
-				.withStringValue(messageHeaderValue);
+			.withStringValue(messageHeaderValue);
 	}
 
 	private MessageAttributeValue getNumberMessageAttribute(Object messageHeaderValue) {
 		Assert.isTrue(NumberUtils.STANDARD_NUMBER_TYPES.contains(messageHeaderValue.getClass()),
-				"Only standard number types are accepted as message header.");
+			"Only standard number types are accepted as message header.");
 
 		return new MessageAttributeValue()
-				.withDataType(MessageAttributeDataTypes.NUMBER + "." + messageHeaderValue.getClass().getName())
-				.withStringValue(messageHeaderValue.toString());
+			.withDataType(MessageAttributeDataTypes.NUMBER + "." + messageHeaderValue.getClass().getName())
+			.withStringValue(messageHeaderValue.toString());
 	}
 
 	@Override
@@ -217,13 +217,13 @@ public class QueueMessageChannel extends AbstractMessageChannel implements Polla
 		ReceiveMessageResult receiveMessageResult;
 		if (timeout == Long.MIN_VALUE) { /* use Queue default timeout */
 			receiveMessageResult = this.amazonSqs
-					.receiveMessage(new ReceiveMessageRequest(this.queueUrl).withMaxNumberOfMessages(1)
-							.withAttributeNames(ATTRIBUTE_NAMES).withMessageAttributeNames(MESSAGE_ATTRIBUTE_NAMES));
+				.receiveMessage(new ReceiveMessageRequest(this.queueUrl).withMaxNumberOfMessages(1)
+					.withAttributeNames(ATTRIBUTE_NAMES).withMessageAttributeNames(MESSAGE_ATTRIBUTE_NAMES));
 		}
 		else {
 			receiveMessageResult = this.amazonSqs.receiveMessage(new ReceiveMessageRequest(this.queueUrl)
-					.withMaxNumberOfMessages(1).withWaitTimeSeconds(Long.valueOf(timeout).intValue())
-					.withAttributeNames(ATTRIBUTE_NAMES).withMessageAttributeNames(MESSAGE_ATTRIBUTE_NAMES));
+				.withMaxNumberOfMessages(1).withWaitTimeSeconds(Long.valueOf(timeout).intValue())
+				.withAttributeNames(ATTRIBUTE_NAMES).withMessageAttributeNames(MESSAGE_ATTRIBUTE_NAMES));
 		}
 		if (receiveMessageResult == null || receiveMessageResult.getMessages().isEmpty()) {
 			return null;

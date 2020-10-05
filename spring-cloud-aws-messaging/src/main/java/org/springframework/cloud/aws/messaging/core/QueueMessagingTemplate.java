@@ -18,6 +18,7 @@ package org.springframework.cloud.aws.messaging.core;
 
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
+
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.cloud.aws.messaging.core.support.AbstractMessageChannelMessagingSendingTemplate;
 import org.springframework.cloud.aws.messaging.support.destination.DynamicQueueUrlDestinationResolver;
@@ -44,7 +45,7 @@ import org.springframework.messaging.core.DestinationResolvingMessageReceivingOp
  * @since 1.0
  */
 public class QueueMessagingTemplate extends AbstractMessageChannelMessagingSendingTemplate<QueueMessageChannel>
-		implements DestinationResolvingMessageReceivingOperations<QueueMessageChannel> {
+	implements DestinationResolvingMessageReceivingOperations<QueueMessageChannel> {
 
 	private final AmazonSQSAsync amazonSqs;
 
@@ -69,7 +70,7 @@ public class QueueMessagingTemplate extends AbstractMessageChannelMessagingSendi
 	 * composite converter.
 	 */
 	public QueueMessagingTemplate(AmazonSQSAsync amazonSqs, ResourceIdResolver resourceIdResolver,
-			MessageConverter messageConverter) {
+		MessageConverter messageConverter) {
 		this(amazonSqs, new DynamicQueueUrlDestinationResolver(amazonSqs, resourceIdResolver), messageConverter);
 	}
 
@@ -86,7 +87,7 @@ public class QueueMessagingTemplate extends AbstractMessageChannelMessagingSendi
 	 * composite converter.
 	 */
 	public QueueMessagingTemplate(AmazonSQSAsync amazonSqs, DestinationResolver<String> destinationResolver,
-			MessageConverter messageConverter) {
+		MessageConverter messageConverter) {
 		super(destinationResolver);
 		this.amazonSqs = amazonSqs;
 		initMessageConverter(messageConverter);
