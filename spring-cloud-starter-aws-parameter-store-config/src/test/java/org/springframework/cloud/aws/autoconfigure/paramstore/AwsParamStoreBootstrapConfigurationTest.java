@@ -47,10 +47,13 @@ class AwsParamStoreBootstrapConfigurationTest {
 	void testWithStaticRegion() {
 		this.contextRunner.withPropertyValues("aws.paramstore.enabled:true",
 				"aws.paramstore.region:us-east-2").run(context -> {
-					assertThat(context.getBean(AwsParamStorePropertySourceLocator.class))
-							.isNotNull();
-					assertThat(context.getBean(AWSSimpleSystemsManagement.class))
-							.isNotNull();
+					assertThat(context)
+							.hasSingleBean(AwsParamStorePropertySourceLocator.class);
+					assertThat(context).hasSingleBean(AWSSimpleSystemsManagement.class);
+					assertThat(context)
+							.hasSingleBean(AWSSimpleSystemsManagementClient.class);
+					assertThat(context).hasSingleBean(AwsParamStoreProperties.class);
+
 					AwsParamStoreProperties awsParamStoreProperties = context
 							.getBean(AwsParamStoreProperties.class);
 					AWSSimpleSystemsManagementClient awsSimpleClient = context
