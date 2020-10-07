@@ -167,7 +167,7 @@ class QueueMessageChannelTest {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
 		when(amazonSqs.receiveMessage(new ReceiveMessageRequest("http://testQueue")
-				.withWaitTimeSeconds(0).withMaxNumberOfMessages(1)
+			.withMaxNumberOfMessages(1)
 				.withAttributeNames(QueueMessageChannel.ATTRIBUTE_NAMES)
 				.withMessageAttributeNames("All")))
 						.thenReturn(new ReceiveMessageResult().withMessages(Collections
@@ -239,7 +239,7 @@ class QueueMessageChannelTest {
 						new ReceiveMessageResult().withMessages(Collections.emptyList()));
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-				"http://testQueue");
+			"http://testQueue");
 
 		// Act
 		Message<?> receivedMessage = messageChannel.receive(0);
@@ -249,33 +249,77 @@ class QueueMessageChannelTest {
 	}
 
 	@Test
-	void receiveMessage_withMimeTypeMessageAttribute_shouldCopyToHeaders()
-			throws Exception {
+	void receiveMessage_withoutDefaultTimeoutAndOverride_returnsNull() throws Exception {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
-		MimeType mimeType = new MimeType("test", "plain", Charset.forName("UTF-8"));
 		when(amazonSqs.receiveMessage(new ReceiveMessageRequest("http://testQueue")
-				.withWaitTimeSeconds(0).withMaxNumberOfMessages(1)
-				.withAttributeNames(QueueMessageChannel.ATTRIBUTE_NAMES)
-				.withMessageAttributeNames("All"))).thenReturn(new ReceiveMessageResult()
-						.withMessages(new com.amazonaws.services.sqs.model.Message()
-								.withBody("Hello")
-								.withMessageAttributes(Collections.singletonMap(
-										MessageHeaders.CONTENT_TYPE,
-										new MessageAttributeValue()
-												.withDataType(
-														MessageAttributeDataTypes.STRING)
-												.withStringValue(mimeType.toString())))));
+			.withMaxNumberOfMessages(1)
+			.withAttributeNames(QueueMessageChannel.ATTRIBUTE_NAMES)
+			.withMessageAttributeNames("All"))).thenReturn(
+			new ReceiveMessageResult().withMessages(Collections.emptyList()));
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-				"http://testQueue");
+			"http://testQueue");
 
 		// Act
 		Message<?> receivedMessage = messageChannel.receive();
 
 		// Assert
+		assertThat(receivedMessage).isNull();
+	}
+
+	@Test
+	void receiveMessage_withDefaultTimeout_returnsTextMessage() throws Exception {
+		// Arrange
+		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
+		when(amazonSqs.receiveMessage(new ReceiveMessageRequest("http://testQueue")
+			.withMaxNumberOfMessages(1)
+			.withWaitTimeSeconds(10)
+			.withAttributeNames(QueueMessageChannel.ATTRIBUTE_NAMES)
+			.withMessageAttributeNames("All")))
+			.thenReturn(new ReceiveMessageResult().withMessages(Collections
+				.singleton(new com.amazonaws.services.sqs.model.Message()
+					.withBody("content"))));
+
+		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
+			"http://testQueue", 10);
+
+		// Act
+		Message<?> receivedMessage = messageChannel.receive();
+
+		// Assert
+		assertThat(receivedMessage).isNotNull();
+		assertThat(receivedMessage.getPayload()).isEqualTo("content");
+	}
+
+	@Test
+	void receiveMessage_withMimeTypeMessageAttribute_shouldCopyToHeaders()
+		throws Exception {
+		// Arrange
+		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
+		MimeType mimeType = new MimeType("test", "plain", Charset.forName("UTF-8"));
+		when(amazonSqs.receiveMessage(new ReceiveMessageRequest("http://testQueue")
+			.withWaitTimeSeconds(0).withMaxNumberOfMessages(1)
+			.withAttributeNames(QueueMessageChannel.ATTRIBUTE_NAMES)
+				.withMessageAttributeNames("All"))).thenReturn(new ReceiveMessageResult()
+						.withMessages(new com.amazonaws.services.sqs.model.Message()
+								.withBody("Hello")
+								.withMessageAttributes(Collections.singletonMap(
+									MessageHeaders.CONTENT_TYPE,
+									new MessageAttributeValue()
+										.withDataType(
+											MessageAttributeDataTypes.STRING)
+										.withStringValue(mimeType.toString())))));
+
+		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
+			"http://testQueue");
+
+		// Act
+		Message<?> receivedMessage = messageChannel.receive(0);
+
+		// Assert
 		assertThat(receivedMessage.getHeaders().get(MessageHeaders.CONTENT_TYPE))
-				.isEqualTo(mimeType);
+			.isEqualTo(mimeType);
 	}
 
 	@Test
@@ -321,17 +365,17 @@ class QueueMessageChannelTest {
 						.thenReturn(new ReceiveMessageResult().withMessages(
 								new com.amazonaws.services.sqs.model.Message()
 										.withBody("Hello")
-										.withMessageAttributes(Collections.singletonMap(
-												headerName,
-												new MessageAttributeValue().withDataType(
-														MessageAttributeDataTypes.STRING)
-														.withStringValue(headerValue)))));
+									.withMessageAttributes(Collections.singletonMap(
+										headerName,
+										new MessageAttributeValue().withDataType(
+											MessageAttributeDataTypes.STRING)
+											.withStringValue(headerValue)))));
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-				"http://testQueue");
+			"http://testQueue");
 
 		// Act
-		Message<?> receivedMessage = messageChannel.receive();
+		Message<?> receivedMessage = messageChannel.receive(0);
 
 		// Assert
 		assertThat(receivedMessage.getHeaders().get(headerName)).isEqualTo(headerValue);
@@ -461,17 +505,17 @@ class QueueMessageChannelTest {
 		when(amazonSqs.receiveMessage(new ReceiveMessageRequest("http://testQueue")
 				.withWaitTimeSeconds(0).withMaxNumberOfMessages(1)
 				.withAttributeNames(QueueMessageChannel.ATTRIBUTE_NAMES)
-				.withMessageAttributeNames("All")))
-						.thenReturn(new ReceiveMessageResult().withMessages(
-								new com.amazonaws.services.sqs.model.Message()
-										.withBody("Hello")
-										.withMessageAttributes(messageAttributes)));
+			.withMessageAttributeNames("All")))
+			.thenReturn(new ReceiveMessageResult().withMessages(
+				new com.amazonaws.services.sqs.model.Message()
+					.withBody("Hello")
+					.withMessageAttributes(messageAttributes)));
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-				"http://testQueue");
+			"http://testQueue");
 
 		// Act
-		Message<?> receivedMessage = messageChannel.receive();
+		Message<?> receivedMessage = messageChannel.receive(0);
 
 		// Assert
 		assertThat(receivedMessage.getHeaders().get("double")).isEqualTo(doubleValue);
@@ -481,7 +525,7 @@ class QueueMessageChannelTest {
 		assertThat(receivedMessage.getHeaders().get("short")).isEqualTo(shortValue);
 		assertThat(receivedMessage.getHeaders().get("float")).isEqualTo(floatValue);
 		assertThat(receivedMessage.getHeaders().get("bigInteger"))
-				.isEqualTo(bigIntegerValue);
+			.isEqualTo(bigIntegerValue);
 		assertThat(receivedMessage.getHeaders().get("bigDecimal"))
 				.isEqualTo(bigDecimalValue);
 	}
@@ -503,19 +547,19 @@ class QueueMessageChannelTest {
 		when(amazonSqs.receiveMessage(new ReceiveMessageRequest("http://testQueue")
 				.withWaitTimeSeconds(0).withMaxNumberOfMessages(1)
 				.withAttributeNames(QueueMessageChannel.ATTRIBUTE_NAMES)
-				.withMessageAttributeNames("All")))
-						.thenReturn(new ReceiveMessageResult().withMessages(
-								new com.amazonaws.services.sqs.model.Message()
-										.withBody("Hello")
-										.withMessageAttributes(messageAttributes)));
+			.withMessageAttributeNames("All")))
+			.thenReturn(new ReceiveMessageResult().withMessages(
+				new com.amazonaws.services.sqs.model.Message()
+					.withBody("Hello")
+					.withMessageAttributes(messageAttributes)));
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-				"http://testQueue");
+			"http://testQueue");
 
 		// Assert
-		assertThatThrownBy(messageChannel::receive)
-				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining(
-						"Cannot convert String [17] to target class [java.util.concurrent.atomic.AtomicInteger]");
+		assertThatThrownBy(() -> messageChannel.receive(0))
+			.isInstanceOf(IllegalArgumentException.class).hasMessageContaining(
+			"Cannot convert String [17] to target class [java.util.concurrent.atomic.AtomicInteger]");
 	}
 
 	@Test
@@ -534,20 +578,20 @@ class QueueMessageChannelTest {
 		when(amazonSqs.receiveMessage(new ReceiveMessageRequest("http://testQueue")
 				.withWaitTimeSeconds(0).withMaxNumberOfMessages(1)
 				.withAttributeNames(QueueMessageChannel.ATTRIBUTE_NAMES)
-				.withMessageAttributeNames("All")))
-						.thenReturn(new ReceiveMessageResult().withMessages(
-								new com.amazonaws.services.sqs.model.Message()
-										.withBody("Hello")
-										.withMessageAttributes(messageAttributes)));
+			.withMessageAttributeNames("All")))
+			.thenReturn(new ReceiveMessageResult().withMessages(
+				new com.amazonaws.services.sqs.model.Message()
+					.withBody("Hello")
+					.withMessageAttributes(messageAttributes)));
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-				"http://testQueue");
+			"http://testQueue");
 
 		// Assert
-		assertThatThrownBy(messageChannel::receive).isInstanceOf(MessagingException.class)
-				.hasMessageContaining(
-						"Message attribute with value '12' and data type 'Number.class.not.Found' could not be converted"
-								+ " into a Number because target class was not found.");
+		assertThatThrownBy(() -> messageChannel.receive(0)).isInstanceOf(MessagingException.class)
+			.hasMessageContaining(
+				"Message attribute with value '12' and data type 'Number.class.not.Found' could not be converted"
+					+ " into a Number because target class was not found.");
 	}
 
 	@Test
@@ -593,17 +637,17 @@ class QueueMessageChannelTest {
 						.thenReturn(new ReceiveMessageResult().withMessages(
 								new com.amazonaws.services.sqs.model.Message()
 										.withBody("Hello")
-										.withMessageAttributes(Collections.singletonMap(
-												headerName,
-												new MessageAttributeValue().withDataType(
-														MessageAttributeDataTypes.BINARY)
-														.withBinaryValue(headerValue)))));
+									.withMessageAttributes(Collections.singletonMap(
+										headerName,
+										new MessageAttributeValue().withDataType(
+											MessageAttributeDataTypes.BINARY)
+											.withBinaryValue(headerValue)))));
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-				"http://testQueue");
+			"http://testQueue");
 
 		// Act
-		Message<?> receivedMessage = messageChannel.receive();
+		Message<?> receivedMessage = messageChannel.receive(0);
 
 		// Assert
 		assertThat(receivedMessage.getHeaders().get(headerName)).isEqualTo(headerValue);
@@ -644,17 +688,17 @@ class QueueMessageChannelTest {
 						.withMessages(new com.amazonaws.services.sqs.model.Message()
 								.withBody("Hello")
 								.withMessageAttributes(Collections.singletonMap(
-										MessageHeaders.ID,
-										new MessageAttributeValue()
-												.withDataType(
-														MessageAttributeDataTypes.STRING)
-												.withStringValue(uuid.toString())))));
+									MessageHeaders.ID,
+									new MessageAttributeValue()
+										.withDataType(
+											MessageAttributeDataTypes.STRING)
+										.withStringValue(uuid.toString())))));
 
 		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-				"http://testQueue");
+			"http://testQueue");
 
 		// Act
-		Message<?> receivedMessage = messageChannel.receive();
+		Message<?> receivedMessage = messageChannel.receive(0);
 
 		// Assert
 		Object idMessageHeader = receivedMessage.getHeaders().get(MessageHeaders.ID);

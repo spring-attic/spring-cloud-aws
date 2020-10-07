@@ -135,7 +135,7 @@ public class QueueMessagingTemplate extends AbstractMessageChannelMessagingSendi
 
 	@Override
 	public Message<?> receive(String destinationName) throws MessagingException {
-		return resolveMessageChannelByLogicalName(destinationName).receive();
+		return resolveMessageChannelByLogicalName(destinationName).receive(getDefaultTimeout());
 	}
 
 	@Override
