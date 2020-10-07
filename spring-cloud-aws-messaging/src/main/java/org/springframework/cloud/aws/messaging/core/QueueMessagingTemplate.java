@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.aws.messaging.core;
 
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSAsync;
+
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.cloud.aws.messaging.core.support.AbstractMessageChannelMessagingSendingTemplate;
 import org.springframework.cloud.aws.messaging.support.destination.DynamicQueueUrlDestinationResolver;
@@ -26,9 +29,6 @@ import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.core.DestinationResolver;
 import org.springframework.messaging.core.DestinationResolvingMessageReceivingOperations;
-
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSAsync;
 
 /**
  * <b>IMPORTANT</b>: For the message conversion this class always tries to first use the

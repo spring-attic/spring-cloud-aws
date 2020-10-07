@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.aws.messaging.core;
 
-import static org.springframework.cloud.aws.messaging.core.QueueMessageUtils.createMessage;
-
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +23,15 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.sqs.AmazonSQSAsync;
+import com.amazonaws.services.sqs.model.DeleteMessageRequest;
+import com.amazonaws.services.sqs.model.MessageAttributeValue;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
+import com.amazonaws.services.sqs.model.ReceiveMessageResult;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
+import com.amazonaws.services.sqs.model.SendMessageResult;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageDeliveryException;
@@ -35,14 +42,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.MimeType;
 import org.springframework.util.NumberUtils;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.sqs.AmazonSQSAsync;
-import com.amazonaws.services.sqs.model.DeleteMessageRequest;
-import com.amazonaws.services.sqs.model.MessageAttributeValue;
-import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
-import com.amazonaws.services.sqs.model.ReceiveMessageResult;
-import com.amazonaws.services.sqs.model.SendMessageRequest;
-import com.amazonaws.services.sqs.model.SendMessageResult;
+import static org.springframework.cloud.aws.messaging.core.QueueMessageUtils.createMessage;
 
 /**
  * @author Agim Emruli
