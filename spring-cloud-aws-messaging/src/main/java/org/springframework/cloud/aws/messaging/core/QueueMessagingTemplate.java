@@ -16,9 +16,6 @@
 
 package org.springframework.cloud.aws.messaging.core;
 
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSAsync;
-
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.cloud.aws.messaging.core.support.AbstractMessageChannelMessagingSendingTemplate;
 import org.springframework.cloud.aws.messaging.support.destination.DynamicQueueUrlDestinationResolver;
@@ -29,6 +26,9 @@ import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.core.DestinationResolver;
 import org.springframework.messaging.core.DestinationResolvingMessageReceivingOperations;
+
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSAsync;
 
 /**
  * <b>IMPORTANT</b>: For the message conversion this class always tries to first use the
@@ -44,8 +44,9 @@ import org.springframework.messaging.core.DestinationResolvingMessageReceivingOp
  * @author Alain Sahli
  * @since 1.0
  */
-public class QueueMessagingTemplate extends AbstractMessageChannelMessagingSendingTemplate<QueueMessageChannel>
-	implements DestinationResolvingMessageReceivingOperations<QueueMessageChannel> {
+public class QueueMessagingTemplate
+		extends AbstractMessageChannelMessagingSendingTemplate<QueueMessageChannel>
+		implements DestinationResolvingMessageReceivingOperations<QueueMessageChannel> {
 
 	private final AmazonSQSAsync amazonSqs;
 
@@ -55,7 +56,8 @@ public class QueueMessagingTemplate extends AbstractMessageChannelMessagingSendi
 		this(amazonSqs, (ResourceIdResolver) null, null);
 	}
 
-	public QueueMessagingTemplate(AmazonSQSAsync amazonSqs, ResourceIdResolver resourceIdResolver) {
+	public QueueMessagingTemplate(AmazonSQSAsync amazonSqs,
+			ResourceIdResolver resourceIdResolver) {
 		this(amazonSqs, resourceIdResolver, null);
 	}
 
@@ -65,13 +67,15 @@ public class QueueMessagingTemplate extends AbstractMessageChannelMessagingSendi
 	 * the default configuration to resolve destination names.
 	 * @param amazonSqs The {@link AmazonSQS} client, cannot be {@code null}.
 	 * @param resourceIdResolver The {@link ResourceIdResolver} to be used for resolving
-	 * logical queue names.
+	 *     logical queue names.
 	 * @param messageConverter A {@link MessageConverter} that is going to be added to the
-	 * composite converter.
+	 *     composite converter.
 	 */
-	public QueueMessagingTemplate(AmazonSQSAsync amazonSqs, ResourceIdResolver resourceIdResolver,
-		MessageConverter messageConverter) {
-		this(amazonSqs, new DynamicQueueUrlDestinationResolver(amazonSqs, resourceIdResolver), messageConverter);
+	public QueueMessagingTemplate(AmazonSQSAsync amazonSqs,
+			ResourceIdResolver resourceIdResolver, MessageConverter messageConverter) {
+		this(amazonSqs,
+				new DynamicQueueUrlDestinationResolver(amazonSqs, resourceIdResolver),
+				messageConverter);
 	}
 
 	/**
@@ -80,14 +84,15 @@ public class QueueMessagingTemplate extends AbstractMessageChannelMessagingSendi
 	 * the default configuration to resolve destination names.
 	 * @param amazonSqs The {@link AmazonSQS} client, cannot be {@code null}.
 	 * @param destinationResolver A destination resolver implementation to resolve queue
-	 * names into queue urls. The destination resolver will be wrapped into a
-	 * {@link org.springframework.messaging.core.CachingDestinationResolverProxy} to avoid
-	 * duplicate queue url resolutions.
+	 *     names into queue urls. The destination resolver will be wrapped into a
+	 *     {@link org.springframework.messaging.core.CachingDestinationResolverProxy} to
+	 *     avoid duplicate queue url resolutions.
 	 * @param messageConverter A {@link MessageConverter} that is going to be added to the
-	 * composite converter.
+	 *     composite converter.
 	 */
-	public QueueMessagingTemplate(AmazonSQSAsync amazonSqs, DestinationResolver<String> destinationResolver,
-		MessageConverter messageConverter) {
+	public QueueMessagingTemplate(AmazonSQSAsync amazonSqs,
+			DestinationResolver<String> destinationResolver,
+			MessageConverter messageConverter) {
 		super(destinationResolver);
 		this.amazonSqs = amazonSqs;
 		initMessageConverter(messageConverter);
@@ -102,8 +107,10 @@ public class QueueMessagingTemplate extends AbstractMessageChannelMessagingSendi
 	}
 
 	@Override
-	protected QueueMessageChannel resolveMessageChannel(String physicalResourceIdentifier) {
-		return new QueueMessageChannel(this.amazonSqs, physicalResourceIdentifier, getDefaultTimeout());
+	protected QueueMessageChannel resolveMessageChannel(
+			String physicalResourceIdentifier) {
+		return new QueueMessageChannel(this.amazonSqs, physicalResourceIdentifier,
+				getDefaultTimeout());
 	}
 
 	@Override
@@ -123,7 +130,8 @@ public class QueueMessagingTemplate extends AbstractMessageChannelMessagingSendi
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T receiveAndConvert(QueueMessageChannel destination, Class<T> targetClass) throws MessagingException {
+	public <T> T receiveAndConvert(QueueMessageChannel destination, Class<T> targetClass)
+			throws MessagingException {
 		Message<?> message = destination.receive();
 		if (message != null) {
 			return (T) getMessageConverter().fromMessage(message, targetClass);
@@ -135,11 +143,13 @@ public class QueueMessagingTemplate extends AbstractMessageChannelMessagingSendi
 
 	@Override
 	public Message<?> receive(String destinationName) throws MessagingException {
-		return resolveMessageChannelByLogicalName(destinationName).receive(getDefaultTimeout());
+		return resolveMessageChannelByLogicalName(destinationName)
+				.receive(getDefaultTimeout());
 	}
 
 	@Override
-	public <T> T receiveAndConvert(String destinationName, Class<T> targetClass) throws MessagingException {
+	public <T> T receiveAndConvert(String destinationName, Class<T> targetClass)
+			throws MessagingException {
 		QueueMessageChannel channel = resolveMessageChannelByLogicalName(destinationName);
 		return receiveAndConvert(channel, targetClass);
 	}

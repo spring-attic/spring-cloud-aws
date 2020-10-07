@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.aws.messaging.core;
 
+import static org.springframework.cloud.aws.messaging.core.QueueMessageUtils.createMessage;
+
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,15 +25,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.sqs.AmazonSQSAsync;
-import com.amazonaws.services.sqs.model.DeleteMessageRequest;
-import com.amazonaws.services.sqs.model.MessageAttributeValue;
-import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
-import com.amazonaws.services.sqs.model.ReceiveMessageResult;
-import com.amazonaws.services.sqs.model.SendMessageRequest;
-import com.amazonaws.services.sqs.model.SendMessageResult;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageDeliveryException;
@@ -42,14 +35,22 @@ import org.springframework.util.Assert;
 import org.springframework.util.MimeType;
 import org.springframework.util.NumberUtils;
 
-import static org.springframework.cloud.aws.messaging.core.QueueMessageUtils.createMessage;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.sqs.AmazonSQSAsync;
+import com.amazonaws.services.sqs.model.DeleteMessageRequest;
+import com.amazonaws.services.sqs.model.MessageAttributeValue;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
+import com.amazonaws.services.sqs.model.ReceiveMessageResult;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
+import com.amazonaws.services.sqs.model.SendMessageResult;
 
 /**
  * @author Agim Emruli
  * @author Alain Sahli
  * @since 1.0
  */
-public class QueueMessageChannel extends AbstractMessageChannel implements PollableChannel {
+public class QueueMessageChannel extends AbstractMessageChannel
+		implements PollableChannel {
 
 	static final String ATTRIBUTE_NAMES = "All";
 
@@ -66,7 +67,8 @@ public class QueueMessageChannel extends AbstractMessageChannel implements Polla
 		this.queueUrl = queueUrl;
 	}
 
-	public QueueMessageChannel(AmazonSQSAsync amazonSqs, String queueUrl, long defaultTimeout) {
+	public QueueMessageChannel(AmazonSQSAsync amazonSqs, String queueUrl,
+			long defaultTimeout) {
 		this.amazonSqs = amazonSqs;
 		this.queueUrl = queueUrl;
 		this.defaultTimeout = defaultTimeout;
@@ -74,8 +76,8 @@ public class QueueMessageChannel extends AbstractMessageChannel implements Polla
 
 	private static boolean isSkipHeader(String headerName) {
 		return SqsMessageHeaders.SQS_DELAY_HEADER.equals(headerName)
-			|| SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER.equals(headerName)
-			|| SqsMessageHeaders.SQS_GROUP_ID_HEADER.equals(headerName);
+				|| SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER.equals(headerName)
+				|| SqsMessageHeaders.SQS_GROUP_ID_HEADER.equals(headerName);
 	}
 
 	@Override
@@ -98,24 +100,26 @@ public class QueueMessageChannel extends AbstractMessageChannel implements Polla
 
 	private SendMessageRequest prepareSendMessageRequest(Message<?> message) {
 		SendMessageRequest sendMessageRequest = new SendMessageRequest(this.queueUrl,
-			String.valueOf(message.getPayload()));
+				String.valueOf(message.getPayload()));
 
 		if (message.getHeaders().containsKey(SqsMessageHeaders.SQS_GROUP_ID_HEADER)) {
-			sendMessageRequest
-				.setMessageGroupId(message.getHeaders().get(SqsMessageHeaders.SQS_GROUP_ID_HEADER, String.class));
+			sendMessageRequest.setMessageGroupId(message.getHeaders()
+					.get(SqsMessageHeaders.SQS_GROUP_ID_HEADER, String.class));
 		}
 
-		if (message.getHeaders().containsKey(SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER)) {
-			sendMessageRequest.setMessageDeduplicationId(
-				message.getHeaders().get(SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER, String.class));
+		if (message.getHeaders()
+				.containsKey(SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER)) {
+			sendMessageRequest.setMessageDeduplicationId(message.getHeaders()
+					.get(SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER, String.class));
 		}
 
 		if (message.getHeaders().containsKey(SqsMessageHeaders.SQS_DELAY_HEADER)) {
-			sendMessageRequest
-				.setDelaySeconds(message.getHeaders().get(SqsMessageHeaders.SQS_DELAY_HEADER, Integer.class));
+			sendMessageRequest.setDelaySeconds(message.getHeaders()
+					.get(SqsMessageHeaders.SQS_DELAY_HEADER, Integer.class));
 		}
 
-		Map<String, MessageAttributeValue> messageAttributes = getMessageAttributes(message);
+		Map<String, MessageAttributeValue> messageAttributes = getMessageAttributes(
+				message);
 		if (!messageAttributes.isEmpty()) {
 			sendMessageRequest.withMessageAttributes(messageAttributes);
 		}
@@ -123,10 +127,11 @@ public class QueueMessageChannel extends AbstractMessageChannel implements Polla
 		return sendMessageRequest;
 	}
 
-	private void sendMessageAndWaitForResult(SendMessageRequest sendMessageRequest, long timeout)
-		throws ExecutionException, TimeoutException {
+	private void sendMessageAndWaitForResult(SendMessageRequest sendMessageRequest,
+			long timeout) throws ExecutionException, TimeoutException {
 		if (timeout > 0) {
-			Future<SendMessageResult> sendMessageFuture = this.amazonSqs.sendMessageAsync(sendMessageRequest);
+			Future<SendMessageResult> sendMessageFuture = this.amazonSqs
+					.sendMessageAsync(sendMessageRequest);
 
 			try {
 				sendMessageFuture.get(timeout, TimeUnit.MILLISECONDS);
@@ -150,61 +155,77 @@ public class QueueMessageChannel extends AbstractMessageChannel implements Polla
 				continue;
 			}
 
-			if (MessageHeaders.CONTENT_TYPE.equals(messageHeaderName) && messageHeaderValue != null) {
-				messageAttributes.put(messageHeaderName, getContentTypeMessageAttribute(messageHeaderValue));
+			if (MessageHeaders.CONTENT_TYPE.equals(messageHeaderName)
+					&& messageHeaderValue != null) {
+				messageAttributes.put(messageHeaderName,
+						getContentTypeMessageAttribute(messageHeaderValue));
 			}
-			else if (MessageHeaders.ID.equals(messageHeaderName) && messageHeaderValue != null) {
-				messageAttributes.put(messageHeaderName, getStringMessageAttribute(messageHeaderValue.toString()));
+			else if (MessageHeaders.ID.equals(messageHeaderName)
+					&& messageHeaderValue != null) {
+				messageAttributes.put(messageHeaderName,
+						getStringMessageAttribute(messageHeaderValue.toString()));
 			}
 			else if (messageHeaderValue instanceof String) {
-				messageAttributes.put(messageHeaderName, getStringMessageAttribute((String) messageHeaderValue));
+				messageAttributes.put(messageHeaderName,
+						getStringMessageAttribute((String) messageHeaderValue));
 			}
 			else if (messageHeaderValue instanceof Number) {
-				messageAttributes.put(messageHeaderName, getNumberMessageAttribute(messageHeaderValue));
+				messageAttributes.put(messageHeaderName,
+						getNumberMessageAttribute(messageHeaderValue));
 			}
 			else if (messageHeaderValue instanceof ByteBuffer) {
-				messageAttributes.put(messageHeaderName, getBinaryMessageAttribute((ByteBuffer) messageHeaderValue));
+				messageAttributes.put(messageHeaderName,
+						getBinaryMessageAttribute((ByteBuffer) messageHeaderValue));
 			}
 			else {
 				this.logger.warn(String.format(
-					"Message header with name '%s' and type '%s' cannot be sent as"
-						+ " message attribute because it is not supported by SQS.",
-					messageHeaderName, messageHeaderValue != null ? messageHeaderValue.getClass().getName() : ""));
+						"Message header with name '%s' and type '%s' cannot be sent as"
+								+ " message attribute because it is not supported by SQS.",
+						messageHeaderName,
+						messageHeaderValue != null
+								? messageHeaderValue.getClass().getName()
+								: ""));
 			}
 		}
 
 		return messageAttributes;
 	}
 
-	private MessageAttributeValue getBinaryMessageAttribute(ByteBuffer messageHeaderValue) {
+	private MessageAttributeValue getBinaryMessageAttribute(
+			ByteBuffer messageHeaderValue) {
 		return new MessageAttributeValue().withDataType(MessageAttributeDataTypes.BINARY)
-			.withBinaryValue(messageHeaderValue);
+				.withBinaryValue(messageHeaderValue);
 	}
 
-	private MessageAttributeValue getContentTypeMessageAttribute(Object messageHeaderValue) {
+	private MessageAttributeValue getContentTypeMessageAttribute(
+			Object messageHeaderValue) {
 		if (messageHeaderValue instanceof MimeType) {
-			return new MessageAttributeValue().withDataType(MessageAttributeDataTypes.STRING)
-				.withStringValue(messageHeaderValue.toString());
+			return new MessageAttributeValue()
+					.withDataType(MessageAttributeDataTypes.STRING)
+					.withStringValue(messageHeaderValue.toString());
 		}
 		else if (messageHeaderValue instanceof String) {
-			return new MessageAttributeValue().withDataType(MessageAttributeDataTypes.STRING)
-				.withStringValue((String) messageHeaderValue);
+			return new MessageAttributeValue()
+					.withDataType(MessageAttributeDataTypes.STRING)
+					.withStringValue((String) messageHeaderValue);
 		}
 		return null;
 	}
 
 	private MessageAttributeValue getStringMessageAttribute(String messageHeaderValue) {
 		return new MessageAttributeValue().withDataType(MessageAttributeDataTypes.STRING)
-			.withStringValue(messageHeaderValue);
+				.withStringValue(messageHeaderValue);
 	}
 
 	private MessageAttributeValue getNumberMessageAttribute(Object messageHeaderValue) {
-		Assert.isTrue(NumberUtils.STANDARD_NUMBER_TYPES.contains(messageHeaderValue.getClass()),
-			"Only standard number types are accepted as message header.");
+		Assert.isTrue(
+				NumberUtils.STANDARD_NUMBER_TYPES.contains(messageHeaderValue.getClass()),
+				"Only standard number types are accepted as message header.");
 
 		return new MessageAttributeValue()
-			.withDataType(MessageAttributeDataTypes.NUMBER + "." + messageHeaderValue.getClass().getName())
-			.withStringValue(messageHeaderValue.toString());
+				.withDataType(MessageAttributeDataTypes.NUMBER + "."
+						+ messageHeaderValue.getClass().getName())
+				.withStringValue(messageHeaderValue.toString());
 	}
 
 	@Override
@@ -216,21 +237,27 @@ public class QueueMessageChannel extends AbstractMessageChannel implements Polla
 	public Message<String> receive(long timeout) {
 		ReceiveMessageResult receiveMessageResult;
 		if (timeout == Long.MIN_VALUE) { /* use Queue default timeout */
-			receiveMessageResult = this.amazonSqs
-				.receiveMessage(new ReceiveMessageRequest(this.queueUrl).withMaxNumberOfMessages(1)
-					.withAttributeNames(ATTRIBUTE_NAMES).withMessageAttributeNames(MESSAGE_ATTRIBUTE_NAMES));
+			receiveMessageResult = this.amazonSqs.receiveMessage(
+					new ReceiveMessageRequest(this.queueUrl).withMaxNumberOfMessages(1)
+							.withAttributeNames(ATTRIBUTE_NAMES)
+							.withMessageAttributeNames(MESSAGE_ATTRIBUTE_NAMES));
 		}
 		else {
-			receiveMessageResult = this.amazonSqs.receiveMessage(new ReceiveMessageRequest(this.queueUrl)
-				.withMaxNumberOfMessages(1).withWaitTimeSeconds(Long.valueOf(timeout).intValue())
-				.withAttributeNames(ATTRIBUTE_NAMES).withMessageAttributeNames(MESSAGE_ATTRIBUTE_NAMES));
+			receiveMessageResult = this.amazonSqs.receiveMessage(
+					new ReceiveMessageRequest(this.queueUrl).withMaxNumberOfMessages(1)
+							.withWaitTimeSeconds(Long.valueOf(timeout).intValue())
+							.withAttributeNames(ATTRIBUTE_NAMES)
+							.withMessageAttributeNames(MESSAGE_ATTRIBUTE_NAMES));
 		}
-		if (receiveMessageResult == null || receiveMessageResult.getMessages().isEmpty()) {
+		if (receiveMessageResult == null
+				|| receiveMessageResult.getMessages().isEmpty()) {
 			return null;
 		}
-		com.amazonaws.services.sqs.model.Message amazonMessage = receiveMessageResult.getMessages().get(0);
+		com.amazonaws.services.sqs.model.Message amazonMessage = receiveMessageResult
+				.getMessages().get(0);
 		Message<String> message = createMessage(amazonMessage);
-		this.amazonSqs.deleteMessage(new DeleteMessageRequest(this.queueUrl, amazonMessage.getReceiptHandle()));
+		this.amazonSqs.deleteMessage(new DeleteMessageRequest(this.queueUrl,
+				amazonMessage.getReceiptHandle()));
 		return message;
 	}
 
