@@ -37,6 +37,7 @@ import org.springframework.cloud.aws.autoconfigure.context.ContextCredentialsAut
 import org.springframework.cloud.aws.context.annotation.ConditionalOnMissingAmazonClient;
 import org.springframework.cloud.aws.core.config.AmazonWebserviceClientFactoryBean;
 import org.springframework.cloud.aws.core.region.RegionProvider;
+import org.springframework.cloud.aws.core.region.StaticRegionProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -59,6 +60,17 @@ import org.springframework.context.annotation.Import;
 @ConditionalOnClass({ CloudWatchMeterRegistry.class, RegionProvider.class })
 public class CloudWatchExportAutoConfiguration {
 
+	private final AWSCredentialsProvider credentialsProvider;
+
+	private final RegionProvider regionProvider;
+
+	public CloudWatchExportAutoConfiguration(AWSCredentialsProvider credentialsProvider,
+			ObjectProvider<RegionProvider> regionProvider, CloudWatchProperties properties) {
+		this.credentialsProvider = credentialsProvider;
+		this.regionProvider = properties.getRegion() == null ? regionProvider.getIfAvailable()
+				: new StaticRegionProvider(properties.getRegion());
+	}
+
 	@Bean
 	@ConditionalOnProperty(value = "management.metrics.export.cloudwatch.enabled", matchIfMissing = true)
 	public CloudWatchMeterRegistry cloudWatchMeterRegistry(CloudWatchConfig config, Clock clock,
@@ -68,10 +80,9 @@ public class CloudWatchExportAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingAmazonClient(AmazonCloudWatchAsync.class)
-	public AmazonWebserviceClientFactoryBean<AmazonCloudWatchAsyncClient> amazonCloudWatchAsync(
-			AWSCredentialsProvider credentialsProvider, ObjectProvider<RegionProvider> regionProvider) {
-		return new AmazonWebserviceClientFactoryBean<>(AmazonCloudWatchAsyncClient.class, credentialsProvider,
-				regionProvider.getIfAvailable());
+	public AmazonWebserviceClientFactoryBean<AmazonCloudWatchAsyncClient> amazonCloudWatchAsync() {
+		return new AmazonWebserviceClientFactoryBean<>(AmazonCloudWatchAsyncClient.class, this.credentialsProvider,
+				this.regionProvider);
 	}
 
 	@Bean
