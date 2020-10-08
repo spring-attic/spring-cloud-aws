@@ -34,12 +34,13 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -48,8 +49,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
-@SpringBootTest
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
 public class AwsS3SampleComponentTest {
 
@@ -71,13 +71,7 @@ public class AwsS3SampleComponentTest {
 
 	private MultipartFile multipartFile;
 
-	@TestConfiguration
-	static class AwsS3SampleComponentTestConfig {
-		@Bean
-		public AwsS3SampleComponent awsS3SampleComponent() {
-			return new AwsS3SampleComponent();
-		}
-	}
+
 
 	@BeforeEach
 	public void setUp() {
@@ -148,7 +142,7 @@ public class AwsS3SampleComponentTest {
 
 		byte[] resultContent = awsS3SampleComponent.getContent("Test", "Test");
 
-		assertEquals(CONTENT.getBytes(), resultContent);
+		assertEquals(CONTENT, new String(resultContent));
 	}
 
 	@Test
@@ -159,7 +153,7 @@ public class AwsS3SampleComponentTest {
 
 		byte[] resultContent = awsS3SampleComponent.getContent("Test");
 
-		assertEquals(CONTENT.getBytes(), resultContent);
+		assertEquals(CONTENT, new String(resultContent));
 	}
 
 
@@ -194,5 +188,13 @@ public class AwsS3SampleComponentTest {
 		List<String> resultContent = awsS3SampleComponent.getObjectsList("Test");
 
 		assertEquals(Arrays.asList("Bucket/Test/One.mov", "Bucket/Test/Two.mov", "Bucket/Test/Three.mov"), resultContent);
+	}
+
+	@TestConfiguration
+	static class AwsS3SampleComponentTestConfig {
+		@Bean
+		public AwsS3SampleComponent awsS3SampleComponent() {
+			return new AwsS3SampleComponent();
+		}
 	}
 }

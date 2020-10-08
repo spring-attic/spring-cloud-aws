@@ -18,13 +18,17 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xmlns="http://maven.apache.org/POM/4.0.0"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-aws</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
 	<artifactId>spring-cloud-aws-samples</artifactId>
+	<version>3.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
 	<name>Spring Cloud AWS Samples</name>
 	<description>Spring Cloud AWS Samples</description>
 	<modules>
