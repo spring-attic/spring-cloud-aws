@@ -6,7 +6,6 @@ on:
       - 3.0.x
       - 2.3.x
       - 2.2.x
-      - upload-docs-to-s3
 jobs:
   build:
     runs-on: ubuntu-latest
