@@ -6,6 +6,7 @@ on:
       - 3.0.x
       - 2.3.x
       - 2.2.x
+      - upload-docs-to-s3
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -28,4 +29,6 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.S3_AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_AWS_SECRET_KEY }}
-        run: aws s3 sync --delete --acl public-read docs/target/generated-docs/ s3://awspring-docs/spring-cloud-aws/docs/
+        run: |
+          aws s3 sync --delete --acl public-read docs/target/generated-docs/ s3://awspring-docs/spring-cloud-aws/docs/
+          aws cloudfront create-invalidation --distribution-id EA7LER7CI960A --paths /*
