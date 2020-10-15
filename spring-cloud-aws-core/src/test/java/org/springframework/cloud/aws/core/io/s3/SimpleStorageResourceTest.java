@@ -272,7 +272,6 @@ class SimpleStorageResourceTest {
 					byte[] content = new byte[messageContext.length()];
 					assertThat(((InputStream) invocation.getArguments()[2]).read(content)).isEqualTo(content.length);
 					assertThat(new String(content)).isEqualTo(messageContext);
-					return new PutObjectResult();
 					assertThat(((ObjectMetadata) invocation.getArgument(3)).getContentType()).isEqualTo(null);
 					return new PutObjectResult();
 				});
