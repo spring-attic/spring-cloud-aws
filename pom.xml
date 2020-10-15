@@ -27,7 +27,7 @@
 	</parent>
 
 	<artifactId>spring-cloud-aws</artifactId>
-	<version>3.0.0-M4</version>
+	<version>3.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Spring Cloud AWS</name>
 	<description>Spring Cloud AWS</description>
