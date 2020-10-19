@@ -44,10 +44,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(ParameterStoreProperties.class)
 @ConditionalOnMissingClass("org.springframework.cloud.aws.autoconfigure.paramstore.AwsParamStoreBootstrapConfiguration")
-@ConditionalOnClass({ AWSSimpleSystemsManagement.class,
-		AwsParamStorePropertySourceLocator.class })
-@ConditionalOnProperty(prefix = "spring.cloud.aws.parameterstore", name = "enabled",
-		matchIfMissing = true)
+@ConditionalOnClass({ AWSSimpleSystemsManagement.class, AwsParamStorePropertySourceLocator.class })
+@ConditionalOnProperty(prefix = "spring.cloud.aws.parameterstore", name = "enabled", matchIfMissing = true)
 public class AwsParameterStoreBootstrapConfiguration {
 
 	private final RegionProvider regionProvider;
@@ -56,8 +54,7 @@ public class AwsParameterStoreBootstrapConfiguration {
 
 	public AwsParameterStoreBootstrapConfiguration(ParameterStoreProperties properties,
 			ObjectProvider<RegionProvider> regionProvider) {
-		this.regionProvider = properties.getRegion() == null
-				? regionProvider.getIfAvailable()
+		this.regionProvider = properties.getRegion() == null ? regionProvider.getIfAvailable()
 				: new StaticRegionProvider(properties.getRegion());
 		this.properties = properties;
 	}
@@ -65,15 +62,13 @@ public class AwsParameterStoreBootstrapConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public AmazonWebserviceClientFactoryBean<AWSSimpleSystemsManagementClient> ssmClient() {
-		return new AmazonWebserviceClientFactoryBean<>(
-				AWSSimpleSystemsManagementClient.class, null, this.regionProvider);
+		return new AmazonWebserviceClientFactoryBean<>(AWSSimpleSystemsManagementClient.class, null,
+				this.regionProvider);
 	}
 
 	@Bean
-	public AwsParamStorePropertySourceLocator awsParamStorePropertySourceLocator(
-			AWSSimpleSystemsManagement ssmClient) {
-		AwsParamStorePropertySourceLocator propertySourceLocator = new AwsParamStorePropertySourceLocator(
-				ssmClient);
+	public AwsParamStorePropertySourceLocator awsParamStorePropertySourceLocator(AWSSimpleSystemsManagement ssmClient) {
+		AwsParamStorePropertySourceLocator propertySourceLocator = new AwsParamStorePropertySourceLocator(ssmClient);
 		propertySourceLocator.setName(this.properties.getName());
 		propertySourceLocator.setPrefix(this.properties.getPrefix());
 		propertySourceLocator.setDefaultContext(this.properties.getDefaultContext());

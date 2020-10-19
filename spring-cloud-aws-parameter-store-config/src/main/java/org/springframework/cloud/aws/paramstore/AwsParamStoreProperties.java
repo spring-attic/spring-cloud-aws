@@ -109,8 +109,7 @@ public class AwsParamStoreProperties implements Validator {
 		}
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.parameterstore.prefix")
+	@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.parameterstore.prefix")
 	public String getPrefix() {
 		return prefix;
 	}
@@ -119,8 +118,7 @@ public class AwsParamStoreProperties implements Validator {
 		this.prefix = prefix;
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.parameterstore.default-context")
+	@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.parameterstore.default-context")
 	public String getDefaultContext() {
 		return defaultContext;
 	}
@@ -129,8 +127,7 @@ public class AwsParamStoreProperties implements Validator {
 		this.defaultContext = defaultContext;
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.parameterstore.profile-separator")
+	@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.parameterstore.profile-separator")
 	public String getProfileSeparator() {
 		return profileSeparator;
 	}
@@ -139,8 +136,7 @@ public class AwsParamStoreProperties implements Validator {
 		this.profileSeparator = profileSeparator;
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.parameterstore.fail-fast")
+	@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.parameterstore.fail-fast")
 	public boolean isFailFast() {
 		return failFast;
 	}
@@ -158,8 +154,7 @@ public class AwsParamStoreProperties implements Validator {
 		this.name = name;
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.parameterstore.enabled")
+	@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.parameterstore.enabled")
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -168,8 +163,7 @@ public class AwsParamStoreProperties implements Validator {
 		this.enabled = enabled;
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.parameterstore.region")
+	@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.parameterstore.region")
 	public String getRegion() {
 		return region;
 	}

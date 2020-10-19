@@ -35,14 +35,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AwsParameterStoreBootstrapConfigurationTest {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-			.withConfiguration(
-					AutoConfigurations.of(AwsParameterStoreBootstrapConfiguration.class));
+			.withConfiguration(AutoConfigurations.of(AwsParameterStoreBootstrapConfiguration.class));
 
 	@Test
 	void testWithDefaultRegion() {
 		this.contextRunner.run(context -> {
-			AWSSimpleSystemsManagementClient client = context
-					.getBean(AWSSimpleSystemsManagementClient.class);
+			AWSSimpleSystemsManagementClient client = context.getBean(AWSSimpleSystemsManagementClient.class);
 			Object region = ReflectionTestUtils.getField(client, "signingRegion");
 			assertThat(region).isEqualTo(Regions.DEFAULT_REGION.getName());
 		});
@@ -50,23 +48,18 @@ class AwsParameterStoreBootstrapConfigurationTest {
 
 	@Test
 	void testWithStaticRegion() {
-		this.contextRunner
-				.withPropertyValues("spring.cloud.aws.parameterstore.region:us-east-1")
-				.run(context -> {
-					AWSSimpleSystemsManagementClient client = context
-							.getBean(AWSSimpleSystemsManagementClient.class);
-					Object region = ReflectionTestUtils.getField(client, "signingRegion");
-					assertThat(region).isEqualTo("us-east-1");
-				});
+		this.contextRunner.withPropertyValues("spring.cloud.aws.parameterstore.region:us-east-1").run(context -> {
+			AWSSimpleSystemsManagementClient client = context.getBean(AWSSimpleSystemsManagementClient.class);
+			Object region = ReflectionTestUtils.getField(client, "signingRegion");
+			assertThat(region).isEqualTo("us-east-1");
+		});
 	}
 
 	@Test
 	void testUserAgent() {
 		this.contextRunner.run(context -> {
-			AWSSimpleSystemsManagementClient client = context
-					.getBean(AWSSimpleSystemsManagementClient.class);
-			assertThat(client.getClientConfiguration().getUserAgentSuffix())
-					.startsWith("spring-cloud-aws/");
+			AWSSimpleSystemsManagementClient client = context.getBean(AWSSimpleSystemsManagementClient.class);
+			assertThat(client.getClientConfiguration().getUserAgentSuffix()).startsWith("spring-cloud-aws/");
 		});
 	}
 

@@ -98,8 +98,7 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 		addProfiles(this.contexts, defaultContext, profiles);
 		this.contexts.add(defaultContext + "/");
 
-		CompositePropertySource composite = new CompositePropertySource(
-				"aws-parameter-store");
+		CompositePropertySource composite = new CompositePropertySource("aws-parameter-store");
 
 		for (String propertySourceContext : this.contexts) {
 			try {
@@ -113,8 +112,7 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 					ReflectionUtils.rethrowRuntimeException(e);
 				}
 				else {
-					logger.warn("Unable to load AWS config from " + propertySourceContext,
-							e);
+					logger.warn("Unable to load AWS config from " + propertySourceContext, e);
 				}
 			}
 		}
@@ -123,14 +121,12 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 	}
 
 	private AwsParamStorePropertySource create(String context) {
-		AwsParamStorePropertySource propertySource = new AwsParamStorePropertySource(
-				context, this.ssmClient);
+		AwsParamStorePropertySource propertySource = new AwsParamStorePropertySource(context, this.ssmClient);
 		propertySource.init();
 		return propertySource;
 	}
 
-	private void addProfiles(Set<String> contexts, String baseContext,
-			List<String> profiles) {
+	private void addProfiles(Set<String> contexts, String baseContext, List<String> profiles) {
 		for (String profile : profiles) {
 			contexts.add(baseContext + getProfileSeparator() + profile + "/");
 		}
