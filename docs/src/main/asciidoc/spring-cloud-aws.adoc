@@ -790,6 +790,52 @@ You can configure the following settings in a Spring Cloud `bootstrap.properties
 |`aws.secretsmanager.enabled`
 |`true`
 |Can be used to disable the Secrets Manager Configuration support even though the auto-configuration is on the classpath.
+
+|`aws.secretsmanager.region`
+|`_`
+|The specific region for Secrets Manager integration.
+
+|===
+
+There is a new starter `spring-cloud-starter-aws-secrets-manager` and it offers the same configuration properties with
+prefix `spring.cloud`.
+
+[cols="3*", options="header"]
+|===
+|property
+|default
+|explanation
+
+|`spring.cloud.aws.secretsmanager.prefix`
+|`/secret`
+|Prefix indicating first level for every property loaded from the Secrets Manager.
+Value must start with a forward slash followed by one or more valid path segments or be empty.
+
+|`spring.cloud.aws.secretsmanager.defaultContext`
+|`application`
+|Name of the context that defines properties shared across all services
+
+|`spring.cloud.aws.secretsmanager.profileSeparator`
+|`_`
+|String that separates an appended profile from the context name. Can only contain
+dots, dashes, forward slashes, backward slashes and underscores next to alphanumeric characters.
+
+|`spring.cloud.aws.secretsmanager.failFast`
+|`true`
+|Indicates if an error while retrieving the secrets should fail starting the application.
+
+|`spring.cloud.aws.secretsmanager.name`
+|the configured value for `spring.application.name`
+|Name to use when constructing the path for the properties to look up for this specific service.
+
+|`spring.cloud.aws.secretsmanager.enabled`
+|`true`
+|Can be used to disable the Secrets Manager Configuration support even though the auto-configuration is on the classpath.
+
+|`spring.cloud.aws.secretsmanager.region`
+|`_`
+|The specific region for Secrets Manager integration.
+
 |===
 
 == Managing cloud environments

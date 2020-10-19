@@ -29,5 +29,12 @@
 |cloud.aws.sqs.region || The specific region for SQS integration.
 |cloud.aws.stack.auto | true | Enables the automatic stack name detection for the application.
 |cloud.aws.stack.name |  | The name of the manually configured stack name that will be used to retrieve the resources.
+|spring.cloud.aws.secretsmanager.default-context | application |
+|spring.cloud.aws.secretsmanager.enabled | true | Is AWS Secrets Manager support enabled.
+|spring.cloud.aws.secretsmanager.fail-fast | true | Throw exceptions during config lookup if true, otherwise, log warnings.
+|spring.cloud.aws.secretsmanager.name |  | Alternative to spring.application.name to use in looking up values in AWS Secrets Manager.
+|spring.cloud.aws.secretsmanager.prefix | /secret | Prefix indicating first level for every property. Value must start with a forward slash followed by a valid path segment or be empty. Defaults to "/config".
+|spring.cloud.aws.secretsmanager.profile-separator | _ |
+|spring.cloud.aws.secretsmanager.region |  | The specific region for Secrets Manager integration.
 
 |===
