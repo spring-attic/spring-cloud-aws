@@ -38,50 +38,41 @@ class SesAutoConfigurationTest {
 		this.contextRunner.run(context -> {
 			assertThat(context.getBean(MailSender.class)).isNotNull();
 			assertThat(context.getBean(JavaMailSender.class)).isNotNull();
-			assertThat(context.getBean(JavaMailSender.class))
-					.isSameAs(context.getBean(MailSender.class));
+			assertThat(context.getBean(JavaMailSender.class)).isSameAs(context.getBean(MailSender.class));
 		});
 	}
 
 	@Test
 	void mailSenderWithSimpleEmail() {
-		this.contextRunner.withClassLoader(new FilteredClassLoader("javax.mail.Session"))
-				.run(context -> {
-					assertThat(context.getBean(MailSender.class)).isNotNull();
-					assertThat(context.getBean("simpleMailSender")).isNotNull();
-					assertThat(context.getBean("simpleMailSender"))
-							.isSameAs(context.getBean(MailSender.class));
-				});
+		this.contextRunner.withClassLoader(new FilteredClassLoader("javax.mail.Session")).run(context -> {
+			assertThat(context.getBean(MailSender.class)).isNotNull();
+			assertThat(context.getBean("simpleMailSender")).isNotNull();
+			assertThat(context.getBean("simpleMailSender")).isSameAs(context.getBean(MailSender.class));
+		});
 	}
 
 	@Test
 	void mailSenderWithDefaultRegion() {
-		this.contextRunner.withClassLoader(new FilteredClassLoader("javax.mail.Session"))
-				.run(context -> {
-					assertThat(context.getBean(MailSender.class)).isNotNull();
-					assertThat(context.getBean("simpleMailSender")).isNotNull();
-					assertThat(context.getBean("simpleMailSender"))
-							.isSameAs(context.getBean(MailSender.class));
+		this.contextRunner.withClassLoader(new FilteredClassLoader("javax.mail.Session")).run(context -> {
+			assertThat(context.getBean(MailSender.class)).isNotNull();
+			assertThat(context.getBean("simpleMailSender")).isNotNull();
+			assertThat(context.getBean("simpleMailSender")).isSameAs(context.getBean(MailSender.class));
 
-					AmazonSimpleEmailServiceClient client = context
-							.getBean(AmazonSimpleEmailServiceClient.class);
-					Object region = ReflectionTestUtils.getField(client, "signingRegion");
-					assertThat(region).isEqualTo("us-west-2");
-				});
+			AmazonSimpleEmailServiceClient client = context.getBean(AmazonSimpleEmailServiceClient.class);
+			Object region = ReflectionTestUtils.getField(client, "signingRegion");
+			assertThat(region).isEqualTo("us-west-2");
+		});
 	}
 
 	@Test
 	void mailSenderWithCustomRegion() {
 		this.contextRunner.withPropertyValues("spring.cloud.aws.ses.region:us-east-1")
-				.withClassLoader(new FilteredClassLoader("javax.mail.Session"))
-				.run(context -> {
+				.withClassLoader(new FilteredClassLoader("javax.mail.Session")).run(context -> {
 					assertThat(context.getBean(MailSender.class)).isNotNull();
 					assertThat(context.getBean("simpleMailSender")).isNotNull();
-					assertThat(context.getBean("simpleMailSender"))
-							.isSameAs(context.getBean(MailSender.class));
+					assertThat(context.getBean("simpleMailSender")).isSameAs(context.getBean(MailSender.class));
 
-					AmazonSimpleEmailServiceClient client = context
-							.getBean(AmazonSimpleEmailServiceClient.class);
+					AmazonSimpleEmailServiceClient client = context.getBean(AmazonSimpleEmailServiceClient.class);
 					Object region = ReflectionTestUtils.getField(client, "signingRegion");
 					assertThat(region).isEqualTo("us-east-1");
 				});
@@ -89,18 +80,17 @@ class SesAutoConfigurationTest {
 
 	@Test
 	void sesAutoConfigurationIsDisabled() {
-		this.contextRunner.withPropertyValues("spring.cloud.aws.ses.enabled:false")
-				.run(context -> {
-					assertThat(context).doesNotHaveBean(MailSender.class);
-					assertThat(context).doesNotHaveBean(JavaMailSender.class);
-				});
+		this.contextRunner.withPropertyValues("spring.cloud.aws.ses.enabled:false").run(context -> {
+			assertThat(context).doesNotHaveBean(MailSender.class);
+			assertThat(context).doesNotHaveBean(JavaMailSender.class);
+		});
 	}
 
 	@Test
 	void sesAutoConfigurationIsDisabledButSimpleEmailAutoConfigurationIsEnabled() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(SesAutoConfiguration.class,
-						SimpleEmailAutoConfiguration.class))
+				.withConfiguration(
+						AutoConfigurations.of(SesAutoConfiguration.class, SimpleEmailAutoConfiguration.class))
 				.withPropertyValues("spring.cloud.aws.ses.enabled:false").run(context -> {
 					assertThat(context).hasSingleBean(MailSender.class);
 					assertThat(context).hasSingleBean(JavaMailSender.class);

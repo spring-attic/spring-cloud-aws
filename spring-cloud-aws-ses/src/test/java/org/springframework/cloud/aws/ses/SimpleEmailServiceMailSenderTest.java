@@ -48,25 +48,18 @@ class SimpleEmailServiceMailSenderTest {
 
 		SimpleMailMessage simpleMailMessage = createSimpleMailMessage();
 
-		ArgumentCaptor<SendEmailRequest> request = ArgumentCaptor
-				.forClass(SendEmailRequest.class);
-		when(emailService.sendEmail(request.capture()))
-				.thenReturn(new SendEmailResult().withMessageId("123"));
+		ArgumentCaptor<SendEmailRequest> request = ArgumentCaptor.forClass(SendEmailRequest.class);
+		when(emailService.sendEmail(request.capture())).thenReturn(new SendEmailResult().withMessageId("123"));
 
 		mailSender.send(simpleMailMessage);
 
 		SendEmailRequest sendEmailRequest = request.getValue();
 		assertThat(sendEmailRequest.getSource()).isEqualTo(simpleMailMessage.getFrom());
-		assertThat(sendEmailRequest.getDestination().getToAddresses().get(0))
-				.isEqualTo(simpleMailMessage.getTo()[0]);
-		assertThat(sendEmailRequest.getMessage().getSubject().getData())
-				.isEqualTo(simpleMailMessage.getSubject());
-		assertThat(sendEmailRequest.getMessage().getBody().getText().getData())
-				.isEqualTo(simpleMailMessage.getText());
-		assertThat(sendEmailRequest.getDestination().getCcAddresses().size())
-				.isEqualTo(0);
-		assertThat(sendEmailRequest.getDestination().getBccAddresses().size())
-				.isEqualTo(0);
+		assertThat(sendEmailRequest.getDestination().getToAddresses().get(0)).isEqualTo(simpleMailMessage.getTo()[0]);
+		assertThat(sendEmailRequest.getMessage().getSubject().getData()).isEqualTo(simpleMailMessage.getSubject());
+		assertThat(sendEmailRequest.getMessage().getBody().getText().getData()).isEqualTo(simpleMailMessage.getText());
+		assertThat(sendEmailRequest.getDestination().getCcAddresses().size()).isEqualTo(0);
+		assertThat(sendEmailRequest.getDestination().getBccAddresses().size()).isEqualTo(0);
 	}
 
 	@Test
@@ -79,25 +72,18 @@ class SimpleEmailServiceMailSenderTest {
 		simpleMailMessage.setBcc("bcc@domain.com");
 		simpleMailMessage.setCc("cc@domain.com");
 
-		ArgumentCaptor<SendEmailRequest> request = ArgumentCaptor
-				.forClass(SendEmailRequest.class);
-		when(emailService.sendEmail(request.capture()))
-				.thenReturn(new SendEmailResult().withMessageId("123"));
+		ArgumentCaptor<SendEmailRequest> request = ArgumentCaptor.forClass(SendEmailRequest.class);
+		when(emailService.sendEmail(request.capture())).thenReturn(new SendEmailResult().withMessageId("123"));
 
 		mailSender.send(simpleMailMessage);
 
 		SendEmailRequest sendEmailRequest = request.getValue();
 		assertThat(sendEmailRequest.getSource()).isEqualTo(simpleMailMessage.getFrom());
-		assertThat(sendEmailRequest.getDestination().getToAddresses().get(0))
-				.isEqualTo(simpleMailMessage.getTo()[0]);
-		assertThat(sendEmailRequest.getMessage().getSubject().getData())
-				.isEqualTo(simpleMailMessage.getSubject());
-		assertThat(sendEmailRequest.getMessage().getBody().getText().getData())
-				.isEqualTo(simpleMailMessage.getText());
-		assertThat(sendEmailRequest.getDestination().getBccAddresses().get(0))
-				.isEqualTo(simpleMailMessage.getBcc()[0]);
-		assertThat(sendEmailRequest.getDestination().getCcAddresses().get(0))
-				.isEqualTo(simpleMailMessage.getCc()[0]);
+		assertThat(sendEmailRequest.getDestination().getToAddresses().get(0)).isEqualTo(simpleMailMessage.getTo()[0]);
+		assertThat(sendEmailRequest.getMessage().getSubject().getData()).isEqualTo(simpleMailMessage.getSubject());
+		assertThat(sendEmailRequest.getMessage().getBody().getText().getData()).isEqualTo(simpleMailMessage.getText());
+		assertThat(sendEmailRequest.getDestination().getBccAddresses().get(0)).isEqualTo(simpleMailMessage.getBcc()[0]);
+		assertThat(sendEmailRequest.getDestination().getCcAddresses().get(0)).isEqualTo(simpleMailMessage.getCc()[0]);
 	}
 
 	@Test
@@ -106,14 +92,11 @@ class SimpleEmailServiceMailSenderTest {
 		org.springframework.cloud.aws.mail.simplemail.SimpleEmailServiceMailSender mailSender = new org.springframework.cloud.aws.mail.simplemail.SimpleEmailServiceMailSender(
 				emailService);
 
-		ArgumentCaptor<SendEmailRequest> request = ArgumentCaptor
-				.forClass(SendEmailRequest.class);
-		when(emailService.sendEmail(request.capture()))
-				.thenReturn(new SendEmailResult().withMessageId("123"));
+		ArgumentCaptor<SendEmailRequest> request = ArgumentCaptor.forClass(SendEmailRequest.class);
+		when(emailService.sendEmail(request.capture())).thenReturn(new SendEmailResult().withMessageId("123"));
 
 		mailSender.send(createSimpleMailMessage(), createSimpleMailMessage());
-		verify(emailService, times(2))
-				.sendEmail(ArgumentMatchers.any(SendEmailRequest.class));
+		verify(emailService, times(2)).sendEmail(ArgumentMatchers.any(SendEmailRequest.class));
 	}
 
 	@Test
@@ -126,10 +109,8 @@ class SimpleEmailServiceMailSenderTest {
 		firstMessage.setBcc("bcc@domain.com");
 
 		SimpleMailMessage failureMail = createSimpleMailMessage();
-		when(emailService.sendEmail(ArgumentMatchers.isA(SendEmailRequest.class)))
-				.thenReturn(new SendEmailResult())
-				.thenThrow(new AmazonClientException("error"))
-				.thenReturn(new SendEmailResult());
+		when(emailService.sendEmail(ArgumentMatchers.isA(SendEmailRequest.class))).thenReturn(new SendEmailResult())
+				.thenThrow(new AmazonClientException("error")).thenReturn(new SendEmailResult());
 
 		SimpleMailMessage thirdMessage = createSimpleMailMessage();
 

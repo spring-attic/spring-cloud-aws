@@ -59,8 +59,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 @ConditionalOnMissingBean(MailSender.class)
 @Import(ContextCredentialsAutoConfiguration.class)
 @EnableConfigurationProperties(SesProperties.class)
-@ConditionalOnProperty(name = "spring.cloud.aws.ses.enabled", havingValue = "true",
-		matchIfMissing = true)
+@ConditionalOnProperty(name = "spring.cloud.aws.ses.enabled", havingValue = "true", matchIfMissing = true)
 public class SesAutoConfiguration {
 
 	private final AWSCredentialsProvider credentialsProvider;
@@ -68,33 +67,28 @@ public class SesAutoConfiguration {
 	private final RegionProvider regionProvider;
 
 	public SesAutoConfiguration(ObjectProvider<RegionProvider> regionProvider,
-			ObjectProvider<AWSCredentialsProvider> credentialsProvider,
-			SesProperties properties) {
+			ObjectProvider<AWSCredentialsProvider> credentialsProvider, SesProperties properties) {
 		this.credentialsProvider = credentialsProvider.getIfAvailable();
-		this.regionProvider = properties.getRegion() == null
-				? regionProvider.getIfAvailable()
+		this.regionProvider = properties.getRegion() == null ? regionProvider.getIfAvailable()
 				: new StaticRegionProvider(properties.getRegion());
 	}
 
 	@Bean
 	@ConditionalOnMissingAmazonClient(AmazonSimpleEmailService.class)
 	public AmazonWebserviceClientFactoryBean<AmazonSimpleEmailServiceClient> amazonSimpleEmailService() {
-		return new AmazonWebserviceClientFactoryBean<>(
-				AmazonSimpleEmailServiceClient.class, this.credentialsProvider,
+		return new AmazonWebserviceClientFactoryBean<>(AmazonSimpleEmailServiceClient.class, this.credentialsProvider,
 				this.regionProvider);
 	}
 
 	@Bean
 	@ConditionalOnMissingClass("javax.mail.Session")
-	public MailSender simpleMailSender(
-			AmazonSimpleEmailService amazonSimpleEmailService) {
+	public MailSender simpleMailSender(AmazonSimpleEmailService amazonSimpleEmailService) {
 		return new SimpleEmailServiceMailSender(amazonSimpleEmailService);
 	}
 
 	@Bean
 	@ConditionalOnClass(Session.class)
-	public JavaMailSender javaMailSender(
-			AmazonSimpleEmailService amazonSimpleEmailService) {
+	public JavaMailSender javaMailSender(AmazonSimpleEmailService amazonSimpleEmailService) {
 		return new SimpleEmailServiceJavaMailSender(amazonSimpleEmailService);
 	}
 
