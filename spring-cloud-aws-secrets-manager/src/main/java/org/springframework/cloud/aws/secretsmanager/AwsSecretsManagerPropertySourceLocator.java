@@ -96,8 +96,7 @@ public class AwsSecretsManagerPropertySourceLocator implements PropertySourceLoc
 		addProfiles(this.contexts, defaultContext, profiles);
 		this.contexts.add(defaultContext);
 
-		CompositePropertySource composite = new CompositePropertySource(
-				"aws-secrets-manager");
+		CompositePropertySource composite = new CompositePropertySource("aws-secrets-manager");
 
 		for (String propertySourceContext : this.contexts) {
 			try {
@@ -111,8 +110,7 @@ public class AwsSecretsManagerPropertySourceLocator implements PropertySourceLoc
 					ReflectionUtils.rethrowRuntimeException(e);
 				}
 				else {
-					logger.warn("Unable to load AWS secret from " + propertySourceContext,
-							e);
+					logger.warn("Unable to load AWS secret from " + propertySourceContext, e);
 				}
 			}
 		}
@@ -121,14 +119,12 @@ public class AwsSecretsManagerPropertySourceLocator implements PropertySourceLoc
 	}
 
 	private AwsSecretsManagerPropertySource create(String context) {
-		AwsSecretsManagerPropertySource propertySource = new AwsSecretsManagerPropertySource(
-				context, this.smClient);
+		AwsSecretsManagerPropertySource propertySource = new AwsSecretsManagerPropertySource(context, this.smClient);
 		propertySource.init();
 		return propertySource;
 	}
 
-	private void addProfiles(Set<String> contexts, String baseContext,
-			List<String> profiles) {
+	private void addProfiles(Set<String> contexts, String baseContext, List<String> profiles) {
 		for (String profile : profiles) {
 			contexts.add(baseContext + getProfileSeparator() + profile);
 		}

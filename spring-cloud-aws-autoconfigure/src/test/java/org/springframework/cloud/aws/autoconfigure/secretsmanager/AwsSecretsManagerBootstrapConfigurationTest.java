@@ -29,14 +29,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AwsSecretsManagerBootstrapConfigurationTest {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-			.withConfiguration(
-					AutoConfigurations.of(AwsSecretsManagerBootstrapConfiguration.class));
+			.withConfiguration(AutoConfigurations.of(AwsSecretsManagerBootstrapConfiguration.class));
 
 	@Test
 	void testWithDefaultRegion() {
 		this.contextRunner.run(context -> {
-			AWSSecretsManagerClient client = context
-					.getBean(AWSSecretsManagerClient.class);
+			AWSSecretsManagerClient client = context.getBean(AWSSecretsManagerClient.class);
 			Object region = ReflectionTestUtils.getField(client, "signingRegion");
 			assertThat(region).isEqualTo(Regions.DEFAULT_REGION.getName());
 		});
@@ -44,23 +42,18 @@ class AwsSecretsManagerBootstrapConfigurationTest {
 
 	@Test
 	void testWithStaticRegion() {
-		this.contextRunner
-				.withPropertyValues("spring.cloud.aws.secretsmanager.region:us-east-1")
-				.run(context -> {
-					AWSSecretsManagerClient client = context
-							.getBean(AWSSecretsManagerClient.class);
-					Object region = ReflectionTestUtils.getField(client, "signingRegion");
-					assertThat(region).isEqualTo("us-east-1");
-				});
+		this.contextRunner.withPropertyValues("spring.cloud.aws.secretsmanager.region:us-east-1").run(context -> {
+			AWSSecretsManagerClient client = context.getBean(AWSSecretsManagerClient.class);
+			Object region = ReflectionTestUtils.getField(client, "signingRegion");
+			assertThat(region).isEqualTo("us-east-1");
+		});
 	}
 
 	@Test
 	void testUserAgent() {
 		this.contextRunner.run(context -> {
-			AWSSecretsManagerClient client = context
-					.getBean(AWSSecretsManagerClient.class);
-			assertThat(client.getClientConfiguration().getUserAgentSuffix())
-					.startsWith("spring-cloud-aws/");
+			AWSSecretsManagerClient client = context.getBean(AWSSecretsManagerClient.class);
+			assertThat(client.getClientConfiguration().getUserAgentSuffix()).startsWith("spring-cloud-aws/");
 		});
 	}
 

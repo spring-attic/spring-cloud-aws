@@ -49,11 +49,9 @@ class AwsSecretsManagerPropertySourceLocatorTest {
 	void locate_nameNotSpecifiedInConstructor_returnsPropertySourceWithDefaultName() {
 		GetSecretValueResult secretValueResult = new GetSecretValueResult();
 		secretValueResult.setSecretString("{\"key1\": \"value1\", \"key2\": \"value2\"}");
-		when(smClient.getSecretValue(any(GetSecretValueRequest.class)))
-				.thenReturn(secretValueResult);
+		when(smClient.getSecretValue(any(GetSecretValueRequest.class))).thenReturn(secretValueResult);
 
-		AwsSecretsManagerPropertySourceLocator locator = new AwsSecretsManagerPropertySourceLocator(
-				smClient);
+		AwsSecretsManagerPropertySourceLocator locator = new AwsSecretsManagerPropertySourceLocator(smClient);
 		PropertySource propertySource = locator.locate(env);
 
 		assertThat(propertySource.getName()).isEqualTo("aws-secrets-manager");
@@ -63,11 +61,9 @@ class AwsSecretsManagerPropertySourceLocatorTest {
 	public void contextExpectedToHave2Elements() {
 		GetSecretValueResult secretValueResult = new GetSecretValueResult();
 		secretValueResult.setSecretString("{\"key1\": \"value1\", \"key2\": \"value2\"}");
-		when(smClient.getSecretValue(any(GetSecretValueRequest.class)))
-				.thenReturn(secretValueResult);
+		when(smClient.getSecretValue(any(GetSecretValueRequest.class))).thenReturn(secretValueResult);
 
-		AwsSecretsManagerPropertySourceLocator locator = new AwsSecretsManagerPropertySourceLocator(
-				smClient);
+		AwsSecretsManagerPropertySourceLocator locator = new AwsSecretsManagerPropertySourceLocator(smClient);
 		locator.setDefaultContext("application");
 		locator.setName("application");
 		env.setActiveProfiles("test");
@@ -80,11 +76,9 @@ class AwsSecretsManagerPropertySourceLocatorTest {
 	public void contextExpectedToHave4Elements() {
 		GetSecretValueResult secretValueResult = new GetSecretValueResult();
 		secretValueResult.setSecretString("{\"key1\": \"value1\", \"key2\": \"value2\"}");
-		when(smClient.getSecretValue(any(GetSecretValueRequest.class)))
-				.thenReturn(secretValueResult);
+		when(smClient.getSecretValue(any(GetSecretValueRequest.class))).thenReturn(secretValueResult);
 
-		AwsSecretsManagerPropertySourceLocator locator = new AwsSecretsManagerPropertySourceLocator(
-				smClient);
+		AwsSecretsManagerPropertySourceLocator locator = new AwsSecretsManagerPropertySourceLocator(smClient);
 		locator.setDefaultContext("application");
 		locator.setName("messaging-service");
 		env.setActiveProfiles("test");
@@ -97,11 +91,9 @@ class AwsSecretsManagerPropertySourceLocatorTest {
 	public void contextSpecificOrderExpected() {
 		GetSecretValueResult secretValueResult = new GetSecretValueResult();
 		secretValueResult.setSecretString("{\"key1\": \"value1\", \"key2\": \"value2\"}");
-		when(smClient.getSecretValue(any(GetSecretValueRequest.class)))
-				.thenReturn(secretValueResult);
+		when(smClient.getSecretValue(any(GetSecretValueRequest.class))).thenReturn(secretValueResult);
 
-		AwsSecretsManagerPropertySourceLocator locator = new AwsSecretsManagerPropertySourceLocator(
-				smClient);
+		AwsSecretsManagerPropertySourceLocator locator = new AwsSecretsManagerPropertySourceLocator(smClient);
 		locator.setDefaultContext("application");
 		locator.setName("messaging-service");
 		env.setActiveProfiles("test");

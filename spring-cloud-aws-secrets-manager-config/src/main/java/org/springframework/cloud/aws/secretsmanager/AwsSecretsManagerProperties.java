@@ -109,8 +109,7 @@ public class AwsSecretsManagerProperties implements Validator {
 		}
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.secretsmanager.prefix")
+	@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.secretsmanager.prefix")
 	public String getPrefix() {
 		return prefix;
 	}
@@ -119,8 +118,7 @@ public class AwsSecretsManagerProperties implements Validator {
 		this.prefix = prefix;
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.secretsmanager.defaultContext")
+	@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.secretsmanager.defaultContext")
 	public String getDefaultContext() {
 		return defaultContext;
 	}
@@ -129,8 +127,7 @@ public class AwsSecretsManagerProperties implements Validator {
 		this.defaultContext = defaultContext;
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.secretsmanager.profile-separator")
+	@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.secretsmanager.profile-separator")
 	public String getProfileSeparator() {
 		return profileSeparator;
 	}
@@ -139,8 +136,7 @@ public class AwsSecretsManagerProperties implements Validator {
 		this.profileSeparator = profileSeparator;
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.secretsmanager.fail-fast")
+	@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.secretsmanager.fail-fast")
 	public boolean isFailFast() {
 		return failFast;
 	}
@@ -158,8 +154,7 @@ public class AwsSecretsManagerProperties implements Validator {
 		this.name = name;
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.secretsmanager.enabled")
+	@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.secretsmanager.enabled")
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -168,8 +163,7 @@ public class AwsSecretsManagerProperties implements Validator {
 		this.enabled = enabled;
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = "spring.cloud.aws.secretsmanager.region")
+	@DeprecatedConfigurationProperty(replacement = "spring.cloud.aws.secretsmanager.region")
 	public String getRegion() {
 		return region;
 	}

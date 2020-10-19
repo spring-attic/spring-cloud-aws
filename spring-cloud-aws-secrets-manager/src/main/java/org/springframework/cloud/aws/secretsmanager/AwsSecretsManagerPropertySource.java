@@ -38,8 +38,7 @@ import org.springframework.core.env.EnumerablePropertySource;
  * @author Eddú Meléndez
  * @since 2.3
  */
-public class AwsSecretsManagerPropertySource
-		extends EnumerablePropertySource<AWSSecretsManager> {
+public class AwsSecretsManagerPropertySource extends EnumerablePropertySource<AWSSecretsManager> {
 
 	private final ObjectMapper jsonMapper = new ObjectMapper();
 
@@ -71,10 +70,8 @@ public class AwsSecretsManagerPropertySource
 
 	private void readSecretValue(GetSecretValueRequest secretValueRequest) {
 		try {
-			GetSecretValueResult secretValueResult = source
-					.getSecretValue(secretValueRequest);
-			Map<String, Object> secretMap = jsonMapper.readValue(
-					secretValueResult.getSecretString(),
+			GetSecretValueResult secretValueResult = source.getSecretValue(secretValueRequest);
+			Map<String, Object> secretMap = jsonMapper.readValue(secretValueResult.getSecretString(),
 					new TypeReference<Map<String, Object>>() {
 					});
 

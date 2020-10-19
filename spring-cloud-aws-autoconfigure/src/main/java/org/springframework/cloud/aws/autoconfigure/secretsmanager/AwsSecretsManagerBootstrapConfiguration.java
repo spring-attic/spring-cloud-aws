@@ -44,10 +44,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(SecretsManagerProperties.class)
 @ConditionalOnMissingClass("org.springframework.cloud.aws.secretsmanager.AwsSecretsManagerProperties")
-@ConditionalOnClass({ AWSSecretsManager.class,
-		AwsSecretsManagerPropertySourceLocator.class })
-@ConditionalOnProperty(prefix = "spring.cloud.aws.secretsmanager", name = "enabled",
-		matchIfMissing = true)
+@ConditionalOnClass({ AWSSecretsManager.class, AwsSecretsManagerPropertySourceLocator.class })
+@ConditionalOnProperty(prefix = "spring.cloud.aws.secretsmanager", name = "enabled", matchIfMissing = true)
 public class AwsSecretsManagerBootstrapConfiguration {
 
 	private final RegionProvider regionProvider;
@@ -56,8 +54,7 @@ public class AwsSecretsManagerBootstrapConfiguration {
 
 	public AwsSecretsManagerBootstrapConfiguration(SecretsManagerProperties properties,
 			ObjectProvider<RegionProvider> regionProvider) {
-		this.regionProvider = properties.getRegion() == null
-				? regionProvider.getIfAvailable()
+		this.regionProvider = properties.getRegion() == null ? regionProvider.getIfAvailable()
 				: new StaticRegionProvider(properties.getRegion());
 		this.properties = properties;
 	}
@@ -65,13 +62,11 @@ public class AwsSecretsManagerBootstrapConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public AmazonWebserviceClientFactoryBean<AWSSecretsManagerClient> ssmClient() {
-		return new AmazonWebserviceClientFactoryBean<>(AWSSecretsManagerClient.class,
-				null, this.regionProvider);
+		return new AmazonWebserviceClientFactoryBean<>(AWSSecretsManagerClient.class, null, this.regionProvider);
 	}
 
 	@Bean
-	public AwsSecretsManagerPropertySourceLocator awsSecretsManagerPropertySourceLocator(
-			AWSSecretsManager smClient) {
+	public AwsSecretsManagerPropertySourceLocator awsSecretsManagerPropertySourceLocator(AWSSecretsManager smClient) {
 		AwsSecretsManagerPropertySourceLocator propertySourceLocator = new AwsSecretsManagerPropertySourceLocator(
 				smClient);
 		propertySourceLocator.setName(this.properties.getName());
