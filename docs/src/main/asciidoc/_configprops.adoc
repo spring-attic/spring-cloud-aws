@@ -29,5 +29,12 @@
 |cloud.aws.sqs.region || The specific region for SQS integration.
 |cloud.aws.stack.auto | true | Enables the automatic stack name detection for the application.
 |cloud.aws.stack.name |  | The name of the manually configured stack name that will be used to retrieve the resources.
+|spring.cloud.aws.parameterstore.default-context | application |
+|spring.cloud.aws.parameterstore.enabled | true | Is AWS Parameter Store support enabled.
+|spring.cloud.aws.parameterstore.fail-fast | true | Throw exceptions during config lookup if true, otherwise, log warnings.
+|spring.cloud.aws.parameterstore.name |  | Alternative to spring.application.name to use in looking up values in AWS Parameter Store.
+|spring.cloud.aws.parameterstore.prefix | /config | Prefix indicating first level for every property. Value must start with a forward slash followed by a valid path segment or be empty. Defaults to "/config".
+|spring.cloud.aws.parameterstore.profile-separator | _ |
+|spring.cloud.aws.parameterstore.region |  | The specific region for Parameter Store integration.
 
 |===

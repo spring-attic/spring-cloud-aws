@@ -707,6 +707,49 @@ You can configure the following settings in a Spring Cloud `bootstrap.properties
 |`aws.paramstore.enabled`
 |`true`
 |Can be used to disable the Parameter Store Configuration support even though the auto-configuration is on the classpath.
+
+|`aws.paramstore.region`
+|`_`
+|The specific region for Parameter Store integration.
+|===
+
+There is a new starter `spring-cloud-starter-aws-parameter-store` and it offers new configuration properties.
+
+[cols="3*", options="header"]
+|===
+|property
+|default
+|explanation
+
+|`spring.cloud.aws.parameterstore.prefix`
+|`/config`
+|Prefix indicating first level for every property loaded from the Parameter Store.
+Value must start with a forward slash followed by one or more valid path segments or be empty.
+
+|`spring.cloud.aws.parameterstore.defaultContext`
+|`application`
+|Name of the context that defines properties shared across all services
+
+|`spring.cloud.aws.parameterstore.profileSeparator`
+|`_`
+|String that separates an appended profile from the context name. Can only contain
+dots, dashes, forward slashes, backward slashes and underscores next to alphanumeric characters.
+
+|`spring.cloud.aws.parameterstore.failFast`
+|`true`
+|Indicates if an error while retrieving the parameters should fail starting the application.
+
+|`spring.cloud.aws.parameterstore.name`
+|the configured value for `spring.application.name`
+|Name to use when constructing the path for the properties to look up for this specific service.
+
+|`spring.cloud.aws.parameterstore.enabled`
+|`true`
+|Can be used to disable the Parameter Store Configuration support even though the auto-configuration is on the classpath.
+
+|`spring.cloud.aws.parameterstore.region`
+|`_`
+|The specific region for Parameter Store integration.
 |===
 
 [TIP]
