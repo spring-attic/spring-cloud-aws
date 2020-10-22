@@ -30,6 +30,7 @@ import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.core.DestinationResolver;
 import org.springframework.messaging.core.DestinationResolvingMessageReceivingOperations;
 
+
 /**
  * <b>IMPORTANT</b>: For the message conversion this class always tries to first use the
  * {@link StringMessageConverter} as it fits the underlying message channel type. If a
@@ -50,7 +51,7 @@ public class QueueMessagingTemplate
 
 	private final AmazonSQSAsync amazonSqs;
 
-	private long defaultTimeout = Long.MIN_VALUE;
+	private int defaultTimeout = Integer.MIN_VALUE;
 
 	public QueueMessagingTemplate(AmazonSQSAsync amazonSqs) {
 		this(amazonSqs, (ResourceIdResolver) null, null);
@@ -98,19 +99,21 @@ public class QueueMessagingTemplate
 		initMessageConverter(messageConverter);
 	}
 
-	public Long getDefaultTimeout() {
+	public int getDefaultTimeout() {
 		return this.defaultTimeout;
 	}
 
-	public void setDefaultTimeout(Long defaultTimeout) {
-		this.defaultTimeout = defaultTimeout != null ? defaultTimeout : Long.MIN_VALUE;
+	public void setDefaultTimeout(int defaultTimeout) {
+		this.defaultTimeout = defaultTimeout;
 	}
 
 	@Override
 	protected QueueMessageChannel resolveMessageChannel(
 			String physicalResourceIdentifier) {
-		return new QueueMessageChannel(this.amazonSqs, physicalResourceIdentifier,
-				getDefaultTimeout());
+		QueueMessageChannel messageChannel = new QueueMessageChannel(this.amazonSqs,
+				physicalResourceIdentifier);
+		messageChannel.setDefaultTimeout(getDefaultTimeout());
+		return messageChannel;
 	}
 
 	@Override

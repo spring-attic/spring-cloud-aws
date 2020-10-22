@@ -146,7 +146,7 @@ class QueueMessagingTemplateTest {
 		AmazonSQSAsync amazonSqs = createAmazonSqs();
 		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
 				amazonSqs);
-		queueMessagingTemplate.setDefaultTimeout(10L);
+		queueMessagingTemplate.setDefaultTimeout(10);
 		queueMessagingTemplate.setDefaultDestinationName("my-queue");
 
 		queueMessagingTemplate.receive();

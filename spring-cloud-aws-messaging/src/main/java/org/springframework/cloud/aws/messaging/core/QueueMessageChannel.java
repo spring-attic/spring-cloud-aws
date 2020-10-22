@@ -60,24 +60,25 @@ public class QueueMessageChannel extends AbstractMessageChannel
 
 	private final String queueUrl;
 
-	private long defaultTimeout = Long.MIN_VALUE;
+	private int defaultTimeout = Integer.MIN_VALUE;
 
 	public QueueMessageChannel(AmazonSQSAsync amazonSqs, String queueUrl) {
 		this.amazonSqs = amazonSqs;
 		this.queueUrl = queueUrl;
 	}
 
-	public QueueMessageChannel(AmazonSQSAsync amazonSqs, String queueUrl,
-			long defaultTimeout) {
-		this.amazonSqs = amazonSqs;
-		this.queueUrl = queueUrl;
-		this.defaultTimeout = defaultTimeout;
-	}
-
 	private static boolean isSkipHeader(String headerName) {
 		return SqsMessageHeaders.SQS_DELAY_HEADER.equals(headerName)
 				|| SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER.equals(headerName)
 				|| SqsMessageHeaders.SQS_GROUP_ID_HEADER.equals(headerName);
+	}
+
+	int getDefaultTimeout() {
+		return defaultTimeout;
+	}
+
+	void setDefaultTimeout(int defaultTimeout) {
+		this.defaultTimeout = defaultTimeout;
 	}
 
 	@Override
@@ -230,25 +231,24 @@ public class QueueMessageChannel extends AbstractMessageChannel
 
 	@Override
 	public Message<String> receive() {
-		return this.receive(defaultTimeout);
+		return this.receive(this.defaultTimeout);
 	}
 
 	@Override
 	public Message<String> receive(long timeout) {
-		ReceiveMessageResult receiveMessageResult;
-		if (timeout == Long.MIN_VALUE) { /* use Queue default timeout */
-			receiveMessageResult = this.amazonSqs.receiveMessage(
-					new ReceiveMessageRequest(this.queueUrl).withMaxNumberOfMessages(1)
-							.withAttributeNames(ATTRIBUTE_NAMES)
-							.withMessageAttributeNames(MESSAGE_ATTRIBUTE_NAMES));
+
+		ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(
+				this.queueUrl).withMaxNumberOfMessages(1)
+						.withAttributeNames(ATTRIBUTE_NAMES)
+						.withMessageAttributeNames(MESSAGE_ATTRIBUTE_NAMES);
+
+		if (timeout != Integer.MIN_VALUE) {
+			receiveMessageRequest.setWaitTimeSeconds((int) timeout);
 		}
-		else {
-			receiveMessageResult = this.amazonSqs.receiveMessage(
-					new ReceiveMessageRequest(this.queueUrl).withMaxNumberOfMessages(1)
-							.withWaitTimeSeconds(Long.valueOf(timeout).intValue())
-							.withAttributeNames(ATTRIBUTE_NAMES)
-							.withMessageAttributeNames(MESSAGE_ATTRIBUTE_NAMES));
-		}
+
+		ReceiveMessageResult receiveMessageResult = this.amazonSqs
+				.receiveMessage(receiveMessageRequest);
+
 		if (receiveMessageResult == null
 				|| receiveMessageResult.getMessages().isEmpty()) {
 			return null;

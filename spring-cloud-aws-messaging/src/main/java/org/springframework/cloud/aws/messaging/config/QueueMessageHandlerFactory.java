@@ -19,10 +19,6 @@ package org.springframework.cloud.aws.messaging.config;
 import java.util.Arrays;
 import java.util.List;
 
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSAsync;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.cloud.aws.core.env.ResourceIdResolver;
 import org.springframework.cloud.aws.messaging.core.QueueMessagingTemplate;
@@ -35,6 +31,10 @@ import org.springframework.messaging.core.DestinationResolvingMessageSendingOper
 import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
 import org.springframework.messaging.handler.invocation.HandlerMethodReturnValueHandler;
 import org.springframework.util.CollectionUtils;
+
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSAsync;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Alain Sahli
@@ -53,6 +53,8 @@ public class QueueMessageHandlerFactory {
 	private AmazonSQSAsync amazonSqs;
 
 	private ResourceIdResolver resourceIdResolver;
+
+	private int defaultTimeout = Integer.MIN_VALUE;
 
 	private SqsMessageDeletionPolicy sqsMessageDeletionPolicy;
 
@@ -77,8 +79,8 @@ public class QueueMessageHandlerFactory {
 	 * by the {@link SendToHandlerMethodReturnValueHandler} to send return values of
 	 * handler methods.
 	 * @param sendToMessagingTemplate A
-	 * {@link DestinationResolvingMessageSendingOperations} template for sending return
-	 * values of handler methods.
+	 *     {@link DestinationResolvingMessageSendingOperations} template for sending
+	 *     return values of handler methods.
 	 */
 	public void setSendToMessagingTemplate(
 			DestinationResolvingMessageSendingOperations<?> sendToMessagingTemplate) {
@@ -102,7 +104,7 @@ public class QueueMessageHandlerFactory {
 	 * {@code null}.
 	 * </p>
 	 * @param amazonSqs The {@link AmazonSQS} client that is going to be used by the
-	 * {@link SendToHandlerMethodReturnValueHandler} to send messages.
+	 *     {@link SendToHandlerMethodReturnValueHandler} to send messages.
 	 */
 	public void setAmazonSqs(AmazonSQSAsync amazonSqs) {
 		this.amazonSqs = amazonSqs;
@@ -111,8 +113,8 @@ public class QueueMessageHandlerFactory {
 	/**
 	 * Configures global deletion Policy.
 	 * @param sqsMessageDeletionPolicy if set it will use SqsMessageDeletionPolicy param
-	 * as global default value only if SqsMessageDeletionPolicy is omitted
-	 * from @SqsListener annotation. Should not be null.
+	 *     as global default value only if SqsMessageDeletionPolicy is omitted
+	 *     from @SqsListener annotation. Should not be null.
 	 */
 	public void setSqsMessageDeletionPolicy(
 			final SqsMessageDeletionPolicy sqsMessageDeletionPolicy) {
@@ -122,9 +124,9 @@ public class QueueMessageHandlerFactory {
 	/**
 	 * This value is only used if no {@code sendToMessagingTemplate} has been set.
 	 * @param resourceIdResolver the resourceIdResolver to use for resolving logical to
-	 * physical ids in a CloudFormation environment. This resolver will be used by the
-	 * {@link QueueMessagingTemplate} created for the
-	 * {@link SendToHandlerMethodReturnValueHandler}.
+	 *     physical ids in a CloudFormation environment. This resolver will be used by the
+	 *     {@link QueueMessagingTemplate} created for the
+	 *     {@link SendToHandlerMethodReturnValueHandler}.
 	 */
 	public void setResourceIdResolver(ResourceIdResolver resourceIdResolver) {
 		this.resourceIdResolver = resourceIdResolver;
@@ -135,7 +137,7 @@ public class QueueMessageHandlerFactory {
 	 * placeholder for {@link org.springframework.messaging.handler.annotation.SendTo}
 	 * annotations. If not set, then no expressions or place holders will be resolved.
 	 * @param beanFactory - the bean factory used to resolve expressions and / or place
-	 * holders
+	 *     holders
 	 */
 	public void setBeanFactory(BeanFactory beanFactory) {
 		this.beanFactory = beanFactory;
@@ -153,8 +155,9 @@ public class QueueMessageHandlerFactory {
 
 	public QueueMessageHandler createQueueMessageHandler() {
 		QueueMessageHandler queueMessageHandler = new QueueMessageHandler(
-				CollectionUtils.isEmpty(this.messageConverters) ? Arrays.asList(
-						getDefaultMappingJackson2MessageConverter(this.objectMapper))
+				CollectionUtils.isEmpty(this.messageConverters)
+						? Arrays.asList(getDefaultMappingJackson2MessageConverter(
+								this.objectMapper))
 						: this.messageConverters,
 				this.sqsMessageDeletionPolicy);
 
@@ -187,8 +190,11 @@ public class QueueMessageHandlerFactory {
 
 	private QueueMessagingTemplate getDefaultSendToQueueMessagingTemplate(
 			AmazonSQSAsync amazonSqs, ResourceIdResolver resourceIdResolver) {
-		return new QueueMessagingTemplate(amazonSqs, resourceIdResolver,
+		QueueMessagingTemplate queueMessagingTemplate = new QueueMessagingTemplate(
+				amazonSqs, resourceIdResolver,
 				getDefaultMappingJackson2MessageConverter(this.objectMapper));
+		queueMessagingTemplate.setDefaultTimeout(defaultTimeout);
+		return queueMessagingTemplate;
 	}
 
 	public List<MessageConverter> getMessageConverters() {
@@ -218,4 +224,7 @@ public class QueueMessageHandlerFactory {
 		return jacksonMessageConverter;
 	}
 
+	public void setDefaultWaitTimeout(Integer integer) {
+		this.defaultTimeout = integer;
+	}
 }

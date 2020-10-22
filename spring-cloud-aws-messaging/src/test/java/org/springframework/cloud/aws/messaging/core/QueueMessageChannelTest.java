@@ -281,8 +281,9 @@ class QueueMessageChannelTest {
 								.singleton(new com.amazonaws.services.sqs.model.Message()
 										.withBody("content"))));
 
-		PollableChannel messageChannel = new QueueMessageChannel(amazonSqs,
-				"http://testQueue", 10);
+		QueueMessageChannel messageChannel = new QueueMessageChannel(amazonSqs,
+				"http://testQueue");
+		messageChannel.setDefaultTimeout(10);
 
 		// Act
 		Message<?> receivedMessage = messageChannel.receive();
@@ -298,10 +299,13 @@ class QueueMessageChannelTest {
 		// Arrange
 		AmazonSQSAsync amazonSqs = mock(AmazonSQSAsync.class);
 		MimeType mimeType = new MimeType("test", "plain", Charset.forName("UTF-8"));
-		when(amazonSqs.receiveMessage(new ReceiveMessageRequest("http://testQueue")
-				.withWaitTimeSeconds(0).withMaxNumberOfMessages(1)
+		ReceiveMessageRequest messageRequest = new ReceiveMessageRequest(
+				"http://testQueue").withMaxNumberOfMessages(1)
 				.withAttributeNames(QueueMessageChannel.ATTRIBUTE_NAMES)
-				.withMessageAttributeNames("All"))).thenReturn(new ReceiveMessageResult()
+				.withMessageAttributeNames("All").withWaitTimeSeconds(0);
+
+		when(amazonSqs.receiveMessage(messageRequest))
+				.thenReturn(new ReceiveMessageResult()
 						.withMessages(new com.amazonaws.services.sqs.model.Message()
 								.withBody("Hello")
 								.withMessageAttributes(Collections.singletonMap(

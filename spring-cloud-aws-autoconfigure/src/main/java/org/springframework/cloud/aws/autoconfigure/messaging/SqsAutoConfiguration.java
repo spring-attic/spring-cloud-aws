@@ -130,6 +130,8 @@ public class SqsAutoConfiguration {
 
 			Optional.ofNullable(sqsProperties.getHandler().getDefaultDeletionPolicy())
 					.ifPresent(factory::setSqsMessageDeletionPolicy);
+			Optional.ofNullable(sqsProperties.getListener().getWaitTimeout())
+					.ifPresent(factory::setDefaultWaitTimeout);
 
 			return factory;
 		}
