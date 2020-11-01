@@ -204,8 +204,7 @@ class SimpleStorageResourceTest {
 				new SyncTaskExecutor());
 
 		// Assert
-		assertThat(simpleStorageResource.getURL())
-				.isEqualTo(new URL("https://bucket.s3.amazonaws.com/object"));
+		assertThat(simpleStorageResource.getURL()).isEqualTo(new URL("https://bucket.s3.amazonaws.com/object"));
 
 	}
 
@@ -288,8 +287,7 @@ class SimpleStorageResourceTest {
 		SimpleStorageResource resource = new SimpleStorageResource(s3, "bucketName", "some/[objectName]",
 				new SyncTaskExecutor());
 
-		assertThat(resource.getURI())
-				.isEqualTo(new URI("https://bucketName.s3.amazonaws.com/some%2F%5BobjectName%5D"));
+		assertThat(resource.getURI()).isEqualTo(new URI("https://bucketName.s3.amazonaws.com/some%2F%5BobjectName%5D"));
 	}
 
 }
