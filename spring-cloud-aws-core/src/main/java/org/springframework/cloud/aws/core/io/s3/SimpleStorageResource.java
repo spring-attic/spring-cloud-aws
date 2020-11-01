@@ -38,9 +38,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 
-import com.amazonaws.regions.Region;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
@@ -140,10 +138,8 @@ public class SimpleStorageResource extends AbstractResource implements WritableR
 
 	@Override
 	public URL getURL() throws IOException {
-		Region region = this.amazonS3.getRegion().toAWSRegion();
 		String encodedObjectName = URLEncoder.encode(this.objectName, StandardCharsets.UTF_8.toString());
-		return new URL("https", region.getServiceEndpoint(AmazonS3Client.S3_SERVICE_NAME),
-				"/" + this.bucketName + "/" + encodedObjectName);
+		return new URL("https", this.bucketName + ".s3.amazonaws.com", "/" + encodedObjectName);
 	}
 
 	public URI getS3Uri() {
