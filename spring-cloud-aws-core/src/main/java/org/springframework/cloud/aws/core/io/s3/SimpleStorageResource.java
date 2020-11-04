@@ -332,14 +332,14 @@ public class SimpleStorageResource extends AbstractResource implements WritableR
 		private void initiateMultiPartIfNeeded() {
 			if (this.multiPartUploadResult == null) {
 
-				ObjectMetadata md = new ObjectMetadata();
+				ObjectMetadata metadata = new ObjectMetadata();
 				if (SimpleStorageResource.this.contentType != null) {
-					md.setContentType(SimpleStorageResource.this.contentType);
+					metadata.setContentType(SimpleStorageResource.this.contentType);
 				}
 
 				this.multiPartUploadResult = SimpleStorageResource.this.amazonS3.initiateMultipartUpload(
 						new InitiateMultipartUploadRequest(SimpleStorageResource.this.bucketName,
-								SimpleStorageResource.this.objectName, md));
+								SimpleStorageResource.this.objectName, metadata));
 			}
 		}
 
