@@ -61,7 +61,7 @@ class AwsSecretsManagerBootstrapConfigurationTest {
 
 	@Test
 	void testUserAgent() {
-		contextRunner.run((context) -> {
+		contextRunner.withPropertyValues("aws.secretsmanager.region:us-east-2").run((context) -> {
 			AWSSecretsManagerClient client = context.getBean(AWSSecretsManagerClient.class);
 			assertThat(client.getClientConfiguration().getUserAgentSuffix()).startsWith("spring-cloud-aws/");
 		});
