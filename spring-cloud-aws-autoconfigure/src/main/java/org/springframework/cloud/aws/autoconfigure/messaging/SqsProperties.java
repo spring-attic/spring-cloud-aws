@@ -42,11 +42,6 @@ public class SqsProperties extends AwsClientProperties {
 	 */
 	private HandlerProperties handler = new HandlerProperties();
 
-	/**
-	 * Overrides the default region.
-	 */
-	private String region;
-
 	public ListenerProperties getListener() {
 		return listener;
 	}
@@ -61,14 +56,6 @@ public class SqsProperties extends AwsClientProperties {
 
 	public void setHandler(HandlerProperties handler) {
 		this.handler = handler;
-	}
-
-	public String getRegion() {
-		return this.region;
-	}
-
-	public void setRegion(String region) {
-		this.region = region;
 	}
 
 	public static class ListenerProperties {

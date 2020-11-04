@@ -16,10 +16,14 @@
 
 package org.springframework.cloud.aws.autoconfigure.context;
 
-import org.junit.jupiter.api.AfterEach;
+import java.net.URI;
+
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.aws.core.io.s3.SimpleStorageProtocolResolver;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.task.SyncTaskExecutor;
@@ -30,55 +34,59 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ContextResourceLoaderAutoConfigurationTest {
 
-	private AnnotationConfigApplicationContext context;
-
-	@AfterEach
-	void tearDown() {
-		if (this.context != null) {
-			this.context.close();
-		}
-	}
+	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+			.withConfiguration(AutoConfigurations.of(ContextResourceLoaderAutoConfiguration.class));
 
 	@Test
 	void createResourceLoader_withCustomTaskExecutorSettings_executorConfigured() {
-		// Arrange
-		this.context = new AnnotationConfigApplicationContext();
-		this.context.register(ContextResourceLoaderAutoConfiguration.class);
+		this.contextRunner.withPropertyValues("cloud.aws.loader.corePoolSize:10", "cloud.aws.loader.maxPoolSize:20",
+				"cloud.aws.loader.queueCapacity:0").run((context) -> {
+					AnnotationConfigApplicationContext ctx = (AnnotationConfigApplicationContext) context
+							.getSourceApplicationContext();
+					SimpleStorageProtocolResolver simpleStorageProtocolResolver = (SimpleStorageProtocolResolver) ctx
+							.getProtocolResolvers().iterator().next();
+					ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) ReflectionTestUtils
+							.getField(simpleStorageProtocolResolver, "taskExecutor");
+					assertThat(taskExecutor).isNotNull();
 
-		TestPropertyValues.of("cloud.aws.loader.corePoolSize:10", "cloud.aws.loader.maxPoolSize:20",
-				"cloud.aws.loader.queueCapacity:0").applyTo(this.context);
-
-		// Act
-		this.context.refresh();
-
-		// Assert
-		SimpleStorageProtocolResolver simpleStorageProtocolResolver = (SimpleStorageProtocolResolver) this.context
-				.getProtocolResolvers().iterator().next();
-		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) ReflectionTestUtils
-				.getField(simpleStorageProtocolResolver, "taskExecutor");
-		assertThat(taskExecutor).isNotNull();
-
-		assertThat(taskExecutor.getCorePoolSize()).isEqualTo(10);
-		assertThat(taskExecutor.getMaxPoolSize()).isEqualTo(20);
-		assertThat(ReflectionTestUtils.getField(taskExecutor, "queueCapacity")).isEqualTo(0);
+					assertThat(taskExecutor.getCorePoolSize()).isEqualTo(10);
+					assertThat(taskExecutor.getMaxPoolSize()).isEqualTo(20);
+					assertThat(ReflectionTestUtils.getField(taskExecutor, "queueCapacity")).isEqualTo(0);
+				});
 	}
 
 	@Test
 	void createResourceLoader_withoutExecutorSettings_executorConfigured() {
+		this.contextRunner.run((context) -> {
+			AnnotationConfigApplicationContext ctx = (AnnotationConfigApplicationContext) context
+					.getSourceApplicationContext();
+			SimpleStorageProtocolResolver simpleStorageProtocolResolver = (SimpleStorageProtocolResolver) ctx
+					.getProtocolResolvers().iterator().next();
+			SyncTaskExecutor taskExecutor = (SyncTaskExecutor) ReflectionTestUtils
+					.getField(simpleStorageProtocolResolver, "taskExecutor");
+			assertThat(taskExecutor).isNotNull();
+		});
+	}
 
-		// Arrange
-		this.context = new AnnotationConfigApplicationContext();
-		this.context.register(ContextResourceLoaderAutoConfiguration.class);
+	@Test
+	void enableS3withCustomEndpoint() {
+		this.contextRunner.withPropertyValues("cloud.aws.s3.endpoint:http://localhost:8090").run((context) -> {
+			AmazonS3 client = context.getBean(AmazonS3.class);
+			Object endpoint = ReflectionTestUtils.getField(client, "endpoint");
+			assertThat(endpoint).isEqualTo(URI.create("http://localhost:8090"));
 
-		// Act
-		this.context.refresh();
+			Boolean isEndpointOverridden = (Boolean) ReflectionTestUtils.getField(client, "isEndpointOverridden");
+			assertThat(isEndpointOverridden).isTrue();
+		});
+	}
 
-		// Assert
-		SimpleStorageProtocolResolver simpleStorageProtocolResolver = (SimpleStorageProtocolResolver) this.context
-				.getProtocolResolvers().iterator().next();
-		SyncTaskExecutor taskExecutor = (SyncTaskExecutor) ReflectionTestUtils.getField(simpleStorageProtocolResolver,
-				"taskExecutor");
-		assertThat(taskExecutor).isNotNull();
+	@Test
+	void enableS3withSpecificRegion() {
+		this.contextRunner.withPropertyValues("cloud.aws.s3.region:us-east-1").run((context) -> {
+			AmazonS3 client = context.getBean(AmazonS3.class);
+			Object region = ReflectionTestUtils.getField(client, "signingRegion");
+			assertThat(region).isEqualTo(Regions.US_EAST_1.getName());
+		});
 	}
 
 }

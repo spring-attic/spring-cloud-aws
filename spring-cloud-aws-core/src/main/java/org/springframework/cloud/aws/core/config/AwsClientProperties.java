@@ -25,7 +25,15 @@ import java.net.URI;
  */
 public abstract class AwsClientProperties {
 
+	/**
+	 * Overrides the default endpoint.
+	 */
 	private URI endpoint;
+
+	/**
+	 * Overrides the default region.
+	 */
+	private String region;
 
 	public URI getEndpoint() {
 		return endpoint;
@@ -33,6 +41,14 @@ public abstract class AwsClientProperties {
 
 	public void setEndpoint(URI endpoint) {
 		this.endpoint = endpoint;
+	}
+
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
 	}
 
 }
