@@ -54,8 +54,8 @@ class ContextInstanceDataAutoConfigurationTest {
 		HttpContext instanceIdHttpContext = httpServer.createContext("/latest/meta-data/instance-id",
 				new MetaDataServer.HttpResponseWriterHandler("testInstanceId"));
 
-		this.contextRunner
-				.run(context -> assertThat(context).hasSingleBean(AmazonEc2InstanceDataPropertySourcePostProcessor.class));
+		this.contextRunner.run(
+				context -> assertThat(context).hasSingleBean(AmazonEc2InstanceDataPropertySourcePostProcessor.class));
 
 		httpServer.removeContext(instanceIdHttpContext);
 	}
