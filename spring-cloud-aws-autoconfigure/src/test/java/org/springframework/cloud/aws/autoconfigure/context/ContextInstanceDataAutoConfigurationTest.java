@@ -55,8 +55,7 @@ class ContextInstanceDataAutoConfigurationTest {
 				new MetaDataServer.HttpResponseWriterHandler("testInstanceId"));
 
 		this.contextRunner
-				.run(context -> assertThat(context.getBean(AmazonEc2InstanceDataPropertySourcePostProcessor.class))
-						.isNotNull());
+				.run(context -> assertThat(context).hasSingleBean(AmazonEc2InstanceDataPropertySourcePostProcessor.class));
 
 		httpServer.removeContext(instanceIdHttpContext);
 	}
