@@ -49,13 +49,11 @@
       "type": "java.lang.Boolean"
     },
 	{
-	  "defaultValue": null,
 	  "name": "cloud.aws.s3.region",
 	  "description": "Overrides the default region.",
 	  "type": "java.lang.String"
 	},
 	{
-	  "defaultValue": null,
 	  "name": "cloud.aws.s3.endpoint",
 	  "description": "Overrides the default endpoint.",
 	  "type": "java.lang.String"
