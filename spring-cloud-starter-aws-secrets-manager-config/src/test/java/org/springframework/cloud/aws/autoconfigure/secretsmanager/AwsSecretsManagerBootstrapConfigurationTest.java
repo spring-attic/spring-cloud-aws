@@ -20,11 +20,13 @@ import java.lang.reflect.Method;
 import java.net.URI;
 
 import com.amazonaws.AmazonWebServiceClient;
+import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClient;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.cloud.aws.secretsmanager.AwsSecretsManagerPropertySourceLocator;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ReflectionUtils;
 
@@ -64,6 +66,14 @@ class AwsSecretsManagerBootstrapConfigurationTest {
 		contextRunner.withPropertyValues("aws.secretsmanager.region:us-east-2").run((context) -> {
 			AWSSecretsManagerClient client = context.getBean(AWSSecretsManagerClient.class);
 			assertThat(client.getClientConfiguration().getUserAgentSuffix()).startsWith("spring-cloud-aws/");
+		});
+	}
+
+	@Test
+	void testMissingAutoConfiguration() {
+		this.contextRunner.withPropertyValues("aws.secretsmanager.enabled:false").run(context -> {
+			assertThat(context).doesNotHaveBean(AwsSecretsManagerPropertySourceLocator.class);
+			assertThat(context).doesNotHaveBean(AWSSecretsManager.class);
 		});
 	}
 
