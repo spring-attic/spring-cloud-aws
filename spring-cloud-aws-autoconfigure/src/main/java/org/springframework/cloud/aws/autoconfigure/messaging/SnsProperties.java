@@ -17,6 +17,7 @@
 package org.springframework.cloud.aws.autoconfigure.messaging;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.aws.core.config.AwsClientProperties;
 
 /**
  * Configuration properties for AWS Simple Notification Service.
@@ -24,19 +25,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author Eddú Meléndez
  */
 @ConfigurationProperties(prefix = "cloud.aws.sns")
-public class SnsProperties {
-
-	/**
-	 * Overrides the default region.
-	 */
-	private String region;
-
-	public String getRegion() {
-		return region;
-	}
-
-	public void setRegion(String region) {
-		this.region = region;
-	}
+public class SnsProperties extends AwsClientProperties {
 
 }
