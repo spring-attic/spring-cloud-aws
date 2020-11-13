@@ -2,7 +2,10 @@ name: Java CI with Maven
 
 on:
   push:
-    tags: [ master, 2.3.x ]
+    tags:
+      - v2.3.*
+      - v2.4.*
+      - v3.0.*
 
 jobs:
   build:
