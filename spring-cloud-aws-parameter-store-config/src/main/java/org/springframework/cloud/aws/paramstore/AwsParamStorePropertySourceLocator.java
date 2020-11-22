@@ -31,7 +31,6 @@ import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.PropertySource;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * Builds a {@link CompositePropertySource} with various
