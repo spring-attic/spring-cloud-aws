@@ -103,4 +103,4 @@ enable it you need an additional dependency:
 
 However, starting at `spring-cloud-aws` `2.3`, allows import default aws' parameterstore keys
 (`spring.config.import=aws-parameterstore:`) or individual keys
-(`spring.config.import=aws-parameterstore:secret-key;other-secret-key`)
+(`spring.config.import=aws-parameterstore:config-key;other-config-key`)

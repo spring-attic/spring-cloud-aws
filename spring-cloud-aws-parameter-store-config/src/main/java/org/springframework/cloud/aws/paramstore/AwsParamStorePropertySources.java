@@ -79,7 +79,7 @@ public class AwsParamStorePropertySources {
 				throw new AwsParameterPropertySourceNotFoundException(e);
 			}
 			else {
-				log.warn("Unable to load AWS secret from " + context, e);
+				log.warn("Unable to load AWS parameter from " + context, e);
 			}
 		}
 		return null;
