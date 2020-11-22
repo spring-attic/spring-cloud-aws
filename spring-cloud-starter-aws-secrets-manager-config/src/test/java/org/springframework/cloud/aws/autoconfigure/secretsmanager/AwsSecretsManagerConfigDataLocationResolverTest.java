@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 class AwsSecretsManagerConfigDataLocationResolverTest {
 
 	@Test
-	public void testResolveProfileSpecificWithAutomaticPaths() {
+	void testResolveProfileSpecificWithAutomaticPaths() {
 		String location = "aws-secretsmanager:";
 		List<AwsSecretsManagerConfigDataResource> locations = testResolveProfileSpecific(location);
 		assertThat(locations).hasSize(4);
@@ -45,7 +45,7 @@ class AwsSecretsManagerConfigDataLocationResolverTest {
 	}
 
 	@Test
-	public void testResolveProfileSpecificWithCustomPaths() {
+	void testResolveProfileSpecificWithCustomPaths() {
 		String location = "aws-secretsmanager:/mypath1;/mypath2;/mypath3";
 		List<AwsSecretsManagerConfigDataResource> locations = testResolveProfileSpecific(location);
 		assertThat(locations).hasSize(3);
