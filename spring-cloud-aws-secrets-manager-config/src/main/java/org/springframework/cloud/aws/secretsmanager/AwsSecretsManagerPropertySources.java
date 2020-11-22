@@ -69,7 +69,9 @@ public class AwsSecretsManagerPropertySources {
 	public AwsSecretsManagerPropertySource createPropertySource(String context, boolean optional,
 			AWSSecretsManager client) {
 		try {
-			return new AwsSecretsManagerPropertySource(context, client);
+			AwsSecretsManagerPropertySource propertySource = new AwsSecretsManagerPropertySource(context, client);
+			propertySource.init();
+			return propertySource;
 			// TODO: howto call close when /refresh
 		}
 		catch (Exception e) {

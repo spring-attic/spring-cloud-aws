@@ -38,6 +38,7 @@ public class AwsSecretsManagerConfigDataLoader implements ConfigDataLoader<AwsSe
 			AWSSecretsManager ssm = context.getBootstrapContext().get(AWSSecretsManager.class);
 			AwsSecretsManagerPropertySource propertySource = new AwsSecretsManagerPropertySource(resource.getContext(),
 					ssm);
+			propertySource.init();
 			return new ConfigData(Collections.singletonList(propertySource));
 		}
 		catch (Exception e) {
