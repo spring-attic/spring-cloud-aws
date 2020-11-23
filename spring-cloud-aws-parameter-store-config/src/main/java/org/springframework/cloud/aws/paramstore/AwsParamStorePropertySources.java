@@ -44,10 +44,10 @@ public class AwsParamStorePropertySources {
 
 		String appContext = prefix + "/" + appName;
 		addProfiles(contexts, appContext, profiles);
-		contexts.add(appContext);
+		contexts.add(appContext + "/");
 
 		addProfiles(contexts, defaultContext, profiles);
-		contexts.add(defaultContext);
+		contexts.add(defaultContext + "/");
 		return contexts;
 	}
 
@@ -62,7 +62,7 @@ public class AwsParamStorePropertySources {
 
 	private void addProfiles(List<String> contexts, String baseContext, List<String> profiles) {
 		for (String profile : profiles) {
-			contexts.add(baseContext + this.properties.getProfileSeparator() + profile);
+			contexts.add(baseContext + this.properties.getProfileSeparator() + profile + "/");
 		}
 	}
 
