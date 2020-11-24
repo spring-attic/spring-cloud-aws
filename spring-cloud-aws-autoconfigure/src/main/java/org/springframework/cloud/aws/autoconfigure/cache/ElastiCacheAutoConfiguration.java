@@ -48,6 +48,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
+import static org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils.GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME;
+
 /**
  * @author Agim Emruli
  * @author Eddú Meléndez
@@ -68,7 +70,7 @@ public class ElastiCacheAutoConfiguration {
 
 	public ElastiCacheAutoConfiguration(ElastiCacheProperties properties,
 			ObjectProvider<ListableStackResourceFactory> stackResourceFactory,
-			@Qualifier("globalClientConfiguration") ObjectProvider<ClientConfiguration> globalClientConfiguration,
+			@Qualifier(GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME) ObjectProvider<ClientConfiguration> globalClientConfiguration,
 			@Qualifier("elastiCacheClientConfiguration") ObjectProvider<ClientConfiguration> elastiCacheClientConfiguration) {
 		this.properties = properties;
 		this.stackResourceFactory = stackResourceFactory.getIfAvailable();

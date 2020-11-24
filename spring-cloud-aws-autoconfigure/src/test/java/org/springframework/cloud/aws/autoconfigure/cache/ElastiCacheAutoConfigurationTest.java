@@ -193,44 +193,6 @@ class ElastiCacheAutoConfigurationTest {
 		});
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	static class MockCacheConfigurationWithStackCaches {
-
-		@Bean
-		AmazonElastiCache amazonElastiCache() {
-			AmazonElastiCache amazonElastiCache = mock(AmazonElastiCache.class);
-			int port = TestMemcacheServer.startServer();
-			DescribeCacheClustersRequest sampleCacheOneLogical = new DescribeCacheClustersRequest()
-					.withCacheClusterId("sampleCacheOneLogical");
-			sampleCacheOneLogical.setShowCacheNodeInfo(true);
-
-			Mockito.when(amazonElastiCache.describeCacheClusters(sampleCacheOneLogical))
-					.thenReturn(new DescribeCacheClustersResult().withCacheClusters(new CacheCluster()
-							.withConfigurationEndpoint(new Endpoint().withAddress("localhost").withPort(port))
-							.withEngine("memcached")));
-
-			DescribeCacheClustersRequest sampleCacheTwoLogical = new DescribeCacheClustersRequest()
-					.withCacheClusterId("sampleCacheTwoLogical");
-			sampleCacheTwoLogical.setShowCacheNodeInfo(true);
-
-			Mockito.when(amazonElastiCache.describeCacheClusters(sampleCacheTwoLogical))
-					.thenReturn(new DescribeCacheClustersResult().withCacheClusters(new CacheCluster()
-							.withConfigurationEndpoint(new Endpoint().withAddress("localhost").withPort(port))
-							.withEngine("memcached")));
-			return amazonElastiCache;
-		}
-
-		@Bean
-		ListableStackResourceFactory stackResourceFactory() {
-			ListableStackResourceFactory resourceFactory = mock(ListableStackResourceFactory.class);
-			Mockito.when(resourceFactory.resourcesByType("AWS::ElastiCache::CacheCluster")).thenReturn(Arrays.asList(
-					new StackResource("sampleCacheOneLogical", "sampleCacheOne", "AWS::ElastiCache::CacheCluster"),
-					new StackResource("sampleCacheTwoLogical", "sampleCacheTwo", "AWS::ElastiCache::CacheCluster")));
-			return resourceFactory;
-		}
-
-	}
-
 	@Test
 	void configuration_withGlobalClientConfiguration_shouldUseItForClient() {
 		// Arrange & Act
@@ -270,6 +232,44 @@ class ElastiCacheAutoConfigurationTest {
 							"clientConfiguration");
 					assertThat(clientConfiguration.getProxyHost()).isEqualTo("elastiCache");
 				});
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class MockCacheConfigurationWithStackCaches {
+
+		@Bean
+		AmazonElastiCache amazonElastiCache() {
+			AmazonElastiCache amazonElastiCache = mock(AmazonElastiCache.class);
+			int port = TestMemcacheServer.startServer();
+			DescribeCacheClustersRequest sampleCacheOneLogical = new DescribeCacheClustersRequest()
+					.withCacheClusterId("sampleCacheOneLogical");
+			sampleCacheOneLogical.setShowCacheNodeInfo(true);
+
+			Mockito.when(amazonElastiCache.describeCacheClusters(sampleCacheOneLogical))
+					.thenReturn(new DescribeCacheClustersResult().withCacheClusters(new CacheCluster()
+							.withConfigurationEndpoint(new Endpoint().withAddress("localhost").withPort(port))
+							.withEngine("memcached")));
+
+			DescribeCacheClustersRequest sampleCacheTwoLogical = new DescribeCacheClustersRequest()
+					.withCacheClusterId("sampleCacheTwoLogical");
+			sampleCacheTwoLogical.setShowCacheNodeInfo(true);
+
+			Mockito.when(amazonElastiCache.describeCacheClusters(sampleCacheTwoLogical))
+					.thenReturn(new DescribeCacheClustersResult().withCacheClusters(new CacheCluster()
+							.withConfigurationEndpoint(new Endpoint().withAddress("localhost").withPort(port))
+							.withEngine("memcached")));
+			return amazonElastiCache;
+		}
+
+		@Bean
+		ListableStackResourceFactory stackResourceFactory() {
+			ListableStackResourceFactory resourceFactory = mock(ListableStackResourceFactory.class);
+			Mockito.when(resourceFactory.resourcesByType("AWS::ElastiCache::CacheCluster")).thenReturn(Arrays.asList(
+					new StackResource("sampleCacheOneLogical", "sampleCacheOne", "AWS::ElastiCache::CacheCluster"),
+					new StackResource("sampleCacheTwoLogical", "sampleCacheTwo", "AWS::ElastiCache::CacheCluster")));
+			return resourceFactory;
+		}
+
 	}
 
 	@Configuration

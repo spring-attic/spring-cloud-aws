@@ -39,6 +39,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import static org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils.GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME;
 import static org.springframework.cloud.aws.messaging.endpoint.config.NotificationHandlerMethodArgumentResolverConfigurationUtils.getNotificationHandlerMethodArgumentResolver;
 
 /**
@@ -63,7 +64,7 @@ public class SnsAutoConfiguration {
 
 	SnsAutoConfiguration(ObjectProvider<AWSCredentialsProvider> awsCredentialsProvider,
 			ObjectProvider<RegionProvider> regionProvider, SnsProperties properties,
-			@Qualifier("globalClientConfiguration") ObjectProvider<ClientConfiguration> globalClientConfiguration,
+			@Qualifier(GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME) ObjectProvider<ClientConfiguration> globalClientConfiguration,
 			@Qualifier("snsClientConfiguration") ObjectProvider<ClientConfiguration> snsClientConfiguration) {
 		this.awsCredentialsProvider = awsCredentialsProvider.getIfAvailable();
 		this.regionProvider = properties.getRegion() == null ? regionProvider.getIfAvailable()

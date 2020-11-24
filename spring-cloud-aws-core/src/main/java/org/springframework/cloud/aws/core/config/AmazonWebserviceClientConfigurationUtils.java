@@ -45,6 +45,8 @@ public final class AmazonWebserviceClientConfigurationUtils {
 	// @checkstyle:off
 	public static final String REGION_PROVIDER_BEAN_NAME = "org.springframework.cloud.aws.core.region.RegionProvider.BEAN_NAME";
 
+	public static final String GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME = "com.amazonaws.ClientConfiguration.BEAN_NAME";
+
 	// @checkstyle:on
 
 	/**
@@ -124,8 +126,8 @@ public final class AmazonWebserviceClientConfigurationUtils {
 				&& beanDefinitionRegistry.containsBeanDefinition(clientConfigurationBeanName)) {
 			builder.addPropertyReference("clientConfiguration", clientConfigurationBeanName);
 		}
-		else if (beanDefinitionRegistry.containsBeanDefinition("globalClientConfiguration")) {
-			builder.addPropertyReference("clientConfiguration", "globalClientConfiguration");
+		else if (beanDefinitionRegistry.containsBeanDefinition(GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME)) {
+			builder.addPropertyReference("clientConfiguration", GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME);
 		}
 
 		return builder.getBeanDefinition();

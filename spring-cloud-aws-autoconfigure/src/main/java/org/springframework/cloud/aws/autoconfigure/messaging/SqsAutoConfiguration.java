@@ -50,6 +50,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.util.CollectionUtils;
 
+import static org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils.GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME;
+
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for SQS integration.
  *
@@ -76,7 +78,7 @@ public class SqsAutoConfiguration {
 
 		SqsClientConfiguration(ObjectProvider<AWSCredentialsProvider> awsCredentialsProvider,
 				ObjectProvider<RegionProvider> regionProvider, SqsProperties properties,
-				@Qualifier("globalClientConfiguration") ObjectProvider<ClientConfiguration> globalClientConfiguration,
+				@Qualifier(GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME) ObjectProvider<ClientConfiguration> globalClientConfiguration,
 				@Qualifier("sqsClientConfiguration") ObjectProvider<ClientConfiguration> sqsClientConfiguration) {
 			this.awsCredentialsProvider = awsCredentialsProvider.getIfAvailable();
 			this.regionProvider = properties.getRegion() == null ? regionProvider.getIfAvailable()

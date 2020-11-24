@@ -46,6 +46,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import static org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils.GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME;
+
 /**
  * Configuration for exporting metrics to CloudWatch.
  *
@@ -72,7 +74,7 @@ public class CloudWatchExportAutoConfiguration {
 
 	public CloudWatchExportAutoConfiguration(AWSCredentialsProvider credentialsProvider,
 			ObjectProvider<RegionProvider> regionProvider, CloudWatchProperties properties,
-			@Qualifier("globalClientConfiguration") ObjectProvider<ClientConfiguration> globalClientConfiguration,
+			@Qualifier(GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME) ObjectProvider<ClientConfiguration> globalClientConfiguration,
 			@Qualifier("cloudWatchClientConfiguration") ObjectProvider<ClientConfiguration> cloudWatchClientConfiguration) {
 		this.credentialsProvider = credentialsProvider;
 		this.regionProvider = properties.getRegion() == null ? regionProvider.getIfAvailable()

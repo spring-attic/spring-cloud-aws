@@ -17,7 +17,6 @@
 package org.springframework.cloud.aws.core;
 
 import com.amazonaws.ClientConfiguration;
-import com.amazonaws.ClientConfigurationFactory;
 import com.amazonaws.PredefinedClientConfigurations;
 
 /**
