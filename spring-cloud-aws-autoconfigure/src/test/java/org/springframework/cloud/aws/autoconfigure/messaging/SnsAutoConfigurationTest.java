@@ -19,11 +19,14 @@ package org.springframework.cloud.aws.autoconfigure.messaging;
 import java.net.URI;
 import java.util.List;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClient;
+import com.amazonaws.services.sqs.AmazonSQSAsync;
+import com.amazonaws.services.sqs.AmazonSQSAsyncClient;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -32,6 +35,7 @@ import org.springframework.cloud.aws.core.region.RegionProvider;
 import org.springframework.cloud.aws.core.region.StaticRegionProvider;
 import org.springframework.cloud.aws.messaging.endpoint.NotificationStatusHandlerMethodArgumentResolver;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodArgumentResolverComposite;
@@ -136,7 +140,7 @@ class SnsAutoConfigurationTest {
 	}
 
 	@Test
-	void enableSqsWithCustomEndpoint() {
+	void enableSnsWithCustomEndpoint() {
 		this.contextRunner.withPropertyValues("cloud.aws.sns.endpoint:http://localhost:8090").run(context -> {
 			AmazonSNSClient client = context.getBean(AmazonSNSClient.class);
 
@@ -146,6 +150,46 @@ class SnsAutoConfigurationTest {
 			Boolean isEndpointOverridden = (Boolean) ReflectionTestUtils.getField(client, "isEndpointOverridden");
 			assertThat(isEndpointOverridden).isTrue();
 		});
+	}
+
+	@Test
+	void configuration_withGlobalClientConfiguration_shouldUseItForClient() {
+		// Arrange & Act
+		this.contextRunner.withUserConfiguration(ConfigurationWithGlobalClientConfiguration.class).run((context) -> {
+			AmazonSNS amazonSns = context.getBean(AmazonSNS.class);
+
+			// Assert
+			ClientConfiguration clientConfiguration = (ClientConfiguration) ReflectionTestUtils.getField(amazonSns,
+					"clientConfiguration");
+			assertThat(clientConfiguration.getProxyHost()).isEqualTo("global");
+		});
+	}
+
+	@Test
+	void configuration_withSnsClientConfiguration_shouldUseItForClient() {
+		// Arrange & Act
+		this.contextRunner.withUserConfiguration(ConfigurationWithSnsClientConfiguration.class).run((context) -> {
+			AmazonSNS amazonSns = context.getBean(AmazonSNS.class);
+
+			// Assert
+			ClientConfiguration clientConfiguration = (ClientConfiguration) ReflectionTestUtils.getField(amazonSns,
+					"clientConfiguration");
+			assertThat(clientConfiguration.getProxyHost()).isEqualTo("sns");
+		});
+	}
+
+	@Test
+	void configuration_withGlobalAndSnsClientConfigurations_shouldUseSnsConfigurationForClient() {
+		// Arrange & Act
+		this.contextRunner.withUserConfiguration(ConfigurationWithGlobalAndSnsClientConfiguration.class)
+				.run((context) -> {
+					AmazonSNS amazonSns = context.getBean(AmazonSNS.class);
+
+					// Assert
+					ClientConfiguration clientConfiguration = (ClientConfiguration) ReflectionTestUtils
+							.getField(amazonSns, "clientConfiguration");
+					assertThat(clientConfiguration.getProxyHost()).isEqualTo("sns");
+				});
 	}
 
 	private NotificationStatusHandlerMethodArgumentResolver getNotificationStatusHandlerMethodArgumentResolver(
@@ -195,6 +239,41 @@ class SnsAutoConfigurationTest {
 		@Bean(name = REGION_PROVIDER_BEAN_NAME)
 		RegionProvider regionProvider() {
 			return new StaticRegionProvider("eu-west-1");
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class ConfigurationWithGlobalClientConfiguration {
+
+		@Bean
+		ClientConfiguration globalClientConfiguration() {
+			return new ClientConfiguration().withProxyHost("global");
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class ConfigurationWithSnsClientConfiguration {
+
+		@Bean
+		ClientConfiguration snsClientConfiguration() {
+			return new ClientConfiguration().withProxyHost("sns");
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class ConfigurationWithGlobalAndSnsClientConfiguration {
+
+		@Bean
+		ClientConfiguration snsClientConfiguration() {
+			return new ClientConfiguration().withProxyHost("sns");
+		}
+
+		@Bean
+		ClientConfiguration globalClientConfiguration() {
+			return new ClientConfiguration().withProxyHost("global");
 		}
 
 	}
