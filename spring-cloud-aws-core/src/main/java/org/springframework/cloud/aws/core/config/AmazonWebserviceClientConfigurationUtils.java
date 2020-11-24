@@ -62,13 +62,7 @@ public final class AmazonWebserviceClientConfigurationUtils {
 	public static BeanDefinitionHolder registerAmazonWebserviceClient(Object source, BeanDefinitionRegistry registry,
 			String serviceNameClassName, String customRegionProvider, String customRegion) {
 		return registerAmazonWebserviceClient(source, registry, serviceNameClassName, customRegionProvider,
-				customRegion, null);
-	}
-
-	public static BeanDefinitionHolder registerAmazonWebserviceClient(Object source, BeanDefinitionRegistry registry,
-			String serviceNameClassName, String customRegionProvider, String customRegion, String customEndpoint) {
-		return registerAmazonWebserviceClient(source, registry, serviceNameClassName, customRegionProvider,
-				customRegion, customEndpoint, null);
+				customRegion, null, null);
 	}
 
 	public static BeanDefinitionHolder registerAmazonWebserviceClient(Object source, BeanDefinitionRegistry registry,
