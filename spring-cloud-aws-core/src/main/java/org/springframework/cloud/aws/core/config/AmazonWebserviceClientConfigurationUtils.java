@@ -67,6 +67,13 @@ public final class AmazonWebserviceClientConfigurationUtils {
 
 	public static BeanDefinitionHolder registerAmazonWebserviceClient(Object source, BeanDefinitionRegistry registry,
 			String serviceNameClassName, String customRegionProvider, String customRegion, String customEndpoint) {
+		return registerAmazonWebserviceClient(source, registry, serviceNameClassName, customRegionProvider,
+				customRegion, customEndpoint, null);
+	}
+
+	public static BeanDefinitionHolder registerAmazonWebserviceClient(Object source, BeanDefinitionRegistry registry,
+			String serviceNameClassName, String customRegionProvider, String customRegion, String customEndpoint,
+			String clientConfigurationBeanName) {
 
 		String beanName = getBeanName(serviceNameClassName);
 
@@ -75,7 +82,7 @@ public final class AmazonWebserviceClientConfigurationUtils {
 		}
 
 		BeanDefinition definition = getAmazonWebserviceClientBeanDefinition(source, serviceNameClassName,
-				customRegionProvider, customRegion, customEndpoint, registry);
+				customRegionProvider, customRegion, customEndpoint, registry, clientConfigurationBeanName);
 		BeanDefinitionHolder holder = new BeanDefinitionHolder(definition, beanName);
 		BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
 
@@ -84,7 +91,7 @@ public final class AmazonWebserviceClientConfigurationUtils {
 
 	public static AbstractBeanDefinition getAmazonWebserviceClientBeanDefinition(Object source,
 			String serviceNameClassName, String customRegionProvider, String customRegion, String customEndpoint,
-			BeanDefinitionRegistry beanDefinitionRegistry) {
+			BeanDefinitionRegistry beanDefinitionRegistry, String clientConfigurationBeanName) {
 
 		if (StringUtils.hasText(customRegionProvider) && StringUtils.hasText(customRegion)) {
 			throw new IllegalArgumentException("Only region or regionProvider can be configured, but not both");
@@ -115,6 +122,15 @@ public final class AmazonWebserviceClientConfigurationUtils {
 		else {
 			registerRegionProviderBeanIfNeeded(beanDefinitionRegistry);
 			builder.addPropertyReference("regionProvider", REGION_PROVIDER_BEAN_NAME);
+		}
+
+		// configure client configuration
+		if (clientConfigurationBeanName != null
+				&& beanDefinitionRegistry.containsBeanDefinition(clientConfigurationBeanName)) {
+			builder.addPropertyReference("clientConfiguration", clientConfigurationBeanName);
+		}
+		else if (beanDefinitionRegistry.containsBeanDefinition("globalClientConfiguration")) {
+			builder.addPropertyReference("clientConfiguration", "globalClientConfiguration");
 		}
 
 		return builder.getBeanDefinition();
