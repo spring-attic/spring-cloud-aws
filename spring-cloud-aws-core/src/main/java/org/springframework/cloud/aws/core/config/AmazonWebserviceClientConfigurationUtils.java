@@ -35,6 +35,7 @@ import org.springframework.util.StringUtils;
 /**
  * @author Agim Emruli
  * @author Alain Sahli
+ * @author Maciej Walkowiak
  */
 public final class AmazonWebserviceClientConfigurationUtils {
 
