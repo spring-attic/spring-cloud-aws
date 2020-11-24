@@ -19,6 +19,7 @@ package org.springframework.cloud.aws.autoconfigure.cache;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.services.elasticache.AmazonElastiCache;
 import com.amazonaws.services.elasticache.model.CacheCluster;
 import com.amazonaws.services.elasticache.model.DescribeCacheClustersRequest;
@@ -37,6 +38,7 @@ import org.springframework.cloud.aws.core.env.stack.ListableStackResourceFactory
 import org.springframework.cloud.aws.core.env.stack.StackResource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -229,6 +231,47 @@ class ElastiCacheAutoConfigurationTest {
 
 	}
 
+	@Test
+	void configuration_withGlobalClientConfiguration_shouldUseItForClient() {
+		// Arrange & Act
+		this.contextRunner.withUserConfiguration(ConfigurationWithGlobalClientConfiguration.class).run((context) -> {
+			AmazonElastiCache client = context.getBean(AmazonElastiCache.class);
+
+			// Assert
+			ClientConfiguration clientConfiguration = (ClientConfiguration) ReflectionTestUtils.getField(client,
+					"clientConfiguration");
+			assertThat(clientConfiguration.getProxyHost()).isEqualTo("global");
+		});
+	}
+
+	@Test
+	void configuration_withElastiCacheClientConfiguration_shouldUseItForClient() {
+		// Arrange & Act
+		this.contextRunner.withUserConfiguration(ConfigurationWithElastiCacheClientConfiguration.class)
+				.run((context) -> {
+					AmazonElastiCache client = context.getBean(AmazonElastiCache.class);
+
+					// Assert
+					ClientConfiguration clientConfiguration = (ClientConfiguration) ReflectionTestUtils.getField(client,
+							"clientConfiguration");
+					assertThat(clientConfiguration.getProxyHost()).isEqualTo("elastiCache");
+				});
+	}
+
+	@Test
+	void configuration_withGlobalAndElastiCacheClientConfigurations_shouldUseSqsConfigurationForClient() {
+		// Arrange & Act
+		this.contextRunner.withUserConfiguration(ConfigurationWithGlobalAndElastiCacheClientConfiguration.class)
+				.run((context) -> {
+					AmazonElastiCache client = context.getBean(AmazonElastiCache.class);
+
+					// Assert
+					ClientConfiguration clientConfiguration = (ClientConfiguration) ReflectionTestUtils.getField(client,
+							"clientConfiguration");
+					assertThat(clientConfiguration.getProxyHost()).isEqualTo("elastiCache");
+				});
+	}
+
 	@Configuration
 	static class CustomCacheConfigurerConfiguration {
 
@@ -245,6 +288,41 @@ class ElastiCacheAutoConfigurationTest {
 		@Bean
 		AmazonElastiCache customAmazonElastiCache() {
 			return mock(AmazonElastiCache.class);
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class ConfigurationWithGlobalClientConfiguration {
+
+		@Bean
+		ClientConfiguration globalClientConfiguration() {
+			return new ClientConfiguration().withProxyHost("global");
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class ConfigurationWithElastiCacheClientConfiguration {
+
+		@Bean
+		ClientConfiguration elastiCacheClientConfiguration() {
+			return new ClientConfiguration().withProxyHost("elastiCache");
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class ConfigurationWithGlobalAndElastiCacheClientConfiguration {
+
+		@Bean
+		ClientConfiguration elastiCacheClientConfiguration() {
+			return new ClientConfiguration().withProxyHost("elastiCache");
+		}
+
+		@Bean
+		ClientConfiguration globalClientConfiguration() {
+			return new ClientConfiguration().withProxyHost("global");
 		}
 
 	}
