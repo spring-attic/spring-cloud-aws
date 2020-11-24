@@ -145,7 +145,7 @@ class CloudWatchExportAutoConfigurationTest {
 	}
 
 	@Test
-	void configuration_withGlobalAndCloudWatchClientConfigurations_shouldUseCloudWatchConfigurationForClient() throws Exception {
+	void configuration_withGlobalAndCloudWatchClientConfigurations_shouldUseCloudWatchConfigurationForClient() {
 		// Arrange & Act
 		this.contextRunner.withPropertyValues("management.metrics.export.cloudwatch.namespace:test")
 				.withUserConfiguration(ConfigurationWithGlobalAndCloudWatchClientConfiguration.class).run((context) -> {
