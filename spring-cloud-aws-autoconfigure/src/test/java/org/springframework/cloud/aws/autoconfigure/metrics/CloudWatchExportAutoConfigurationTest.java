@@ -33,6 +33,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils.GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME;
 
 /**
  * Test for the {@link CloudWatchExportAutoConfiguration}.
@@ -161,7 +162,7 @@ class CloudWatchExportAutoConfigurationTest {
 	@Configuration(proxyBeanMethods = false)
 	static class ConfigurationWithGlobalClientConfiguration {
 
-		@Bean
+		@Bean(name = GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME)
 		ClientConfiguration globalClientConfiguration() {
 			return new ClientConfiguration().withProxyHost("global");
 		}
@@ -186,7 +187,7 @@ class CloudWatchExportAutoConfigurationTest {
 			return new ClientConfiguration().withProxyHost("cloudWatch");
 		}
 
-		@Bean
+		@Bean(name = GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME)
 		ClientConfiguration globalClientConfiguration() {
 			return new ClientConfiguration().withProxyHost("global");
 		}

@@ -43,6 +43,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils.GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME;
 
 class AmazonRdsDatabaseAutoConfigurationTest {
 
@@ -283,7 +284,7 @@ class AmazonRdsDatabaseAutoConfigurationTest {
 	@Configuration(proxyBeanMethods = false)
 	static class ConfigurationWithGlobalClientConfiguration {
 
-		@Bean
+		@Bean(name = GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME)
 		ClientConfiguration globalClientConfiguration() {
 			return new ClientConfiguration().withProxyHost("global");
 		}
@@ -308,7 +309,7 @@ class AmazonRdsDatabaseAutoConfigurationTest {
 			return new ClientConfiguration().withProxyHost("rds");
 		}
 
-		@Bean
+		@Bean(name = GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME)
 		ClientConfiguration globalClientConfiguration() {
 			return new ClientConfiguration().withProxyHost("global");
 		}

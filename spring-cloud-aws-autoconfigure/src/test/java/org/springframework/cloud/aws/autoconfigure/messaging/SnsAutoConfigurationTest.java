@@ -42,6 +42,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils.GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME;
 import static org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils.REGION_PROVIDER_BEAN_NAME;
 
 /**
@@ -244,7 +245,7 @@ class SnsAutoConfigurationTest {
 	@Configuration(proxyBeanMethods = false)
 	static class ConfigurationWithGlobalClientConfiguration {
 
-		@Bean
+		@Bean(name = GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME)
 		ClientConfiguration globalClientConfiguration() {
 			return new ClientConfiguration().withProxyHost("global");
 		}
@@ -269,7 +270,7 @@ class SnsAutoConfigurationTest {
 			return new ClientConfiguration().withProxyHost("sns");
 		}
 
-		@Bean
+		@Bean(name = GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME)
 		ClientConfiguration globalClientConfiguration() {
 			return new ClientConfiguration().withProxyHost("global");
 		}

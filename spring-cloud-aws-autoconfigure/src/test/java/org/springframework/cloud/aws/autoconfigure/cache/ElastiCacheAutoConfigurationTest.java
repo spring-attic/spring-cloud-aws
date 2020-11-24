@@ -43,6 +43,7 @@ import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils.GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME;
 
 /**
  * Tests for {@link ElastiCacheAutoConfiguration}.
@@ -295,7 +296,7 @@ class ElastiCacheAutoConfigurationTest {
 	@Configuration(proxyBeanMethods = false)
 	static class ConfigurationWithGlobalClientConfiguration {
 
-		@Bean
+		@Bean(name = GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME)
 		ClientConfiguration globalClientConfiguration() {
 			return new ClientConfiguration().withProxyHost("global");
 		}
@@ -320,7 +321,7 @@ class ElastiCacheAutoConfigurationTest {
 			return new ClientConfiguration().withProxyHost("elastiCache");
 		}
 
-		@Bean
+		@Bean(name = GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME)
 		ClientConfiguration globalClientConfiguration() {
 			return new ClientConfiguration().withProxyHost("global");
 		}

@@ -57,6 +57,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.withSettings;
+import static org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils.GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME;
 import static org.springframework.cloud.aws.core.config.AmazonWebserviceClientConfigurationUtils.REGION_PROVIDER_BEAN_NAME;
 
 /**
@@ -511,7 +512,7 @@ class SqsAutoConfigurationTest {
 	@Configuration(proxyBeanMethods = false)
 	static class ConfigurationWithGlobalClientConfiguration {
 
-		@Bean
+		@Bean(name = GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME)
 		ClientConfiguration globalClientConfiguration() {
 			return new ClientConfiguration().withProxyHost("global");
 		}
@@ -536,7 +537,7 @@ class SqsAutoConfigurationTest {
 			return new ClientConfiguration().withProxyHost("sqs");
 		}
 
-		@Bean
+		@Bean(name = GLOBAL_CLIENT_CONFIGURATION_BEAN_NAME)
 		ClientConfiguration globalClientConfiguration() {
 			return new ClientConfiguration().withProxyHost("global");
 		}
