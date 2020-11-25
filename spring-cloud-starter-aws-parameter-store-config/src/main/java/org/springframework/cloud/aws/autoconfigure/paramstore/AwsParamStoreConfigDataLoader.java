@@ -36,8 +36,8 @@ public class AwsParamStoreConfigDataLoader implements ConfigDataLoader<AwsParamS
 	public ConfigData load(ConfigDataLoaderContext context, AwsParamStoreConfigDataResource resource) {
 		try {
 			AWSSimpleSystemsManagement ssm = context.getBootstrapContext().get(AWSSimpleSystemsManagement.class);
-			AwsParamStorePropertySource propertySource = new AwsParamStorePropertySource(resource.getContext(), ssm);
-			propertySource.init();
+			AwsParamStorePropertySource propertySource = resource.getPropertySources()
+					.createPropertySource(resource.getContext(), resource.isOptional(), ssm);
 			return new ConfigData(Collections.singletonList(propertySource));
 		}
 		catch (Exception e) {

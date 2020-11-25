@@ -19,6 +19,7 @@ package org.springframework.cloud.aws.autoconfigure.paramstore;
 import java.util.Objects;
 
 import org.springframework.boot.context.config.ConfigDataResource;
+import org.springframework.cloud.aws.paramstore.AwsParamStorePropertySources;
 import org.springframework.core.style.ToStringCreator;
 
 /**
@@ -31,9 +32,13 @@ public class AwsParamStoreConfigDataResource extends ConfigDataResource {
 
 	private final boolean optional;
 
-	public AwsParamStoreConfigDataResource(String context, boolean optional) {
+	private final AwsParamStorePropertySources propertySources;
+
+	public AwsParamStoreConfigDataResource(String context, boolean optional,
+			AwsParamStorePropertySources propertySources) {
 		this.context = context;
 		this.optional = optional;
+		this.propertySources = propertySources;
 	}
 
 	public String getContext() {
@@ -42,6 +47,10 @@ public class AwsParamStoreConfigDataResource extends ConfigDataResource {
 
 	public boolean isOptional() {
 		return this.optional;
+	}
+
+	public AwsParamStorePropertySources getPropertySources() {
+		return this.propertySources;
 	}
 
 	@Override

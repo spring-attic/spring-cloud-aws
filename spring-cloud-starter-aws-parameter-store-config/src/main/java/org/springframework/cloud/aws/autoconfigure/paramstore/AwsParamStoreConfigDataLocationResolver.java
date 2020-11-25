@@ -86,7 +86,7 @@ public class AwsParamStoreConfigDataLocationResolver
 
 		ArrayList<AwsParamStoreConfigDataResource> locations = new ArrayList<>();
 		contexts.forEach(propertySourceContext -> locations
-				.add(new AwsParamStoreConfigDataResource(propertySourceContext, location.isOptional())));
+				.add(new AwsParamStoreConfigDataResource(propertySourceContext, location.isOptional(), sources)));
 
 		return locations;
 	}
