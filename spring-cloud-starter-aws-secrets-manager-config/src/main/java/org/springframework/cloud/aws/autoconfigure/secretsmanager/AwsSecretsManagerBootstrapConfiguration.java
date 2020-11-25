@@ -30,6 +30,7 @@ import org.springframework.cloud.aws.secretsmanager.AwsSecretsManagerProperties;
 import org.springframework.cloud.aws.secretsmanager.AwsSecretsManagerPropertySourceLocator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 /**
  * Spring Cloud Bootstrap Configuration for setting up an
@@ -46,9 +47,18 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(prefix = AwsSecretsManagerProperties.CONFIG_PREFIX, name = "enabled", matchIfMissing = true)
 public class AwsSecretsManagerBootstrapConfiguration {
 
+	private final Environment environment;
+
+	public AwsSecretsManagerBootstrapConfiguration(Environment environment) {
+		this.environment = environment;
+	}
+
 	@Bean
 	AwsSecretsManagerPropertySourceLocator awsSecretsManagerPropertySourceLocator(AWSSecretsManager smClient,
 			AwsSecretsManagerProperties properties) {
+		if (StringUtils.isNullOrEmpty(properties.getName())) {
+			properties.setName(this.environment.getProperty("spring.application.name"));
+		}
 		return new AwsSecretsManagerPropertySourceLocator(smClient, properties);
 	}
 
