@@ -45,15 +45,13 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class)
 @EnableConfigurationProperties(CognitoAuthenticationProperties.class)
-@ConditionalOnProperty(prefix = "spring.cloud.aws.security.cognito", name = "enabled",
-		matchIfMissing = true)
+@ConditionalOnProperty(prefix = "spring.cloud.aws.security.cognito", name = "enabled", matchIfMissing = true)
 @Conditional(CognitoAuthenticationAutoConfiguration.OnUserPoolIdAndRegionPropertiesCondition.class)
 public class CognitoAuthenticationAutoConfiguration {
 
 	private final CognitoAuthenticationProperties properties;
 
-	public CognitoAuthenticationAutoConfiguration(
-			CognitoAuthenticationProperties properties) {
+	public CognitoAuthenticationAutoConfiguration(CognitoAuthenticationProperties properties) {
 		this.properties = properties;
 	}
 
@@ -61,8 +59,7 @@ public class CognitoAuthenticationAutoConfiguration {
 	@ConditionalOnMissingBean(name = "cognitoJwtDelegatingValidator")
 	public DelegatingOAuth2TokenValidator<Jwt> cognitoJwtDelegatingValidator() {
 		List<OAuth2TokenValidator<Jwt>> validators = new ArrayList<>();
-		validators
-				.add(JwtValidators.createDefaultWithIssuer(this.properties.getIssuer()));
+		validators.add(JwtValidators.createDefaultWithIssuer(this.properties.getIssuer()));
 		validators.add(new JwtClaimValidator<List<String>>("aud",
 				aud -> aud != null && aud.contains(this.properties.getAppClientId())));
 
@@ -73,10 +70,8 @@ public class CognitoAuthenticationAutoConfiguration {
 	@ConditionalOnMissingBean
 	public JwtDecoder cognitoJwtDecoder(
 			@Qualifier("cognitoJwtDelegatingValidator") DelegatingOAuth2TokenValidator<Jwt> validator) {
-		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder
-				.withJwkSetUri(this.properties.getRegistry())
-				.jwsAlgorithm(SignatureAlgorithm.from(this.properties.getAlgorithm()))
-				.build();
+		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(this.properties.getRegistry())
+				.jwsAlgorithm(SignatureAlgorithm.from(this.properties.getAlgorithm())).build();
 		jwtDecoder.setJwtValidator(validator);
 
 		return jwtDecoder;

@@ -29,20 +29,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CognitoAuthenticationAutoConfigurationTest {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-			.withConfiguration(
-					AutoConfigurations.of(CognitoAuthenticationAutoConfiguration.class));
+			.withConfiguration(AutoConfigurations.of(CognitoAuthenticationAutoConfiguration.class));
 
 	@Test
 	void autoConfigurationIsDisabledWithoutUserPoolAndRegionProperties() {
-		this.contextRunner
-				.run(context -> assertThat(context).doesNotHaveBean(JwtDecoder.class));
+		this.contextRunner.run(context -> assertThat(context).doesNotHaveBean(JwtDecoder.class));
 	}
 
 	@Test
 	void enableAutoConfigurationWithUserPoolIdAndRegionProperties() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(
-						CognitoAuthenticationAutoConfiguration.class,
+				.withConfiguration(AutoConfigurations.of(CognitoAuthenticationAutoConfiguration.class,
 						OAuth2ResourceServerAutoConfiguration.class))
 				.withPropertyValues("spring.cloud.aws.security.cognito.region:us-west-1",
 						"spring.cloud.aws.security.cognito.user-pool-id:my-user-pool-123")
