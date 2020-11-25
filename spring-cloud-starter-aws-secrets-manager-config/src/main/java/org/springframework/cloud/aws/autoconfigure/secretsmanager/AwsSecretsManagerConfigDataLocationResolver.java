@@ -84,7 +84,7 @@ public class AwsSecretsManagerConfigDataLocationResolver
 				? sources.getAutomaticContexts(profiles.getAccepted())
 				: getCustomContexts(location.getNonPrefixedValue(PREFIX));
 
-		ArrayList<AwsSecretsManagerConfigDataResource> locations = new ArrayList<>();
+		List<AwsSecretsManagerConfigDataResource> locations = new ArrayList<>();
 		contexts.forEach(propertySourceContext -> locations
 				.add(new AwsSecretsManagerConfigDataResource(propertySourceContext, location.isOptional())));
 
