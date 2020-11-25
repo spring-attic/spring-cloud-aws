@@ -84,7 +84,7 @@ public class AwsParamStoreConfigDataLocationResolver
 				? sources.getAutomaticContexts(profiles.getAccepted())
 				: getCustomContexts(location.getNonPrefixedValue(PREFIX));
 
-		ArrayList<AwsParamStoreConfigDataResource> locations = new ArrayList<>();
+		List<AwsParamStoreConfigDataResource> locations = new ArrayList<>();
 		contexts.forEach(propertySourceContext -> locations
 				.add(new AwsParamStoreConfigDataResource(propertySourceContext, location.isOptional(), sources)));
 
