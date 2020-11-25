@@ -78,15 +78,16 @@ public class AwsSecretsManagerConfigDataLocationResolver
 
 		AwsSecretsManagerProperties properties = loadConfigProperties(resolverContext.getBinder());
 
-		AwsSecretsManagerPropertySources sources = new AwsSecretsManagerPropertySources(properties, log);
+		AwsSecretsManagerPropertySources propertySources = new AwsSecretsManagerPropertySources(properties, log);
 
 		List<String> contexts = location.getValue().equals(PREFIX)
-				? sources.getAutomaticContexts(profiles.getAccepted())
+				? propertySources.getAutomaticContexts(profiles.getAccepted())
 				: getCustomContexts(location.getNonPrefixedValue(PREFIX));
 
 		List<AwsSecretsManagerConfigDataResource> locations = new ArrayList<>();
-		contexts.forEach(propertySourceContext -> locations
-				.add(new AwsSecretsManagerConfigDataResource(propertySourceContext, location.isOptional())));
+		contexts.forEach(
+				propertySourceContext -> locations.add(new AwsSecretsManagerConfigDataResource(propertySourceContext,
+						location.isOptional(), propertySources)));
 
 		return locations;
 	}

@@ -19,6 +19,7 @@ package org.springframework.cloud.aws.autoconfigure.secretsmanager;
 import java.util.Objects;
 
 import org.springframework.boot.context.config.ConfigDataResource;
+import org.springframework.cloud.aws.secretsmanager.AwsSecretsManagerPropertySources;
 import org.springframework.core.style.ToStringCreator;
 
 /**
@@ -31,9 +32,13 @@ public class AwsSecretsManagerConfigDataResource extends ConfigDataResource {
 
 	private final boolean optional;
 
-	public AwsSecretsManagerConfigDataResource(String context, boolean optional) {
+	private final AwsSecretsManagerPropertySources propertySources;
+
+	public AwsSecretsManagerConfigDataResource(String context, boolean optional,
+			AwsSecretsManagerPropertySources propertySources) {
 		this.context = context;
 		this.optional = optional;
+		this.propertySources = propertySources;
 	}
 
 	public String getContext() {
@@ -42,6 +47,10 @@ public class AwsSecretsManagerConfigDataResource extends ConfigDataResource {
 
 	public boolean isOptional() {
 		return this.optional;
+	}
+
+	public AwsSecretsManagerPropertySources getPropertySources() {
+		return this.propertySources;
 	}
 
 	@Override
