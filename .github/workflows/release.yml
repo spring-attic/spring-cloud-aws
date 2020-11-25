@@ -2,15 +2,14 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ master, 2.3.x ]
-  pull_request_target:
-    branches: [ master, 2.3.x ]
-    types:
-      - opened
+    tags:
+      - v2.3.*
+      - v2.4.*
+      - v3.0.*
 
 jobs:
   build:
-    name: "Test with ${{ matrix.version }}"
+    name: "Release"
     strategy:
       matrix:
         version: [ 8.0.275.hs-adpt ]
@@ -34,5 +33,13 @@ jobs:
         with:
           java-version: 8
           jdkFile: ${{ steps.sdkman.outputs.file }}
+          server-id: bintray-awspring
+          server-username: BINTRAY_USERNAME
+          server-password: BINTRAY_PASSWORD
       - name: Build with Maven
         run: ./mvnw -V verify
+      - name: Build with Maven
+        run: ./mvnw -V deploy
+        env:
+          BINTRAY_USERNAME: awspring-releaser
+          BINTRAY_PASSWORD: ${{ secrets.BINTRAY_PASSWORD }}
