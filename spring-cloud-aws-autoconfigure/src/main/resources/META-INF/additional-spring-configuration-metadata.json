@@ -64,7 +64,7 @@
 	},
     {
 	  "defaultValue": false,
-	  "name": "cloud.aws.instance-data.enabled",
+	  "name": "cloud.aws.instance.data.enabled",
 	  "description": "Enables Instance Data integration.",
 	  "type": "java.lang.Boolean"
     },
