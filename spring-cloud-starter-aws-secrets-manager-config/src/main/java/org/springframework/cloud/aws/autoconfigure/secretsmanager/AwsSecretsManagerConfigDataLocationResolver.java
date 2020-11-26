@@ -23,7 +23,6 @@ import java.util.List;
 
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import org.springframework.boot.BootstrapContext;
 import org.springframework.boot.BootstrapRegistry;
@@ -40,18 +39,25 @@ import org.springframework.cloud.aws.secretsmanager.AwsSecretsManagerPropertySou
 import org.springframework.util.StringUtils;
 
 /**
+ * Resolves config data locations in AWS Secrets Manager.
+ *
  * @author Eddú Meléndez
+ * @author Maciej Walkowiak
  * @since 2.3.0
  */
 public class AwsSecretsManagerConfigDataLocationResolver
 		implements ConfigDataLocationResolver<AwsSecretsManagerConfigDataResource> {
 
-	private static final Log log = LogFactory.getLog(AwsSecretsManagerConfigDataLocationResolver.class);
+	private final Log log;
 
 	/**
-	 * AWS Parameter Store Config Data prefix.
+	 * AWS Secrets Manager Config Data prefix.
 	 */
 	public static final String PREFIX = "aws-secretsmanager:";
+
+	public AwsSecretsManagerConfigDataLocationResolver(Log log) {
+		this.log = log;
+	}
 
 	@Override
 	public boolean isResolvable(ConfigDataLocationResolverContext context, ConfigDataLocation location) {
@@ -93,7 +99,7 @@ public class AwsSecretsManagerConfigDataLocationResolver
 	}
 
 	private List<String> getCustomContexts(String keys) {
-		if (StringUtils.isEmpty(keys)) {
+		if (!StringUtils.hasText(keys)) {
 			return Collections.emptyList();
 		}
 
@@ -127,19 +133,16 @@ public class AwsSecretsManagerConfigDataLocationResolver
 	}
 
 	protected AwsSecretsManagerProperties loadProperties(Binder binder) {
-		AwsSecretsManagerProperties awsSecretsManagerProperties = binder
-				.bind(AwsSecretsManagerProperties.CONFIG_PREFIX, Bindable.of(AwsSecretsManagerProperties.class))
-				.orElse(new AwsSecretsManagerProperties());
-
-		return awsSecretsManagerProperties;
+		return binder.bind(AwsSecretsManagerProperties.CONFIG_PREFIX, Bindable.of(AwsSecretsManagerProperties.class))
+				.orElseGet(AwsSecretsManagerProperties::new);
 	}
 
 	protected AwsSecretsManagerProperties loadConfigProperties(Binder binder) {
 		AwsSecretsManagerProperties properties = binder
 				.bind(AwsSecretsManagerProperties.CONFIG_PREFIX, Bindable.of(AwsSecretsManagerProperties.class))
-				.orElse(new AwsSecretsManagerProperties());
+				.orElseGet(AwsSecretsManagerProperties::new);
 
-		if (StringUtils.isEmpty(properties.getName())) {
+		if (!StringUtils.hasText(properties.getName())) {
 			properties.setName(binder.bind("spring.application.name", String.class).orElse("application"));
 		}
 
