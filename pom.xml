@@ -68,6 +68,7 @@
 		<module>spring-cloud-starter-aws-secrets-manager-config</module>
 		<module>spring-cloud-aws-integration-test</module>
 		<module>docs</module>
+		<module>samples</module>
 	</modules>
 
 	<dependencyManagement>
