@@ -179,7 +179,7 @@ Following IAM permissions are required by Spring Cloud AWS:
 
 |===
 
-Sample IAM policy granting access to ses:
+Sample IAM policy granting access to SES:
 
 [source,json,indent=0]
 ----
