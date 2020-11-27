@@ -24,7 +24,6 @@ import java.util.Set;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
-import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -80,9 +79,6 @@ public class AwsSecretsManagerPropertySource
 			for (Map.Entry<String, Object> secretEntry : secretMap.entrySet()) {
 				properties.put(secretEntry.getKey(), secretEntry.getValue());
 			}
-		}
-		catch (ResourceNotFoundException e) {
-			logger.debug("AWS secret not found from " + secretValueRequest.getSecretId());
 		}
 		catch (IOException e) {
 			throw new RuntimeException(e);

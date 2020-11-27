@@ -22,12 +22,15 @@ import java.util.List;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
+import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException;
 import org.junit.Test;
 
+import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -132,7 +135,36 @@ public class AwsSecretsManagerPropertySourceLocatorTest {
 		assertThat(contextToBeTested.get(1)).isEqualTo("/secret/messaging-service");
 		assertThat(contextToBeTested.get(2)).isEqualTo("/secret/application_test");
 		assertThat(contextToBeTested.get(3)).isEqualTo("/secret/application");
+	}
 
+	@Test
+	public void whenFailFastIsTrueAndSecretDoesNotExistThrowsException() {
+		AwsSecretsManagerProperties properties = new AwsSecretsManagerProperties();
+		properties.setFailFast(true);
+
+		when(smClient.getSecretValue(any(GetSecretValueRequest.class)))
+				.thenThrow(ResourceNotFoundException.class);
+
+		AwsSecretsManagerPropertySourceLocator locator = new AwsSecretsManagerPropertySourceLocator(
+				smClient, properties);
+		assertThatThrownBy(() -> locator.locate(env))
+				.isInstanceOf(ResourceNotFoundException.class);
+	}
+
+	@Test
+	public void whenFailFastIsFalseAndSecretDoesNotExistReturnsEmptyPropertySource() {
+		AwsSecretsManagerProperties properties = new AwsSecretsManagerProperties();
+		properties.setFailFast(false);
+
+		when(smClient.getSecretValue(any(GetSecretValueRequest.class)))
+				.thenThrow(ResourceNotFoundException.class);
+
+		AwsSecretsManagerPropertySourceLocator locator = new AwsSecretsManagerPropertySourceLocator(
+				smClient, properties);
+
+		CompositePropertySource result = (CompositePropertySource) locator.locate(env);
+
+		assertThat(result.getPropertySources()).isEmpty();
 	}
 
 	private final static class AwsSecretsManagerPropertiesBuilder {
