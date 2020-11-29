@@ -278,7 +278,10 @@ Following IAM permissions are required by Spring Cloud AWS:
 | `sqs:SendMessage`
 
 | Receive message from queue
-| `sqs:ReceiveMessage` and `sqs:DeleteMessage`
+| `sqs:ReceiveMessage`
+
+| Delete message from queue
+| `sqs:DeleteMessage`
 
 | To use sqsListener with SimpleMessageListenerContainerFactory you will need to add as well
 | `sqs:GetQueueAttributes`
