@@ -93,11 +93,10 @@ public class AwsSecretsManagerConfigDataLocationResolver
 	}
 
 	private List<String> getCustomContexts(String keys) {
-		if (StringUtils.isEmpty(keys)) {
-			return Collections.emptyList();
+		if (StringUtils.hasLength(keys)) {
+			return Arrays.asList(keys.split(";"));
 		}
-
-		return Arrays.asList(keys.split(";"));
+		return Collections.emptyList();
 	}
 
 	protected <T> void registerAndPromoteBean(ConfigDataLocationResolverContext context, Class<T> type,
@@ -129,7 +128,7 @@ public class AwsSecretsManagerConfigDataLocationResolver
 	protected AwsSecretsManagerProperties loadProperties(Binder binder) {
 		AwsSecretsManagerProperties awsSecretsManagerProperties = binder
 				.bind(AwsSecretsManagerProperties.CONFIG_PREFIX, Bindable.of(AwsSecretsManagerProperties.class))
-				.orElse(new AwsSecretsManagerProperties());
+				.orElseGet(AwsSecretsManagerProperties::new);
 
 		return awsSecretsManagerProperties;
 	}
@@ -137,9 +136,9 @@ public class AwsSecretsManagerConfigDataLocationResolver
 	protected AwsSecretsManagerProperties loadConfigProperties(Binder binder) {
 		AwsSecretsManagerProperties properties = binder
 				.bind(AwsSecretsManagerProperties.CONFIG_PREFIX, Bindable.of(AwsSecretsManagerProperties.class))
-				.orElse(new AwsSecretsManagerProperties());
+				.orElseGet(AwsSecretsManagerProperties::new);
 
-		if (StringUtils.isEmpty(properties.getName())) {
+		if (!StringUtils.hasLength(properties.getName())) {
 			properties.setName(binder.bind("spring.application.name", String.class).orElse("application"));
 		}
 
