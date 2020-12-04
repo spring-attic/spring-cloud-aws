@@ -92,11 +92,10 @@ public class AwsParamStoreConfigDataLocationResolver
 	}
 
 	private List<String> getCustomContexts(String keys) {
-		if (StringUtils.isEmpty(keys)) {
-			return Collections.emptyList();
+		if (StringUtils.hasLength(keys)) {
+			return Arrays.asList(keys.split(";"));
 		}
-
-		return Arrays.asList(keys.split(";"));
+		return Collections.emptyList();
 	}
 
 	protected <T> void registerAndPromoteBean(ConfigDataLocationResolverContext context, Class<T> type,
@@ -128,7 +127,7 @@ public class AwsParamStoreConfigDataLocationResolver
 	protected AwsParamStoreProperties loadProperties(Binder binder) {
 		AwsParamStoreProperties awsParamStoreProperties = binder
 				.bind(AwsParamStoreProperties.CONFIG_PREFIX, Bindable.of(AwsParamStoreProperties.class))
-				.orElse(new AwsParamStoreProperties());
+				.orElseGet(AwsParamStoreProperties::new);
 
 		return awsParamStoreProperties;
 	}
@@ -138,7 +137,7 @@ public class AwsParamStoreConfigDataLocationResolver
 				.bind(AwsParamStoreProperties.CONFIG_PREFIX, Bindable.of(AwsParamStoreProperties.class))
 				.orElse(new AwsParamStoreProperties());
 
-		if (StringUtils.isEmpty(properties.getName())) {
+		if (!StringUtils.hasLength(properties.getName())) {
 			properties.setName(binder.bind("spring.application.name", String.class).orElse("application"));
 		}
 
