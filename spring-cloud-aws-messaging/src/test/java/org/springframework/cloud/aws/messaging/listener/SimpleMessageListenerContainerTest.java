@@ -17,11 +17,14 @@
 package org.springframework.cloud.aws.messaging.listener;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -38,6 +41,7 @@ import com.amazonaws.services.sqs.model.GetQueueUrlRequest;
 import com.amazonaws.services.sqs.model.GetQueueUrlResult;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.MessageAttributeValue;
+import com.amazonaws.services.sqs.model.MessageSystemAttributeName;
 import com.amazonaws.services.sqs.model.OverLimitException;
 import com.amazonaws.services.sqs.model.QueueAttributeName;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
@@ -51,6 +55,7 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.cloud.aws.core.support.documentation.RuntimeUse;
 import org.springframework.cloud.aws.messaging.config.annotation.EnableSqs;
+import org.springframework.cloud.aws.messaging.core.MessageAttributeDataTypes;
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -130,6 +135,13 @@ class SimpleMessageListenerContainerTest {
 	private static void mockGetQueueUrl(AmazonSQSAsync sqs, String queueName, String queueUrl) {
 		when(sqs.getQueueUrl(new GetQueueUrlRequest(queueName)))
 				.thenReturn(new GetQueueUrlResult().withQueueUrl(queueUrl));
+	}
+
+	private static Message fifoMessage(final String messageGroupId, final String content) {
+		Map<String, MessageAttributeValue> headers = new HashMap<>();
+		headers.put(MessageSystemAttributeName.MessageGroupId.name(), new MessageAttributeValue()
+				.withDataType(MessageAttributeDataTypes.STRING).withStringValue(messageGroupId));
+		return new Message().withMessageAttributes(headers).withBody(content);
 	}
 
 	@BeforeEach
@@ -252,6 +264,75 @@ class SimpleMessageListenerContainerTest {
 		container.start();
 
 		assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+
+		container.stop();
+	}
+
+	@Test
+	void testReceiveMessagesFromFifoQueue() throws Exception {
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+
+		AmazonSQSAsync sqs = mock(AmazonSQSAsync.class, withSettings().stubOnly());
+		container.setAmazonSqs(sqs);
+
+		CountDownLatch countDownLatch = new CountDownLatch(10);
+		List<String> actualHandledMessages = new ArrayList<>();
+		QueueMessageHandler messageHandler = new QueueMessageHandler() {
+
+			@Override
+			public void handleMessage(org.springframework.messaging.Message<?> message) throws MessagingException {
+				assertThat(message.getPayload()).isInstanceOf(String.class);
+				actualHandledMessages.add((String) message.getPayload());
+				countDownLatch.countDown();
+			}
+		};
+		container.setMessageHandler(messageHandler);
+		StaticApplicationContext applicationContext = new StaticApplicationContext();
+		applicationContext.registerSingleton("fifoTestMessageListener", FifoTestMessageListener.class);
+		messageHandler.setApplicationContext(applicationContext);
+		container.setBeanName("testContainerName");
+		messageHandler.afterPropertiesSet();
+
+		mockGetQueueUrl(sqs, "testQueue.fifo", "http://testSimpleReceiveMessage.amazonaws.com");
+		mockGetQueueAttributesWithEmptyResult(sqs, "http://testSimpleReceiveMessage.amazonaws.com");
+
+		container.afterPropertiesSet();
+
+		final Message group1Msg1 = fifoMessage("1", "group1Msg1");
+		final Message group1Msg2 = fifoMessage("1", "group1Msg2");
+		final Message group1Msg3 = fifoMessage("1", "group1Msg3");
+		final Message group1Msg4 = fifoMessage("1", "group1Msg4");
+		final Message group1Msg5 = fifoMessage("1", "group1Msg5");
+		final Message group1Msg6 = fifoMessage("1", "group1Msg6");
+		final Message group1Msg7 = fifoMessage("1", "group1Msg7");
+		final Message group2Msg1 = fifoMessage("2", "group2Msg1");
+		final Message group2Msg2 = fifoMessage("2", "group2Msg2");
+		final Message group3Msg1 = fifoMessage("3", "group3Msg1");
+
+		when(sqs.receiveMessage(
+				new ReceiveMessageRequest("http://testSimpleReceiveMessage.amazonaws.com").withAttributeNames("All")
+						.withMessageAttributeNames("All").withMaxNumberOfMessages(10).withWaitTimeSeconds(20)))
+								.thenReturn(new ReceiveMessageResult().withMessages(group1Msg1, group1Msg2, group1Msg3,
+										group1Msg4, group1Msg5, group1Msg6, group1Msg7, group2Msg1, group2Msg2,
+										group3Msg1))
+								.thenReturn(new ReceiveMessageResult());
+		when(sqs.getQueueAttributes(any(GetQueueAttributesRequest.class))).thenReturn(new GetQueueAttributesResult());
+
+		container.start();
+
+		assertThat(countDownLatch.await(3, TimeUnit.SECONDS)).isTrue();
+
+		final List<String> actualGroup1Messages = actualHandledMessages.stream().filter(msg -> msg.startsWith("group1"))
+				.collect(Collectors.toList());
+		final List<String> actualGroup2Messages = actualHandledMessages.stream().filter(msg -> msg.startsWith("group2"))
+				.collect(Collectors.toList());
+		final List<String> actualGroup3Messages = actualHandledMessages.stream().filter(msg -> msg.startsWith("group3"))
+				.collect(Collectors.toList());
+
+		assertThat(actualGroup1Messages).containsExactly("group1Msg1", "group1Msg2", "group1Msg3", "group1Msg4",
+				"group1Msg5", "group1Msg6", "group1Msg7");
+		assertThat(actualGroup2Messages).containsExactly("group2Msg1", "group2Msg2");
+		assertThat(actualGroup3Messages).containsExactly("group3Msg1");
 
 		container.stop();
 	}
@@ -1283,6 +1364,22 @@ class SimpleMessageListenerContainerTest {
 
 		CountDownLatch getCountDownLatch() {
 			return this.countDownLatch;
+		}
+
+	}
+
+	private static class FifoTestMessageListener {
+
+		private String message;
+
+		@RuntimeUse
+		@SqsListener("testQueue.fifo")
+		private void handleMessage(String message) {
+			this.message = message;
+		}
+
+		String getMessage() {
+			return this.message;
 		}
 
 	}
