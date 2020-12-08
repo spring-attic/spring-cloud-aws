@@ -99,11 +99,10 @@ public class AwsSecretsManagerConfigDataLocationResolver
 	}
 
 	private List<String> getCustomContexts(String keys) {
-		if (!StringUtils.hasText(keys)) {
-			return Collections.emptyList();
+		if (StringUtils.hasLength(keys)) {
+			return Arrays.asList(keys.split(";"));
 		}
-
-		return Arrays.asList(keys.split(";"));
+		return Collections.emptyList();
 	}
 
 	protected <T> void registerAndPromoteBean(ConfigDataLocationResolverContext context, Class<T> type,
@@ -142,7 +141,7 @@ public class AwsSecretsManagerConfigDataLocationResolver
 				.bind(AwsSecretsManagerProperties.CONFIG_PREFIX, Bindable.of(AwsSecretsManagerProperties.class))
 				.orElseGet(AwsSecretsManagerProperties::new);
 
-		if (!StringUtils.hasText(properties.getName())) {
+		if (!StringUtils.hasLength(properties.getName())) {
 			properties.setName(binder.bind("spring.application.name", String.class).orElse("application"));
 		}
 

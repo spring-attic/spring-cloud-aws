@@ -52,12 +52,10 @@ public class AwsSecretsManagerPropertySources {
 	}
 
 	protected String getContext(String prefix, String context) {
-		if (StringUtils.isEmpty(prefix)) {
-			return context;
-		}
-		else {
+		if (StringUtils.hasLength(prefix)) {
 			return prefix + "/" + context;
 		}
+		return context;
 	}
 
 	private void addProfiles(List<String> contexts, String baseContext, List<String> profiles) {

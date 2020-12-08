@@ -44,6 +44,7 @@ import org.springframework.util.StringUtils;
  * text body.
  *
  * @author Agim Emruli
+ * @deprecated Use `spring-cloud-starter-aws-ses`
  */
 public class SimpleEmailServiceMailSender implements MailSender, DisposableBean {
 
