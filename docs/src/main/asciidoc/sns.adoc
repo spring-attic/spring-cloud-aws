@@ -170,7 +170,7 @@ Following IAM permissions are required by Spring Cloud AWS:
 | `sns:Publish`
 
 | To publish notification you will also need
-| `SNS:ListTopics`
+| `sns:ListTopics`
 
 | To use Annotation-driven HTTP notification endpoint
 | `sns:ConfirmSubscription`
