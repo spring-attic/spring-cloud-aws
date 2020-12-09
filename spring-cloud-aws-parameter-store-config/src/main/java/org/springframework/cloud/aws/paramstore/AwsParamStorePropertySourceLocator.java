@@ -82,8 +82,10 @@ public class AwsParamStorePropertySourceLocator implements PropertySourceLocator
 
 		for (String propertySourceContext : this.contexts) {
 			PropertySource<AWSSimpleSystemsManagement> propertySource = sources
-					.createPropertySource(propertySourceContext, true, this.ssmClient);
-			composite.addPropertySource(propertySource);
+					.createPropertySource(propertySourceContext, !this.properties.isFailFast(), this.ssmClient);
+			if (propertySource != null) {
+				composite.addPropertySource(propertySource);
+			}
 		}
 
 		return composite;

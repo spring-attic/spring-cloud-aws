@@ -125,11 +125,8 @@ public class AwsParamStoreConfigDataLocationResolver
 	}
 
 	protected AwsParamStoreProperties loadProperties(Binder binder) {
-		AwsParamStoreProperties awsParamStoreProperties = binder
-				.bind(AwsParamStoreProperties.CONFIG_PREFIX, Bindable.of(AwsParamStoreProperties.class))
+		return binder.bind(AwsParamStoreProperties.CONFIG_PREFIX, Bindable.of(AwsParamStoreProperties.class))
 				.orElseGet(AwsParamStoreProperties::new);
-
-		return awsParamStoreProperties;
 	}
 
 	protected AwsParamStoreProperties loadConfigProperties(Binder binder) {

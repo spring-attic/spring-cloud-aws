@@ -24,6 +24,10 @@ import org.apache.commons.logging.Log;
 
 import org.springframework.util.StringUtils;
 
+/**
+ * @author Eddú Meléndez
+ * @since 2.3
+ */
 public class AwsParamStorePropertySources {
 
 	private final AwsParamStoreProperties properties;
@@ -64,6 +68,15 @@ public class AwsParamStorePropertySources {
 		}
 	}
 
+	/**
+	 * Creates property source for given context.
+	 * @param context property source context equivalent to the parameter name
+	 * @param optional if creating context should fail with exception if parameter cannot
+	 * be loaded
+	 * @param client System Manager Management client
+	 * @return a property source or null if parameter could not be loaded and optional is
+	 * set to true
+	 */
 	public AwsParamStorePropertySource createPropertySource(String context, boolean optional,
 			AWSSimpleSystemsManagement client) {
 		try {
@@ -73,11 +86,11 @@ public class AwsParamStorePropertySources {
 			// TODO: howto call close when /refresh
 		}
 		catch (Exception e) {
-			if (this.properties.isFailFast() || !optional) {
+			if (!optional) {
 				throw new AwsParameterPropertySourceNotFoundException(e);
 			}
 			else {
-				log.warn("Unable to load AWS parameter from " + context, e);
+				log.warn("Unable to load AWS parameter from " + context + ". " + e.getMessage());
 			}
 		}
 		return null;

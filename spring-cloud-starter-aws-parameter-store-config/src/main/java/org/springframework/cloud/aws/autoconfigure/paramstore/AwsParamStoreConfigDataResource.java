@@ -23,6 +23,8 @@ import org.springframework.cloud.aws.paramstore.AwsParamStorePropertySources;
 import org.springframework.core.style.ToStringCreator;
 
 /**
+ * Config data resource for AWS System Manager Management integration.
+ *
  * @author Eddú Meléndez
  * @since 2.3.0
  */
@@ -41,10 +43,18 @@ public class AwsParamStoreConfigDataResource extends ConfigDataResource {
 		this.propertySources = propertySources;
 	}
 
+	/**
+	 * Returns context which is equal to Secret Manager secret name.
+	 * @return the context
+	 */
 	public String getContext() {
 		return this.context;
 	}
 
+	/**
+	 * If application startup should fail when secret cannot be loaded or does not exist.
+	 * @return is optional
+	 */
 	public boolean isOptional() {
 		return this.optional;
 	}
