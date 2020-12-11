@@ -79,7 +79,7 @@ dots, dashes, forward slashes, backward slashes and underscores next to alphanum
 
 |`aws.paramstore.region`
 |`eu-central-1`
-|Can be used to configure AWSSimpleSystemsManagementClients Region.
+|Can be used to configure region AWSSimpleSystemsManagementClients.
 |===
 
 [TIP]
@@ -113,7 +113,7 @@ Sample IAM policy granting access to Parameter Store:
         {
             "Effect": "Allow",
             "Action": "ssm:GetParametersByPath",
-            "Resource": "yourArn:parameter/prefix/..."
+            "Resource": "yourArn"
         }
     ]
 }
