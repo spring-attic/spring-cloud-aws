@@ -56,6 +56,7 @@ import org.springframework.util.ClassUtils;
  *
  * @author Agim Emruli
  * @since 1.0
+ * @deprecated Use `spring-cloud-starter-aws-ses`
  */
 public class SimpleEmailServiceJavaMailSender extends SimpleEmailServiceMailSender implements JavaMailSender {
 

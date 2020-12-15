@@ -142,6 +142,21 @@ an SES service where the client is overridden to use a valid region (EU-WEST-1).
 </beans>
 ----
 
+Since 2.3, if using spring-boot, the existing auto-configuration offers a specific configuration property to set the
+region for the SES client.
+
+[source,properties,indent=0]
+----
+cloud.aws.mail.region=eu-west-1
+----
+
+Also, there is a new starter `spring-cloud-starter-aws-ses` and it offers a specific configuration property.
+
+[source,properties,indent=0]
+----
+spring.cloud.aws.ses.region=eu-west-1
+----
+
 === Authenticating e-mails
 To avoid any spam attacks on the Amazon SES mail service, applications without production access must
 https://docs.aws.amazon.com/ses/latest/DeveloperGuide/verify-email-addresses.html[verify] each
@@ -149,3 +164,35 @@ e-mail receiver otherwise the mail sender will throw a `com.amazonaws.services.s
 
 https://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.html[Production access] can be requested
 and will disable the need for mail address verification.
+
+=== IAM Permissions
+Following IAM permissions are required by Spring Cloud AWS:
+
+[cols="2"]
+|===
+| Send e-mail without attachment
+| `ses:SendEmail`
+
+| Send e-mail with attachment
+| `ses:SendRawEmail`
+
+|===
+
+Sample IAM policy granting access to SES:
+
+[source,json,indent=0]
+----
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ses:SendEmail",
+                "ses:SendRawEmail"
+            ],
+            "Resource": "arn:aws:ses:your:arn"
+        }
+    ]
+}
+----
