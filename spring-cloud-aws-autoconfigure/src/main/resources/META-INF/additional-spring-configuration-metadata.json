@@ -40,7 +40,11 @@
       "defaultValue": true,
       "name": "cloud.aws.mail.enabled",
       "description": "Enables Mail integration.",
-      "type": "java.lang.Boolean"
+      "type": "java.lang.Boolean",
+      "deprecation": {
+        "level": "warning",
+        "replacement": "spring.cloud.aws.ses.enabled"
+      }
     },
     {
       "defaultValue": true,
@@ -57,6 +61,24 @@
 	  "name": "cloud.aws.s3.endpoint",
 	  "description": "Overrides the default endpoint.",
 	  "type": "java.lang.String"
-	}
+	},
+    {
+	  "defaultValue": false,
+	  "name": "cloud.aws.instance.data.enabled",
+	  "description": "Enables Instance Data integration.",
+	  "type": "java.lang.Boolean"
+    },
+    {
+      "defaultValue": true,
+      "name": "spring.cloud.aws.security.cognito.enabled",
+      "description": "Enables Cognito integration.",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "defaultValue": true,
+      "name": "spring.cloud.aws.ses.enabled",
+      "description": "Enables Simple Email Service integration.",
+      "type": "java.lang.Boolean"
+    }
   ]
 }
