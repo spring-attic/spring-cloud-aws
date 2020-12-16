@@ -188,3 +188,47 @@ with a special setup. The client itself can be configured using the `amazon-clou
 	</bean>
 </beans>
 ----
+
+=== IAM Permissions
+Following IAM permissions are required by Spring Cloud AWS:
+
+[cols="2"]
+|===
+| Describe stacks
+| `cloudformation:DescribeStacks`
+
+| List stack resources
+| `cloudformation:ListStackResources`
+
+| Describe stack resources
+| `cloudformation:DescribeStackResources`
+
+| Describe EC2 tags
+| `ec2:DescribeTags`
+
+|===
+
+Sample IAM policy granting access to CloudFormation:
+
+[source,json,indent=0]
+----
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+              "cloudformation:ListStackResources",
+              "cloudformation:DescribeStackResources",
+              "cloudformation:DescribeStacks"
+            ],
+            "Resource": "stack-arn"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "ec2:DescribeTags",
+            "Resource": "*"
+        }
+    ]
+}
+----
