@@ -2,6 +2,8 @@
 
 include::intro.adoc[]
 
+> *Note:* Further Spring Cloud AWS versions development moved to https://github.com/awspring/spring-cloud-aws[awspring/spring-cloud-aws]. The only active branch in this repository is *2.2.x*.
+
 = Checking out and building
 To check out the project and build it from source, do the following:
 
@@ -108,7 +110,7 @@ configuration settings will automatically execute the integration tests.
 To build with the integration tests you must execute
 
 -----------------------------------------------------------------------------------------------------
-mvn verify -Dels.config.dir=/Users/foo/config/dir
+mvn verify -DrdsPassword=<password from access.properties file>
 (on windows you will also need a leading slash before the drive letter e.g. /C:/users/foo/config/dir)
 -----------------------------------------------------------------------------------------------------
 
