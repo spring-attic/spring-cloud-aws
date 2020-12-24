@@ -74,7 +74,7 @@ class AwsSecretsManagerPropertySourceLocatorTest {
 	}
 
 	@Test
-	public void contextExpectedToHave2Elements() {
+	void contextExpectedToHave2Elements() {
 		AwsSecretsManagerProperties properties = new AwsSecretsManagerPropertiesBuilder()
 				.withDefaultContext("application").withName("application").build();
 
@@ -91,7 +91,7 @@ class AwsSecretsManagerPropertySourceLocatorTest {
 	}
 
 	@Test
-	public void contextExpectedToHave4Elements() {
+	void contextExpectedToHave4Elements() {
 		AwsSecretsManagerProperties properties = new AwsSecretsManagerPropertiesBuilder()
 				.withDefaultContext("application").withName("messaging-service").build();
 
@@ -108,7 +108,7 @@ class AwsSecretsManagerPropertySourceLocatorTest {
 	}
 
 	@Test
-	public void contextSpecificOrderExpected() {
+	void contextSpecificOrderExpected() {
 		AwsSecretsManagerProperties properties = new AwsSecretsManagerPropertiesBuilder()
 				.withDefaultContext("application").withName("messaging-service").build();
 

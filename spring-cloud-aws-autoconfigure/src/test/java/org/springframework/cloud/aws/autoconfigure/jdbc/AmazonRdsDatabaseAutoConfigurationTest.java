@@ -48,7 +48,7 @@ class AmazonRdsDatabaseAutoConfigurationTest {
 			.withConfiguration(AutoConfigurations.of(AmazonRdsDatabaseAutoConfiguration.class));
 
 	@Test
-	public void registersRdsInstanceConfigurer() {
+	void registersRdsInstanceConfigurer() {
 		this.contextRunner.withUserConfiguration(ApplicationConfigurationWithoutReadReplica.class)
 				.withUserConfiguration(CustomRdsInstanceConfigurer.class)
 				.withPropertyValues("cloud.aws.rds.instances[0].dbInstanceIdentifier:test",
@@ -128,7 +128,7 @@ class AmazonRdsDatabaseAutoConfigurationTest {
 	}
 
 	@Test
-	public void configureBean_withoutDbInstanceIdentifierSpecified_doNotConfigureFactoryBean() {
+	void configureBean_withoutDbInstanceIdentifierSpecified_doNotConfigureFactoryBean() {
 		this.contextRunner.withPropertyValues("cloud.aws.rds.instances.instances[0].password:secret").run((context) -> {
 			assertThat(context).doesNotHaveBean(DataSource.class);
 			assertThat(context).doesNotHaveBean(AmazonRdsDataSourceFactoryBean.class);
@@ -136,7 +136,7 @@ class AmazonRdsDatabaseAutoConfigurationTest {
 	}
 
 	@Test
-	public void configureBean_withoutPasswordSpecified_doNotConfigureFactoryBean() {
+	void configureBean_withoutPasswordSpecified_doNotConfigureFactoryBean() {
 		this.contextRunner.withPropertyValues("cloud.aws.rds.instances.instances[0].dbInstanceIdentifier:test")
 				.run((context) -> {
 					assertThat(context).doesNotHaveBean(DataSource.class);

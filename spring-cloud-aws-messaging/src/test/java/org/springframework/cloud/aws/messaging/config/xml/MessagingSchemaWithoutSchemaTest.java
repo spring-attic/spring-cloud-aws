@@ -28,7 +28,7 @@ import org.springframework.core.io.ClassPathResource;
 public class MessagingSchemaWithoutSchemaTest {
 
 	@Test
-	public void messagingXsd_withoutVersion_shouldNotThrowAnException() throws Exception {
+	void messagingXsd_withoutVersion_shouldNotThrowAnException() throws Exception {
 		// Arrange
 		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);

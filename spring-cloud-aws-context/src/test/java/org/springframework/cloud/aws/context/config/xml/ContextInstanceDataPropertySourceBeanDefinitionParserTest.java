@@ -42,10 +42,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Agim Emruli
  */
-public class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
+class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
 
 	@Test
-	public void parseInternal_singleElementDefined_beanDefinitionCreated() throws Exception {
+	void parseInternal_singleElementDefined_beanDefinitionCreated() throws Exception {
 		// Arrange
 		HttpServer httpServer = MetaDataServer.setupHttpServer();
 		HttpContext instanceIdHttpContext = httpServer.createContext("/latest/meta-data/instance-id",
@@ -66,7 +66,7 @@ public class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
 	}
 
 	@Test
-	public void parseInternal_missingAwsCloudEnvironment_missingBeanDefinition() throws Exception {
+	void parseInternal_missingAwsCloudEnvironment_missingBeanDefinition() throws Exception {
 		// Arrange
 		HttpServer httpServer = MetaDataServer.setupHttpServer();
 		HttpContext instanceIdHttpContext = httpServer.createContext("/latest/meta-data/instance-id",
@@ -84,7 +84,7 @@ public class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
 	}
 
 	@Test
-	public void parseInternal_singleElementWithUserTagsMapDefined_userTagMapCreatedAlongWithPostProcessor()
+	void parseInternal_singleElementWithUserTagsMapDefined_userTagMapCreatedAlongWithPostProcessor()
 			throws Exception {
 		// Arrange
 		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
@@ -100,7 +100,7 @@ public class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
 	}
 
 	@Test
-	public void parseInternal_singleElementWithCustomAmazonEc2Client_userTagMapCreatedWithCustomEc2Client()
+	void parseInternal_singleElementWithCustomAmazonEc2Client_userTagMapCreatedWithCustomEc2Client()
 			throws Exception {
 		// Arrange
 		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
@@ -123,7 +123,7 @@ public class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
 
 	// @checkstyle:off
 	@Test
-	public void parseInternal_singleElementWithCustomAttributeAndValueSeparator_postProcessorCreatedWithCustomAttributeAndValueSeparator()
+	void parseInternal_singleElementWithCustomAttributeAndValueSeparator_postProcessorCreatedWithCustomAttributeAndValueSeparator()
 			throws Exception {
 		// @checkstyle:on
 		// Arrange
@@ -151,7 +151,7 @@ public class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
 	}
 
 	@BeforeEach
-	public void restContextInstanceDataCondition() throws IllegalAccessException {
+	void restContextInstanceDataCondition() throws IllegalAccessException {
 		Field field = ReflectionUtils.findField(AwsCloudEnvironmentCheckUtils.class, "isCloudEnvironment");
 		assertThat(field).isNotNull();
 		ReflectionUtils.makeAccessible(field);
@@ -159,7 +159,7 @@ public class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
 	}
 
 	@AfterEach
-	public void destroyMetaDataServer() throws Exception {
+	void destroyMetaDataServer() throws Exception {
 		MetaDataServer.shutdownHttpServer();
 	}
 
