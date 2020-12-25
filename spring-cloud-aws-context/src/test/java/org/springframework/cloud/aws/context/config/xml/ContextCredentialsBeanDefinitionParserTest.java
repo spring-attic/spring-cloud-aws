@@ -54,7 +54,7 @@ class ContextCredentialsBeanDefinitionParserTest {
 	@Test
 	void testCreateBeanDefinition() throws Exception {
 		ApplicationContext applicationContext = new ClassPathXmlApplicationContext(
-				getClass().getSimpleName() + "-context.xml", getClass());
+			getClass().getSimpleName() + "-context.xml", getClass());
 
 		// Check that the result of the factory bean is available
 		AWSCredentialsProvider awsCredentialsProvider = applicationContext.getBean(AWSCredentialsProvider.class);
@@ -66,7 +66,7 @@ class ContextCredentialsBeanDefinitionParserTest {
 
 		@SuppressWarnings("unchecked")
 		List<AWSCredentialsProvider> providerChain = (List<AWSCredentialsProvider>) ReflectionTestUtils
-				.getField(awsCredentialsProviderChain, "credentialsProviders");
+			.getField(awsCredentialsProviderChain, "credentialsProviders");
 
 		assertThat(providerChain).isNotNull();
 		assertThat(providerChain.size()).isEqualTo(2);
@@ -84,33 +84,33 @@ class ContextCredentialsBeanDefinitionParserTest {
 	void testMultipleElements() throws Exception {
 		// noinspection ResultOfObjectAllocationIgnored
 		assertThatThrownBy(
-				() -> new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-testMultipleElements.xml",
-						getClass())).isInstanceOf(BeanDefinitionParsingException.class)
-								.hasMessageContaining("only allowed once per");
+			() -> new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-testMultipleElements.xml",
+				getClass())).isInstanceOf(BeanDefinitionParsingException.class)
+			.hasMessageContaining("only allowed once per");
 	}
 
 	@Test
 	void testWithEmptyAccessKey() throws Exception {
 		// noinspection ResultOfObjectAllocationIgnored
 		assertThatThrownBy(
-				() -> new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-testWithEmptyAccessKey.xml",
-						getClass())).isInstanceOf(BeanDefinitionParsingException.class)
-								.hasMessageContaining("The 'access-key' attribute must not be empty");
+			() -> new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-testWithEmptyAccessKey.xml",
+				getClass())).isInstanceOf(BeanDefinitionParsingException.class)
+			.hasMessageContaining("The 'access-key' attribute must not be empty");
 	}
 
 	@Test
 	void testWithEmptySecretKey() throws Exception {
 		// noinspection ResultOfObjectAllocationIgnored
 		assertThatThrownBy(
-				() -> new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-testWithEmptySecretKey.xml",
-						getClass())).isInstanceOf(BeanDefinitionParsingException.class)
-								.hasMessageContaining("The 'secret-key' attribute must not be empty");
+			() -> new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-testWithEmptySecretKey.xml",
+				getClass())).isInstanceOf(BeanDefinitionParsingException.class)
+			.hasMessageContaining("The 'secret-key' attribute must not be empty");
 	}
 
 	@Test
 	void testWithPlaceHolder() throws Exception {
 		ApplicationContext applicationContext = new ClassPathXmlApplicationContext(
-				getClass().getSimpleName() + "-testWithPlaceHolder.xml", getClass());
+			getClass().getSimpleName() + "-testWithPlaceHolder.xml", getClass());
 
 		AWSCredentialsProvider awsCredentialsProvider = applicationContext.getBean(AWSCredentialsProvider.class);
 		AWSCredentials credentials = awsCredentialsProvider.getCredentials();
@@ -121,7 +121,7 @@ class ContextCredentialsBeanDefinitionParserTest {
 	@Test
 	void testWithExpressions() throws Exception {
 		ApplicationContext applicationContext = new ClassPathXmlApplicationContext(
-				getClass().getSimpleName() + "-testWithExpressions.xml", getClass());
+			getClass().getSimpleName() + "-testWithExpressions.xml", getClass());
 
 		AWSCredentialsProvider awsCredentialsProvider = applicationContext.getBean(AWSCredentialsProvider.class);
 		AWSCredentials credentials = awsCredentialsProvider.getCredentials();
@@ -132,15 +132,15 @@ class ContextCredentialsBeanDefinitionParserTest {
 	@Test
 	void parseBean_withProfileCredentialsProvider_createProfileCredentialsProvider() {
 		ApplicationContext applicationContext = new ClassPathXmlApplicationContext(
-				getClass().getSimpleName() + "-profileCredentialsProvider.xml", getClass());
+			getClass().getSimpleName() + "-profileCredentialsProvider.xml", getClass());
 
 		AWSCredentialsProvider awsCredentialsProvider = applicationContext.getBean(
-				AmazonWebserviceClientConfigurationUtils.CREDENTIALS_PROVIDER_BEAN_NAME, AWSCredentialsProvider.class);
+			AmazonWebserviceClientConfigurationUtils.CREDENTIALS_PROVIDER_BEAN_NAME, AWSCredentialsProvider.class);
 		assertThat(awsCredentialsProvider).isNotNull();
 
 		@SuppressWarnings("unchecked")
 		List<CredentialsProvider> credentialsProviders = (List<CredentialsProvider>) ReflectionTestUtils
-				.getField(awsCredentialsProvider, "credentialsProviders");
+			.getField(awsCredentialsProvider, "credentialsProviders");
 		assertThat(credentialsProviders.size()).isEqualTo(1);
 		assertThat(ProfileCredentialsProvider.class.isInstance(credentialsProviders.get(0))).isTrue();
 
@@ -149,26 +149,26 @@ class ContextCredentialsBeanDefinitionParserTest {
 
 	@Test
 	void parseBean_withProfileCredentialsProviderAndProfileFile_createProfileCredentialsProvider()
-			throws IOException {
+		throws IOException {
 		GenericApplicationContext applicationContext = new GenericApplicationContext();
 
 		Map<String, Object> secretAndAccessKeyMap = new HashMap<>();
 		secretAndAccessKeyMap.put("profilePath",
-				new ClassPathResource(getClass().getSimpleName() + "-profile", getClass()).getFile().getAbsolutePath());
+			new ClassPathResource(getClass().getSimpleName() + "-profile", getClass()).getFile().getAbsolutePath());
 
 		applicationContext.getEnvironment().getPropertySources()
-				.addLast(new MapPropertySource("test", secretAndAccessKeyMap));
+			.addLast(new MapPropertySource("test", secretAndAccessKeyMap));
 		PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
 		configurer.setPropertySources(applicationContext.getEnvironment().getPropertySources());
 
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(applicationContext);
 		reader.loadBeanDefinitions(new ClassPathResource(
-				getClass().getSimpleName() + "-profileCredentialsProviderWithFile.xml", getClass()));
+			getClass().getSimpleName() + "-profileCredentialsProviderWithFile.xml", getClass()));
 
 		applicationContext.refresh();
 
 		AWSCredentialsProvider provider = applicationContext.getBean(
-				AmazonWebserviceClientConfigurationUtils.CREDENTIALS_PROVIDER_BEAN_NAME, AWSCredentialsProvider.class);
+			AmazonWebserviceClientConfigurationUtils.CREDENTIALS_PROVIDER_BEAN_NAME, AWSCredentialsProvider.class);
 		assertThat(provider).isNotNull();
 
 		assertThat(provider.getCredentials().getAWSAccessKeyId()).isEqualTo("testAccessKey");
