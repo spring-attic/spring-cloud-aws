@@ -37,11 +37,11 @@ class ContextRegionBeanDefinitionParserTest {
 	void parse_staticConfiguredRegion_createsStaticRegionProviderWithSpecifiedRegion() throws Exception {
 		// Arrange
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-			getClass().getSimpleName() + "-context.xml", getClass());
+				getClass().getSimpleName() + "-context.xml", getClass());
 
 		// Act
 		RegionProvider myRegionProvider = context
-			.getBean(ContextRegionBeanDefinitionParser.CONTEXT_REGION_PROVIDER_BEAN_NAME, RegionProvider.class);
+				.getBean(ContextRegionBeanDefinitionParser.CONTEXT_REGION_PROVIDER_BEAN_NAME, RegionProvider.class);
 
 		// Assert
 		assertThat(myRegionProvider).isNotNull();
@@ -49,15 +49,14 @@ class ContextRegionBeanDefinitionParserTest {
 	}
 
 	@Test
-	void parse_staticConfiguredRegion_createsStaticRegionProviderWithSpecifiedRegionAsExpression()
-		throws Exception {
+	void parse_staticConfiguredRegion_createsStaticRegionProviderWithSpecifiedRegionAsExpression() throws Exception {
 		// Arrange
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-			getClass().getSimpleName() + "-testWithExpression.xml", getClass());
+				getClass().getSimpleName() + "-testWithExpression.xml", getClass());
 
 		// Act
 		RegionProvider myRegionProvider = context
-			.getBean(ContextRegionBeanDefinitionParser.CONTEXT_REGION_PROVIDER_BEAN_NAME, RegionProvider.class);
+				.getBean(ContextRegionBeanDefinitionParser.CONTEXT_REGION_PROVIDER_BEAN_NAME, RegionProvider.class);
 
 		// Assert
 		assertThat(myRegionProvider).isNotNull();
@@ -65,15 +64,14 @@ class ContextRegionBeanDefinitionParserTest {
 	}
 
 	@Test
-	void parse_staticConfiguredRegion_createsStaticRegionProviderWithSpecifiedRegionAsPlaceHolder()
-		throws Exception {
+	void parse_staticConfiguredRegion_createsStaticRegionProviderWithSpecifiedRegionAsPlaceHolder() throws Exception {
 		// Arrange
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-			getClass().getSimpleName() + "-testWithPlaceHolder.xml", getClass());
+				getClass().getSimpleName() + "-testWithPlaceHolder.xml", getClass());
 
 		// Act
 		RegionProvider myRegionProvider = context
-			.getBean(ContextRegionBeanDefinitionParser.CONTEXT_REGION_PROVIDER_BEAN_NAME, RegionProvider.class);
+				.getBean(ContextRegionBeanDefinitionParser.CONTEXT_REGION_PROVIDER_BEAN_NAME, RegionProvider.class);
 
 		// Assert
 		assertThat(myRegionProvider).isNotNull();
@@ -84,11 +82,11 @@ class ContextRegionBeanDefinitionParserTest {
 	void parse_autoDetectRegion_returnEc2MetadataRegionProvider() throws Exception {
 		// Arrange
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-			getClass().getSimpleName() + "-testAutoDetection.xml", getClass());
+				getClass().getSimpleName() + "-testAutoDetection.xml", getClass());
 
 		// Act
 		RegionProvider myRegionProvider = context
-			.getBean(ContextRegionBeanDefinitionParser.CONTEXT_REGION_PROVIDER_BEAN_NAME, RegionProvider.class);
+				.getBean(ContextRegionBeanDefinitionParser.CONTEXT_REGION_PROVIDER_BEAN_NAME, RegionProvider.class);
 
 		// Assert
 		assertThat(myRegionProvider).isNotNull();
@@ -99,11 +97,11 @@ class ContextRegionBeanDefinitionParserTest {
 	void parse_customRegionProvider_returnAliasToCustomRegionProvider() throws Exception {
 		// Arrange
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-			getClass().getSimpleName() + "-testCustomRegionProvider.xml", getClass());
+				getClass().getSimpleName() + "-testCustomRegionProvider.xml", getClass());
 
 		// Act
 		RegionProvider defaultRegionProvider = context
-			.getBean(ContextRegionBeanDefinitionParser.CONTEXT_REGION_PROVIDER_BEAN_NAME, RegionProvider.class);
+				.getBean(ContextRegionBeanDefinitionParser.CONTEXT_REGION_PROVIDER_BEAN_NAME, RegionProvider.class);
 		RegionProvider myRegionProvider = context.getBean("myRegionProvider", RegionProvider.class);
 
 		// Assert
@@ -116,28 +114,28 @@ class ContextRegionBeanDefinitionParserTest {
 	void parse_autoDetectionAndStaticRegionProvider_reportsError() throws Exception {
 		// noinspection ResultOfObjectAllocationIgnored
 		assertThatThrownBy(() -> new ClassPathXmlApplicationContext(getClass().getSimpleName()
-			+ "-testAutoDetectionWithConfiguredRegion.xml",
-			getClass())).isInstanceOf(BeanDefinitionParsingException.class).hasMessageContaining(
-			"The attribute 'auto-detect' can only be enabled without a region or region-provider specified");
+				+ "-testAutoDetectionWithConfiguredRegion.xml",
+				getClass())).isInstanceOf(BeanDefinitionParsingException.class).hasMessageContaining(
+						"The attribute 'auto-detect' can only be enabled without a region or region-provider specified");
 	}
 
 	@Test
 	void parse_noValidRegionProviderConfigured_reportsError() throws Exception {
 		// noinspection ResultOfObjectAllocationIgnored
 		assertThatThrownBy(() -> new ClassPathXmlApplicationContext(
-			getClass().getSimpleName() + "-testNoValidRegionProviderConfigurationSpecified.xml", getClass()))
-			.isInstanceOf(BeanDefinitionParsingException.class).hasMessageContaining(
-			"Either auto-detect must be enabled, or a region or region-provider must be specified");
+				getClass().getSimpleName() + "-testNoValidRegionProviderConfigurationSpecified.xml", getClass()))
+						.isInstanceOf(BeanDefinitionParsingException.class).hasMessageContaining(
+								"Either auto-detect must be enabled, or a region or region-provider must be specified");
 	}
 
 	@Test
 	void parse_twoRegionProviderConfigured_reportsError() throws Exception {
 		// noinspection ResultOfObjectAllocationIgnored
 		assertThatThrownBy(() -> new ClassPathXmlApplicationContext(
-			getClass().getSimpleName() + "-testTwoRegionProviderConfigured.xml", getClass()))
-			.isInstanceOf(BeanDefinitionParsingException.class)
-			.hasMessageContaining("Multiple <context-region/> elements detected. "
-				+ "The <context-region/> element is only allowed once per application context");
+				getClass().getSimpleName() + "-testTwoRegionProviderConfigured.xml", getClass()))
+						.isInstanceOf(BeanDefinitionParsingException.class)
+						.hasMessageContaining("Multiple <context-region/> elements detected. "
+								+ "The <context-region/> element is only allowed once per application context");
 	}
 
 }

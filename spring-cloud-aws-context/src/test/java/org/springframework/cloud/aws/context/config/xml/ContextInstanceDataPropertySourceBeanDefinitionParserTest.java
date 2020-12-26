@@ -49,7 +49,7 @@ class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
 		// Arrange
 		HttpServer httpServer = MetaDataServer.setupHttpServer();
 		HttpContext instanceIdHttpContext = httpServer.createContext("/latest/meta-data/instance-id",
-			new MetaDataServer.HttpResponseWriterHandler("testInstanceId"));
+				new MetaDataServer.HttpResponseWriterHandler("testInstanceId"));
 		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
 
@@ -58,7 +58,7 @@ class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
 
 		// Assert
 		BeanFactoryPostProcessor postProcessor = beanFactory.getBean("AmazonEc2InstanceDataPropertySourcePostProcessor",
-			BeanFactoryPostProcessor.class);
+				BeanFactoryPostProcessor.class);
 		assertThat(postProcessor).isNotNull();
 		assertThat(beanFactory.getBeanDefinitionCount()).isEqualTo(1);
 
@@ -70,7 +70,7 @@ class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
 		// Arrange
 		HttpServer httpServer = MetaDataServer.setupHttpServer();
 		HttpContext instanceIdHttpContext = httpServer.createContext("/latest/meta-data/instance-id",
-			new MetaDataServer.HttpResponseWriterHandler(null));
+				new MetaDataServer.HttpResponseWriterHandler(null));
 		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
 
@@ -84,8 +84,7 @@ class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
 	}
 
 	@Test
-	void parseInternal_singleElementWithUserTagsMapDefined_userTagMapCreatedAlongWithPostProcessor()
-		throws Exception {
+	void parseInternal_singleElementWithUserTagsMapDefined_userTagMapCreatedAlongWithPostProcessor() throws Exception {
 		// Arrange
 		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
@@ -96,49 +95,48 @@ class ContextInstanceDataPropertySourceBeanDefinitionParserTest {
 		// Assert
 		assertThat(beanFactory.containsBeanDefinition("myUserTags")).isTrue();
 		assertThat(beanFactory.containsBeanDefinition(
-			AmazonWebserviceClientConfigurationUtils.getBeanName(AmazonEC2Client.class.getName()))).isTrue();
+				AmazonWebserviceClientConfigurationUtils.getBeanName(AmazonEC2Client.class.getName()))).isTrue();
 	}
 
 	@Test
-	void parseInternal_singleElementWithCustomAmazonEc2Client_userTagMapCreatedWithCustomEc2Client()
-		throws Exception {
+	void parseInternal_singleElementWithCustomAmazonEc2Client_userTagMapCreatedWithCustomEc2Client() throws Exception {
 		// Arrange
 		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
 
 		// Act
 		reader.loadBeanDefinitions(
-			new ClassPathResource(getClass().getSimpleName() + "-customEc2Client.xml", getClass()));
+				new ClassPathResource(getClass().getSimpleName() + "-customEc2Client.xml", getClass()));
 
 		// Assert
 		assertThat(beanFactory.containsBeanDefinition("myUserTags")).isTrue();
 
 		ConstructorArgumentValues.ValueHolder valueHolder = beanFactory.getBeanDefinition("myUserTags")
-			.getConstructorArgumentValues().getArgumentValue(0, BeanReference.class);
+				.getConstructorArgumentValues().getArgumentValue(0, BeanReference.class);
 		BeanReference beanReference = (BeanReference) valueHolder.getValue();
 		assertThat(beanReference.getBeanName()).isEqualTo("amazonEC2Client");
 		assertThat(beanFactory.containsBeanDefinition(
-			AmazonWebserviceClientConfigurationUtils.getBeanName(AmazonEC2Client.class.getName()))).isFalse();
+				AmazonWebserviceClientConfigurationUtils.getBeanName(AmazonEC2Client.class.getName()))).isFalse();
 	}
 
 	// @checkstyle:off
 	@Test
 	void parseInternal_singleElementWithCustomAttributeAndValueSeparator_postProcessorCreatedWithCustomAttributeAndValueSeparator()
-		throws Exception {
+			throws Exception {
 		// @checkstyle:on
 		// Arrange
 		HttpServer httpServer = MetaDataServer.setupHttpServer();
 		HttpContext instanceIdHttpContext = httpServer.createContext("/latest/meta-data/instance-id",
-			new MetaDataServer.HttpResponseWriterHandler("testInstanceId"));
+				new MetaDataServer.HttpResponseWriterHandler("testInstanceId"));
 		HttpContext userDataHttpContext = httpServer.createContext("/latest/user-data",
-			new MetaDataServer.HttpResponseWriterHandler("a=b/c=d"));
+				new MetaDataServer.HttpResponseWriterHandler("a=b/c=d"));
 
 		GenericApplicationContext applicationContext = new GenericApplicationContext();
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(applicationContext);
 
 		// Act
 		reader.loadBeanDefinitions(new ClassPathResource(
-			getClass().getSimpleName() + "-customAttributeAndValueSeparator.xml", getClass()));
+				getClass().getSimpleName() + "-customAttributeAndValueSeparator.xml", getClass()));
 
 		applicationContext.refresh();
 
