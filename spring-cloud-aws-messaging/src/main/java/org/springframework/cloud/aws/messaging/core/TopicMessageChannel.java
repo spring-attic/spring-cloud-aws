@@ -59,7 +59,7 @@ public class TopicMessageChannel extends AbstractMessageChannel {
 
 	private static boolean isSkipHeader(String headerName) {
 		return SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER.equals(headerName)
-			|| SqsMessageHeaders.SQS_GROUP_ID_HEADER.equals(headerName);
+				|| SqsMessageHeaders.SQS_GROUP_ID_HEADER.equals(headerName);
 	}
 
 	@Override
@@ -69,12 +69,12 @@ public class TopicMessageChannel extends AbstractMessageChannel {
 
 		if (message.getHeaders().containsKey(SqsMessageHeaders.SQS_GROUP_ID_HEADER)) {
 			publishRequest
-				.setMessageGroupId(message.getHeaders().get(SqsMessageHeaders.SQS_GROUP_ID_HEADER, String.class));
+					.setMessageGroupId(message.getHeaders().get(SqsMessageHeaders.SQS_GROUP_ID_HEADER, String.class));
 		}
 
 		if (message.getHeaders().containsKey(SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER)) {
 			publishRequest.setMessageDeduplicationId(
-				message.getHeaders().get(SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER, String.class));
+					message.getHeaders().get(SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER, String.class));
 		}
 
 		Map<String, MessageAttributeValue> messageAttributes = getMessageAttributes(message);
