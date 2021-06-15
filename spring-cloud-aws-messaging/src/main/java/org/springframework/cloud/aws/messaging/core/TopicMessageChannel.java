@@ -57,14 +57,31 @@ public class TopicMessageChannel extends AbstractMessageChannel {
 				? message.getHeaders().get(NOTIFICATION_SUBJECT_HEADER).toString() : null;
 	}
 
+	private static boolean isSkipHeader(String headerName) {
+		return SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER.equals(headerName)
+			|| SqsMessageHeaders.SQS_GROUP_ID_HEADER.equals(headerName);
+	}
+
 	@Override
 	protected boolean sendInternal(Message<?> message, long timeout) {
 		PublishRequest publishRequest = new PublishRequest(this.topicArn, message.getPayload().toString(),
 				findNotificationSubject(message));
+
+		if (message.getHeaders().containsKey(SqsMessageHeaders.SQS_GROUP_ID_HEADER)) {
+			publishRequest
+				.setMessageGroupId(message.getHeaders().get(SqsMessageHeaders.SQS_GROUP_ID_HEADER, String.class));
+		}
+
+		if (message.getHeaders().containsKey(SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER)) {
+			publishRequest.setMessageDeduplicationId(
+				message.getHeaders().get(SqsMessageHeaders.SQS_DEDUPLICATION_ID_HEADER, String.class));
+		}
+
 		Map<String, MessageAttributeValue> messageAttributes = getMessageAttributes(message);
 		if (!messageAttributes.isEmpty()) {
 			publishRequest.withMessageAttributes(messageAttributes);
 		}
+
 		this.amazonSns.publish(publishRequest);
 
 		return true;
@@ -75,6 +92,10 @@ public class TopicMessageChannel extends AbstractMessageChannel {
 		for (Map.Entry<String, Object> messageHeader : message.getHeaders().entrySet()) {
 			String messageHeaderName = messageHeader.getKey();
 			Object messageHeaderValue = messageHeader.getValue();
+
+			if (isSkipHeader(messageHeaderName)) {
+				continue;
+			}
 
 			if (MessageHeaders.CONTENT_TYPE.equals(messageHeaderName) && messageHeaderValue != null) {
 				messageAttributes.put(messageHeaderName, getContentTypeMessageAttribute(messageHeaderValue));
