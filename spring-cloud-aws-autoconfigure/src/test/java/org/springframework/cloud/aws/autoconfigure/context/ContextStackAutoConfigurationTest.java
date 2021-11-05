@@ -92,8 +92,7 @@ class ContextStackAutoConfigurationTest {
 	}
 
 	@Test
-	void stackRegistry_manualConfigurationEnabledAndStackNameProvided_returnsStaticStackNameProvider()
-			throws Exception {
+	void stackRegistry_manualConfigurationEnabledAndStackNameProvided_returnsStaticStackNameProvider() {
 		this.contextRunner
 				.withPropertyValues("cloud.aws.stack.name:manualStackName",
 						"cloud.aws.stack.auto:true")
