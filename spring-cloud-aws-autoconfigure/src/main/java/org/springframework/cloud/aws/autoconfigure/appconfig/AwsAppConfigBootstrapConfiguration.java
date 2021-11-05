@@ -40,10 +40,8 @@ import org.springframework.util.StringUtils;
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(AwsAppConfigProperties.class)
-@ConditionalOnClass({ AmazonAppConfigAsync.class,
-		AwsAppConfigPropertySourceLocator.class })
-@ConditionalOnProperty(prefix = "spring.cloud.aws.appconfig", name = "enabled",
-		matchIfMissing = true)
+@ConditionalOnClass({ AmazonAppConfigAsync.class, AwsAppConfigPropertySourceLocator.class })
+@ConditionalOnProperty(prefix = "spring.cloud.aws.appconfig", name = "enabled", matchIfMissing = true)
 public class AwsAppConfigBootstrapConfiguration {
 
 	private final AwsAppConfigProperties properties;
@@ -53,29 +51,25 @@ public class AwsAppConfigBootstrapConfiguration {
 	public AwsAppConfigBootstrapConfiguration(AwsAppConfigProperties properties,
 			ObjectProvider<RegionProvider> regionProvider) {
 		this.properties = properties;
-		this.regionProvider = Objects.isNull(properties.getRegion())
-				? regionProvider.getIfAvailable()
+		this.regionProvider = Objects.isNull(properties.getRegion()) ? regionProvider.getIfAvailable()
 				: new StaticRegionProvider(properties.getRegion());
 	}
 
 	@Bean
-	AwsAppConfigPropertySourceLocator awsAppConfigPropertySourceLocator(
-			AmazonAppConfigClient appConfigClient) {
+	AwsAppConfigPropertySourceLocator awsAppConfigPropertySourceLocator(AmazonAppConfigClient appConfigClient) {
 
-		String clientId = StringUtils.isEmpty(properties.getClientId())
-				? UUID.randomUUID().toString() : properties.getClientId();
+		String clientId = StringUtils.isEmpty(properties.getClientId()) ? UUID.randomUUID().toString()
+				: properties.getClientId();
 
-		return new AwsAppConfigPropertySourceLocator(appConfigClient, clientId,
-				properties.getApplication(), properties.getConfigurationProfile(),
-				properties.getEnvironment(), properties.getConfigurationVersion(),
+		return new AwsAppConfigPropertySourceLocator(appConfigClient, clientId, properties.getApplication(),
+				properties.getConfigurationProfile(), properties.getEnvironment(), properties.getConfigurationVersion(),
 				properties.isFailFast());
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
 	public AmazonWebserviceClientFactoryBean<AmazonAppConfigClient> appConfigClient() {
-		return new AmazonWebserviceClientFactoryBean<>(AmazonAppConfigClient.class, null,
-				regionProvider);
+		return new AmazonWebserviceClientFactoryBean<>(AmazonAppConfigClient.class, null, regionProvider);
 	}
 
 }

@@ -51,13 +51,11 @@ public class AwsAppConfigProperties implements Validator {
 		AwsAppConfigProperties properties = (AwsAppConfigProperties) target;
 
 		if (StringUtils.isEmpty(properties.getApplication())) {
-			errors.rejectValue("application", "NotEmpty",
-					"application should not be empty or null.");
+			errors.rejectValue("application", "NotEmpty", "application should not be empty or null.");
 		}
 
 		if (StringUtils.isEmpty(properties.getEnvironment())) {
-			errors.rejectValue("environment", "NotEmpty",
-					"environment should not be empty or null.");
+			errors.rejectValue("environment", "NotEmpty", "environment should not be empty or null.");
 		}
 	}
 

@@ -40,8 +40,7 @@ import org.springframework.util.ReflectionUtils;
 /**
  * @author jarpz
  */
-public class AwsAppConfigPropertySource
-		extends EnumerablePropertySource<AmazonAppConfig> {
+public class AwsAppConfigPropertySource extends EnumerablePropertySource<AmazonAppConfig> {
 
 	private static final String SUPPORTED_TYPE_JSON = "application/json";
 
@@ -57,9 +56,8 @@ public class AwsAppConfigPropertySource
 
 	private Properties properties;
 
-	public AwsAppConfigPropertySource(String name, String clientId, String application,
-			String environment, String configurationVersion,
-			AmazonAppConfig appConfigClient) {
+	public AwsAppConfigPropertySource(String name, String clientId, String application, String environment,
+			String configurationVersion, AmazonAppConfig appConfigClient) {
 		super(name, appConfigClient);
 		this.clientId = clientId;
 		this.application = application;
@@ -68,11 +66,9 @@ public class AwsAppConfigPropertySource
 	}
 
 	public void init() {
-		GetConfigurationRequest request = new GetConfigurationRequest()
-				.withClientId(clientId).withApplication(application)
-				.withConfiguration(name)
-				.withClientConfigurationVersion(configurationVersion)
-				.withEnvironment(environment);
+		GetConfigurationRequest request = new GetConfigurationRequest().withClientId(clientId)
+				.withApplication(application).withConfiguration(name)
+				.withClientConfigurationVersion(configurationVersion).withEnvironment(environment);
 
 		getAppConfig(request);
 	}
@@ -80,7 +76,7 @@ public class AwsAppConfigPropertySource
 	@Override
 	public String[] getPropertyNames() {
 		Set<String> strings = properties.stringPropertyNames();
-		return strings.toArray(new String[strings.size()]);
+		return strings.toArray(new String[0]);
 	}
 
 	@Override
@@ -91,8 +87,8 @@ public class AwsAppConfigPropertySource
 	private void getAppConfig(GetConfigurationRequest request) {
 		GetConfigurationResult result = this.source.getConfiguration(request);
 
-		logger.trace(String.format("loading file: %s/%s/%s/%s", application, name,
-				environment, result.getConfigurationVersion()));
+		logger.trace(String.format("loading file: %s/%s/%s/%s", application, name, environment,
+				result.getConfigurationVersion()));
 
 		switch (result.getContentType()) {
 		case SUPPORTED_TYPE_YAML:
@@ -102,8 +98,7 @@ public class AwsAppConfigPropertySource
 			processJsonContent(result.getContent());
 			break;
 		default:
-			throw new IllegalStateException(String.format("Unsupported content type: %s",
-					result.getContentType()));
+			throw new IllegalStateException(String.format("Unsupported content type: %s", result.getContentType()));
 		}
 	}
 
@@ -135,8 +130,7 @@ public class AwsAppConfigPropertySource
 	/**
 	 * flatten json structure.
 	 */
-	private void flatten(String prefix, Map<String, Object> result,
-			Map<String, Object> map) {
+	private void flatten(String prefix, Map<String, Object> result, Map<String, Object> map) {
 		String namePrefix = Objects.nonNull(prefix) ? prefix + "." : "";
 
 		map.forEach((key, value) -> this.extract(namePrefix + key, result, value));

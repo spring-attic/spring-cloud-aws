@@ -30,10 +30,8 @@ class AwsAppConfigBootstrapConfigurationTest {
 	private final ApplicationContextRunner runner = new ApplicationContextRunner()
 			.withUserConfiguration(AwsAppConfigBootstrapConfiguration.class);
 
-	private static final String[] properties = new String[] {
-			"spring.cloud.aws.appconfig.region=us-east-2",
-			"spring.cloud.aws.appconfig.account-id=1234567",
-			"spring.cloud.aws.appconfig.application=demo",
+	private static final String[] properties = new String[] { "spring.cloud.aws.appconfig.region=us-east-2",
+			"spring.cloud.aws.appconfig.account-id=1234567", "spring.cloud.aws.appconfig.application=demo",
 			"spring.cloud.aws.appconfig.environment=dev" };
 
 	@Test
@@ -52,11 +50,10 @@ class AwsAppConfigBootstrapConfigurationTest {
 	@Test
 	void testUserAgent() {
 		runner.withPropertyValues(properties)
-				.run(context -> assertThat(context.getBean(AmazonAppConfig.class))
-						.isNotNull().extracting(AmazonAppConfigClient.class::cast)
-						.extracting(appconfig -> appconfig.getClientConfiguration()
-								.getUserAgentSuffix())
-						.asString().startsWith("spring-cloud-aws/"));
+				.run(context -> assertThat(context.getBean(AmazonAppConfig.class)).isNotNull()
+						.extracting(AmazonAppConfigClient.class::cast)
+						.extracting(appconfig -> appconfig.getClientConfiguration().getUserAgentSuffix()).asString()
+						.startsWith("spring-cloud-aws/"));
 	}
 
 }

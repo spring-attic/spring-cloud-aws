@@ -42,8 +42,7 @@ public class AwsAppConfigPropertySourceLocatorTest {
 
 	@Test
 	void whenLoadYamlAppConfigThenReturnPropertySource() throws Exception {
-		ByteBuffer content = ByteBuffer
-				.wrap(toByteArray(Resources.getInputStream("config.yaml")));
+		ByteBuffer content = ByteBuffer.wrap(toByteArray(Resources.getInputStream("config.yaml")));
 
 		GetConfigurationResult result = new GetConfigurationResult();
 		result.setConfigurationVersion("1");
@@ -52,8 +51,8 @@ public class AwsAppConfigPropertySourceLocatorTest {
 
 		when(appConfigClient.getConfiguration(any())).thenReturn(result);
 
-		AwsAppConfigPropertySourceLocator locator = new AwsAppConfigPropertySourceLocator(
-				appConfigClient, "123456789", "my-project", "api-my", "dev", null, false);
+		AwsAppConfigPropertySourceLocator locator = new AwsAppConfigPropertySourceLocator(appConfigClient, "123456789",
+				"my-project", "api-my", "dev", null, false);
 
 		env.setActiveProfiles("test");
 
@@ -64,8 +63,7 @@ public class AwsAppConfigPropertySourceLocatorTest {
 
 	@Test
 	void whenLoadJsonAppConfigThenReturnPropertySource() throws Exception {
-		ByteBuffer content = ByteBuffer
-				.wrap(toByteArray(Resources.getInputStream("config.json")));
+		ByteBuffer content = ByteBuffer.wrap(toByteArray(Resources.getInputStream("config.json")));
 
 		GetConfigurationResult result = new GetConfigurationResult();
 		result.setConfigurationVersion("1");
@@ -74,8 +72,8 @@ public class AwsAppConfigPropertySourceLocatorTest {
 
 		when(appConfigClient.getConfiguration(any())).thenReturn(result);
 
-		AwsAppConfigPropertySourceLocator locator = new AwsAppConfigPropertySourceLocator(
-				appConfigClient, "123456789", "my-project", "api-my", "dev", null, false);
+		AwsAppConfigPropertySourceLocator locator = new AwsAppConfigPropertySourceLocator(appConfigClient, "123456789",
+				"my-project", "api-my", "dev", null, false);
 
 		env.setActiveProfiles("test");
 
@@ -90,11 +88,10 @@ public class AwsAppConfigPropertySourceLocatorTest {
 		result.setConfigurationVersion("1");
 		result.setContentType("application/json");
 
-		when(appConfigClient.getConfiguration(any()))
-				.thenThrow(new RuntimeException("connection error"));
+		when(appConfigClient.getConfiguration(any())).thenThrow(new RuntimeException("connection error"));
 
-		AwsAppConfigPropertySourceLocator locator = new AwsAppConfigPropertySourceLocator(
-				appConfigClient, "123456789", "my-project", "api-my", "dev", null, true);
+		AwsAppConfigPropertySourceLocator locator = new AwsAppConfigPropertySourceLocator(appConfigClient, "123456789",
+				"my-project", "api-my", "dev", null, true);
 
 		env.setActiveProfiles("test");
 
@@ -107,11 +104,10 @@ public class AwsAppConfigPropertySourceLocatorTest {
 		result.setConfigurationVersion("1");
 		result.setContentType("application/json");
 
-		when(appConfigClient.getConfiguration(any()))
-				.thenThrow(new RuntimeException("connection error"));
+		when(appConfigClient.getConfiguration(any())).thenThrow(new RuntimeException("connection error"));
 
-		AwsAppConfigPropertySourceLocator locator = new AwsAppConfigPropertySourceLocator(
-				appConfigClient, "123456789", "my-project", "api-my", "dev", null, false);
+		AwsAppConfigPropertySourceLocator locator = new AwsAppConfigPropertySourceLocator(appConfigClient, "123456789",
+				"my-project", "api-my", "dev", null, false);
 
 		env.setActiveProfiles("test");
 

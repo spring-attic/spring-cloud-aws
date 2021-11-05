@@ -35,8 +35,7 @@ class AwsAppConfigPropertiesTest {
 
 	@ParameterizedTest
 	@MethodSource("invalidProperties")
-	void validationFails(AwsAppConfigProperties properties, String field,
-			String errorCode) {
+	void validationFails(AwsAppConfigProperties properties, String field, String errorCode) {
 		Errors errors = new BeanPropertyBindingResult(properties, "properties");
 
 		properties.validate(properties, errors);
@@ -46,17 +45,13 @@ class AwsAppConfigPropertiesTest {
 	}
 
 	private static Stream<Arguments> invalidProperties() {
-		return Stream.of(
-				Arguments.of(buildProperties(null, "", null, null), "application",
-						"NotEmpty"),
-				Arguments.of(buildProperties(null, null, null, ""), "environment",
-						"NotEmpty"));
+		return Stream.of(Arguments.of(buildProperties(null, "", null, null), "application", "NotEmpty"),
+				Arguments.of(buildProperties(null, null, null, ""), "environment", "NotEmpty"));
 	}
 
 	@Test
 	void validationSucceeds() {
-		AwsAppConfigProperties properties = buildProperties("12345678", "my-project",
-				"my-app", "dev");
+		AwsAppConfigProperties properties = buildProperties("12345678", "my-project", "my-app", "dev");
 
 		Errors errors = new BeanPropertyBindingResult(properties, "properties");
 		properties.validate(properties, errors);
@@ -64,8 +59,8 @@ class AwsAppConfigPropertiesTest {
 		assertThat(errors.getAllErrors()).isEmpty();
 	}
 
-	private static AwsAppConfigProperties buildProperties(String clientId,
-			String application, String configurationProfile, String environment) {
+	private static AwsAppConfigProperties buildProperties(String clientId, String application,
+			String configurationProfile, String environment) {
 		AwsAppConfigProperties properties = new AwsAppConfigProperties();
 		properties.setClientId(clientId);
 		properties.setApplication(application);

@@ -38,11 +38,9 @@ public class AwsAppConfigPropertySourceTest {
 
 	@Test
 	void requestYamlAppConfigExpectSuccessProperties() throws IOException {
-		ByteBuffer content = ByteBuffer
-				.wrap(toByteArray(Resources.getInputStream("config.yaml")));
+		ByteBuffer content = ByteBuffer.wrap(toByteArray(Resources.getInputStream("config.yaml")));
 
-		ArgumentCaptor<GetConfigurationRequest> captor = ArgumentCaptor
-				.forClass(GetConfigurationRequest.class);
+		ArgumentCaptor<GetConfigurationRequest> captor = ArgumentCaptor.forClass(GetConfigurationRequest.class);
 
 		GetConfigurationResult result = new GetConfigurationResult();
 		result.setConfigurationVersion("1");
@@ -51,8 +49,8 @@ public class AwsAppConfigPropertySourceTest {
 
 		when(appConfigClient.getConfiguration(captor.capture())).thenReturn(result);
 
-		AwsAppConfigPropertySource source = new AwsAppConfigPropertySource("my-api",
-				"123456789", "my-project", "dev", null, appConfigClient);
+		AwsAppConfigPropertySource source = new AwsAppConfigPropertySource("my-api", "123456789", "my-project", "dev",
+				null, appConfigClient);
 
 		source.init();
 
@@ -64,11 +62,9 @@ public class AwsAppConfigPropertySourceTest {
 
 	@Test
 	public void requestJsonAppConfigExpectSuccessProperties() throws Exception {
-		ByteBuffer content = ByteBuffer
-				.wrap(toByteArray(Resources.getInputStream("config.json")));
+		ByteBuffer content = ByteBuffer.wrap(toByteArray(Resources.getInputStream("config.json")));
 
-		ArgumentCaptor<GetConfigurationRequest> captor = ArgumentCaptor
-				.forClass(GetConfigurationRequest.class);
+		ArgumentCaptor<GetConfigurationRequest> captor = ArgumentCaptor.forClass(GetConfigurationRequest.class);
 
 		GetConfigurationResult result = new GetConfigurationResult();
 		result.setConfigurationVersion("1");
@@ -77,8 +73,8 @@ public class AwsAppConfigPropertySourceTest {
 
 		when(appConfigClient.getConfiguration(captor.capture())).thenReturn(result);
 
-		AwsAppConfigPropertySource source = new AwsAppConfigPropertySource("my-api",
-				"123456789", "my-project", "dev", null, appConfigClient);
+		AwsAppConfigPropertySource source = new AwsAppConfigPropertySource("my-api", "123456789", "my-project", "dev",
+				null, appConfigClient);
 
 		source.init();
 
@@ -90,8 +86,7 @@ public class AwsAppConfigPropertySourceTest {
 
 	@Test
 	public void requestUnsupportedAppConfigContentType() {
-		ArgumentCaptor<GetConfigurationRequest> captor = ArgumentCaptor
-				.forClass(GetConfigurationRequest.class);
+		ArgumentCaptor<GetConfigurationRequest> captor = ArgumentCaptor.forClass(GetConfigurationRequest.class);
 
 		GetConfigurationResult result = new GetConfigurationResult();
 		result.setConfigurationVersion("1");
@@ -99,11 +94,10 @@ public class AwsAppConfigPropertySourceTest {
 
 		when(appConfigClient.getConfiguration(captor.capture())).thenReturn(result);
 
-		AwsAppConfigPropertySource source = new AwsAppConfigPropertySource("my-api",
-				"123456789", "my-project", "dev", null, appConfigClient);
+		AwsAppConfigPropertySource source = new AwsAppConfigPropertySource("my-api", "123456789", "my-project", "dev",
+				null, appConfigClient);
 
-		Assertions.assertThatThrownBy(source::init)
-				.isInstanceOf(IllegalStateException.class);
+		Assertions.assertThatThrownBy(source::init).isInstanceOf(IllegalStateException.class);
 	}
 
 }
