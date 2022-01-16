@@ -148,7 +148,7 @@ public class SimpleStorageResource extends AbstractResource implements WritableR
 		for (String split : this.objectName.split("/")) {
 			splits.add(URLEncoder.encode(split, StandardCharsets.UTF_8.toString()));
 		}
-		String encodedObjectName = splits.stream().collect(Collectors.joining("/"));
+		String encodedObjectName = String.join("/", splits);
 		return new URL("https", region.getServiceEndpoint(AmazonS3Client.S3_SERVICE_NAME), "/" + this.bucketName + "/" + encodedObjectName);
 	}
 
