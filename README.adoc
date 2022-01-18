@@ -4,6 +4,7 @@ Manual changes to this file will be lost when it is generated again.
 Edit the files in the src/main/asciidoc/ directory instead.
 ////
 
+# spring-cloud-aws has moved! This repository is no longer actively maintained by VMware, Inc.
 
 = Spring Cloud for Amazon Web Services
 
